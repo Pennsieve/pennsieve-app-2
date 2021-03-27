@@ -1,8 +1,8 @@
 #!groovy
 
-if (env.BRANCH_NAME == "master") {
+if (env.BRANCH_NAME == "prod") {
     buildEnv = "production"
-    executorEnv = "prd"
+    executorEnv = "prod"
 } else {
     buildEnv = "dev"
     executorEnv = "dev"
@@ -36,7 +36,7 @@ node('executor') {
                 throw e
             }
         }
-        if (["DEVELOPMENT", "master"].contains(env.BRANCH_NAME)) {
+        if (["main", "prod"].contains(env.BRANCH_NAME)) {
             stage('Deploy') {
                 node("${executorEnv}-executor") {
                     def bucketName = "pennsieve-${executorEnv}-app-use1"
