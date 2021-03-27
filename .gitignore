@@ -21,8 +21,6 @@ yarn-debug.log*
 yarn-error.log*
 coverage
 **/*/__snapshots__
-build
-src/config/
 
 # Editor directories and files
 .idea
