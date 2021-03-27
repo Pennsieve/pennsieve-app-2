@@ -1,0 +1,371 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../shared/item-icon-behavior.html">
+<link rel="import" href="../../../shared/vuex-behavior/vuex-behavior.html">
+
+<link rel="import" href="../../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../../styles/blackfynn/data-item.html">
+
+<!--
+
+-->
+
+<dom-module id="annotation-popover">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-data-item-styles"></style>
+
+    <style>
+      #package-popover {
+        box-sizing: border-box;
+        width: 215px;
+        border: 2px solid var(--light-gray);
+        background-color: var(--white-matter);
+        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2);
+        padding: 16px;
+        position: relative;
+        margin-top: 30px;
+      }
+
+      #carrot {
+        display: none;
+      }
+
+      #carrot:after {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 107px;
+        border-style: solid;
+        border-width: 0 7px 7px;
+        border-color: #FFFFFF transparent;
+        display: block;
+        width: 0;
+        z-index: 1;
+      }
+
+      #carrot:before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 104px;
+        border-style: solid;
+        border-width: 0 10px 10px;
+        border-color: #BDBDBD transparent;
+        display: block;
+        width: 0;
+        z-index: 0;
+      }
+
+      :host([carrot]) #carrot {
+        display: block;
+      }
+
+      .ann-attachment-img-container {
+        height: 97px;
+        width: auto;
+        background-color: rgba(0, 0, 0, 0.15);
+        margin-bottom: 8px;
+        text-align: center;
+      }
+
+      .ann-attachment-img {
+        cursor: pointer;
+        height: 97px;
+        width: auto;
+        max-width: 100%;
+      }
+
+      .content-container {
+        text-align: center;
+      }
+
+      .ann-title,
+      .ann-description,
+      .ann-attachment-info,
+      .ann-user,
+      .ann-date {
+        margin-bottom: 8px;
+      }
+
+      .ann-title {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 14px;
+        margin-bottom: 8px;
+      }
+
+      .ann-description {
+        color: #404554;
+        font-size: 13px;
+        line-height: auto;
+        max-height: 200px;
+        overflow-y: scroll;
+      }
+
+      .ann-attachment-info {
+        display: flex;
+        word-break: break-all;
+        @apply(--layout-flex);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+      }
+
+      .ann-attachment-title {
+        color: var(--dopamine);
+        cursor: pointer;
+        display: inline-block;
+        font-size: 11px;
+      }
+
+      .ann-user {
+        color: var(--glial);
+        font-size: 12px;
+      }
+
+      .ann-date {
+        color: var(--glial);
+        font-size: 11px;
+      }
+
+      .view-toggle {
+        color: var(--dopamine);
+        cursor: pointer;
+        display: inline-block;
+        font-size: 11px;
+      }
+
+      .divider {
+        box-sizing: border-box;
+        height: 2px;
+        width: 44.73px;
+        border: 1px solid var(--cortex);
+        margin: 7px auto;
+      }
+
+      .icon-item {
+        margin-right: 4px;
+      }
+    </style>
+
+    <div id="package-popover">
+      <div id="carrot"></div>
+      <template is="dom-if" if="[[hasImagePreview]]">
+        <div class="ann-attachment-img-container">
+          <img
+            class="ann-attachment-img"
+            src="[[annAttachmentImgUrl]]"
+            alt="attachment preview"
+            on-tap="openPackage"
+          >
+        </div>
+      </template>
+      <div class="content-container">
+        <div class="ann-title">[[annotation.label]]</div>
+        <div class="ann-description">[[annAttachmentDescription]]</div>
+        <div class="ann-attachment-info">
+          <template is="dom-if" if="[[annotation.linkedPackageDTO]]">
+            <img src$="[[_computeIcon(annotation.linkedPackageDTO)]]" alt="icon" class="svg-icon icon-item">
+          </template>
+          <div class="ann-attachment-title" on-tap="openPackage">[[annAttachmentName]]</div>
+        </div>
+        <div class="divider"></div>
+        <template is="dom-if" if="[[showMore]]">
+          <div class="ann-user">[[annUser]]</div>
+        </template>
+        <div class="view-toggle" on-tap="toggleShowMore">[[toggleText]]</div>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'annotation-popover',
+
+      behaviors: [
+        Blackfynn.ItemIconBehavior,
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        /**
+         * Annotation DTO
+        */
+        annotation: {
+          type: Object,
+          value: function() {
+            return {}
+          }
+        },
+
+        /**
+         * Annotation attachment image url
+        */
+        annAttachmentImgUrl: {
+          type: String,
+          computed: '_computeAnnAttachmentImgUrl(annotation.*)'
+        },
+
+        /**
+         * Annotation attachment name
+        */
+        annAttachmentName: {
+          type: String,
+          computed: '_computeAnnAttachmentName(annotation.*)'
+        },
+
+        /**
+         * Annotation attachment description
+        */
+        annAttachmentDescription: {
+          type: String,
+          computed: '_computeAnnAttachmentDescription(annotation.*, showMore)'
+        },
+
+        /**
+         * Annotation user name
+        */
+        annUser: {
+          type: String,
+          computed: '_computeAnnUser(annotation.*)'
+        },
+
+        /**
+         * Show more or less content
+        */
+        showMore: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Compute more / less text value
+        */
+        toggleText: {
+          type: Boolean,
+          computed: '_computeToggleText(showMore)'
+        },
+
+        /**
+         * Whether or not there is an image preview available
+        */
+        hasImagePreview: {
+          type: Boolean,
+          value: false
+        },
+
+        carrot: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: true
+        }
+      },
+
+      /**
+       * Compute the less / more text value
+       * @param {Boolean} showMore
+      */
+      _computeToggleText: function(showMore) {
+        return showMore ? 'Less' : 'More'
+      },
+
+      /**
+       * Compute annotation attachment preview url
+       * @param {Object} annotation
+      */
+      _computeAnnAttachmentImgUrl: function(annotation) {
+        const linkedPackage = R.pathOr({}, ['base', 'linkedPackageDTO'], annotation)
+        const preview = R.pathOr({}, ['objects', 'view', 1, 'content'], linkedPackage)
+        const fileType = R.propOr('', 'fileType', preview)
+
+        const { id, packageId } = preview
+        const apiUrl = R.pathOr('', ['config', 'apiUrl'], this.vuex)
+        const userToken = R.propOr('', 'userToken', this.vuex)
+
+        if (fileType === 'PNG') {
+          this.hasImagePreview = true
+          return `${apiUrl}/packages/${packageId}/files/${id}/presign/?api_key=${userToken}`
+        }
+
+        this.hasImagePreview = false
+      },
+
+      /**
+       * Compute annotation attachment name
+       * @param {Object} annotation
+      */
+      _computeAnnAttachmentName: function(annotation) {
+        const linkedPackageDTO = R.pathOr({}, ['base', 'linkedPackageDTO'], annotation)
+        return R.propOr('', 'name', linkedPackageDTO.content)
+      },
+
+      /**
+       * Compute annotation attachment preview url
+       * @param {Object} annotation
+      */
+      _computeAnnAttachmentDescription: function(annotation, showMore) {
+        const description = R.pathOr('', ['base', 'description'], annotation)
+        const hasLongDesc = description.length > 75
+
+        if (description && hasLongDesc && !showMore) {
+          return `${description.slice(0, 75).trim()}...`
+        }
+        return description
+      },
+
+      /**
+       * Compute annotation user object
+       * @param {Object} annotation
+      */
+      _computeAnnUser: function(annotation) {
+        const userId = R.pathOr('', ['base', 'userId'], annotation)
+
+        const activeIndex = R.propOr(0, 'viewerActiveIndex', this.vuex)
+        const activeViewer = R.pathOr({}, ['viewers', activeIndex], this.vuex)
+
+        if (activeViewer.userMap) {
+          const user = R.propOr({}, userId, activeViewer.userMap)
+          if (user.id) {
+            return `${user.firstName} ${user.lastName}`
+          }
+        }
+        return ''
+      },
+
+      /**
+      * Handle openPackage event
+      * Open package viewer in a new tab
+      */
+      openPackage: function() {
+        const datasetId = R.pathOr('', ['content', 'id'], this.vuex.dataset)
+        const organizationId = R.pathOr('', ['organization', 'id'], this.vuex.activeOrganization)
+        const packageId = R.pathOr('', ['linkedPackageDTO', 'content', 'id'], this.annotation)
+        const url = `${window.location.origin}/${organizationId}/datasets/${datasetId}/viewer/${packageId}`
+        window.open(url, '_blank')
+
+        // Hide popover
+        this.style.opacity = 0
+        this.style.display = 'none'
+      },
+
+      /**
+       * Toggle show more property
+      */
+      toggleShowMore: function() {
+        this.showMore = !this.showMore
+      }
+    })
+  </script>
+</dom-module>

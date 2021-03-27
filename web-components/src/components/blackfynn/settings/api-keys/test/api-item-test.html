@@ -1,0 +1,66 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>api-keys-item tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../api-keys-item.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template is="dom-template">
+      <api-keys-item key="[[key]]"></api-keys-item>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+      let _removeApiKey;
+
+      setup(function() {
+        basic = fixture('basic', {
+          key: {
+            key: '123',
+            name: 'Work PC'
+          }
+        });
+        _removeApiKey = sinon.spy(basic, '_removeApiKey');
+      });
+
+      teardown(function() {
+        _removeApiKey.restore();
+      });
+
+      test('_removeApiKey should fire when user clicks the X', function() {
+        basic.$$('.api-key-remove-icon').click();
+        expect(_removeApiKey).to.have.been.calledOnce;
+      });
+
+      test('Renders API key name', function() {
+        const keyName = basic.$$('.api-key-name').textContent;
+        assert.equal(keyName, basic.key.name);
+      });
+
+    });
+  </script>
+
+</body>
+</html>

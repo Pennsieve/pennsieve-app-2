@@ -1,0 +1,70 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../styles/blackfynn/main.html">
+<link rel="import" href="login.html">
+
+<dom-module id="blackfynn-view-not-logged-in">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        background: var(--neuron);
+        display: block;
+      }
+      .login-wrap {
+        background: var(--white-matter);
+        box-sizing: border-box;
+        color: var(--glial);
+        max-width: 720px;
+        min-height: 100vh;
+        padding-top: 130px;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+      iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+    </style>
+
+    <blackfynn-view-login
+      name="login"
+      api="[[api]]"
+      email="[[email]]"
+      password="[[password]]"></blackfynn-view-login>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-view-not-logged-in',
+      properties: {
+        /**
+         * base api url
+         */
+        api: {
+          type: String,
+          value: ''
+        },
+        /**
+         * user's email
+         */
+        email: {
+          type: String,
+          value: ''
+        },
+        /**
+         * user's password
+         */
+        password: {
+          type: String,
+          value: ''
+        }
+      }
+    });
+
+  </script>
+
+</dom-module>

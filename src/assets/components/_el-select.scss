@@ -1,0 +1,81 @@
+@import '../_variables.scss';
+
+.el-select-dropdown {
+  border: 1px solid $cortex;
+  border-radius: 3px;
+  box-shadow: 0 2px 10px 0 rgba(0,0,0,0.15);
+  min-width: 200px;
+
+  .popper__arrow {
+    display: none;
+  }
+
+  &.el-popper[x-placement^="bottom"] {
+    margin-top: 1px;
+  }
+
+  &.el-popper[x-placement^="top"] {
+    margin-bottom: 1px;
+  }
+}
+
+.el-select .el-input.is-focus .el-input__inner, .el-select .el-input__inner:focus {
+  border-color: $app-primary-color;
+}
+
+.el-select .el-input .el-select__caret {
+  color: $myelin;
+  &.is-reverse {
+    color: $dopamine;
+  }
+}
+
+.el-select-dropdown__empty {
+  color: $glial;
+  padding: 16px;
+  text-align: left;
+}
+
+.el-select-dropdown.el-popper {
+  transition: none;
+}
+
+.el-select-dropdown__item {
+  height: auto;
+  padding: 4px 16px;
+
+  span {
+    display: block;
+    line-height: 16px !important;
+  }
+
+  &:hover, &:focus {
+    background-color: $dendrite-dark;
+    color: $text-color;
+  }
+
+  &.selected {
+    background-color: #11369C;
+    color: #fff;
+    font-weight: 500;
+  }
+}
+
+.el-select-group__title {
+  color: $myelin;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  text-transform: uppercase;
+}
+
+.dropdown-group__title {
+  .el-select-group__title {
+    color: $dark-blue;
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: -10px;
+    margin-top: -11px;
+  }
+}

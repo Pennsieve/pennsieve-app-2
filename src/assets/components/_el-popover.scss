@@ -1,0 +1,125 @@
+@import '../_variables.scss';
+
+$arrowWidth: 8px; // Multiplied by 2 because applied to left and right
+$arrowHeight: 12px;
+
+.el-popper .popper__arrow {
+  border-width: $arrowHeight $arrowWidth;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.15));
+}
+.el-popper .popper__arrow::after {
+  border-width: $arrowHeight $arrowWidth;
+}
+.el-popper[x-placement^="top"] {
+  margin-bottom: $arrowHeight * 2;
+}
+.el-popper[x-placement^="top"] .popper__arrow {
+  bottom: -$arrowHeight;
+  left: 50%;
+  margin-right: $arrowWidth / 2;
+  border-top-color: $cortex;
+  border-bottom-width: 0;
+}
+.el-popper[x-placement^="top"] .popper__arrow::after {
+  bottom: 1px;
+  margin-left: -$arrowWidth;
+  border-top-color: #fff;
+  border-bottom-width: 0;
+}
+.el-popper[x-placement^="bottom"] {
+  margin-top: $arrowHeight * 2;
+  &.small-margin {
+    margin-top: 8px
+  }
+}
+.el-popper[x-placement^="bottom"] .popper__arrow {
+  top: -$arrowHeight;
+  left: 50%;
+  margin-right: $arrowWidth / 2;
+  border-top-width: 0;
+  border-bottom-color: $cortex;
+}
+.el-popper[x-placement^="bottom"] .popper__arrow::after {
+  top: 1px;
+  margin-left: -$arrowWidth;
+  border-top-width: 0;
+  border-bottom-color: #fff;
+}
+.el-popper[x-placement^="right"] {
+  margin-left: $arrowWidth * 2;
+}
+.el-popper[x-placement^="right"] .popper__arrow {
+  top: 50%;
+  left: -$arrowWidth;
+  margin-bottom: $arrowHeight / 2;
+  border-right-color: $cortex;
+  border-left-width: 0;
+}
+.el-popper[x-placement^="right"] .popper__arrow::after {
+  bottom: -$arrowHeight;
+  left: 1px;
+  border-right-color: #fff;
+  border-left-width: 0;
+}
+.el-popper[x-placement^="left"] {
+  margin-right: $arrowWidth * 2;
+}
+.el-popper[x-placement^="left"] .popper__arrow {
+  top: 50%;
+  right: -$arrowWidth;
+  margin-bottom: $arrowHeight / 2;
+  border-right-width: 0;
+  border-left-color: $cortex;
+}
+.el-popper[x-placement^="left"] .popper__arrow::after {
+  right: 1px;
+  bottom: -$arrowHeight;
+  margin-left: -$arrowWidth;
+  border-right-width: 0;
+  border-left-color: #fff;
+}
+.el-popover, .el-dropdown-menu {
+  border: 1px solid $cortex;
+  border-radius: 3px;
+  box-shadow: 0 0 10px 0 rgba(189,189,189,0.3);
+  min-width: 200px;
+  padding: 8px 16px;
+  word-break: normal;
+  &.no-padding {
+    padding: 8px 0;
+  }
+  &.no-width {
+    min-width: 0;
+  }
+  &.no-top-bottom-padding {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  &.no-left-padding {
+    padding-left: 0;
+  }
+  &.zero-padding {
+    padding: 0;
+  }
+  &.overflow-hidden {
+    overflow: hidden;
+  }
+  &.left-aligned {
+    left: 610px !important;
+  }
+  &.scroll {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+    overflow: hidden;
+    max-height: calc(100vh - 16px);
+    .bf-menu {
+      padding: 8px 0;
+    }
+    .scroll-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

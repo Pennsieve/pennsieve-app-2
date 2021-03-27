@@ -1,0 +1,136 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<link rel="import" href="../../state/bf-state-behavior.html">
+
+<!--
+## bf-download-item
+
+`<bf-download-item>` is a component to download an item.
+
+@demo
+-->
+
+<dom-module id="bf-download-item">
+
+  <template>
+    <iron-ajax
+      id="processDownload"
+      method="GET"
+      content-type="application/json"
+      handle-as="json"
+      on-response="_handleProcessDownload"
+      on-error="ajaxError">
+    </iron-ajax>
+
+    <iron-ajax
+      id="getFileToDownload"
+      method="GET"
+      content-type="application/json"
+      handle-as="json"
+      on-response="_handleGetFileToDownload"
+      on-error="ajaxError">
+    </iron-ajax>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-download-item',
+
+      behaviors: [
+        Blackfynn.AjaxBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * package id
+         */
+        packageId: {
+          type: String
+        }
+      },
+
+      /**
+       * downloads item
+       * @param {Event} e
+       * @param {Object} detail
+       */
+      downloadItem: function(e, detail) {
+        // If a package, download original data
+        if(!detail.item.data.content.type || detail.item.data.content.type !== 'File') {
+          this.set('packageId', detail.item.data.content.id);
+
+          const getFileToDownload = this.$.getFileToDownload;
+          getFileToDownload.url = `${this.state.apiUrl}/packages/${this.packageId}/files?api_key=${this.state.userToken}`;
+          getFileToDownload.generateRequest();
+        }
+      },
+
+      /**
+       * processes download
+       * @param {String} id
+       * @param {String} fileId
+       */
+      processDownload: function(id, fileId) {
+        // Set up request to get presigned S3 URL
+        const ajaxRequest = this.$.processDownload;
+        ajaxRequest.url = `${this.state.apiUrl}/packages/${id}/files/${fileId}?api_key=${this.state.userToken}`;
+
+        // Generate the request
+        ajaxRequest.generateRequest();
+      },
+
+      /**
+       * callback for successful download
+       * @param {Event} e
+       * @param {Object} detail
+       */
+      _handleGetFileToDownload: function(e, detail) {
+        const packageId = this.get('packageId');
+
+        if(detail.response) {
+          const files = detail.response;
+          for (let i = 0; i < files.length; i++) {
+            const fileId = files[i].content.id;
+            this.processDownload(packageId, fileId);
+          }
+        }
+      },
+
+      /**
+       * downloads item
+       * @param {Event} e
+       * @param {Object} detail
+       */
+      _handleProcessDownload: function(e, detail) {
+        if(detail.status === 200 && detail.response.url) {
+          this.download(detail.response.url);
+        } else {
+          this.fire('toast', {type: 'ERROR'});
+        }
+      },
+
+      /**
+       * Creates a download link and fires click event
+       * @param {String} url
+       */
+      download: function(url) {
+        const downloadEl = document.createElement('a');
+        downloadEl.setAttribute('href', url);
+        downloadEl.setAttribute('download', 'download');
+
+        if (document.createEvent) {
+          const event = document.createEvent('MouseEvents');
+          event.initEvent('click', true, true);
+          downloadEl.dispatchEvent(event);
+        } else {
+          downloadEl.click();
+        }
+      },
+
+    });
+
+  </script>
+</dom-module>

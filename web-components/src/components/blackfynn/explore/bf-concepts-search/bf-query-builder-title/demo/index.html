@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>bf-query-builder-title demo</title>
+
+    <script src="../../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../../../../../../../bower_components/iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../../../../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
+
+    <link rel="import" href="../bf-query-builder-title.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .vertical-section-container {
+        max-width: 760px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic Demo</h3>
+      <demo-snippet>
+        <template>
+          <bf-query-builder-title></bf-query-builder-title>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+        <h3>Saved Query Title Demo</h3>
+        <demo-snippet>
+          <template is="dom-bind" id="demo">
+            <bf-query-builder-title query-title="[[queryTitle]]"></bf-query-builder-title>
+          </template>
+          <script>
+            const demo = document.querySelector('#demo');
+            demo.queryTitle = 'Animals that are Cats in Philadelphia';
+          </script>
+        </demo-snippet>
+      </div>
+  </body>
+</html>

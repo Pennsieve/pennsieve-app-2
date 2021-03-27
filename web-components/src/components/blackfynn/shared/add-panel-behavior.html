@@ -1,0 +1,35 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.AddPanelBehavior = {
+    properties: {
+      isAddingRequest: {
+        type: Boolean,
+        value: false
+      },
+      isAdding: {
+        type: Boolean,
+        value: false
+      }
+    },
+
+    iconAdd: function(adding) {
+      if(adding) {
+        return 'blackfynn:remove';
+      } else {
+        return 'blackfynn:add';
+      }
+    },
+
+    toggleAddPanel: function(e) {
+      // Toggle adding
+      this.set('isAdding', !this.isAdding);
+
+      // Focus on key input
+      this.$.firstItem.focus();
+    }
+
+  }
+</script>

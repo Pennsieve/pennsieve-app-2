@@ -1,0 +1,326 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../data/bf-package-list/bf-package-list.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../shared/bf-select-menu/bf-select-menu.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<!--
+## bf-file-browser
+
+`<bf-file-browser>` is a general compontent will display a directory listing of the current package. It includes the
+following features:
+
+- Single/Split Pane View
+
+  While in single pane mode, clicking on a new file will open that file within the current pane. In split pane mode,
+the second pane will always be replaced.
+
+@element bf-file-browser
+-->
+<dom-module id="bf-file-browser">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        --bf-select-menu-container-styles: {
+          border-top: 0;
+          border-left: 0;
+          border-bottom: 0;
+        }
+        --bf-select-menu-height: 33px;
+      }
+      input[type="radio"]:hover, label:hover {
+        cursor: pointer;
+      }
+      bf-package-list {
+        @apply(--layout-scroll);
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      .file-browser-header {
+        border-bottom:  solid 1px var(--cortex);
+        @apply(--layout-horizontal);
+      }
+      .nav {
+        @apply(--layout-flex);
+      }
+      iron-icon {
+        color: var(--glial);
+        transition: color .2s linear;
+      }
+      iron-icon:hover {
+        color: var(--dopamine);
+      }
+      bf-select-menu {
+        margin: 0;
+      }
+    </style>
+
+    <div class="file-browser-header">
+      <div class="nav" slot="navigation">
+        <bf-select-menu
+          id="navigationMenu"
+          hidden$="[[!_hasParent]]"
+          selected-value-icon="blackfynn:folder"
+          items="[[navigationItems]]"></bf-select-menu>
+      </div>
+    </div>
+
+    <bf-package-list
+      name="list"
+      is-auto="[[isAuto]]"
+      id="packageList"
+      cur-package="{{curPackage}}"
+      catalog-route="{{curPackage}}"
+      hide-item-menu
+      hide-headings
+      hide-empty-text
+      can-drag-items
+      in-file-browser></bf-package-list>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-file-browser',
+
+      behaviors: [
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        /**
+         * currently selected view type for packages: list or icons
+         */
+        packageView: {
+          type: String,
+          value: 'list'
+        },
+        /**
+         * currently selected view option
+         */
+        selectedView: {
+          type: String,
+          value: 'single'
+        },
+        /**
+         * current package being viewed
+         */
+        curPackage: {
+          type: Object,
+          value: function() {
+            return {}
+          }
+        },
+        /**
+         * determines whether or not to make api calls
+         */
+        isAuto: {
+          type: Boolean,
+          computed: '_computeIsAuto(vuex.viewer.viewerSidePanelView)'
+        },
+        /**
+         * determines whether or not current package has a parent node
+         */
+        _hasParent: {
+          type: Boolean,
+          computed: '_computeHasParent(navigationItems.length)'
+        },
+        /**
+         * determines view icon to display
+         */
+        viewIcon: {
+          type: String,
+          computed: '_computeIcon(selectedView)'
+        },
+        /**
+         * computes navigation menu file browser
+         */
+        navigationItems: {
+          type: Array,
+          computed: '_computeNavItems(vuex.viewer.viewerSidePanelView, curPackage.*)'
+        },
+        dataset: {
+          type: Object,
+          computed: '_computeDataset(vuex.dataset)'
+        },
+        linkAnnotation: {
+          type: Boolean,
+          default: false
+        }
+      },
+
+      observers: [
+        '_watchCurPackage(curPackage)',
+        '_watchDataset(dataset)'
+      ],
+
+      listeners: {
+        'selected-value-changed': 'goUp'
+      },
+
+      /**
+       * Computes when to make API call for package list
+       * @param {String} sidePanelView
+       * @returns {Boolean}
+       */
+      _computeIsAuto: function(sidePanelView) {
+        return sidePanelView === 'fileBrowser'
+      },
+
+      _computeDataset: function(dataset) {
+        return dataset
+      },
+
+      _watchDataset: function(dataset) {
+        this.curPackage = dataset
+      },
+
+      /**
+       * Creates breadcrumb trail used to populate navigation menu
+       * @param {Object} package
+       * @returns {Array}
+       */
+      _createBreadcrumb: function(curPackage) {
+        let breadcrumb = [];
+        const getValue = R.path(['content', 'id']);
+        const getLabel = R.path(['content', 'name']);
+        // prepend current dataset
+        if (curPackage && curPackage.content) {
+          breadcrumb.push({
+            label: getLabel(curPackage),
+            value: getValue(curPackage),
+            data: curPackage
+          });
+        }
+        // check for ancestors
+        if (curPackage && curPackage.ancestors) {
+          const ancestors = curPackage.ancestors.reverse()
+          ancestors.forEach(ancestor => {
+            breadcrumb.push({
+              label: getLabel(ancestor),
+              value: getValue(ancestor),
+              data: ancestor
+            });
+          });
+        }
+        // concat current dataset
+        const datasetContent = R.prop('content', this.dataset);
+        if (datasetContent && curPackage && datasetContent.id !== getValue(curPackage)) {
+          const dataset = {
+            label: getLabel(this.dataset),
+            value: getValue(this.dataset),
+            data: this.dataset
+          };
+          breadcrumb.push(dataset);
+        }
+        // set selectedValue
+        if (breadcrumb.length > 0) {
+          const menu = this.$.navigationMenu;
+          menu.set('selectedValue', breadcrumb[0].value);
+          menu.removeAttribute('open');
+        }
+        // return unique values
+        return breadcrumb;
+      },
+
+      /**
+       * Computes navigation menu using curPackage.ancestors
+       * @param {String} sidePanelView
+       * @returns {Array}
+       */
+      _computeNavItems: function(sidePanelView) {
+        if (sidePanelView === 'fileBrowser' || this.linkAnnotation) {
+          return this._createBreadcrumb(this.curPackage)
+        }
+        return [];
+      },
+
+      /**
+       * Polymer life cycle Event
+       */
+       attached: function() {
+        // need to set this programatically because default value
+        // for multi-select-items is true
+        this.$.packageList.set('multiSelectItems', false);
+      },
+
+      /**
+       * Observer for curPackage
+       * @param {Object} curPackage
+       */
+      _watchCurPackage: function(curPackage) {
+        const content = R.propOr(null, 'content', curPackage)
+        if (content) {
+          this.loadData({}, content)
+        }
+      },
+
+      /**
+       * Moves up one level in directory heirarchy
+       * @param {Event} evt
+       */
+      goUp: function(evt) {
+        if (!this.vuex) {
+          return
+        }
+        const sidePanelView = this.vuex.viewer.viewerSidePanelView
+        if (sidePanelView !== 'fileBrowser' && !this.linkAnnotation) {
+          return;
+        }
+        const defaultValue = R.prop('detail', evt);
+        const value = R.pathOr(defaultValue, ['detail', 'value'], evt);
+        if (!value || !this.navigationItems || this.navigationItems.length === 0) {
+          return;
+        }
+        const curPackage = R.find(R.propEq('value', value))(this.navigationItems);
+        if (!curPackage) {
+          return;
+        }
+        this.loadData(evt, curPackage.data.content);
+        this.set('curPackage', curPackage.data);
+        this._computeNavItems('fileBrowser');
+      },
+
+      /**
+       * Moves up one level in directory heirarchy
+       * @param {Event} e
+       * @param {Object} data
+       */
+      loadData: function(e, data) {
+        if (!data) {
+          return;
+        }
+        this.$.packageList.openCollection(e, {
+          data: data,
+          triggerLoad: true
+        });
+      },
+
+      /**
+       * Computes whether or not node has parent
+       * @param {Number} navigationItemsLength
+       */
+      _computeHasParent: function(navigationItemsLength) {
+        return navigationItemsLength > 0;
+      },
+
+      /**
+       * Computes view icon
+       * @param {String} view
+       */
+       _computeIcon: function(view) {
+        return view === 'split' ? 'blackfynn:split-view' : 'blackfynn:fullscreen';
+      },
+
+    });
+  </script>
+</dom-module>

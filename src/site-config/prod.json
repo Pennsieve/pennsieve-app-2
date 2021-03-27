@@ -1,0 +1,16 @@
+{
+  "apiUrl": "https://api.pennsieve.io",
+  "zipitUrl": "https://api.pennsieve.io/zipit",
+  "maxDownloadSize": 15000000000,
+  "environment": "prod",
+  "ORCIDUrl": "https://orcid.org/oauth/authorize?client_id=APP-J86O4ZY7LKQGWJ2X&response_type=code&scope=/authenticate&redirect_uri=https://app.pennsieve.io/orcid-redirect",
+  "timeSeriesUrl": "wss://api.pennsieve.io/streaming/ts/query",
+  "timeSeriesApi": "https://api.pennsieve.io/streaming",
+  "conceptsUrl": "https://api.pennsieve.io/models",
+  "bucket": "https://prod-uploads-pennsieve.s3.amazonaws.com",
+  "bucketName": "prod-uploads-pennsieve",
+  "googleAnalytics": "UA-86081584-2",
+  "notificationUrl": "wss://api.pennsieve.io/notifications/notification/connect",
+  "googleMapApi": "AIzaSyCI752ML0Qs32n0PJ9B3aCpeP-kKCIItTA",
+  "mapTiler": "JmJ8fYzrAU3I6IYDHE9Q"
+}

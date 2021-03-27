@@ -1,0 +1,43 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-badge">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-browse-styles"></style>
+    <style>
+      :host {
+        background: var(--primary-color);
+        border-radius: 50%;
+        color: white;
+        height: 20px;
+        font-size: 12px;
+        line-height: 20px;
+        position: absolute;
+        text-align: center;
+        top: var(--blackfynn-badge-top, -7px);
+        right: var(--blackfynn-badge-right, -10px);
+        width: 20px;
+      }
+    </style>
+
+    [[value]]
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-badge',
+
+      properties: {
+        value: {
+          type: String,
+          value: ''
+        }
+      }
+    });
+
+  </script>
+</dom-module>

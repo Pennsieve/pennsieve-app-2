@@ -1,0 +1,13 @@
+{
+  "expanded": true,
+  "verbose": false,
+  "plugins": {
+    "local": {
+      "browsers": ["chrome"],
+      "skipSeleniumInstall": false
+    },
+    "sauce": {
+      "disabled": true
+    }
+  }
+}

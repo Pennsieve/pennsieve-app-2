@@ -1,0 +1,126 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-avatar tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../bf-avatar.html">
+</head>
+<body>
+
+  <test-fixture id="bothNames">
+    <template is="dom-template">
+      <bf-avatar profile="[[profile]]"></bf-avatar>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="oneName">
+    <template is="dom-template">
+      <bf-avatar profile="[[profile]]"></bf-avatar>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="oneNameMissingProp">
+    <template is="dom-template">
+      <bf-avatar profile="[[profile]]"></bf-avatar>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="defaultColor">
+    <template is="dom-template">
+      <bf-avatar profile="[[profile]]"></bf-avatar>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="setColor">
+    <template is="dom-template">
+      <bf-avatar profile="[[profile]]"></bf-avatar>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let bothNames;
+
+      const profile1 = {
+        firstName: 'Black',
+        lastName: 'Fynn'
+      };
+
+      const profile2 = {
+        firstName: 'Black'
+      };
+
+      const profile3 = {
+        firstName: 'Black',
+        lastName: ''
+      };
+
+      const profile4 = {
+        firstName: 'Black',
+        lastName: 'Fynn',
+        color: '#2760FF'
+      };
+
+      const convertHex = (hex,opacity) => {
+        hex = hex.replace('#','');
+        r = parseInt(hex.substring(0,2), 16);
+        g = parseInt(hex.substring(2,4), 16);
+        b = parseInt(hex.substring(4,6), 16);
+
+        return `rgb(${r}, ${g}, ${b})`;
+      };
+
+      setup(function() {
+        bothNames = fixture('bothNames', { profile: profile1 });
+        oneName = fixture('oneName', { profile: profile2 });
+        oneNameMissingProp = fixture('oneNameMissingProp', { profile: profile3 });
+        defaultColor = fixture('defaultColor', { profile: profile1 });
+        setColor = fixture('setColor', { profile: profile4 });
+      });
+
+      test('Should display both initials', function() {
+        assert.equal(bothNames.firstInitial, 'B', 'Initial equals first letter of first name');
+        assert.equal(bothNames.lastInitial, 'F', 'Initial equals first letter of last name');
+      });
+
+      test('Should display only one initial, profile.lastName is undefined ', function() {
+        assert.equal(oneName.firstInitial, 'B', 'Initial equals first letter of first name');
+        assert.equal(oneName.lastInitial, '', 'Initial equals first letter of last name');
+      });
+
+      test('Should display only one initial, profile.lastName is empty', function() {
+        assert.equal(oneNameMissingProp.firstInitial, 'B', 'Initial equals first letter of first and nothing from missing last name property');
+        assert.equal(oneNameMissingProp.lastInitial, '', 'Initial should be empty from missing last name property');
+      });
+
+      test('Should display default color', function() {
+        const rgb = convertHex('#2760FF');
+        assert.equal(defaultColor.$.iconCircle.style.backgroundColor, rgb, 'Background color is set to default');
+      });
+
+      test('Should display color from profile', function() {
+        const rgb = convertHex('#2760FF');
+        assert.equal(setColor.$.iconCircle.style.backgroundColor, rgb, 'Background color is set to profile property');
+      });
+    });
+  </script>
+
+</body>
+</html>

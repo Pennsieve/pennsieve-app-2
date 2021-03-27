@@ -1,0 +1,41 @@
+@import '../_variables.scss';
+
+$height: 24px;
+
+.el-pagination span:not([class*=suffix]),
+.el-pager li.btn-quicknext,
+.el-pager li.btn-quickprev,
+.el-pagination button,
+.el-pager li {
+  background: none;
+  height: $height;
+  line-height: $height;
+}
+.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-pagination button:disabled {
+  background: none;
+}
+
+.el-pager li {
+  color: $myelin;
+  font-size: 14px;
+  font-weight: 400;
+  min-width: 32px;
+  padding: 0 4px;
+  &.active {
+    color: $myelin;
+    font-weight: 700;
+    &:after {
+      background: $app-primary-color;
+      content: '';
+      display: block;
+      height: 4px;
+      transform: translateY(-2px);
+      width: 100%;
+    }
+  }
+}
+.el-pager .more::before {
+  line-height: $height;
+}

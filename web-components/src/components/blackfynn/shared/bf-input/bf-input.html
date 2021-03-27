@@ -1,0 +1,163 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="../../../../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-input-behavior.html">
+<link rel="import" href="bf-input-container.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+`<bf-input>` is a single-line text field. It is based off of the [paper-input](https://www.webcomponents.org/element/PolymerElements/paper-input) component by Polymer.
+
+    <bf-input label="Input label" value="{{valueProperty}}"></bf-input>
+
+A `bf-input` can use the native `type=search` or `type=file` features.
+However, since we can't control the native styling of the input (search icon,
+file button, date placeholder, etc.), in these cases the label will be
+automatically floated. The `placeholder` attribute can still be used for
+additional informational text.
+
+    <bf-input label="search!" type="search"
+        placeholder="search for cats" autosave="test" results="5">
+    </bf-input>
+
+See `Polymer.PaperInputBehavior` for more API docs.
+
+### Focus
+
+To focus a bf-input, you can call the native `focus()` method as long as the
+paper input has a tab index.
+
+
+@element bf-input
+@demo demo/index.html
+-->
+
+<dom-module id="bf-input">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+        margin-bottom: 20px;
+      }
+
+      :host([focused]) {
+        outline: none;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      input::-webkit-input-placeholder {
+        color: var(--bf-input-container-color, --input-placeholder-text);
+      }
+
+      input:-moz-placeholder {
+        color: var(--bf-input-container-color, --input-placeholder-text);
+      }
+
+      input::-moz-placeholder {
+        color: var(--bf-input-container-color, --input-placeholder-text);
+      }
+
+      input:-ms-input-placeholder {
+        color: var(--bf-input-container-color, --input-placeholder-text);
+      }
+    </style>
+
+    <bf-input-container
+      id="bfInputContainer"
+      hide-label$="[[hideLabel]]"
+      auto-validate$="[[autoValidate]]"
+      disabled$="[[disabled]]"
+      invalid$="[[invalid]]"
+      show-icon="[[showIcon]]"
+      show-invalid$="[[showInvalid]]">
+
+      <label
+        hidden$="[[!label]]"
+        aria-hidden="true"
+        for="input">[[label]]</label>
+
+      <input is="iron-input" id="input"
+        aria-labelledby$="[[_ariaLabelledBy]]"
+        aria-describedby$="[[_ariaDescribedBy]]"
+        disabled$="[[disabled]]"
+        title$="[[title]]"
+        bind-value="{{value}}"
+        invalid="{{invalid}}"
+        prevent-invalid-input="[[preventInvalidInput]]"
+        allowed-pattern="[[allowedPattern]]"
+        validator="[[validator]]"
+        type$="[[type]]"
+        pattern$="[[pattern]]"
+        required$="[[required]]"
+        autocomplete$="[[autocomplete]]"
+        autofocus$="[[autofocus]]"
+        inputmode$="[[inputmode]]"
+        minlength$="[[minlength]]"
+        maxlength$="[[maxlength]]"
+        min$="[[min]]"
+        max$="[[max]]"
+        step$="[[step]]"
+        name$="[[name]]"
+        placeholder$="[[placeholder]]"
+        readonly$="[[readonly]]"
+        list$="[[list]]"
+        size$="[[size]]"
+        autocapitalize$="[[autocapitalize]]"
+        autocorrect$="[[autocorrect]]"
+        on-change="_onChange"
+        tabindex$="[[tabindex]]"
+        autosave$="[[autosave]]"
+        results$="[[results]]"
+        accept$="[[accept]]"
+        multiple$="[[multiple]]"
+        slot="input">
+
+      <slot name="suffix"></slot>
+
+      <slot name="password-recommendation"></slot>
+
+      <slot name="helper"></slot>
+
+    </bf-input-container>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-input',
+
+      behaviors: [
+        Polymer.IronFormElementBehavior,
+        Polymer.PaperInputBehavior
+      ],
+
+      properties: {
+        hideLabel: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * The helper text should change styles depending on invalid state
+         */
+        showInvalid: {
+          type: Boolean,
+          value: false
+        }
+      }
+    });
+  </script>
+</dom-module>

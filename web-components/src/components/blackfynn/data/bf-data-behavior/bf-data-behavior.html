@@ -1,0 +1,520 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../bf-data-item-behavior.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+<link rel="import" href="../bf-data-size-formatting-behavior.html">
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+
+  /**
+  * @polymerBehavior
+  */
+  const DataBehaviorImpl = {
+    properties: {
+      /**
+       * list of selected items
+       */
+      selected: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      /**
+       * Package data
+       */
+      data: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      /**
+       * Displays details about the package's creation
+       */
+      _createdDetails: {
+        type: String,
+        computed: '_computeCreatedDetails(data.content.createdAt)'
+      },
+      _storageDetails: {
+        type: String,
+        computed: '_computePackageMetrics(data.storage)'
+      },
+      /**
+       * Displays the status of a package if being prepared
+       */
+      _packageState: {
+        type: String,
+        computed: '_computePackageState(data.content.*)'
+      },
+      _showPackageState: {
+        type: Boolean,
+        computed: '_computeShowPackageState(data.content.*)'
+      },
+      /**
+       * Displays type of package
+       */
+      _packageDetails: {
+        type: String,
+        computed: '_computePackageDetails(data.content.*)'
+      },
+      /**
+       * Flag used when user is renaming item
+       */
+      isEditing: {
+        type: Boolean,
+        value: false
+      },
+      _name: {
+        type: String,
+        value: null
+      },
+      isSelected: {
+        type: true,
+        value: false,
+        reflectToAttribute: true,
+        computed: '_computeIsSelected(selected.*)'
+      },
+      /**
+       * Compute if the package is a Collection or DataSet
+       */
+      _isCollection: {
+        type: Boolean,
+        computed: '_computeIsCollection(data.content.packageType)'
+      },
+      /**
+       * Used to prevent dragleave from firing when dragging on children elements
+       */
+      _dragCounter: {
+        type: Number,
+        value: 0
+      },
+      /**
+       * Sets styles and limits functionality to only collections
+       */
+      collectionsOnly: {
+        type: Boolean,
+        value: false
+      },
+      _disabled: {
+        type: Boolean,
+        computed: 'computeDisabled(_isCollection, collectionsOnly)',
+        reflectToAttribute: true
+      },
+      isHovering: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Show or hide columns
+       */
+      hideColumns: {
+        type: Boolean,
+        value: false
+      },
+      nodeTypes: {
+        type: Array,
+        value: function() {
+          return ['dataset', 'collections']
+        }
+      },
+      /**
+       * Tracks whether or not instance of package list is rendered within the file browser
+       */
+       inFileBrowser: {
+         type: Boolean,
+         value: false
+       },
+       /**
+       * Checks whether or not package list is part of TS Annotations
+       */
+       inTsAnnotation: {
+         type: Boolean,
+         value: false,
+         reflectToAttribute: true
+       },
+       /**
+       * Computes whether or not to show the "Attached" icon next to the item title
+       */
+       showAttachmentIcon: {
+         type: Boolean,
+         computed: '_computeShowAttachmentIcon(inTsAnnotation, isSelected, _packageDetails)'
+       }
+    },
+
+    listeners: {
+      'tap': 'selectItem',
+      'open-item': '_onOpenItem',
+      'contextmenu': 'openMenu',
+      'stop-editing': 'stopEditing',
+      'dragstart': '_onDragStart',
+      'dragenter': '_onDragEnter',
+      'dragleave': '_onDragLeave',
+      'dragover': '_onDragOver',
+      'drop': '_onDrop',
+      'mouseenter': '_onMouseEnter',
+      'mouseleave': '_onMouseLeave'
+    },
+
+    /**
+     * @param {Boolean} inTsAnnotation
+     * @param {Boolean} isSelected
+     * @param {String} _packageDetails
+     */
+    _computeShowAttachmentIcon: function(inTsAnnotation, isSelected, _packageDetails) {
+      return inTsAnnotation && isSelected && _packageDetails !== 'Collection'
+    },
+
+    /**
+     * Computes if data item is selected
+     * @param {Object} selected
+     * @returns {Boolean}
+     */
+    _computeIsSelected: function(selected) {
+      const base = R.propOr([], 'base', selected);
+      return Array.isArray(base) && base.indexOf(this) >= 0;
+    },
+
+    /**
+     * Computes if data item is disabled
+     * @param {Boolean} isCollection
+     * @param {Boolean} collectionsOnly
+     * @returns {Boolean}
+     */
+    computeDisabled: function(isCollection, collectionsOnly) {
+      return !isCollection && collectionsOnly;
+    },
+
+    /**
+     * Selects data item
+     * @param {Event} e
+     */
+    selectItem: function(e) {
+      // Don't allow if disabled
+      if(this._disabled === true) {
+        return;
+      }
+
+      let metaKey = false;
+      let shiftKey = false;
+      const sourceEvent = R.pathOr({}, ['detail', 'sourceEvent'], e);
+
+      if(e) {
+        if(sourceEvent.metaKey && this.multiSelectItems === true) {
+          metaKey = true;
+        }
+        if(sourceEvent.shiftKey && this.multiSelectItems === true) {
+          shiftKey = true;
+        }
+      }
+
+      this.fire('select-item', { item: this, metaKey, shiftKey });
+    },
+
+    /**
+     * Handles open-item event
+     * @param {Event} e
+     */
+    _onOpenItem: function(e) {
+      // Don't allow if disabled or not yet ready
+      const contentState = R.pathOr('READY', ['data', 'content', 'state'])(this);
+      if (this._disabled === true || contentState === 'PROCESSING') {
+        return;
+      }
+      if (this._isCollection) {
+        // Open the collection
+        this.fire('open-collection', { data: this.data.content });
+      } else if (!this.inTsAnnotation) {
+        // Open item
+        this.fire('open-viewer', { item: this.data });
+      }
+    },
+
+    /**
+     * Computes the date created display property
+     * @param {String} timestamp
+     * @returns {String}
+     */
+    _computeCreatedDetails: function(timestamp) {
+      return timestamp ? moment(timestamp).format('MMMM D, YYYY') : '';
+    },
+    _computePackageMetrics: function(rawbytes) {
+        return this._convertMetric(rawbytes);
+    },
+    /**
+     * Computes the state of the package
+     * @param {Object} changeRecord
+     * @returns {String}
+     */
+    _computePackageState: function(changeRecord) {
+      // If a package is UNAVAILABLE (not yet processing) or PROCESSING, show Preparing...
+      if (this._computeShowPackageState(changeRecord)) {
+        return 'Preparing...';
+      }
+    },
+
+    /**
+     * Computes whether or not to show the package state
+     * @param {Object} changeRecord
+     * @returns {Boolean}
+     */
+    _computeShowPackageState: function(changeRecord) {
+      const packageState = R.pathOr('', ['base', 'state'], changeRecord);
+      return packageState === 'UNAVAILABLE' || packageState === 'PROCESSING';
+    },
+
+    /**
+     * Computes the package details
+     * @param {Object}
+     * @returns {String}
+     */
+    _computePackageDetails: R.compose(
+      R.pathOr('', ['base', 'packageType']),
+      R.defaultTo({})
+    ),
+
+    /**
+     * Handles opening package content menu
+     * @param {Event} e
+     */
+    openMenu: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const packageType = R.pathOr('DataSet', ['content', 'packageType'])(this.data);
+
+      if(packageType === 'DataSet' || this._disabled === true) {
+        return;
+      }
+
+      // Send event based on contextmenu or tap
+      if(e.type === 'tap') {
+        e = {
+          x: e.detail.x,
+          y: e.detail.y
+        };
+      } else {
+        e = {
+          x: e.clientX,
+          y: e.clientY
+        };
+      }
+
+      this.fire('open-menu', {
+        event: e,
+        id: this.data.content.id,
+        item: this
+      });
+    },
+
+    /**
+     * Method that triggers editing of name
+     */
+    setEditing: function() {
+      this.set('isEditing', true);
+
+      const origName = R.path(['data', 'content', 'name'])(this);
+      if (origName) {
+        this.set('_name', origName);
+      }
+
+      const editInput = R.path(['$', 'itemLabel', '$', 'editInput'])(this);
+      if (editInput) {
+        editInput.focus();
+      }
+
+      this.fire('set-edited-item', { item: this });
+    },
+
+    /**
+     * Callback from tree that is fired when user clicks outside of editing box during rename
+     */
+    stopEditing: function() {
+      this.set('isEditing', false);
+
+      // get new name from input
+      const newName = R.path(['$', 'itemLabel', '$', 'editInput', 'value'])(this);
+
+      // Update Name in data
+      if (!newName) {
+        return;
+      }
+
+      this.set('data.content.name', newName);
+
+      // Call tree method for async actions.
+      this.fire('rename-item', {
+        el: this,
+        data: this.data.content
+      });
+    },
+
+    /**
+     * Reverts package name to original value
+     */
+    revertName: function() {
+      // Revert name
+      this.set('data.content.name', this._name);
+    },
+
+    /**
+     * When the user starts dragging the item
+     * @param {Event} e
+     *
+     */
+    _onDragStart: function(e) {
+      // Don't allow if disabled
+      if(this._disabled === true || !this.selected) {
+        return;
+      }
+
+      // Select this item if it is not selected
+      if(this.selected.indexOf(this) === -1) {
+        this.selectItem();
+      }
+
+      if(this.data.content.isDefault) {
+        e.preventDefault();
+      }
+
+      // Set DragData to myData
+      const dragData = [];
+      for (let i = 0; i < this.selected.length; i++) {
+        dragData.push(this.selected[i].data);
+      }
+
+      // Set drag image
+      this.fire('start-drag-item', { e, name: this.data.content.name });
+
+      const j = JSON.stringify(dragData);
+      e.dataTransfer.setData('dragData', j);
+    },
+
+    /**
+     * When the user drags over an item
+     */
+    _onDragEnter: function() {
+      if(this._isCollection && !this.inFileBrowser) {
+
+        // Increase dragCounter
+        this.set('_dragCounter', this._dragCounter + 1);
+
+        // Set drag-over class
+        this.toggleClass('drag-over', true);
+      }
+    },
+
+    /**
+     * When an item is being dragged over
+     * @param {Event} e
+     */
+    _onDragOver: function(e) {
+      // Called every 120ms when dragging on receiving element
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+
+      // If the user is dropping files to upload
+      if (!e.dataTransfer.getData('dragData') && e.dataTransfer.types[0] === 'Files') {
+        this.fire('set-temp-upload-destination', {
+          collection: this.data
+        });
+      }
+    },
+
+    /**
+     * When the user drags out of an item
+     */
+    _onDragLeave: function() {
+      if (this._isCollection && !this.inFileBrowser) {
+        this.set('_dragCounter', this._dragCounter - 1);
+
+        if(this._dragCounter === 0) {
+          this.toggleClass('drag-over', false);
+        }
+      }
+      this.fire('set-temp-upload-destination', {
+        collection: null
+      });
+    },
+
+    /**
+     * Handles drop events
+     * @param {Event} e
+     */
+    _onDrop: function(e) {
+      // Remove style from dropTarget
+      this.toggleClass('drag-over', false);
+
+      // defends against data being dropped for upload
+      // which does not have dragData associated
+      if (!e.dataTransfer.getData('dragData')) {
+        return;
+      }
+
+      // reset counter for dragEnter/dragLeave
+      this.set('_dragCounter', 0);
+
+      // Hide drag info
+      this.fire('end-drag-item');
+
+      // Return if dragData is empty (when event is called other than dragging within browse)
+      if (!e.dataTransfer.getData('dragData') && e.dataTransfer.files.length === 0) {
+        return;
+      }
+
+      // If the user is dropping files to upload
+      if (!e.dataTransfer.getData('dragData') && this._isCollection && !this.state.isUploading) {
+        this.fire('set-upload-destination', { collection: this.data });
+        return;
+      }
+      // Prevent default action from browser
+      e.preventDefault();
+      // Prevent Bubbling to Window
+      e.stopPropagation();
+
+      // Parse data string
+      const dragData = JSON.parse(e.dataTransfer.getData('dragData'));
+
+      // Check for locations where item cannot be dragged into
+      let isOK = true;
+      if (!this._isCollection || this._isCollection && this.inFileBrowser) {
+        isOK = false;
+      }
+
+      // Check each piece of drag data
+      for (let i = 0; i < dragData.length; i++) {
+        if(this.data.content.id === dragData[i].content.id) {
+          isOK = false;
+          break;
+        }
+      }
+
+      // If no problems, do drop logic
+      if(isOK) {
+        // Do server update
+        this.fire('move-item', {
+          destination: this.data.content.id,
+          items: this.selected
+        });
+      }
+    },
+
+    /**
+     * Toggles isHovering true on mouseenter
+     */
+    _onMouseEnter: function() {
+      this.set('isHovering', true);
+    },
+
+    /**
+     * Toggles isHovering false on mouseleave
+     */
+    _onMouseLeave: function() {
+      this.set('isHovering', false);
+    }
+  }
+
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.DataBehavior = [Blackfynn.DataItemBehavior, DataBehaviorImpl, Blackfynn.DataSizeFormattingBehavior]
+</script>

@@ -1,0 +1,131 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-search-input tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+  <script src="../../../../../../bower_components/iron-test-helpers/mock-interactions.js"></script>
+
+  <link rel="import" href="../bf-search-input.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <bf-search-input state="[[state]]"></bf-search-input>
+    </template>
+  </test-fixture>
+
+  <script>
+    const state = {
+      apiUrl: 'https://app.blackfynn.net',
+      userToken: '12345',
+      isSearching: false
+    };
+
+    suite('basic', function() {
+      let basic;
+      let toggleFocusStub;
+      let doSearchStub;
+      let handleSearchStub;
+
+      setup(function() {
+        basic = fixture('basic');
+        basic.state = state;
+
+        toggleFocusStub = sinon.stub(basic, 'toggleFocus', () => {});
+
+        doSearchStub = sinon.stub(basic, 'doSearch', () => {
+          const query = basic.query;
+
+          // Don't send a empty search
+          if(!query || query.length === 0) {
+            return;
+          }
+
+          basic.set('state.isSearching', true);
+
+          const searchRequest = basic.$.ajSearch;
+          searchRequest.body = { query, maxResults: 25 };
+
+          handleSearchStub();
+        });
+
+        handleSearchStub = sinon.stub(basic, '_handleSearch', () => {});
+      });
+
+      teardown(function() {
+        toggleFocusStub.restore();
+        doSearchStub.restore();
+        handleSearchStub.restore();
+      });
+
+      test('Initial render does not focus search input', function() {
+        const searchWrapper = Polymer.dom(basic.root).querySelector('#searchWrapper');
+
+        assert.equal(searchWrapper.className.indexOf('focused'), -1);
+        assert.equal(basic.isFocused, false);
+      });
+
+      test('Clicking search icon toggles visibility and focus of search input', function() {
+        const searchIcon = Polymer.dom(basic.root).querySelector('.icon-search');
+        const searchWrapper = Polymer.dom(basic.root).querySelector('#searchWrapper');
+
+        searchIcon.click();
+
+        expect(basic.isFocused).to.be.true;
+        expect(searchWrapper.className.indexOf('focused')).to.be.above(0);
+        expect(toggleFocusStub).to.have.been.calledOnce;
+      });
+
+      test('Search url is correct', function() {
+        assert.equal(basic.searchUrl, 'https://app.blackfynn.net/search?api_key=12345');
+      });
+
+      test('Does not executes search query with empty query', function() {
+        const searchInput = Polymer.dom(basic.root).querySelector('#searchInput');
+        const ajSearch = Polymer.dom(basic.root).querySelector('#ajSearch');
+
+        searchInput.focus();
+        MockInteractions.pressAndReleaseKeyOn(searchInput, 13, [], 'enter');
+
+        expect(doSearchStub).to.have.been.calledOnce;
+        expect(handleSearchStub).to.have.callCount(0);
+        expect(ajSearch.body).to.be.null;
+        expect(basic.state.isSearching).to.be.false;
+      });
+
+      test('Successfully executes search query', function() {
+        const searchInput = Polymer.dom(basic.root).querySelector('#searchInput');
+        const ajSearch = Polymer.dom(basic.root).querySelector('#ajSearch');
+
+        basic.set('query', 'test');
+        searchInput.focus();
+        MockInteractions.pressAndReleaseKeyOn(searchInput, 13, [], 'enter');
+
+        expect(doSearchStub).to.have.been.calledOnce;
+        expect(handleSearchStub).to.have.been.calledOnce;
+        expect(ajSearch.body.query, 'test').to.be.equal;
+        expect(basic.state.isSearching).to.be.true;
+      });
+
+    });
+  </script>
+
+</body>
+</html>

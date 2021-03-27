@@ -1,0 +1,36 @@
+.tabs {
+  display: flex;
+  li {
+    margin-left: 32px;
+    &:first-child {
+      margin: 0;
+    }
+  }
+  a {
+    color: #9B9B9B;
+    display: inline-flex;
+    padding: 0 0 16px;
+    position: relative;
+    text-decoration: none;
+    &:hover, &:focus {
+      color: #000;
+      text-decoration: none;
+    }
+    &.router-link-active, &.active {
+      color: #000;
+      &:after {
+        background: $app-primary-color;
+        bottom: 0;
+        content: '';
+        left: 0;
+        height: 4px;
+        position: absolute;
+        width: 100%;
+      }
+    }
+    &.disabled {
+      cursor: default;
+      color: #9B9B9B;
+    }
+  }
+}

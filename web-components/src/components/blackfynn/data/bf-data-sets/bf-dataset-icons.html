@@ -1,0 +1,75 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../shared/bf-icon-circle/bf-icon-circle.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+<!--
+## bf-dataset-icons
+
+`<bf-dataset-icons>` icons for creating data sets and viewing info panel.
+
+@element bf-dataset-icons
+@demo ./demo/dataset-icons-demo.html
+-->
+
+<dom-module id="bf-dataset-icons">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+        @apply(--layout-end-justified);
+
+        --paper-tooltip: {
+          background: var(--neuron);
+          border: 1px solid var(--neuron);
+        }
+      }
+      #infoIcon {
+        cursor: pointer;
+      }
+      .icon-menu {
+        color: var(--glial);
+        cursor: pointer;
+        height: 18px;
+        width: 18px;
+      }
+      #infoIcon:hover .icon-menu {
+        color: var(--app-primary-color)
+      }
+    </style>
+
+    <bf-icon-circle id="infoIcon" on-tap="openInfoPanel">
+      <iron-icon
+        id="infoPanel"
+        class="icon-menu"
+        icon="blackfynn:icon-info-i"></iron-icon>
+    </bf-icon-circle>
+
+    <paper-tooltip
+      for="infoPanel"
+      position="top">Info</paper-tooltip>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-dataset-icons',
+
+      /**
+       * Dispatches event to toggle info panel
+       */
+      openInfoPanel: function() {
+        this.fire('toggle-info-panel');
+      }
+
+    });
+
+  </script>
+
+</dom-module>

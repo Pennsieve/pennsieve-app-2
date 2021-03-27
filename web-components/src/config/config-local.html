@@ -1,0 +1,43 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+
+  Blackfynn.Config = {
+    properties: {
+      apiUrl: {
+        type: String,
+        value: 'http://[MINIKUBE_IP]:30500'
+      },
+      conceptsUrl: {
+        type: String,
+        value: 'http:[[MINIKUBE_IP]]:30500'
+      },
+      timeSeriesUrl: {
+        type: String,
+        value: 'wss://[MINIKUBE_IP]:30443/ts/query'
+      },
+      timeSeriesApi:{
+        type: String,
+        value: 'https://[MINIKUBE_IP]:30443'
+      },
+      bucket: {
+        type: String,
+        value: 'http://[MINIKUBE_IP]:30900/uploads/'
+      },
+      bucketName: {
+        type: String,
+        value: 'uploads'
+      },
+      googleAnalytics: {
+        type: String,
+        value: ''
+      },
+      notificationUrl: {
+        type: String,
+        value: 'ws://[MINIKUBE_IP]:30502/notification/connect'
+      }
+    }
+  }
+</script>

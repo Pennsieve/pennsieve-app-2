@@ -1,0 +1,179 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../shared/blackfynn-menu.html">
+<link rel="import" href="../../shared/blackfynn-menu-item.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+
+<dom-module id="bf-annotation-menu-window">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        color: #000;
+        display: block;
+        max-width: none !important;
+        min-width: 120px;
+        position: absolute;
+        text-align: left;
+        transform: translateY(100%);
+        top: -15px;
+        right: 2px;
+        --arrow-left: auto;
+        --arrow-right: 20px;
+        --arrow-border-left: auto;
+        --arrow-border-right: 19px;
+      }
+      :host([offscreen]) {
+        top: -110px;
+      }
+      :root {
+        --paper-item-icon-width: 36px;
+        --paper-item-icon: {
+          color: var(--blackfynn-blue);
+        }
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      h3 {
+        font-size: 15px;
+        margin-bottom: 5px;
+      }
+      paper-card {
+        width: 200px;
+      }
+      paper-icon-item:hover {
+        background-color: var(--paper-grey-200);
+        cursor: pointer;
+      }
+    </style>
+
+    <blackfynn-menu id="menu" hidden$="[[!opened]]" far-right>
+      <a href="#" tabindex="-1" on-tap="closeWindow">
+        <blackfynn-menu-item icon="blackfynn:create" on-tap="editAnnotation">Edit</blackfynn-menu-item>
+      </a>
+      <a href="#" tabindex="-1" on-tap="closeWindow">
+        <blackfynn-menu-item icon="blackfynn:delete" on-tap="deleteAnnotation">Delete</blackfynn-menu-item>
+      </a>
+    </blackfynn-menu>
+
+  </template>
+
+
+  <script>
+    Polymer({
+      is: 'bf-annotation-menu-window',
+
+      behaviors: [
+        Blackfynn.VuexBehavior,
+        Polymer.IronOverlayBehavior
+      ],
+
+      properties: {
+        /**
+         * annotation
+         */
+        annotation: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * tracks whether or not window appears offscreen
+         */
+        offscreen: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * tracks whether or not window is open
+         */
+         opened: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      listeners: {
+        'iron-overlay-opened': 'positionWindow',
+        'mouseleave': '_mouseleave'
+      },
+
+      /**
+       * dynamically sets offscreen property based on window position
+       */
+      positionWindow: function() {
+        // Reposition the window if needed
+        if (this.getBoundingClientRect().bottom >= window.innerHeight) {
+          this.set('offscreen', true);
+          this.$.menu.set('arrowBottom', true);
+        } else {
+          this.set('offscreen', false);
+          this.$.menu.set('arrowBottom', false);
+        }
+      },
+
+      /**
+       * closes user menu
+       */
+      closeWindow: function() {
+        this.close();
+      },
+
+      /**
+       * set hovering to false upon mouseenter event
+       */
+       _mouseleave: function() {
+        this.set('opened', false);
+      },
+
+      /**
+       * reject annotation to delete
+       */
+      _rejectAnnotation: (id) => (obj) => obj.id === id,
+
+      /**
+       * Fires event to delete annotation
+       */
+       deleteAnnotation: function() {
+        this.fire('active-viewer-action', {
+          method: 'confirmDeleteAnnotation',
+          payload: {
+            annotation: this.get('annotation'),
+            annotations: [],
+            withDiscussions: false,
+            // selector
+          }
+        })
+      },
+
+      editAnnotation: function(evt) {
+        const layers = R.pathOr([], ['activeViewer', 'annLayers'])(this);
+        this.fire('active-viewer-action', {
+          method: 'setEditAnnotationMode',
+          payload: {
+            annotation: this.annotation,
+            layers,
+            isCreating: false,
+            selectedLayerId: this.get('annotation.layer_id'),
+            selectedLabelId: this.get('annotation.label')
+          }
+        })
+      }
+
+    });
+
+  </script>
+
+</dom-module>

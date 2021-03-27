@@ -1,0 +1,232 @@
+File Format	API FileType	Data Modality	Subtype	Extensions	Icon	SVG	Viewer Type	Group Logic	Package Type	Notes
+Aperio	Aperio	Image		.svs	Microscope	icon-microscope.svg	Image	Single file
+EPS	EPS	Image	2D	.eps, .ps	Image	icon-image.svg	Image	Single file
+Imaris	Imaris	Image	2DStack	.ims	Microscope	icon-microscope.svg	Image	Single file
+JPEG	JPEG	Image	2D	.jpg, .jpeg	Image 	icon-image.svg	Image	Single file
+JPEG-2000	JPEG	Image	2D	.jp2	Image	icon-image.svg	Image	Single file
+Layered Image File Format	LIFF	Image	2DStack	.liff	Microscope	icon-microscope.svg	Image	Single file
+Leica	Leica	Image	2DStack	.lif	Microscope	icon-microscope.svg	Image	Single file
+Matlab Figure	MatlabFigure	Generic		.fig	Image	icon-image.svg	Image	Single file
+Nikon	Nikon	Image		.nd2	Microscope	icon-microscope.svg	Image	Single file
+PNG	PNG	Image	2D	.png	Image	icon-image.svg	Image	Single file
+Regular TIFF	TIFF	Image	2D	.tiff, .tif	Image	icon-image.svg	Image	Single file
+Multi-page TIFF	MPTIFF	Image	2D	.tiff, .tif	Image	icon-image.svg	Image	Single file
+OME-TIFF	OMETIFF	Image	NDStack	.ome.tiff, .ome.tif, .ome.tf2, .ome.tf8, .ome.btf	Microscope	icon-microscope.svg	Image	If none of the other types that have .ome.tif/.ome.tiff match, then Single file
+Bruker PrairieView TIFF	BRUKERTIFF	Image	NDStack	.ome.tiff/.ome.tif + .xml + .env	Microscope	icon-microscope.svg	Image	If all --> XML points to TIFF assets
+Zeiss 	CZI	Image	2DStack	.czi	Microscope	icon-microscope.svg	Image	Single file
+Zeiss AxioVision ZVI (Zeiss Vision Image)	ZVI	Image	2DStack	.zvi	Microscope	icon-microscope.svg	Image	Single file
+AFNI	AFNI	3D Imaging		.afni	Clinical Image (Brain)	icon-clinical.svg	MRI	Single file
+AFNI	AFNIBRIK	3D Imaging		.brik, .head	Clinical Image (Brain)	icon-3d.svg	MRI	Group if both .brik and .head exists, group based on filename.
+Analyze	ANALYZE	3D Imaging		.hdr, .img	Clinical Image (Brain)	icon-clinical.svg	MRI	Group if both .hdr and .img exists, group based on filename
+DICOM	DICOM	3D Imaging		.dicom	Clinical Image (Brain)	icon-clinical.svg	MRI	Group files with same extension (in same directory)
+MGH	MGH	3D Imaging		.mgh, .mgz, .mgh.gz	Clinical Image (Brain)	icon-clinical.svg	MRI	Single file
+MINC	MINC	3D Imaging		.mnc	Clinical Image (Brain)	icon-clinical.svg	MRI	Single file
+NIFTI	NIFTI	3D Imaging		.nii,.nii.gz	Clinical Image (Brain)	icon-clinical.svg	MRI	Single file
+Adobe Illustrator	AdobeIllustrator	Generic	illustrator	.ai	Adobe Illustrator (Vector)	icon-vector.svg	NA	Single file
+Ansys	Ansys	SourceCode	Ansys	.aedt	Code	icon-code.svg	NA	Single file
+BAM	BAM	Genomics	Binary	.bam, .bcl, .bcl.gz, .bin	Genomics	icon-genomics.svg	NA	SIngle file
+Shell	Shell	SourceCode	Shell	.sh, .bash, .csh, .tcsh, .zsh	Code	icon-code.svg	NA	Single file
+C#	CSharp	SourceCode	C#		Code	icon-code.svg	NA	Single file
+C++	CPlusPlus	SourceCode	C++		Code	icon-code.svg	NA	Single file
+COMSOL	COMSOL	3D Model		.mph	Model (xyz coordinates)	icon-3d.svg	NA	Single file
+Data	Data	Generic		.dat, .data, .bin, .raw	Generic Data	icon-generic.svg	NA	Single file
+Docker	Docker	Generic		Dockerfile	Docker	icon-docker.svg	NA	Single File		Match explicitly by name
+FACS	FACS	Flow		.fcs	Flow	icon-generic.svg	NA	Single file
+Freesurfer Surface	FreesurferSurface	3D Imaging	Surface	.lh, .rh, .curv	Clinical Image (Brain)	icon-clinical.svg	NA	Single file
+FSFast	FSFast	Aggregate	Freesurfer		Generic	icon-generic.svg	NA	Directory structure		https://surfer.nmr.mgh.harvard.edu/fswiki/FsFastTutorialV5.1/FsFastDirStruct
+HDF5	HDF5	Aggregate	HDF	.hdf5	HDF5	icon-generic.svg	NA	Single file
+JAVA 	JAVA	SourceCode	JAVA		Code	icon-code.svg	NA
+Javascript	Javascript	SourceCode	Javascript		Code	icon-code.svg	NA
+JSON	Json	JSON		.json	JSON	icon-code.svg	NA	SIngle file
+Jupyter Notebook	Jupyter	Notebook			Notebook	icon-notebook.svg	NA	Single file
+Markdown	Markdown	SourceCode	Markdown	.md	Code	icon-code.svg	NA	Single file
+Matlab	MAT	Aggregate	Matlab	.mat, .mex	Matlab	icon-matlab.svg	NA	Single file
+Matlab Code	MATLAB	SourceCode	Matlab	.m	Code	icon-code.svg	NA	Single file
+Minitab	Minitab	Aggregate		.mpj, .mtw, .mgf	Generic Data	icon-generic.svg	NA	Single file
+NeuroDataWithoutBorders	NeuroDataWithoutBorders	Aggregate	NDWB	.nwb	NWB	icon-generic.svg	NA	Single file
+NEURON Code	Neuron	SourceCode	Neuron	.hoc, .mod	Code	icon-code.svg	NA	Single file
+PDF	PDF	PDF	PDF		PDF	icon-acrobat.svg	NA	Single file
+Powerpoint	PowerPoint	Presentation		.ppt, .pptx	Powerpoint	icon-powerpoint.svg	NA	Single file
+Python	Python	SourceCode	Python	.py	Code	icon-code.svg	NA	Single file
+R	R	SourceCode	R	.r	Code	icon-code.svg	NA	Single file
+R Data	RData	Aggregate		.rdata	RData (R logo)	icon-r.svg	NA	Single file
+SolidWorks	SolidWorks	3D Model		.sldasm, .slddrw	Model (xyz coordinates)	icon-3d.svg	NA	Single file
+TXT	Text	Text		.txt, .text	Text	icon-text.svg	NA	Single file
+Word	MSWord	Generic	MSWord	.dox, .docx	Word	icon-word.svg	NA	Single file
+XML	XML	Meta-data		.xml	XML (Code)	icon-code.svg	NA	Single file
+YAML	YAML	SourceCode	YAML		Code	icon-code.svg	NA
+ZIP	ZIP	Aggregate		.zip, .tar, .tar.gz	Zip	icon-zip.svg	NA	Single file
+CSV	CSV	Tabular		.csv	Tabular	icon-tabular.svg	Tabular	Single file
+Excel	MSExcel	Tabular		.xls, .xlsx	Excel	icon-excel.svg	Tabular	Single file
+FASTQ	FASTQ	Genomics	Tabular	.fastq	Genomics	icon-genomics.svg	Tabular	Single file
+FASTA	FASTA	Genomics	Tabular	.fasta	Genomics	icon-genomics.svg	Tabular	Single file
+TSV	TSV	Tabular		.tsv	Tabular	icon-tabular.svg	Tabular	Single file
+Variant Data	VariantData	Genomics	Tabular	.vcf	Genomics Variant	icon-genomics.svg	Tabular	Single file
+Apache Feather	Feather	Timeseries		.feather	Timeseries	icon-timeseries.svg	Time Series	Single file
+BIODAC	BIODAC	Timeseries		.tab	Timeseries	icon-timeseries.svg	Time Series	Single file
+BioPAC	BioPAC	Timeseries		.acq	Timeseries	icon-timeseries.svg	Time Series	Single file
+Blackfynn	BFTS	Timeseries		.bfts	Timeseries	icon-timeseries.svg	Time Series	Single file
+EDF	EDF	TImeseries		.edf	Timeseries	icon-timeseries.svg	Time Series	Goup and append files with same name prefix '_'
+Intan	Intan	Timeseries		.rhd, .dat	Timeseries	icon-timeseries.svg	Time Series	Group and append files based on folder structure
+IV Curve Data	IVCurveData	Timeseries		.ibw	Timeseries	icon-timeseries.svg	Time Series	SIngle file
+LabChart	LabChart	Timeseries		.adicht, adidat	Timeseries	icon-timeseries.svg	Time Series	Single file
+MEF	MEF	TImeseries		.mef	Timeseries	icon-timeseries.svg	Time Series	Group files with same extension
+Moberg	MobergSeries	Timeseries		.settings, .index, .data	Timeseries	icon-timeseries.svg	Time Series	Group any combination of file with same name
+Neuralynx	Neuralynx			.ncs, 	Timeseries	icon-timeseries.svg	Time Series
+NeuroExplorer	NeuroExplorer	Timeseries		.nex, .nex5	Timeseries	icon-timeseries.svg	Time Series	Single file
+NEV	NEV	Timeseries		.nev, .ns2, .ns3, .ns4, .ns5, .nf2, .nf3, .nf4, .nf5	Timeseries	icon-timeseries.svg	Time Series	If any combination of files with same name		I believe .nev + any(.ns*) file
+Nicolet	Nicolet	Timeseries		.e 	Timeseries	icon-timeseries.svg	Time Series	Group and append files based on name prefix '_'
+Nihon Koden	NihonKoden	Timeseries			Timeseries	icon-timeseries.svg	Time Series	Single file
+OpenEphys	OpenEphys	Timeseries		.continuous, .spike, .events	Timeseries	icon-timeseries.svg	Time Series	Group any combination of file with same name
+PatchMaster	PatchMaster	Timeseries		.dat, .pgf, .pul	Timeseries	icon-timeseries.svg	Time Series	Group if all files are present
+pClamp	PClamp	Timeseries		.abf	Timeseries	icon-timeseries.svg	Time Series	Single file
+Persyst	Persyst	Timeseries		.dat + .lay	Timeseries	icon-timeseries.svg	Time Series	If both .dat and .lay file with same name exist
+Plexon	Plexon				Timeseries	icon-timeseries.svg	Time Series
+Spike2	Spike2	Timeseries		.smr	Timeseries	icon-timeseries.svg	Time Series	Single file
+TDMS	TDMS	Timeseries		.tdm, .tdms	TImeseries	icon-timeseries.svg	Time Series	Single file
+Video	MP4, AVI, WEBM, MOV, OGG, MPEG	Video		.mp4, .avi, .webm, .mov, .ogg, .mpeg	Video	icon-video.svg	Video	Single file
+
+
+
+
+
+3i SlideBook		Image	NDStack	.sld	Microscope	icon-microscope.svg	Image	Single file
+Andor Bio-Imaging Division (ABD) TIFF		Image	NDStack	.tif	Microscope	icon-microscope.svg	Image	Single file
+AIM		Image	NDStack	.aim	Microscope	icon-microscope.svg	Image	Single file
+Alicona 3D		Image	NDStack	.al3d	Microscope	icon-microscope.svg	Image	Single file
+Amersham Biosciences Gel		Image	NDStack	.gel	Microscope	icon-microscope.svg	Image	Single file
+Amira Mesh		Image	NDStack	.am, .amiramesh, .grey, .hx, .labels	Microscope	icon-microscope.svg	Image
+Amnis FlowSight		Image	NDStack	.cif	Microscope	icon-microscope.svg	Image	Single file
+Andor SIF		Image	NDStack	.sif	Microscope	icon-microscope.svg	Image	Single file
+Animated PNG		Image	NDStack	.png	Microscope	icon-microscope.svg	Image	Single file
+Aperio AFI		Image	NDStack	.afi, .svs	Microscope	icon-microscope.svg	Image	Single file
+Aperio SVS TIFF		Image	NDStack	.svs	Microscope	icon-microscope.svg	Image	Single file
+Applied Precision CellWorX		Image	NDStack	.htd, .pnl	Microscope	icon-microscope.svg	Image
+AVI (Audio Video Interleave)		Image	NDStack	.avi	Microscope	icon-microscope.svg	Image	Single file
+Axon Raw Format		Image	NDStack	.arf	Microscope	icon-microscope.svg	Image	Single file
+BD Pathway		Image	NDStack	.exp, .tif	Microscope	icon-microscope.svg	Image
+Becker & Hickl SPC FIFO		Image	NDStack	.spc	Microscope	icon-microscope.svg	Image	Single file
+Becker & Hickl SPCImage		Image	NDStack	.sdt	Microscope	icon-microscope.svg	Image	Single file
+Bio-Rad Gel		Image	NDStack	.1sc	Microscope	icon-microscope.svg	Image	Single file
+Bio-Rad PIC		Image	NDStack	.pic, .raw, .xml	Microscope	icon-microscope.svg	Image
+Bio-Rad SCN		Image	NDStack	.scn	Microscope	icon-microscope.svg	Image	Single file
+Bitplane Imaris		Image	NDStack	.ims	Microscope	icon-microscope.svg	Image	Single file
+Burleigh		Image	NDStack	.img	Microscope	icon-microscope.svg	Image	Single file
+Canon DNG		Image	NDStack	.cr2, .crw	Microscope	icon-microscope.svg	Image
+CellH5		Image	NDStack	.ch5	Microscope	icon-microscope.svg	Image	Single file
+Cellomics		Image	NDStack	.c01, .dib	Microscope	icon-microscope.svg	Image
+cellSens VSI		Image	NDStack	.vsi	Microscope	icon-microscope.svg	Image	Single file
+CellVoyager		Image	NDStack	.xml, .tif	Microscope	icon-microscope.svg	Image
+DeltaVision		Image	NDStack	.dv, .r3d	Microscope	icon-microscope.svg	Image
+ECAT7		Image	NDStack	.v	Microscope	icon-microscope.svg	Image	Single file
+EPS (Encapsulated PostScript)		Image	NDStack	.eps, .epsi, .ps	Microscope	icon-microscope.svg	Image
+Evotec/PerkinElmer Opera Flex		Image	NDStack	.flex, .mea, .res	Microscope	icon-microscope.svg	Image
+FEI		Image	NDStack	.img	Microscope	icon-microscope.svg	Image	Single file
+FEI TIFF		Image	NDStack	.tiff	Microscope	icon-microscope.svg	Image	Single file
+FITS (Flexible Image Transport System)		Image	NDStack	.fits	Microscope	icon-microscope.svg	Image	Single file
+Gatan Digital Micrograph		Image	NDStack	.dm3, .dm4	Microscope	icon-microscope.svg	Image
+Gatan Digital Micrograph 2		Image	NDStack	.dm2	Microscope	icon-microscope.svg	Image	Single file
+Hamamatsu Aquacosmos NAF		Image	NDStack	.naf	Microscope	icon-microscope.svg	Image	Single file
+Hamamatsu HIS		Image	NDStack	.his	Microscope	icon-microscope.svg	Image	Single file
+Hamamatsu ndpi		Image	NDStack	.ndpi, .ndpis	Microscope	icon-microscope.svg	Image
+Hamamatsu VMS		Image	NDStack	.vms	Microscope	icon-microscope.svg	Image	Single file
+Hitachi S-4800		Image	NDStack	.txt, .tif, .bmp, .jpg	Microscope	icon-microscope.svg	Image
+I2I		Image	NDStack	.i2i	Microscope	icon-microscope.svg	Image	Single file
+ICS (Image Cytometry Standard)		Image	NDStack	.ics, .ids	Microscope	icon-microscope.svg	Image	Group together (header: ics, image: ids)
+Imacon		Image	NDStack	.fff	Microscope	icon-microscope.svg	Image	Single file
+ImagePro Sequence		Image	NDStack	.seq	Microscope	icon-microscope.svg	Image	Single file
+ImagePro Workspace		Image	NDStack	.ipw	Microscope	icon-microscope.svg	Image	Single file
+IMAGIC		Image	NDStack	.hed, .img	Microscope	icon-microscope.svg	Image
+IMOD		Image	NDStack	.mod	Microscope	icon-microscope.svg	Image	Single file
+Improvision Openlab LIFF		Image	NDStack	.liff	Microscope	icon-microscope.svg	Image	Single file
+Improvision Openlab Raw		Image	NDStack	.raw	Microscope	icon-microscope.svg	Image	Single file
+Improvision TIFF		Image	NDStack	.tif	Microscope	icon-microscope.svg	Image	Single file
+Imspector OBF		Image	NDStack	.obf, .msr	Microscope	icon-microscope.svg	Image
+InCell 1000/2000		Image	NDStack	.xdce, .tif	Microscope	icon-microscope.svg	Image
+InCell 3000		Image	NDStack	.frm	Microscope	icon-microscope.svg	Image	Single file
+INR		Image	NDStack	.inr	Microscope	icon-microscope.svg	Image	Single file
+Inveon		Image	NDStack	.hdr	Microscope	icon-microscope.svg	Image	Single file
+IPLab		Image	NDStack	.ipl	Microscope	icon-microscope.svg	Image	Single file
+IVision		Image	NDStack	.ipm	Microscope	icon-microscope.svg	Image	Single file
+JEOL		Image	NDStack	.dat, .img, .par	Microscope	icon-microscope.svg	Image
+JPK		Image	NDStack	.jpk	Microscope	icon-microscope.svg	Image	Single file
+JPX		Image	NDStack	.jpx	Microscope	icon-microscope.svg	Image	Single file
+Khoros VIFF (Visualization Image File Format) Bitmap		Image	NDStack	.xv	Microscope	icon-microscope.svg	Image	Single file
+Kodak BIP		Image	NDStack	.bip	Microscope	icon-microscope.svg	Image	Single file
+Lambert Instruments FLIM		Image	NDStack	.fli	Microscope	icon-microscope.svg	Image	Single file
+LaVision Imspector		Image	NDStack	.msr	Microscope	icon-microscope.svg	Image	Single file
+Leica LCS LEI		Image	NDStack	.lei, .tif	Microscope	icon-microscope.svg	Image
+Leica LAS AF LIF (Leica Image File Format)		Image	NDStack	.lif	Microscope	icon-microscope.svg	Image	Single file
+Leica SCN		Image	NDStack	.scn	Microscope	icon-microscope.svg	Image	Single file
+LEO		Image	NDStack	.sxm	Microscope	icon-microscope.svg	Image	Single file
+Li-Cor L2D		Image	NDStack	.l2d, .tif, .scn	Microscope	icon-microscope.svg	Image
+LIM (Laboratory Imaging/Nikon)		Image	NDStack	.lim	Microscope	icon-microscope.svg	Image	Single file
+MetaMorph 7.5 TIFF		Image	NDStack	.tiff	Microscope	icon-microscope.svg	Image	Single file
+MetaMorph Stack (STK)		Image	NDStack	.stk, .nd	Microscope	icon-microscope.svg	Image
+MIAS (Maia Scientific)		Image	NDStack	.tif	Microscope	icon-microscope.svg	Image	Single file
+Micro-Manager		Image	NDStack	.tif, .txt, .xml	Microscope	icon-microscope.svg	Image
+MINC MRI		Image	NDStack	.mnc	Microscope	icon-microscope.svg	Image	Single file
+Minolta MRW		Image	NDStack	.mrw	Microscope	icon-microscope.svg	Image	Single file
+MNG (Multiple-image Network Graphics)		Image	NDStack	.mng	Microscope	icon-microscope.svg	Image	Single file
+Molecular Imaging		Image	NDStack	.stp	Microscope	icon-microscope.svg	Image	Single file
+MRC (Medical Research Council)		Image	NDStack	.mrc	Microscope	icon-microscope.svg	Image	Single file
+NEF (Nikon Electronic Format)		Image	NDStack	.nef, .tif	Microscope	icon-microscope.svg	Image
+Nikon Elements TIFF		Image	NDStack	.tiff	Microscope	icon-microscope.svg	Image	Single file
+Nikon EZ-C1 TIFF		Image	NDStack	.tiff	Microscope	icon-microscope.svg	Image	Single file
+Nikon NIS-Elements ND2		Image	NDStack	.nd2	Microscope	icon-microscope.svg	Image	Single file
+NRRD (Nearly Raw Raster Data)		Image	NDStack	.nrrd, .nhdr, .raw, .txt	Microscope	icon-microscope.svg	Image
+Olympus CellR/APL		Image	NDStack	.apl, .mtb, .tnb, .tif, .obsep	Microscope	icon-microscope.svg	Image
+Olympus FluoView FV1000		Image	NDStack	.oib, .oif	Microscope	icon-microscope.svg	Image
+Olympus FluoView TIFF		Image	NDStack	.tif	Microscope	icon-microscope.svg	Image	Single file
+Olympus OIR		Image	NDStack	.oir	Microscope	icon-microscope.svg	Image	Single file
+Olympus ScanR		Image	NDStack	.xml, .dat, .tif	Microscope	icon-microscope.svg	Image
+Olympus SIS TIFF		Image	NDStack	.tiff	Microscope	icon-microscope.svg	Image	Single file
+OME-TIFF		Image	NDStack	.ome.tiff, .ome.tif, .ome.tf2, .ome.tf8, .ome.btf	Microscope	icon-microscope.svg	Image
+OME-XML		Image	NDStack	.ome, .ome.xml	Microscope	icon-microscope.svg	Image
+OMERO Pyramid		Image	NDStack		Microscope	icon-microscope.svg	Image
+Oxford Instruments		Image	NDStack	.top	Microscope	icon-microscope.svg	Image	Single file
+PCORAW		Image	NDStack	.pcoraw, .rec	Microscope	icon-microscope.svg	Image
+PCX (PC Paintbrush)		Image	NDStack	.pcx	Microscope	icon-microscope.svg	Image	Single file
+Perkin Elmer Densitometer		Image	NDStack	.pds	Microscope	icon-microscope.svg	Image	Single file
+PerkinElmer Columbus		Image	NDStack	.xml, .csv, .tif	Microscope	icon-microscope.svg	Image
+PerkinElmer Nuance		Image	NDStack	.im3	Microscope	icon-microscope.svg	Image	Single file
+PerkinElmer Operetta		Image	NDStack	.tiff, .xml	Microscope	icon-microscope.svg	Image
+PerkinElmer UltraVIEW		Image	NDStack	.tif, .2, .3, .4, etc.	Microscope	icon-microscope.svg	Image
+Portable Any Map		Image	NDStack	.pbm, .pgm, .ppm	Microscope	icon-microscope.svg	Image
+Adobe Photoshop PSD		Image	NDStack	.psd	Microscope	icon-microscope.svg	Image	Single file
+Photoshop TIFF		Image	NDStack	.tif, .tiff	Microscope	icon-microscope.svg	Image
+PicoQuant Bin		Image	NDStack	.bin	Microscope	icon-microscope.svg	Image	Single file
+PICT (Macintosh Picture)		Image	NDStack	.pict	Microscope	icon-microscope.svg	Image	Single file
+Prairie Technologies TIFF		Image	NDStack	.tif, .xml, .cfg	Microscope	icon-microscope.svg	Image
+Princeton Instruments SPE		Image	NDStack	.spe	Microscope	icon-microscope.svg	Image	Single file
+Quesant		Image	NDStack	.afm	Microscope	icon-microscope.svg	Image	Single file
+QuickTime Movie		Image	NDStack	.mov	Microscope	icon-microscope.svg	Image	Single file
+RHK		Image	NDStack	.sm2, .sm3	Microscope	icon-microscope.svg	Image
+SBIG		Image	NDStack		Microscope	icon-microscope.svg	Image
+Seiko		Image	NDStack	.xqd, .xqf	Microscope	icon-microscope.svg	Image	Single file
+SimplePCI & HCImage		Image	NDStack	.cxd	Microscope	icon-microscope.svg	Image	Single file
+SimplePCI & HCImage TIFF		Image	NDStack	.tiff	Microscope	icon-microscope.svg	Image	Single file
+SM Camera		Image	NDStack		Microscope	icon-microscope.svg	Image	Single file
+SPIDER		Image	NDStack	.spi, .stk	Microscope	icon-microscope.svg	Image
+Targa		Image	NDStack	.tga	Microscope	icon-microscope.svg	Image	Single file
+Text		Image	NDStack	.txt	Microscope	icon-microscope.svg	Image	Single file
+TIFF (Tagged Image File Format)		Image	NDStack	.tiff, .tif, .tf2, .tf8, .btf	Microscope	icon-microscope.svg	Image
+TillPhotonics TillVision		Image	NDStack	.vws	Microscope	icon-microscope.svg	Image	Single file
+Topometrix		Image	NDStack	.tfr, .ffr, .zfr, .zfp, .2fl	Microscope	icon-microscope.svg	Image
+Trestle		Image	NDStack	.tif, .sld, .jpg	Microscope	icon-microscope.svg	Image
+UBM		Image	NDStack	.pr3	Microscope	icon-microscope.svg	Image	Single file
+Unisoku		Image	NDStack	.dat, .hdr	Microscope	icon-microscope.svg	Image
+Varian FDF		Image	NDStack	.fdf	Microscope	icon-microscope.svg	Image	Single file
+Veeco AFM		Image	NDStack	.hdf	Microscope	icon-microscope.svg	Image	Single file
+VG SAM		Image	NDStack	.dti	Microscope	icon-microscope.svg	Image	Single file
+VisiTech XYS		Image	NDStack	.xys, .html	Microscope	icon-microscope.svg	Image
+Volocity		Image	NDStack	.mvd2	Microscope	icon-microscope.svg	Image	Single file
+Volocity Library Clipping		Image	NDStack	.acff	Microscope	icon-microscope.svg	Image	Single file
+WA-TOP		Image	NDStack	.wat	Microscope	icon-microscope.svg	Image	Single file
+Windows Bitmap		Image	NDStack	.bmp	Microscope	icon-microscope.svg	Image	Single file
+Woolz		Image	NDStack	.wlz	Microscope	icon-microscope.svg	Image	Single file
+Zeiss Axio CSM		Image	NDStack	.lms	Microscope	icon-microscope.svg	Image	Single file
+Zeiss AxioVision TIFF		Image	NDStack	.xml, .tif	Microscope	icon-microscope.svg	Image
+Zeiss AxioVision ZVI (Zeiss Vision Image)		Image	NDStack	.zvi	Microscope	icon-microscope.svg	Image	Single file
+Zeiss CZI		Image	NDStack	.czi	Microscope	icon-microscope.svg	Image	Single file
+Zeiss LSM (Laser Scanning Microscope) 510/710		Image	NDStack	.lsm, .mdb	Microscope	icon-microscope.svg	Image

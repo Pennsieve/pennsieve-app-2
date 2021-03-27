@@ -1,0 +1,145 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-aux-menu tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../bf-aux-menu.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template is="dom-template">
+      <bf-aux-menu cur-route="[[curRoute]]" state="[[state]]"></bf-aux-menu>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="collection">
+    <template is="dom-template">
+      <bf-aux-menu cur-route="[[curRoute]]" state="[[state]]"></bf-aux-menu>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+      let toggleCreateDatasetStub;
+
+      setup(function() {
+        basic = fixture('basic', {
+          curRoute: {
+            path: ''
+          },
+        });
+
+        basic.state = {
+          dataView: 'datasets'
+        }
+
+        toggleCreateDatasetStub = sinon.stub(basic, 'toggleCreateDataset', () => {});
+      });
+
+      teardown(function() {
+        toggleCreateDatasetStub.restore();
+      });
+
+      test('Can determine if user is viewing datasets', function(done) {
+        flush(() => {
+          const newDatasetButton = Polymer.dom(basic.root).querySelector('#newDatasetButton');
+          const newButton = Polymer.dom(basic.root).querySelector('#newButton');
+          assert.equal(basic.isDatasetsView, true);
+          assert.equal(newDatasetButton.hidden, false);
+          assert.equal(newButton.hidden, true);
+          assert.equal(newDatasetButton.textContent, 'New Dataset');
+          done();
+        });
+      });
+
+      test('Clicking New button will open new dataset dialog', function() {
+        const newButton = Polymer.dom(basic.root).querySelector('#newDatasetButton');
+        newButton.click();
+        expect(toggleCreateDatasetStub).to.have.been.calledOnce;
+      });
+
+    });
+
+    suite('collection', function() {
+      let collection;
+      let newWindow;
+      let toggleMenuSpy;
+      let toggleCreateCollectionStub;
+
+      setup(function() {
+        collection = fixture('collection', {
+          curRoute: {
+            path: '/dataset/123'
+          }
+        });
+        collection.state = {
+          appView: 'data-catalog'
+        }
+
+        newWindow = Polymer.dom(collection.root).querySelector('#newWindow');
+
+        toggleMenuSpy = sinon.spy(collection, 'toggleMenu');
+        toggleCreateCollectionStub = sinon.stub(newWindow, 'toggleCreateCollection', newWindow.closeWindow);
+      });
+
+      teardown(function() {
+        toggleMenuSpy.restore();
+        toggleCreateCollectionStub.restore();
+      });
+
+      test('Can determine if user is viewing data collection', function() {
+        const newDatasetButton = Polymer.dom(collection.root).querySelector('#newDatasetButton');
+        const newButton = Polymer.dom(collection.root).querySelector('#newButton');
+
+        assert.equal(collection.isDatasetsView, false);
+        assert.equal(newDatasetButton.hidden, true);
+        assert.equal(newButton.hidden, false);
+        assert.equal(newButton.textContent, 'New...');
+      });
+
+      test('Clicking New button will toggle bf-aux-menu-window', function() {
+        const newButton = Polymer.dom(collection.root).querySelector('#newButton');
+
+        newButton.click();
+        assert.equal(newWindow.opened, true);
+
+        newButton.click();
+        assert.equal(newWindow.opened, false);
+      });
+
+      test('Clicking create collection icon will trigger create collection dialog', function() {
+        const newButton = Polymer.dom(collection.root).querySelector('#newButton');
+        const createCollectionBtn = newWindow.$$('#createCollectionButton');
+
+        newButton.click();
+        expect(newWindow.opened).to.be.true;
+
+        createCollectionBtn.click();
+        expect(toggleCreateCollectionStub).to.have.been.calledOnce;
+        expect(newWindow.opened).to.be.false;
+      });
+
+    });
+  </script>
+
+</body>
+</html>

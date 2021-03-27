@@ -1,0 +1,48 @@
+.filter-menu {
+  .icon-filter-filled,
+  .icon-sort-asc,
+  .icon-sort-desc {
+    fill: #BDBDBD;
+  }
+
+  .icon-filter-filled {
+    margin-right: 8px;
+  }
+
+  .icon-sort-asc,
+  .icon-sort-desc {
+    margin-right: 4px;
+  }
+
+  .svg-down {
+    transform: rotate(180deg);
+    &.svg-flip {
+      transform: rotate(180deg) scaleX(-1);
+    }
+  }
+
+  .filter-menu-item {
+    text-transform: capitalize;
+  }
+
+  .clear-column-filter-selections {
+    font-size: 10px;
+    margin-left: 4px;
+  }
+}
+
+.filter-by-menu {
+  margin-left: 0 !important;
+  margin-top: -9px !important;
+
+  &.left-aligned{
+    left: 929px;
+  }
+  .icon-check {
+    margin-top: -4px;
+  }
+}
+
+.icon-filter-filled.table-header-icon {
+  margin-left: 8px;
+}

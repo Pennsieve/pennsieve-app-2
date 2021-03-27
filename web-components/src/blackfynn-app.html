@@ -1,0 +1,559 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/polymer-cookie/polymer-cookie.html">
+
+<link rel="import" href="styles/blackfynn/icons.html">
+<link rel="import" href="styles/blackfynn/main.html">
+
+<link rel="import" href="config/config.html">
+<link rel="import" href="components/blackfynn/state/bf-state-behavior.html">
+<link rel="import" href="components/blackfynn/global/bf-header/bf-header.html">
+<link rel="import" href="./vendor-scripts.html">
+
+<dom-module id="blackfynn-app">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+        font-size: 14px;
+        --app-drawer-width: 68px;
+      }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:organizationId"
+      data="{{routeOrgData}}"
+      tail="{{subrouteOrg}}"
+      query-params="{{queryParams}}"></app-route>
+
+    <app-route
+      route="{{subrouteOrg}}"
+      pattern="/:page"
+      data="{{routePageData}}"
+      tail="{{subroutePage}}"></app-route>
+
+    <bf-header
+      id="appHeader"
+      active-organization="[[activeOrganization]]"
+      cur-package="[[curPackage]]"
+      hidden$="[[hideHeader]]"
+      home-url="[[dataUrl]]"
+      is-uploading="[[isUploading]]"></bf-header>
+
+    <iron-pages role="main" selected="[[page]]" attr-for-selected="name">
+
+      <template is="dom-if" if="[[_hasConceptsFeature]]">
+        <blackfynn-view-explore
+          name="explore"
+          route="{{subroutePage}}"></blackfynn-view-explore>
+      </template>
+
+      <blackfynn-view-licenses
+        name="licenses"
+        api="[[apiUrl]]"></blackfynn-view-licenses>
+
+    </iron-pages>
+
+    <polymer-cookie id="session_cookie" name="user_token" value="[[user]]" path="/"></polymer-cookie>
+
+    <iron-ajax
+      method="POST"
+      id="logoutRequest"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleLogout">
+    </iron-ajax>
+
+    <iron-ajax
+      id="getProfile"
+      handle-as="json"
+      content-type="application/json"
+      on-error="ajaxError"
+      on-response="_setProfileState"
+      last-response="{{profile}}"
+      debounce-duration="300">
+    </iron-ajax>
+
+     <iron-ajax
+        id="switchOrgRequest"
+        method="PUT"
+        handle-as="json"
+        content-type="application/json"
+        loading="{{processing}}"
+        on-error="ajaxError"
+        on-response="_handleOrgSwitched"
+        debounce-duration="300"></iron-ajax>
+
+  </template>
+
+  <script>
+
+    window.Blackfynn = window.Blackfynn || {};
+
+    Polymer({
+      is: 'blackfynn-app',
+
+      properties: {
+        loggedIn: {
+          type: Boolean,
+          notify: true
+        },
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged'
+        },
+        user: {
+          type: String
+        },
+        profile: {
+          type: Object
+        },
+        organizations: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        activeOrganization: {
+          type: Object,
+          value: {
+            administrators: [],
+            isAdmin: false,
+            isOwner: false,
+            organization: {},
+            owners: []
+          }
+        },
+
+        getOrganizationsUrl: {
+          type: String,
+          computed: '_computeGetOrganizationsUrl(apiUrl, user)'
+        },
+        setsPath: {
+          type: String,
+          value: '/datasets',
+          readOnly: true,
+        },
+        dataUrl: {
+          type: String,
+          computed: '_computeDataUrl(activeOrganization.organization, setsPath)'
+        },
+        viewerPath: {
+          type: String,
+          value: '/viewer',
+          readOnly: true,
+        },
+        viewerUrl: {
+          type: String,
+          computed: '_computeViewerUrl(activeOrganization.organization, viewerPath)'
+        },
+        hideHeader: {
+          type: Boolean,
+          computed: '_computeHideHeader(state.appView)'
+        },
+        isPackageLoading: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * URL query parameters
+         */
+        queryParams: {
+          type: Object,
+          value: function() {
+            return {};
+          },
+          notify: true
+        },
+        /**
+         * Tracks if the user has the concepts feature flag
+         */
+        _hasConceptsFeature: {
+          type: Boolean,
+          value: false
+        },
+        isUploading: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      observers: [
+        '_routePageChanged(routePageData.page, loggedIn)',
+        '_routePathChanged(page)',
+        '_routeOrgDataChanged(routeOrgData.organizationId)'
+      ],
+
+      behaviors: [
+        StateBehavior,
+        Blackfynn.Config
+      ],
+
+      _routePageChanged: function(page, loggedIn) {
+        this.setPage(page, loggedIn);
+
+        // Close viewer if user goes away from viewer
+        const viewers = R.pathOr([], ['viewer', 'viewers'])(this.state);
+        if((page !== 'viewer' && viewers.length > 0) || (loggedIn === false && viewers.length > 0)) {
+          this.$.viewViewer.closeViewer();
+        }
+      },
+
+      /**
+      * Call cancelSearching function in data-catalog component
+      * when user clicks on bf logo in bf-header component
+      */
+      cancelSearch: function() {
+        this.fire('cancel-searching');
+      },
+
+      /**
+       * Sets the page for views
+       * @param {String} page
+       * @param {Boolean} loggedIn
+       */
+      setPage: function(page, loggedIn) {
+        if (loggedIn || page === 'welcome') {
+          this.page = page || 'datasets';
+        } else {
+          this.set('page', 'not-logged-in');
+        }
+      },
+
+      _routePathChanged: function(title) {
+        const path = this.route.path;
+
+        // Fire pageview for analytics
+        this.fire('track-page', { path, title });
+      },
+
+      _computeHideHeader: function(appView) {
+        if(appView === 'welcome' || appView === 'not-logged-in' || !appView) {
+          return true;
+        }
+
+        return false;
+      },
+
+      _pageChanged: function(page) {
+        const blacklist = ['people', 'teams', 'datasets', 'settings', 'my-settings'];
+        if (!page || blacklist.indexOf(page) >= 0) {
+          return
+        }
+        this.importHref(this.resolveUrl('views/' + page + '.html'), null, this._showPage404, true);
+
+        this.fire('set-state-path', {
+          path: 'appView',
+          state: page
+        });
+      },
+
+      _computeGetOrganizationsUrl: function(api, user) {
+        if(api && user) {
+          return `${api}/organizations?api_key=${user}`;
+        }
+      },
+
+      _computeDataUrl(activeOrganization, setsPath) {
+        return `/${activeOrganization.id}${setsPath}`;
+      },
+
+      _computeViewerUrl(activeOrganization, viewerPath) {
+        return `/${activeOrganization.id}${viewerPath}`;
+      },
+
+      _handleOrgSwitched: function(e) {
+        const newOrgId = e.detail.response.preferredOrganization;
+        const newOrg = R.find(R.pathEq(['organization', 'id'], newOrgId), this.state.organizations);
+        const subscriptionTerms = R.path(['organization', 'subscriptionState'], newOrg);
+
+        this.setActiveOrganization(newOrg);
+        this.set('activeOrganization', newOrg);
+
+        if(!this._isObjectEmpty(subscriptionTerms)) {
+          this.set('routeOrgData.organizationId', newOrgId);
+          this.set('subrouteOrg.path', this.setsPath);
+
+          // Clear current dataset
+          this.fire('set-state-path', {
+            path: 'curDataSet',
+            state: {}
+          });
+
+          this.fire('update-cur-dataset', {});
+
+          // Clear upload destination
+          this.fire('set-state-path', {
+            path: 'uploadDestination',
+            state: {}
+          });
+
+          // Clear curPackage
+          if(this.$.viewData && typeof this.$.viewData.set !== 'undefined') {
+            this.$.viewData.set('curPackage', {});
+          }
+        }
+      },
+
+      /**
+       * Sets the profile object value on the app state tree
+       * @param {Object} e
+       * @param {Object} detail
+       */
+      _setProfileState: function(e, detail) {
+        const profileObj = {profile: detail.response};
+        this.fire('set-state', profileObj);
+      },
+
+      ready: function() {
+        const user_cookie = this.$.session_cookie.readCookie();
+        const page = R.defaultTo('', this.routePageData.page)
+
+        if(user_cookie) {
+          this.loggedIn = true;
+          this.user = user_cookie;
+          this.$.getProfile.url = `${this.apiUrl}/user?api_key=${this.user}`;
+          this.$.getProfile.generateRequest();
+        } else {
+          this.loggedIn = false;
+          this.user = null;
+          this.profile = null;
+          this.setPage(page, false);
+        }
+
+        // set initial app state
+        this.fire('set-state', {
+          userToken: this.user,
+          loggedIn: this.loggedIn,
+          route: this.route,
+          routePageData: this.routePageData,
+          nodeTypes: ['collection', 'dataset'],
+          uploadDestination: {},
+          tempUploadDestination: null,
+          isSearching: false,
+          isLoadingSearch: false,
+          isUploading: false
+        });
+
+        // Import data-catalog view after search has been rendered
+        Polymer.RenderStatus.afterNextRender(this.$.viewData, () => {
+          this.importHref(this.resolveUrl('views/viewer.html'), null, null, true);
+        });
+      },
+
+      ajaxError: function(e) {
+        const status = R.pathOr(500, ['detail', 'request', 'status'], e)
+        this.fire('ajaxError', { status });
+      },
+
+      _onAjaxError: function(e) {
+        const status = R.pathOr(500, ['detail', 'status'], e)
+        switch (status) {
+          case 401:
+            this._handleLogout();
+            break;
+          default:
+            this.fire('toast', {
+              type: 'ERROR'
+            })
+            break;
+        }
+      },
+      _showPage404: function() {
+        this.page = '404';
+      },
+
+      /**
+       * Get first organization from list
+       * @param {Array} list
+       * @return {Array}
+       */
+      getFirstOrg: (list) => R.compose(
+        R.defaultTo([]),
+        R.head,
+        R.pathOr([], ['response', 'organizations'])
+      )(list),
+
+      /*
+       * Get default based on JavaScript falsy
+       */
+      defaultByFalsy: (defaultValue, valueToTest) => Boolean(valueToTest) ? valueToTest : defaultValue,
+
+      /**
+       * Set active organization state
+       * @param {Object} organization
+       */
+      setActiveOrganization: function(organization) {
+        this.fire('set-state', {
+          activeOrganization: organization
+        });
+        this.fire('update-active-organization', {
+          activeOrganization: organization
+        });
+      },
+
+      updateProfile: function(e) {
+        const profile = R.pathOr({}, ['detail', 'profile'], e)
+        const profileObj = {profile}
+        this.set('profile', profile);
+        // update profile state
+        this.fire('set-state', profileObj);
+      },
+
+      switchOrganization: function(e) {
+        const newOrgId = R.pathOr(0, ['detail', 'organization', 'organization', 'id'], e);
+        // Do nothing if the user is trying to switch to the organization that is already active
+        if(newOrgId === this.activeOrganization.organization.id) {
+          return;
+        }
+        this.$.switchOrgRequest.url = `${this.apiUrl}/user/organization/${newOrgId}/switch?api_key=${this.user}`;
+        this.$.switchOrgRequest.generateRequest();
+      },
+
+      _routeOrgDataChanged: function(organizationId) {
+        if(organizationId !== this.activeOrganization.organization.id && Object.keys(this.organizations).length > 0) {
+          const organization = this.getOrgById(organizationId);
+          // Set the new active organization
+          if(organization !== false) {
+            this.set('activeOrganization', organization);
+            // update activate organization state
+            this.fire('set-state', {activeOrganization: organization});
+          }
+        }
+      },
+
+      getOrgById: function(organizationId) {
+        const organizations = this.organizations;
+
+        for (let i = 0; i < organizations.length; i++) {
+          if(organizations[i].organization.id === organizationId) {
+            return organizations[i];
+          }
+        }
+
+        return false;
+
+      },
+
+      /**
+       * Add files to upload queue
+       * @param {Event} e
+       */
+      addToUploadQueue: function(e) {
+        const files = R.pathOr([], ['detail', 'files'], e);
+        this.$.appHeader.$.auxMenu.$.blackfynnUpload.uploader.addFiles(files);
+      },
+
+      openDestinationDialog: function() {
+        this.$.destinationDialog.openDialog();
+      },
+
+      /**
+       * Set search results in the data catalog
+       * @param {Event} e
+       */
+      setSearchResults: function(e) {
+        // Set route
+        this.set('route.path', this.dataUrl);
+      },
+
+      /**
+       * Toggle search input expanded state
+       */
+      toggleSearchExpanded: function() {
+        this.$.appHeader.$.searchInput.toggleSearch();
+      },
+
+      /**
+       * Open viewer
+       * @param {Event} e
+       */
+      openViewer: function(e) {
+        // Open viewer
+        if (typeof this.$.viewViewer.openItem !== 'function') {
+          return;
+        }
+        this.$.viewViewer.openItem(e);
+        // Set route
+        this.set('route.path', this.viewerUrl);
+        // Set Package Id
+        const pkgId = e.detail.item.content.id
+        this.queryParams = { p: pkgId }
+      },
+
+      /**
+      * Check if object is Empty
+      * @param {Object} obj
+      */
+      _isObjectEmpty: function(obj) {
+        return obj ? !Object.keys(obj).length : true;
+      },
+
+      /**
+      * Get package data to send to bf-viewer
+      * @param {Event} e
+      */
+      getPackage: function(e) {
+        const id = R.pathOr('', ['detail', 'id'], e);
+
+        if (!id || !this.loggedIn) {
+          return;
+        }
+
+        this.isPackageLoading = true;
+        const url = `${this.state.apiUrl}/packages/${id}?api_key=${this.state.userToken}`;
+
+        fetch(url)
+          .then((response) => {
+            const { status } = response
+            if (status === 200) {
+              return response.json()
+            }
+            throw new Error()
+          })
+          .then((json) => {
+            this.fire('open-viewer', { item: json })
+            this.isPackageLoading = false
+          })
+          .catch((err) => {
+            this.fire('toast', { type: 'ERROR' });
+            this.isPackageLoading = false
+          })
+      },
+      /**
+      * Update query params in the App URL
+      * @param {Event} e
+      */
+      updateQueryParams: function(e) {
+        this.set('queryParams', e.detail)
+      },
+
+      /**
+       * Close header overlays
+       */
+      closeHeaderOverlays: function() {
+        this.$.appHeader.$.auxMenu.closeHeaderOverlays();
+      }
+    });
+
+  </script>
+
+</dom-module>

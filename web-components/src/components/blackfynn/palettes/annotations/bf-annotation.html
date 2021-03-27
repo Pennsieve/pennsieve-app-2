@@ -1,0 +1,324 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="./bf-annotation-menu-window.html">
+<link rel="import" href="./annotation-behavior.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<dom-module id="bf-annotation">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        display: block;
+        overflow: visible;
+        position: relative;
+
+        --iron-icon-height: 18px;
+        --iron-icon-width: 18px;
+      }
+
+      h3 {
+        color: #000000;
+	      font-size: 13px;
+	      font-weight: 500;
+	      line-height: 18px;
+        margin: 0 0 2px 0;
+      }
+
+      .annotation {
+        background: #F7F7F7;
+        border-bottom: solid 1px #DADADA;
+        box-sizing: border-box;
+        color: #aeaeae;
+        font-size: 12px;
+        font-weight: 300;
+        height: 62px;
+        line-height: 14px;
+        padding: 0 10px 0 15px;
+        transition: background .15s linear;
+        width: 100%;
+
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+
+      .annotation:hover,
+      .annotation.active,
+      .annotation:focus,
+      :host([selected]) .annotation {
+        background: #fff;
+      }
+
+      .annotation-controls {
+        text-align: right;
+        max-width: 60px;
+        opacity: 0;
+      }
+
+      .row {
+        @apply(--layout-horizontal);
+      }
+
+      .row .col-left {
+        @apply(--layout-flex);
+      }
+
+      :host([hovering]) .annotation-controls,
+      :host([selected]) .annotation-controls {
+        opacity: 1;
+      }
+
+      .annotation-control {
+        transition: color .15s linear;
+      }
+
+      .annotation-control:hover {
+        cursor: pointer;
+      }
+
+      iron-icon {
+        color: #000;
+      }
+
+      iron-icon:hover, iron-icon[focused] {
+        color: var(--dopamine);
+      }
+
+      .all-hidden {
+        color: #9B9B9B;
+      }
+
+      .annotation-controls > p > iron-icon:nth-child(2) {
+        margin-left: 2px;
+      }
+    </style>
+
+    <div class="annotation" id="[[annotation.id]]">
+      <div class="row">
+        <h3 class="col-left">[[annotationTitle]]</h3>
+        <div class="col-right">[[_computeLayerName(annotation.layer_id, vuex.viewer.viewerAnnotations.*)]]</div>
+      </div>
+      <div class="row">
+        <div class="col-left">[[userDisplayName]]<!-- &bull; [[annotationDate]] &bull; [[annotationTime]]--></div>
+        <div class="col-right annotation-controls">
+          <iron-icon class="annotation-control" icon="blackfynn:comments" on-tap="viewDiscussion"></iron-icon>
+          <iron-icon hidden$="[[!canCrudAnnotation]]" class="annotation-control" icon="blackfynn:more-h" on-tap="openAnnotationMenu"></iron-icon>
+        </div>
+      </div>
+    </div>
+
+    <bf-annotation-menu-window
+      id="annotationMenu"
+      annotation="[[annotation]]"
+      active-viewer="[[vuex.viewer.activeViewer]]"></bf-annotation-menu-window>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-annotation',
+
+      behaviors: [
+        Blackfynn.VuexBehavior,
+        BlackfynnAnnotationBehavior
+      ],
+
+      properties: {
+        canCrudAnnotation: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * duration of annotation; for timeseries data
+         */
+        duration: {
+          type: String,
+          computed: '_computeDuration(annotation.duration)'
+        },
+        /**
+         * date annotation created
+         */
+         annotationDate: {
+          type: String,
+          computed: '_computeDate(annotation.updatedAt)'
+        },
+        /**
+         * time annotation created
+         */
+        annotationTime: {
+          type: String,
+          computed: '_computeTime(annotation.updatedAt)'
+        },
+        /**
+         * compute annotation creator's full name
+         */
+         userName: {
+          type: String,
+          computed: '_computeUser(annotation.userId, vuex.orgMembers.*)'
+        },
+        /**
+         * compute annotation creator's display name
+         */
+        userDisplayName: {
+          type: String,
+          computed: '_computeUserDisplayName(vuex.profile, userName)'
+        },
+        /**
+         * determines if user is owner of annotation
+         */
+        isOwner: {
+          type: Boolean,
+          computed: '_computeOwner(vuex.profile.id, annotation.userId)'
+        },
+        /**
+         * annotation title
+         */
+        annotationTitle: {
+          type: String,
+          computed: '_computeAnnotationTitle(annotation)'
+        },
+        /**
+         * tracks whether or not component is being hovered over
+         */
+         hovering: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * tracks whether or not component is selected
+         */
+         selected: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * current index for annotation
+         */
+         index: {
+          type: Number,
+          value: 0
+        },
+        /**
+         * current user profile object
+         */
+         profile: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        // _annotation: {
+        //   type: Object,
+        //   observer: 'setAnnotation'
+        // },
+        /**
+         * current annotation object
+         */
+         annotation: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * hide discussion button in timeseries viewer
+         */
+        hideDiscussionBtn: {
+          type: Boolean,
+          computed: '_computeHideDiscussionBtn(annotation)'
+        }
+      },
+
+      listeners: {
+        'mouseenter': '_mouseenter',
+        'mouseleave': '_mouseleave'
+      },
+
+      /**
+       * Hide discussion button for Timeseries viewer
+       */
+      _computeHideDiscussionBtn: function(annotation) {
+        // end property will only exist in timeseries annotations
+        if (annotation.end) {
+          return true
+        }
+        return false
+      },
+
+      /**
+       * Computes user's display name
+       * @param {Object} profile
+       * @param {String} userName
+       * @returns {String}
+       */
+      _computeUserDisplayName(profile, userName) {
+        if (userName.trim().length === 0) {
+          return 'Unknown User';
+        }
+        return userName;
+      },
+
+      /**
+       * Computes layer name
+       * @param {String} layerId
+       * @param {Array} layers
+       * @returns {String}
+       */
+      _computeLayerName: function(layerId, layers) {
+        const annLayers = R.prop('base', layers);
+        if (!annLayers || annLayers.length === 0) {
+          return;
+        }
+        const layer = R.find(R.propEq('id', layerId), annLayers);
+        return R.propOr('', 'label', layer);
+      },
+
+      setAnnotation: function(annotation) {
+        this.set('annotation', JSON.parse(annotation))
+      },
+
+      /**
+       * Toggles annotation context menu
+       */
+       openAnnotationMenu: function() {
+        this.$.annotationMenu.open();
+      },
+
+      /**
+       * Add hovering attribute to host on mouseenter
+       */
+      _mouseenter: function() {
+        this.set('hovering', true);
+      },
+
+      /**
+       * Remove hovering attribute to host on mouseleave
+       */
+       _mouseleave: function() {
+        this.set('hovering', false);
+        this.$.annotationMenu.close();
+      },
+
+      /**
+       * View discussion in discussion palette
+       */
+      viewDiscussion: function() {
+        const discussionId = this.annotation.discussionId;
+        if (discussionId) {
+          // View discussion in discussion palette
+          this.fire('view-discussion', { id: discussionId});
+        } else {
+          this.fire('start-discussion', { annotationId: this.annotation.id });
+        }
+      }
+
+    });
+  </script>
+
+</dom-module>

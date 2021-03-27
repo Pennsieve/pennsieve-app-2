@@ -1,0 +1,21 @@
+.el-dropdown-menu, .el-select-dropdown__list {
+  padding: 8px 0;
+}
+.el-dropdown-menu{
+  overflow-x: hidden;
+  overflow-y: auto;
+  &.el-zoom-in-top-enter-active, &.el-zoom-in-top-leave-active {
+    transition: none;
+  }
+}
+.el-dropdown-link {
+  cursor: pointer;
+  outline: none;
+  &:hover, &:focus {
+    color: $app-primary-color;
+  }
+}
+.el-dropdown-text-link {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}

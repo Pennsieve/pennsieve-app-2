@@ -1,0 +1,403 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/browse.html">
+<link rel="import" href="../../../../styles/blackfynn/data-item.html">
+<link rel="import" href="../bf-data-item/bf-data-item.html">
+<link rel="import" href="../bf-data-item-behavior.html">
+<link rel="import" href="../bf-empty-dataset/bf-empty-dataset.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../shared/bf-package-sort-behavior.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<!--
+## bf-package-list
+
+`<bf-package-list>` is a list of all packages.
+-->
+
+<dom-module id="bf-package-list">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-browse-styles"></style>
+    <style include="bf-data-item-styles"></style>
+    <style type="text/css">
+      :host {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        height: 290px;
+      }
+      .load-wrap {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--layout-flex);
+      }
+      .is-empty-wrap {
+        padding: 15px 0 0 30px;
+      }
+    </style>
+
+    <div id="browseContent" hidden$="[[isLoadingCollection]]">
+
+      <bf-empty-dataset
+        is-empty="[[isEmpty]]"
+        packages="[[packages]]"
+        catalog-route="[[parentId]]"
+        hide-empty-text="[[hideEmptyText]]"></bf-empty-dataset>
+
+      <template is="dom-repeat" items="{{packages}}" sort="[[_sort(sortBy, sortDirection)]]">
+        <bf-data-item
+          data="{{item}}"
+          selected="[[selected]]"
+          draggable="[[canDragItems]]"
+          hide-menu$="[[hideItemMenu]]"
+          node-types="[[state.nodeTypes]]"
+          collections-only="[[collectionsOnly]]"
+          multi-select-items="[[multiSelectItems]]"
+          index="[[index]]"
+          cur-package="[[curPackage]]"
+          hide-columns="[[hideHeadings]]"
+          in-file-browser="[[inFileBrowser]]"
+          in-ts-annotation="[[inTsAnnotation]]">
+        </bf-data-item>
+      </template>
+
+    </div>
+
+    <div class="load-wrap" hidden$="[[!isLoadingCollection]]">
+      <paper-spinner-lite id="browseLoading" active></paper-spinner-lite>
+    </div>
+
+    <iron-ajax
+      auto$="[[isAuto]]"
+      id="getCollectionData"
+      method="GET"
+      content-type="application/json"
+      handle-as="json"
+      loading="{{isLoadingCollection}}"
+      url="[[_getCollectionDataUrl]]"
+      on-response="_handleGetCollectionData"
+      on-error="ajaxError">
+    </iron-ajax>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-package-list',
+
+      behaviors: [
+        Blackfynn.DataItemBehavior,
+        Blackfynn.AjaxBehavior,
+        Blackfynn.PackageSortBehavior,
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        isAuto: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Array of all items selected by the user
+         */
+        selected: {
+          type: Array,
+          value: function() {
+            return [];
+          },
+          notify: true
+        },
+        /**
+         * Last selected item in the list. Used for shift+click selection
+         */
+        lastSelectedItem: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        packages: {
+          type: Array,
+          value: undefined
+        },
+        _packages: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        curPackage: {
+          type: Object,
+          value: {
+            content: {},
+            parent: '',
+            properties: [],
+            children: []
+          },
+          notify: true
+        },
+        /**
+         * Determines if data item can be dragged
+         */
+        canDragItems: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Bound to the `iron-ajax` component to get collection data
+         */
+        isLoadingCollection: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Used when there are no children in curPackage to display
+         */
+        isEmpty: {
+          type: Boolean,
+          computed: '_computeIsEmpty(packages.length)',
+          value: false
+        },
+        _getCollectionDataUrl: {
+          type: String,
+          computed: '_computeGetCollectionDataUrl(vuex.config.apiUrl, vuex.userToken, parentId)'
+        },
+        /**
+         * Show or hide headings
+         */
+        hideHeadings: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Show or hide empty collection text
+         */
+        hideEmptyText: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Sets styles and limits functionality to only collections for data-items
+         */
+        collectionsOnly: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Allow users to select multiple items
+         */
+        multiSelectItems: {
+          type: Boolean,
+          value: true
+        },
+        /**
+         * Opens the create collection dialog
+         */
+        createCollectionOpen: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Stores the move item payload in the event of conflicts
+         */
+        movePayload: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * Tracks whether or not instance of package list is rendered within the file browser
+         */
+         inFileBrowser: {
+           type: Boolean,
+           value: false
+         },
+         /**
+         * Checks whether or not package list is part of TS Annotations
+         */
+         inTsAnnotation: {
+           type: Boolean,
+           value: false
+         },
+         parentId: {
+           type: String,
+           value: ''
+
+         }
+      },
+
+      listeners: {
+        'select-item': 'selectItem',
+        'end-drag-item': 'endDragItem',
+        'open-collection': 'openCollection'
+      },
+
+      openCollection: function(e, detail) {
+        // Don't get new collection data if user requests same folder as current
+        if(detail.triggerLoad === false && this.curPackage.content.id === detail.data.id) {
+          return;
+        }
+        // Set the route to the new collection's id as long as no modals are open
+        const dataId = R.pathOr('', ['data', 'id'], detail);
+        // this.$store.dispatch('setDatasetId', dataId);
+        this.set('parentId', dataId);
+
+        // Reset selected item
+        this.set('selected', []);
+      },
+
+      _getNodeType: function(id, nodeTypes) {
+        if (!id) {
+          return 'datasets';
+        }
+        for (let i = 0; i < nodeTypes.length; i++) {
+          if(id.toLowerCase().indexOf(nodeTypes[i].toLowerCase()) > 0) {
+            return nodeTypes[i];
+          }
+        }
+        return 'datasets';
+      },
+
+      _computeGetCollectionDataUrl: function(api, user, id) {
+
+        const whiteList = ['dataset', 'package', 'collection'];
+        const type = this._getNodeType(id, whiteList);
+        if (!whiteList.includes(type)) {
+           return this.set('isAuto', false);
+        }
+        if (!this.isAuto) {
+          this.set('isAuto', true);
+        }
+        const baseUrl = id && id.indexOf('dataset') < 0 ? 'packages' : 'datasets';
+        return `${api}/${baseUrl}/${id}?api_key=${user}&includeAncestors=true`;
+      },
+
+      _computeIsEmpty: function(packagesLength) {
+        return packagesLength === 0;
+      },
+
+      _getCollectionData: function(id) {
+        if (id) {
+          const url = R.pathOr('', ['config', 'apiUrl'], this.vuex)
+          const userToken = R.propOr('', 'userToken', this.vuex)
+
+          fetch(`${url}/packages/${id}?api_key=${userToken}&includeAncestors=true`)
+            .then((response) => {
+              const { status, statusText } = response
+               if (status === 200) {
+                return response.json()
+              }
+              throw new Error(statusText)
+            })
+            .then((json) => {
+              this._handleGetCollectionData(null, { response: json })
+            })
+            .catch((err) => {
+              // TODO: Send error to Sentry
+            })
+        }
+      },
+
+      _handleGetCollectionData: function(e, detail) {
+        let packages = [];
+
+        const responseData = detail.response.children ? detail.response.children : detail.response;
+
+        for (let i = 0; i < responseData.length; i++) {
+          packages.push(responseData[i]);
+        }
+
+        this.set('selected', []);
+        this.set('packages', packages);
+        this.set('curPackage', detail.response);
+        // Set breadcrumbs
+        this.fire('set-breadcrumbs', { ancestors: detail.response.ancestors });
+      },
+
+      selectItem: function(e, detail) {
+        const indexOfItem = this.selected.indexOf(detail.item);
+
+        // Shift click will select all of the items from last current selected to clicked item
+        if(detail.shiftKey) {
+          if(this.selected.length > 0) {
+
+            const items = Polymer.dom(this.root).querySelectorAll('bf-data-item');
+            const lastItemIndex = this.lastSelectedItem.index;
+
+            let firstIndex = detail.item.index;
+            let lastIndex = lastItemIndex;
+
+            if(lastItemIndex < firstIndex) {
+              firstIndex = lastItemIndex;
+              lastIndex = detail.item.index + 1;
+            } else {
+              lastIndex = lastIndex + 1;
+            }
+
+            const newItems = items.slice(firstIndex, lastIndex);
+
+            this.set('selected', newItems);
+          }
+          return;
+        }
+
+        // Check if the item is already selected
+        if(indexOfItem === -1) {
+          if(detail.metaKey) {
+            // Add item to selected list
+            this.push('selected', detail.item);
+          } else {
+            // Reset selected list and only have this item selected
+            this.set('selected', [detail.item]);
+          }
+
+          this.set('lastSelectedItem', detail.item);
+
+        } else {
+          // Unset selected
+          if(detail.metaKey) {
+            this.splice('selected', indexOfItem, 1);
+          } else {
+            this.set('selected', []);
+          }
+        }
+
+        this.fire('items-selected', this.selected);
+      },
+
+      getIndexById: function(id, data) {
+        for (let i = 0; i < data.length; i++) {
+          if(data[i].content.id === id) {
+            return i;
+          }
+        }
+
+        return false;
+      },
+
+      /**
+       * Set state of item
+       * @param {string} itemId
+       * @param {string} state
+       */
+      setPackageState: function(itemId, state) {
+        const idx = R.findIndex(R.pathEq([`content`, `id`], itemId))(this.get('packages'));
+
+        if (idx) {
+          this.set(`packages.${idx}.content.state`, state);
+        }
+      }
+    });
+
+  </script>
+
+</dom-module>

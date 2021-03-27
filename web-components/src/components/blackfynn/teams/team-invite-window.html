@@ -1,0 +1,106 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-team-invite-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <paper-dialog id="dialog" with-backdrop on-iron-overlay-opened="patchOverlay">
+      <h2>Invite to [[team.name]]</h2>
+
+      <div class="dialog-body">
+        <paper-input label="Email" value="{{email}}" required=true autofocus="true"></paper-input>
+      </div>
+
+      <div class="buttons">
+        <paper-button hidden$="[[processing]]" dialog-dismiss>Cancel</paper-button>
+        <paper-button hidden$="[[processing]]" class="primary" on-tap="_doInviteToTeam">Invite</paper-button>
+        <paper-spinner-lite hidden$="[[!processing]]" active$="[[processing]]"></paper-spinner-lite>
+      </div>
+    </paper-dialog>
+
+    <iron-ajax
+      id="putGroupUsers"
+      method="PUT"
+      handle-as="json"
+      content-type="application/json"
+      loading="{{processing}}"
+      url="[[putGroupUsersUrl]]"
+      on-error="ajaxError"
+      on-response="_handleInviteSent"
+      debounce-duration="300"></iron-ajax>
+
+    <iron-a11y-keys keys="enter" on-keys-pressed="_doInviteToTeam"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-team-invite-window',
+
+      behaviors: [
+        Blackfynn.PatchedOverlayBehavior
+      ],
+
+      properties: {
+        team : {
+          type: Object
+        },
+        email: {
+          type: String
+        },
+        processing: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        putGroupUsersUrl: {
+          type: String,
+          computed: '_computePutGroupUsersUrl(api, user, team.id)'
+        }
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      _computePutGroupUsersUrl: function(api, user, teamId) {
+        return `${api}/groups/${teamId}/users?api_key=${user}`;
+      },
+
+      _doInviteToTeam: function() {
+        if(this.email === null || this.email === '') {
+          return;
+        }
+        this.$.putGroupUsers.body = { emails: [this.email] };
+        this.$.putGroupUsers.generateRequest();
+      },
+
+      _handleInviteSent: function(e, detail) {
+        this.fire('teamInvitedTo', {});
+        this.fire('toast', {type: 'MESSAGE', msg: `${this.email} invited to ${this.team.name}`});
+
+        this.set('email', null);
+        this.$.dialog.toggle();
+      }
+    });
+
+  </script>
+
+</dom-module>

@@ -1,0 +1,34 @@
+# Description
+
+Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
+
+
+## Clickup Ticket
+
+[CLICKUP_TICKET](https://app.clickup.com/t/CLICKUP_TICKET)
+
+
+## Type of change
+
+_Delete those that don't apply._
+
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] This change requires a documentation update
+
+
+# How Has This Been Tested?
+
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
+
+
+# Checklist:
+
+_Delete those that don't apply. Only apply the final commit message using the changelog when merging a feature to `DEVELOPMENT` that will be deployed to all users._
+
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have added unit tests that prove my fix is effective or that my feature works
+- [ ] I have pushed the final commit message using the [changelog format](https://github.com/Pennsieve/pennsieve-app/wiki/CHANGELOG)

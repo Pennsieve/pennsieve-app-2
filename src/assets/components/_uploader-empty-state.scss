@@ -1,0 +1,130 @@
+@import '../../assets/_variables.scss';
+@import '../../assets/_icon-item-colors.scss';
+
+.bf-upload-dropzone {
+  align-items: center;
+  border-style: dashed;
+  border-color: $cortex;
+  border-image-source: url('/static/images/dotted-border.svg');
+  border-image-slice: 8%;
+  border-image-repeat: repeat;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  text-align: center;
+  &:after {
+    border: 4px solid #18BA62;
+
+    content: '';
+    height: calc(100% - 4px);
+    left: -2px;
+    pointer-events: none;
+    position: absolute;
+    opacity: 0;
+    transition: opacity .2s ease-out;
+    top: -2px;
+    width: calc(100% - 4px);
+  }
+  &.is-dragging {
+    .icon-upload-extra {
+      opacity: 1;
+      transform: translateX(0);
+      &.outside {
+        transition-delay: .1s;
+        transition-duration: .3s
+      }
+    }
+  }
+  &.is-dragging:after {
+    opacity: 1;
+  }
+  &.condensed {
+    color: $glial;
+    flex: none;
+    padding: 13px;
+    margin-bottom: 10px;
+    .dropzone-content {
+      align-items: center;
+      display: flex;
+      flex-direction: row;
+    }
+    h3 {
+      margin: 0;
+      a {
+        color: $glial
+      }
+    }
+    .icon-upload {
+      display: inline-flex;
+      height: 20px;
+      margin: 0 5px 0 0;
+      width: 20px;
+    }
+    .icon-upload-extra {
+      display: none;
+    }
+    .upload-icons-wrap {
+      margin: 0;
+    }
+  }
+  .dropzone-content {
+    p {
+      color: $glial;
+      line-height: 18px;
+      margin: 0;
+    }
+    a {
+      color: $glial;
+      text-decoration: underline;
+      &:hover, &:focus {
+        color: $dopamine;
+      }
+    }
+    a.choose-your-files {
+      color: $dopamine;
+    }
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0 0 10px;
+    a {
+      color: $dopamine;
+    }
+  }
+  .icon-upload {
+    color: $dopamine;
+    height: 38px;
+    width: 39px;
+  }
+}
+
+.upload-icons-wrap {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.icon-upload-extra {
+  opacity: 0;
+  margin: 0 4px;
+  transition: transform .2s ease-out, opacity .2s ease-out;
+
+  &:first-child {
+    transform: translateX(32px);
+  }
+  &:nth-child(2) {
+    transform: translateX(35px);
+  }
+  &:nth-child(4) {
+    transform: translateX(-35px);
+  }
+  &:nth-child(5) {
+    transform: translateX(-32px);
+  }
+}

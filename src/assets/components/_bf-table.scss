@@ -1,0 +1,109 @@
+@import '../_variables.scss';
+
+.bf-table {
+  border: 1px solid $cortex;
+  border-radius: 2px 2px 0 0;
+  overflow: hidden;
+}
+.bf-table-header, thead {
+  background: $dendrite;
+  padding: 16px;
+  .th-non-sortable,
+  button {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    text-transform: capitalize;
+    color: $glial;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14px;
+
+    &button.sort-active, &button:hover {
+      color: $app-primary-color;
+      .sort-icon {
+        opacity: 1;
+      }
+    }
+
+    .label {
+      padding-left: 0;
+    }
+
+    &.overflow {
+      width: 100%;
+
+      .label {
+        overflow: hidden;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+  .svg-icon.sort-icon {
+    height: 5px;
+    opacity: .5;
+    min-width: 8px;
+  }
+}
+.bf-table-row, .bf-table-header {
+  border-bottom: 1px solid $cortex
+}
+.bf-table-header {
+  background-color: $dendrite;
+}
+.bf-table-row {
+  background: $white-matter;
+  padding: 8px 16px;
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.el-table {
+  border: solid 1px $cortex;
+
+  .cell {
+    white-space: nowrap;
+    max-height: 24px;
+  }
+}
+
+.el-table__body tr.hover-row > td,
+.el-table__body tr.hover-row.current-row > td,
+.el-table__body tr.hover-row.el-table__row--striped > td,
+.el-table__body tr.hover-row.el-table__row--striped.current-row > td {
+  background-color: transparent;
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background: transparent;
+}
+
+.el-table th.is-leaf, .el-table td {
+  border-bottom: 1px solid $cortex;
+}
+
+.el-table th.is-leaf {
+  background: $dendrite;
+}
+
+.el-checkbox__input {
+  .el-checkbox__inner {
+    &:hover {
+      border-color: $dopamine;
+    }
+  }
+  &.is-focus {
+    .el-checkbox__inner {
+      border-color: $dopamine;
+    }
+  }
+  &.is-checked, &.is-indeterminate {
+    .el-checkbox__inner {
+      border-color: $dopamine;
+      background-color: $dopamine;
+    }
+  }
+}

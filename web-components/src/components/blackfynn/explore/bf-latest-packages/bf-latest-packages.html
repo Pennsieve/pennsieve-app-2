@@ -1,0 +1,222 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="bf-latest-package-item.html">
+
+<link rel="import" href="../../shared/item-icon-behavior.html">
+<link rel="import" href="../../shared/bf-package-sort-behavior.html">
+
+<link rel="import" href="bf-latest-packages-styles.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/grid.html">
+
+<!--
+`<bf-latest-packages>` is a component to a list of packages
+
+    <bf-latest-packages packages="[[packages]]"></bf-latest-packages>
+
+@element bf-latest-packages
+-->
+
+<dom-module id="bf-latest-packages">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-grid-styles"></style>
+    <style include="bf-data-item-styles"></style>
+    <style include="bf-latest-packages-styles"></style>
+    <style>
+      :host {
+        background-color: var(--white-matter);
+        display: block;
+        padding-bottom: 20px;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      #headerWrap {
+        border-bottom: 1px solid #ececec;
+        padding: 9px 20px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .column {
+        color: #000;
+        text-decoration: none;
+      }
+      .column:hover {
+        color: var(--dopamine);
+      }
+      .column .icon-sort {
+        display: none;
+        height: 5px;
+        margin-left: 5px;
+        width: 8px;
+      }
+      .column[is-sorting] .icon-sort {
+        display: block;
+      }
+      #emptyState {
+        padding: 20px 20px 0;
+      }
+      #filters {
+        border-bottom: 1px solid var(--cortex);
+        list-style: none;
+        margin: 0;
+        padding: 0 20px;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+      }
+      #filters li {
+        margin-left: 20px;
+      }
+      #filters li:first-child {
+        margin-left: 0;
+      }
+      #filters a {
+        color: #4A4A4A;
+        display: block;
+        padding: 17px 0;
+        position: relative;
+        text-decoration: none;
+      }
+      #filters a[active] {
+        color: #000;
+      }
+      #filters a[active]:after {
+        background: var(--dopamine);
+        bottom: -1px;
+        content: '';
+        left: 0;
+        position: absolute;
+        height: 3px;
+        width: 100%;
+      }
+    </style>
+
+    <ul id="filters" hidden$="[[!_hasPackages]]">
+      <li><a href="#" on-tap="setFilter" class="active" active$="[[_computeIsActive('', filterBy)]]">All Types</a></li>
+      <template is="dom-repeat" items="[[_types]]">
+        <li><a href="#" filter-type$="[[item]]" on-tap="setFilter" active$="[[_computeIsActive(item, filterBy)]]">[[item]]</a></li>
+      </template>
+    </ul>
+
+    <div id="headerWrap" hidden$="[[!_hasPackages]]">
+      <a href="#" class="column column-name" on-tap="setSort" sort-method="name" is-sorting$="[[_isSorting(sortBy, 'name')]]">Name <iron-icon class="icon-sort" icon="[[sortIcon]]"></iron-icon></a>
+      <a href="#" class="column column-type" on-tap="setSort" sort-method="type" is-sorting$="[[_isSorting(sortBy, 'type')]]">Type <iron-icon class="icon-sort" icon="[[sortIcon]]"></iron-icon></a>
+      <a href="#" class="column column-updated-at" on-tap="setSort" sort-method="created" is-sorting$="[[_isSorting(sortBy, 'created')]]">Last Updated <iron-icon class="icon-sort" icon="[[sortIcon]]"></iron-icon></a>
+    </div>
+    <template is="dom-repeat" items="[[packages]]" sort="[[_sort(sortBy, sortDirection)]]" filter="[[_computeFilter(filterBy)]]">
+      <bf-latest-package-item item="[[item]]"></bf-latest-package-item>
+    </template>
+
+    <bf-empty-state id="emptyState" hidden$="[[_hasPackages]]">
+      <p class="no-margin">No packages associated with [[conceptName]]</p>
+    </bf-empty-state>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-latest-packages',
+
+      behaviors: [
+        Blackfynn.ItemIconBehavior,
+        Blackfynn.PackageSortBehavior
+      ],
+
+      properties: {
+        /**
+         * Packages
+         */
+        packages: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Compute if packages exist
+         */
+        _hasPackages: {
+          type: Boolean,
+          value: false,
+          computed: '_computeHasPackages(packages.*)'
+        },
+        /**
+         * Types of all packages
+         */
+        _types: {
+          type: Array,
+          computed: '_computeTypes(packages.*)'
+        },
+        /**
+         * String to filter on
+         */
+        filterBy: {
+          type: String,
+          value: ''
+        },
+        /**
+         * Name of the concept being displayed
+         */
+        conceptName: {
+          type: String
+        }
+      },
+
+      _computeFilter: function(string) {
+        if (!string) {
+          return null;
+        } else {
+          return (item) => {
+            return item.type === string;
+          }
+        }
+      },
+
+      /**
+       * Compute if filter toggle is active
+       * @param {String} item
+       * @param {String} filterBy
+       * @returns {Boolean}
+       */
+      _computeIsActive: function(item, filterBy) {
+        return item === filterBy;
+      },
+
+      /**
+       * Compute if packages exist
+       * @param {Object} packages
+       * @returns {Boolean}
+       */
+      _computeHasPackages: function(packages) {
+        const base = R.propOr([], 'base', packages);
+        return Boolean(base.length);
+      },
+
+      /**
+       * Compute types of all packages
+       * @param {Object} packages
+       * @returns {Boolean}
+       */
+      _computeTypes: function(packages) {
+        const base = R.propOr([], 'base', packages);
+        return R.uniq(R.pluck('type', base));
+      },
+
+      /**
+       * Set filter
+       * @param {Object} e
+       */
+      setFilter: function(e) {
+        const filterType = R.defaultTo('', e.target.getAttribute('filter-type'));
+        this.set('filterBy', filterType);
+      }
+    });
+
+  </script>
+
+</dom-module>

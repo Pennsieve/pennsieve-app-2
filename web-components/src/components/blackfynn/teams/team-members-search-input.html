@@ -1,0 +1,95 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../shared/bf-input-autocomplete/bf-input-autocomplete.html">
+
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<link rel="import" href="../shared/bf-ajax-behavior.html">
+
+<!--
+  `bf-team-members-search-input` is the autcomplete when searching through organization members
+
+  For example:
+
+    <bf-team-members-search-input>
+    </bf-team-members-search-input>
+
+@element bf-team-members-search-input
+@demo demo/index.html
+-->
+
+<dom-module id="bf-team-members-search-input">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <bf-input-autocomplete
+      id="bfItemAutocomplete"
+      event-name="addUser"
+      placeholder-text="[[placeholderText]]"
+      helper-text="[[helperText]]"
+      filter-on="isCollaborator"
+      local-candidates="{{candidates}}">
+    </bf-input-autocomplete>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-team-members-search-input',
+
+      properties: {
+        /**
+         * Candidates of would-be team members
+         */
+        candidates: {
+          type: Array,
+          value: []
+        },
+      },
+
+      listeners: {
+        'collaboratorSelected': '_collaboratorSelected'
+      },
+
+      /**
+       * Handles events when new collaborator has been chosen
+       * @param {Object} e
+       */
+      _collaboratorSelected: function(e) {
+        this.fire('add-team-members', [e.detail.id]);
+
+        // Focus on the input
+        if (this.$.bfItemAutocomplete.$.bfInput.$) {
+          this.async(() => this.$.bfItemAutocomplete.$.bfInput.$.input.focus());
+        }
+      },
+
+      /**
+       * Filter function used by dom-repeat
+       * @param {Object} user
+       */
+      isCollaborator: function(user) {
+        return !user.isCollaborator;
+      },
+
+      /**
+       * Resets autocomplete component
+       */
+      reset: function() {
+        const bfItemAutocomplete = this.$.bfItemAutocomplete;
+
+        // Clear the input value
+        bfItemAutocomplete.set('inputValue', '');
+
+        // Clear the suggestions
+        bfItemAutocomplete.setSuggestions([]);
+      }
+
+    });
+  </script>
+</dom-module>

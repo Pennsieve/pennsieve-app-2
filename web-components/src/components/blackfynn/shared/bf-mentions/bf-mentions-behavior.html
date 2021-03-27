@@ -1,0 +1,272 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.MentionsBehavior = {
+    properties: {
+      /**
+       * toggles mentions overlay
+       */
+      _hideOverlay: {
+        type: Boolean,
+        value: true
+      },
+      /**
+       * list of all mentions
+       */
+      allMentions: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      /**
+       * list of possible mentions
+       */
+      mentions: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      /**
+       * list of selected mentions
+       */
+      selectedMentions: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        notify: true
+      },
+      /**
+       * input element
+       */
+      inputField: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      /**
+       * determines when to display mentions
+       */
+      hideMentions: {
+        type: Boolean,
+        value: true,
+        notify: true,
+        observer: '_watchHideMentions'
+      }
+    },
+
+    observers: [
+      '_watchMentions(allMentions.*)'
+    ],
+
+    /**
+     * observes all mentions and sets matched results
+     * @param {Array} allMentions
+     */
+    _watchMentions: function(allMentions) {
+      this.updateMentions(allMentions.value);
+    },
+
+    /**
+     * observes mentions
+     * @param {Boolean} hideMentions
+     */
+    _watchHideMentions: function(hideMentions) {
+      // Select first item on open
+      const suggestionsMenu = this.$.suggestionsMenu;
+      if(hideMentions === false && suggestionsMenu) {
+        suggestionsMenu.selectIndex(0);
+        this.focusInput();
+      }
+    },
+
+    /**
+     * returns index of @; -1 if not found
+     * @param {String} str
+     * @returns {Number}
+     */
+    atIndex: function(str) {
+      return str.indexOf('@');
+    },
+
+    /**
+     * returns substring of everything after the @
+     * @param {String} str
+     * @returns {String}
+     */
+    getAtMention: function(str) {
+      const at = this.atIndex(str);
+      return str.substring(at + 1);
+    },
+
+    /**
+     * returns an array of matches based on input
+     * @param {String} userInput
+     * @param {Object} txtToMatch
+     * @returns {Array}
+     */
+    getMatches: function(userInput, txtToMatch) {
+      if (userInput && txtToMatch) {
+        const exp = this.getAtMention(userInput);
+        const regex = new RegExp(exp, 'gi');
+        const name = `${txtToMatch.firstName} ${txtToMatch.lastName}`;
+        const matches = name.match(regex);
+        return matches && matches.length > 0;
+      }
+    },
+
+    /**
+     * replaces @ mention with selected match
+     * @param {Event} evt
+     */
+    selectMention: function(evt) {
+      const profile = R.path(['target', 'profile'], evt);
+      const value = evt.target.$.name.textContent.trim();
+
+      const userInput = this.inputField.value;
+      const start = this.atIndex(userInput);
+      const end = this.inputField.selectionEnd || userInput.length;
+      const newInput = `${userInput.substr(0, start).trim()} <span value="${value}" data-profile-id="${profile.id}">${value}</span>&nbsp; ${userInput.substr(end).trim()}`;
+
+      this.fire('set-comment-value', {
+        value: newInput
+      });
+      // this.inputField.value = newInput.trim();
+
+      this.push('selectedMentions', profile);
+
+      this.set('hideMentions', true);
+      this.fire('hide-overlay', true);
+      this.fire('set-active', {active: false});
+    },
+
+    addMentionById: function(id) {
+      const profile = R.find(R.propEq('id', id))(this.allMentions);
+      if(profile) {
+        this.push('selectedMentions', profile);
+      }
+    },
+
+    /**
+     * handles check for @ mentions
+     * @param {Object} evt
+     */
+    checkForMentions: function(evt) {
+      // check for @
+      if (this.atIndex(this.inputField.value) === -1) {
+        this.fire('hide-overlay', true);
+        this.fire('set-active', {active: false});
+        return this.set('hideMentions', true);
+      }
+
+      this.fire('mentions-triggered');
+      this.fire('hide-overlay', false);
+      this.fire('set-active', {active: true});
+
+      // display mentions
+      this.set('hideMentions', false);
+
+      // update mentions
+      this.updateMentions(this.allMentions);
+    },
+
+    /**
+     * updates mentions array
+     * @param {Array} allMentions
+     */
+    updateMentions: function(allMentions) {
+      const matches = allMentions.filter(mention => this.getMatches(this.inputField.value, mention));
+      const matchedResults = matches.length > 0 ? matches : allMentions;
+      this.set('mentions', matchedResults);
+    },
+
+    /**
+     * Key up callback on input field
+     * @param {Event} evt
+     */
+    onKeyUp: function(evt) {
+      if (evt && evt.target) {
+        this.set('inputField', evt.target);
+      }
+
+      // Do nothing when the user is interacting with mentions
+      if(evt.keyCode !== 38 && evt.keyCode !== 40) {
+        this.checkForMentions(evt);
+      }
+    },
+
+    /**
+      * Key down callback on input field
+      * @param {Event} evt
+      */
+    onKeyDown: function(evt) {
+      switch (evt.keyCode) {
+        case 38:
+        case 40:
+          this.navigateMentions(evt);
+          break;
+      }
+    },
+
+    /**
+     * Callback from up and down arrow keys to navigate mentions
+      * @param {Event} evt
+      */
+    navigateMentions: function(evt) {
+      const suggestions = this.$.suggestionsMenu;
+
+      if(evt.keyCode === 38) {
+        suggestions.selectPrevious();
+      } else {
+        suggestions.selectNext();
+      }
+
+      this.focusInput();
+    },
+
+    /**
+      * Callback when mention items have changed
+      * @param {Event} evt
+      */
+    onItemsChanged: function(evt) {
+      const value = R.pathOr(0, ['detail', 'value'], evt);
+
+      if(value.length) {
+        // Select first item in the array
+        this.$.suggestionsMenu.selectIndex(0);
+        this.focusInput();
+      }
+    },
+
+    /**
+     * Focus on the input field
+     */
+    focusInput: function() {
+      this.inputField.focus();
+    },
+
+    /**
+      * Callback of when a selected item is changed
+      * Scroll item into view if needed
+      * @param {Event} evt
+      * @param {Object} detail
+      */
+    onSelectedChanged: function(evt, detail) {
+      if(detail.value) {
+        const item = detail.value;
+        const suggestions = this.$.suggestions;
+        const itemTop = item.offsetTop;
+        const scrollTop = suggestions.scrollTop;
+        if(itemTop < scrollTop || itemTop + item.clientHeight > scrollTop + suggestions.clientHeight) {
+          item.scrollIntoView();
+        }
+      }
+    }
+
+  }
+</script>

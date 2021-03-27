@@ -1,0 +1,282 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<!--
+`bf-accordion`
+A generic accordion component based on slots:
+* the first slot is for the accordion heading or title
+* the second slot hides and shows the related content
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--accordion-duration` | Time it takes for animation to complete | `.3s`
+`--accordion-timing-function` | Specifies the speed curve of the transition | `ease-in-out`
+`--accordion-icon-styles` | Styles for icon when accordion is closed | ``
+`--accordion-icon-open-styles` | Styles for icon when accordion is open | ``
+`--accordion-title-styles` | Styles for accordion title | ``
+`--accordion-hover-color` | Styles for accordion :hover | `#000`
+
+@demo demo/index.html
+-->
+
+<dom-module id="bf-accordion">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+        min-height: 35px;
+        overflow: hidden;
+        position: relative;
+        --iron-icon-width: 10px;
+        --iron-icon-height: 6px;
+      }
+      :host([is-sliding]) {
+        overflow: hidden !important;
+      }
+      :host([opened]) {
+        overflow: visible;
+      }
+      .toggle {
+        background: var(--dendrite);
+        padding-left: 10px;
+        text-decoration: none;
+
+        color: #000;
+        border-bottom: solid 1px var(--cortex);
+        font-size: 12px;
+        height: 34px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--accordion-title-styles);
+      }
+      .toggle:hover {
+        background: #fff;
+      }
+      ::slotted([slot="items"]) {
+        display: none;
+        /* height: 0;
+        transition: height var(--accordion-duration, 0.3s) var(--accordion-timing-function, ease-in-out); */
+      }
+      iron-icon, :host([opened][is-sliding]) iron-icon {
+        margin-right: 4px;
+        transform: rotate(-90deg);
+        transition: transform .2s linear;
+        @apply(--accordion-icon-styles);
+      }
+      :host([opened]) iron-icon, :host([opened]) iron-icon, :host([is-sliding]) iron-icon {
+        transform: rotate(0deg);
+        @apply(--accordion-icon-open-styles);
+      }
+      a:hover, a[focused] {
+        color: var(--accordion-hover-color, #000);
+      }
+    </style>
+
+    <a href="#openAccordion" class="toggle" on-tap="toggle" style$="[[toggleStyles]]">
+      <iron-icon icon="[[icon]]" hidden="[[_isIconHidden]]"></iron-icon>
+      <slot name="title"></slot>
+    </a>
+
+    <slot name="items"></slot>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bf-accordion',
+
+      properties: {
+        /**
+        * Select to expand list on Loading of the component
+        */
+        openOnLoad: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * tracks whether accordion is open or closed
+         */
+        opened: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * tracks when accordion is sliding
+         */
+        isSliding: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * overrides sliding toggle
+         */
+         preventSlide: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * name of Blackfynn icon
+         */
+        icon: {
+          type: String,
+          value: ''
+        },
+        /**
+         * border color for accordion title
+         */
+        borderColor: {
+          type: String,
+          value: ''
+        },
+        /**
+         * tracks when icon should be hidden
+         */
+        _isIconHidden: {
+          type: Boolean,
+          computed: '_computeIsIconHidden(icon)'
+        },
+        /**
+         * tracks when to display left-border styles
+         */
+        toggleStyles: {
+          type: String,
+          computed: '_computeToggleStyles(borderColor)'
+        }
+      },
+
+      listeners: {
+        'prevent-accordion-slide': '_preventSlide'
+      },
+
+      /**
+       * determines whether or not to prevent the accordion from opening
+       */
+      _preventSlide: function(evt) {
+        const val = evt && evt.detail ? evt.detail : false;
+        this.set('preventSlide', val);
+      },
+
+      /**
+       * open accordion
+       */
+      open: function() {
+        if (this.opened) {
+          return;
+        }
+        const elem = this.querySelector('[slot="items"]');
+        this._expandSection(elem);
+      },
+
+      /**
+       * close accordion
+       */
+      close: function() {
+        if (!this.opened) {
+          return;
+        }
+        const elem = this.querySelector('[slot="items"]');
+        this._collapseSection(elem);
+      },
+
+      /**
+       * toggles opened property true/false
+       * @param {Event} evt
+       */
+      toggle: function(evt) {
+        evt.preventDefault();
+
+        if (this.get('isSliding') === true || this.preventSlide) {
+          return this.set('preventSlide', false);
+        }
+        this.set('isSliding', true);
+
+        if (!this.opened) {
+          this.open();
+        } else {
+          this.close();
+        }
+      },
+
+      /**
+       * collapses section height
+       * @param {Object} element
+       */
+      _collapseSection: function(element) {
+        element.style.display = 'none';
+
+        const _this = this;
+        _this.set('opened', false);
+        _this.set('isSliding', false);
+        // const sectionHeight = element.scrollHeight;
+        // // temporarily disable all css transitions
+        // const elementTransition = element.style.transition;
+        // element.style.transition = '';
+        // // on the next frame (as soon as the previous style change has taken effect),
+        // // explicitly set the element's height to its current pixel height, so we
+        // // aren't transitioning out of 'auto'
+        // requestAnimationFrame(function() {
+        //   element.style.height = `${sectionHeight}px`;
+        //   element.style.transition = elementTransition;
+        //   // on the next frame (as soon as the previous style change has taken effect),
+        //   // have the element transition to height: 0
+        //   requestAnimationFrame(function() {
+        //     element.style.height = '0px'
+        //   });
+        // });
+        // // element.style.display = 'none';
+        // element.addEventListener('transitionend', function transitionFn() {
+        //   element.removeEventListener('transitionend', transitionFn);
+        //   _this.set('isSliding', false);
+        //   _this.set('opened', false);
+        // });
+      },
+
+      /**
+       * expands section height
+       * @param {Object} element
+       */
+      _expandSection: function(element) {
+        element.style.display = 'block';
+
+        const _this = this;
+        _this.set('isSliding', false);
+        _this.set('opened', true);
+        // // get the height of the element's inner content, regardless of its actual size
+        // const sectionHeight = element.scrollHeight;
+        // element.style.height = `${sectionHeight}px`;
+        // element.addEventListener('transitionend', function transitionFn() {
+        //   element.removeEventListener('transitionend', transitionFn);
+        //   element.style.height = `calc(100vh - ${element.getBoundingClientRect().top}px)`;
+        //   _this.set('isSliding', false);
+        //   _this.set('opened', true);
+        // });
+      },
+
+      /**
+       * computes whether or not to display icon
+       */
+      _computeIsIconHidden: function(icon) {
+        return !icon || icon.length === 0;
+      },
+
+      /**
+       * computes whether or not left border is hidden
+       */
+      _computeToggleStyles: function(borderColor) {
+        return borderColor && borderColor.length > 0 ? `border-left: solid 5px ${borderColor};` : '';
+      },
+
+      attached: function() {
+        if (this.openOnLoad) {
+          this.open();
+        }
+      }
+
+    });
+  </script>
+</dom-module>

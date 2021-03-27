@@ -1,0 +1,101 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>api-keys-create-window tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../../../../../vendor-scripts.html">
+  <link rel="import" href="../api-keys-create-window.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template is="dom-template">
+      <api-keys-create-window keys="[[keys]]"></api-keys-create-window>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+      let server;
+      let mockResponse;
+      let handleSaved;
+      let handleClosed;
+
+      setup(function() {
+        basic = fixture('basic', {
+          keys: [
+            {key: '123', name: 'Work PC'},
+            {key: '456', name: 'Macbook'}
+          ]
+        });
+        basic.state = {
+          apiUrl: 'https://api.blackfynn.net',
+          userToken: '1234567'
+        };
+        handleSaved = sinon.spy(basic, '_handleKeySaved');
+        handleClosed = sinon.spy(basic, '_onClose');
+        server = sinon.fakeServer.create();
+        mockResponse = '{"name": "New Key", "key": "789"}';
+        server.respondWith('POST', /\/token.*/, [200, {'Content-Type': 'application/json'}, mockResponse]);
+      });
+
+      teardown(function() {
+        server.restore();
+        handleSaved.restore();
+        handleClosed.restore();
+      });
+
+      test('Create window should be closed by default', function() {
+        assert.equal(basic.opened, false);
+      });
+
+      test('New keys should be unique', function(done) {
+        basic.name = 'Macbook';
+        basic._saveKey();
+        flush(function() {
+          expect(basic.invalid).to.be.true;
+          expect(handleSaved).to.have.callCount(0);
+          done();
+        });
+      });
+
+      test('New unique key should be created and window closes', function(done) {
+        basic.name = 'New Key';
+        basic.opened = true;
+        basic._saveKey();
+        server.respond();
+        flush(function() {
+          basic.async(() => {
+            expect(basic.invalid).to.be.false;
+            expect(handleSaved).to.have.callCount(1);
+            expect(handleClosed).to.have.callCount(1);
+            expect(basic.processing).to.be.false;
+            assert.equal(basic.name, '');
+            done();
+          }, 1000);
+        });
+      });
+
+    });
+  </script>
+
+</body>
+</html>

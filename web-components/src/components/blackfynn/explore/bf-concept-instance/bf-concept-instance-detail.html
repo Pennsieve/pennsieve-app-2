@@ -1,0 +1,79 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-concept-instance-detail">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      h3 {
+        color: var(--glial);
+        font-size: 12px;
+        font-weight: 500;
+        margin: 0 0 5px;
+      }
+      p {
+        margin: 0;
+      }
+    </style>
+
+    <h3>[[item.name]]</h3>
+    <p>[[_value]]</p>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-concept-instance-detail',
+
+      properties: {
+        _value: {
+          type: 'String',
+          computed: '_computeValue(item.value, item.dataType)'
+        }
+      },
+
+      /**
+       * Compute value based off of dataType
+       * @param {String} value
+       * @param {String} dataType
+       * @returns {String}
+       */
+      _computeValue: function(value, dataType) {
+        let _value = value;
+        switch (dataType) {
+          case 'Date':
+            _value = this._formatDate(value);
+            break;
+
+          default:
+            break;
+        }
+
+        return _value;
+      },
+
+      /*
+       * Transform into formatted date
+       * @param {String} value
+       * @returns {String}
+       */
+      _formatDate: function(timestamp) {
+        const _timestamp = R.defaultTo('', timestamp);
+
+        if(_timestamp) {
+          return moment(_timestamp).utc().format('MMMM D, YYYY');
+        } else {
+          return timestamp;
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>

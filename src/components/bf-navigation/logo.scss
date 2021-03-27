@@ -1,0 +1,33 @@
+@import '../../assets/_variables.scss';
+
+.logo {
+  color: $neuron;
+  display: block;
+  fill: $app-primary-color;
+  height: 24px;
+  width: 24px;
+  span {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.logo-wrap {
+  align-items: center;
+  display: flex;
+  height: 20px;
+  flex-direction: row;
+  padding: 0 24px;
+  justify-content: space-between;
+
+  .condensed & {
+    justify-content: center;
+    padding: 0;
+  }
+}
+
+.logo-arrow {
+  color: $app-primary-color;
+  margin-left: 8px;
+}

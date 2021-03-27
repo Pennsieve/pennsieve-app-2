@@ -1,0 +1,141 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/browse.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<link rel="import" href="../bf-breadcrumbs/bf-breadcrumbs.html">
+<link rel="import" href="./bf-dataset-icons.html">
+<link rel="import" href="../bf-search-heading/bf-search-heading.html">
+<link rel="import" href="../bf-data-sets/bf-data-set-list.html">
+
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+
+<!--
+## bf-data-sets
+
+`<bf-data-sets>` is the view for a user's data sets.
+
+@element bf-data-sets
+-->
+
+<dom-module id="bf-data-sets">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-browse-styles"></style>
+    <style type="text/css">
+      :host {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      #dataSetList {
+        height: calc(100vh - 175px);
+      }
+      .catalog-toolbar-wrap {
+        margin: 15px 20px 15px 30px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .breadcrumbs {
+        @apply(--layout-flex);
+      }
+    </style>
+
+    <div class="dataset-list-wrapper">
+      <div class="catalog-toolbar-wrap">
+        <bf-breadcrumbs
+          hidden$="[[state.isSearching]]"
+          is-searching="[[state.isSearching]]"
+          class="breadcrumbs"
+          breadcrumbs="[[breadcrumbs]]"
+          catalog-route="{{catalogRoute}}"
+          cur-package="{{curPackage}}">
+        </bf-breadcrumbs>
+
+        <bf-search-heading
+          search-results-length="[[searchResultsLength]]"
+          hidden$="[[hideSearchHeading]]"></bf-search-heading>
+
+        <bf-dataset-icons
+          hidden$="[[state.isLoadingSearch]]"
+          is-searching="[[state.isSearching]]"
+          cur-package="[[curPackage]]"></bf-dataset-icons>
+      </div><!--/.catalog-toolbar-wrap-->
+
+      <bf-data-set-list
+        id="dataSetList"
+        api="[[api]]"
+        user="[[user]]"
+        cur-package="{{curPackage}}"
+        selected="{{selected}}"
+        catalog-route="{{catalogRoute}}"
+        profile="[[profile]]"
+        active-organization="[[activeOrganization]]"
+        node-types="[[nodeTypes]]"
+        is-searching="[[state.isSearching]]">
+      </bf-data-set-list>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-data-sets',
+
+      behaviors: [
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * Track data set breadcrumb path
+         */
+        breadcrumbs: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Array of all items selected by the user
+         */
+        selected: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * List of valid nodes
+         */
+        nodeTypes: {
+          type: Array,
+          value: [
+            'collection',
+            'dataset'
+          ]
+        },
+        /**
+         * User profile
+         */
+        profile: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+      },
+
+      listeners: {
+        'create-dataset': 'createDataset',
+      },
+
+      /**
+       * Opens dataset dialog
+       */
+      createDataset: function() {
+        this.fire('open-dataset-dialog');
+      },
+    });
+  </script>
+</dom-module>

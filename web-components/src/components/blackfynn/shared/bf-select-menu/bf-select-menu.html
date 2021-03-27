@@ -1,0 +1,414 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../bf-icon-circle/bf-icon-circle.html">
+
+<link rel="import" href="../../../../vendor-scripts.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+<!--
+`<bf-select-menu>` is component to select the playback speed of a timeseries.
+
+    <bf-select-menu></bf-select-menu>
+
+## Model for dropdown items
+Items should be an `Array` of `Objects` containing a `label` and `value` property. There is also an optional
+`action` property that can be used as a callback when a value is selected.
+```
+[
+  {
+    label: '50%',
+    value: 50
+  },
+  {
+    label: '75%',
+    value: 75
+  },
+  ...
+]
+```
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--bf-select-menu-height` | Mixin for height of the menu element | `31px`
+`--bf-select-menu-styles` | Mixin for select menu component | `{}`
+`--bf-select-menu-container-styles` | Mixin for select menu container | `{}`
+`--bf-select-menu-icon-color` | select menu item icon color | ``
+
+@element bf-select-menu
+@demo demo/index.html
+-->
+
+<dom-module id="bf-select-menu">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        box-sizing: border-box;
+        cursor: default;
+        display: block;
+        font-size: 12px;
+        min-height: 33px;
+        min-width: 75px;
+        margin: 6px 0 20px 0;
+        outline: none;
+        overflow: hidden;
+        padding: 0;
+        position: relative;
+        --paper-item: {
+          min-height: 0;
+          padding: 7px 5px;
+        }
+        @apply(--bf-select-menu-styles);
+      }
+      :host(:hover){
+        font-weight: 400;
+        cursor: pointer;
+      }
+      #container {
+        background: var(--white-matter);
+        border: 1px solid var(--cortex);
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        height: 31px;
+        @apply(--layout-column);
+        @apply(--layout-center);
+        @apply(--bf-select-menu-container-styles);
+        @apply(--no-bottom-border-radius);
+      }
+      :host([open]) {
+        overflow: visible;
+      }
+      :host([open]) #container {
+        position: absolute;
+        z-index:  99;
+        width: 100%;
+        box-shadow: 0 4px 6px 0 rgba(0,0,0,0.5);
+      }
+      :host([open]) #dropdown {
+        height: auto;
+        max-height: 200px;
+        overflow-y: scroll;
+      }
+      #menu {
+        box-sizing: border-box;
+        height: var(--bf-select-menu-height, 31px);
+        width: var(--bf-select-menu-width, 100%);
+        padding: 0 5px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-flex);
+        @apply(--menu-padding);
+      }
+      .value {
+        font-weight: 500;
+        margin-bottom: -2px;
+        max-width: 95%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        @apply(--layout-flex);
+      }
+      .caret {
+        color: var(--glial);
+        height: 5px;
+        width: 9px;
+        margin-right: 5px;
+      }
+      #dropdown {
+        padding: 0;
+        width: 100%;
+      }
+      .dropdown-item {
+        @apply(--dropdown-item-padding)
+      }
+      paper-item {
+        color: #000;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 14px;
+        overflow: hidden;
+      }
+      paper-item:hover {
+        background: var(--dopamine);
+        color: #fff;
+      }
+      .selectedIcon {
+        color: var(--glial);
+        width: 18px;
+        height: 18px;
+        margin-top: -3px;
+      }
+      bf-icon-circle {
+        height: 12px;
+        width: 12px;
+        margin-right: 9px;
+        vertical-align: text-top;
+      }
+      .item-icon {
+        position: relative;
+        top: 3px;
+      }
+    </style>
+
+    <div id="container">
+      <div id="menu" on-tap="toggleMenu">
+        <div class="value">
+          <template dom-if="!isFolder">
+            <iron-icon hidden$="[[!_hasSelectedValueIcon]]" class="selectedIcon" icon="[[selectedValueIcon]]" noink></iron-icon>
+          </template>
+          <img src="/static/file-icons/icon-folder.svg" class="item-icon" hidden$="[[!_isFolder]]" height="18" width="18">
+          <bf-icon-circle style$="{{selectedItemIconStyle}}"></bf-icon-circle>
+          [[selectedValueDisplay]]
+        </div>
+        <iron-icon class="caret" icon="[[dropdownIcon]]" noink></iron-icon>
+      </div>
+
+      <paper-listbox id="dropdown" class="dropdown-content" selected="{{selectedValue}}" attr-for-selected="value" hidden$="[[!open]]">
+        <template is="dom-repeat" items="[[items]]">
+          <paper-item class="dropdown-item" value="[[item.value]]" action="[[item.action]]" on-tap="_closeMenu">
+            <bf-icon-circle style$="[[_computeMenuItemIconStyle(item.iconBgColor)]]"></bf-icon-circle>
+            [[item.label]]
+            <span hidden$="[[!dropdownUnit]]">[[unit]]</span>
+          </paper-item>
+        </template>
+      </paper-listbox>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-select-menu',
+
+      hostAttributes: {
+        tabindex: 0
+      },
+
+      properties: {
+        isFolder: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Selected value
+         */
+        selectedValue: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        /**
+         * Items to be displayed in dropdown
+         */
+        items: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Whether the dropdown is open or not
+         */
+        open: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * Icon for the dropdown menu
+         */
+        dropdownIcon: {
+          type: String,
+          computed: '_computeIcon(open)'
+        },
+        /**
+         * Icon for the dropdown menu selected value; optional
+         */
+         selectedValueIcon: {
+          type: String,
+          value: ''
+        },
+        /**
+        * Style for selected item icon
+        */
+        selectedItemIconStyle: {
+          type: String,
+          value: 'display: none'
+        },
+        /**
+         * Computes if the selected icon value should display an icon
+         */
+        _hasSelectedValueIcon: {
+          type: Boolean,
+          computed: '_computeHasSelectedValueIcon(selectedValueIcon)'
+        },
+        /**
+         * Computes selected item label for display purposes
+         */
+         selectedValueDisplay: {
+          type: String,
+          computed: '_computeSelectedValueDisplay(selectedValue, items.length)'
+        },
+        /**
+         * Computes whether or not menu item has a background color
+         */
+        _hasBackgroundColor: {
+          type: Boolean,
+          computed: '_computeHasBackgroundColor(bgColor)'
+        },
+        /**
+         * Computes if the selected icon value is a folder
+         */
+        _isFolder: {
+          type: Boolean,
+          computed: '_computeIsFolder(selectedValueIcon)'
+        }
+      },
+
+      observers: [
+        '_watchOpen(open)',
+        '_valueChanged(selectedValue)'
+      ],
+
+      listeners: {
+        'blur': '_blur',
+      },
+
+      /**
+       * Handles on-blur events
+       */
+      _blur: function(evt) {
+        if (!evt.relatedTarget || evt.relatedTarget.tagName.toLowerCase() !== 'paper-item') {
+          this._closeMenu();
+        }
+      },
+
+      /**
+       * Gets the label value based upon selected value and items array
+       * @param {String}
+       * @param {Array}
+       * @param {String}
+       */
+       _getLabel: R.compose(
+        R.propOr('', 'label'),
+        R.useWith(
+          R.find, [R.propEq('value')]
+        )
+      ),
+
+      /**
+       * Computes if selectedValueIcon is a folder
+       * @param {String}
+       * @returns {Boolean}
+       */
+       _computeIsFolder(selectedValueIcon) {
+        return selectedValueIcon.indexOf('blackfynn:folder') >= 0
+      },
+
+      /**
+       * Computes selected item label for display purposes
+       * @param {String}
+       * @param {Array}
+       * @param {String}
+       */
+      _computeSelectedValueDisplay(selectedValue, itemsLength) {
+        if (itemsLength > 0) {
+          return this._getLabel(selectedValue, this.items);
+        }
+      },
+
+      /**
+       * Computes menu item icon style
+       * @param {String}
+       * @returns {String}
+       */
+       _computeMenuItemIconStyle(bgColor) {
+        return bgColor && bgColor.length > 0 ? `background: ${bgColor}` : `display: none`;
+      },
+
+      /**
+       * Observer to fire a custom event to notify parent that menu value has been updated
+       * @param {String} selectedValue
+       */
+      _valueChanged: function(selectedValue) {
+        this.fire('selected-value-changed', selectedValue);
+
+        const hasIconBgColor = R.pathOr(false, [0, 'iconBgColor'])(this.items)
+        if (hasIconBgColor) {
+          const index = this.items.findIndex(item => item.value === selectedValue)
+          this.setSelectedItemIconBgColor(index)
+        }
+      },
+
+      /**
+       * Closes the menu
+       */
+      _closeMenu: function() {
+        this.set('open', false);
+      },
+
+      /**
+       * Observer for open property to dynamically set CSS properties of #container
+       * @param {Boolean} open
+       */
+      _watchOpen: function(open) {
+        if (open) {
+          const dropdown = parseInt(getComputedStyle(this.$.dropdown).height, 10);
+          const curHeight = parseInt(getComputedStyle(this).height, 10);
+          this.$.container.style.height = `${curHeight + dropdown - 2}px`; // subtract 2px for borders
+        } else {
+          this.$.container.style.height = 'auto';
+        }
+      },
+
+      /**
+       * Polymer lifecycle event
+       */
+      attached: function() {
+        const firstItem = this.items && this.items.length > 0 ? this.items[0].value : '';
+        const value = this.selectedValue ? this.selectedValue : firstItem;
+        this.set('selectedValue', value);
+      },
+
+      /**
+       * toggles menu open and closed
+       */
+      toggleMenu: function() {
+        this.set('open', !this.open);
+      },
+
+      /**
+      * set icon background color for selected item
+      * @param {Number} index
+      */
+      setSelectedItemIconBgColor: function(index) {
+        const iconBgColor = R.pathOr(false, [index, 'iconBgColor'])(this.items)
+        if (iconBgColor) {
+          this.selectedItemIconStyle = `background: ${iconBgColor};`
+        }
+      },
+
+      /**
+       * Computes if the icon should be up or down based on if the dropdown is open
+       * @param {Boolean} open
+       * @return {String}
+       */
+      _computeIcon: function(open) {
+        return open ? 'blackfynn:chevron-up-small' : 'blackfynn:chevron-down-small';
+      },
+
+      /**
+       * Computes if the selected icon value should display an icon
+       * @param {String} selectedValueIcon
+       * @return {Boolean}
+       */
+       _computeHasSelectedValueIcon: function(selectedValueIcon) {
+        return selectedValueIcon && selectedValueIcon.length > 0;
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,217 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../bf-mentions-behavior.html">
+<link rel="import" href="../bf-mention-item.html">
+
+<dom-module id="x-component">
+  <style>
+    :host {
+      display: block;
+    }
+    input {
+      background: white;
+      border: solid 1px #666;
+      font-size: 14px;
+      line-height: 17px;
+      outline: none;
+      padding: 10px;
+      width: 300px;
+    }
+    input:focus {
+      border: solid 1px blue;
+    }
+    .suggestions {
+      background: white;
+      border: solid 1px #ddd;
+      margin: 0;
+      padding: 0;
+      position: fixed;
+      width: 320px;
+      height: 200px;
+      overflow-y: auto;
+      z-index: 99;
+    }
+    .suggestion {
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+    }
+  </style>
+
+  <template>
+    <input id="comments" placeholder="Type away" />
+    <div class="suggestions" hidden$="[[hideMentions]]">
+      <template is="dom-repeat" items="[[mentions]]">
+        <bf-mention-item
+          profile="[[item]]"
+          on-tap="selectMention"></bf-mention-item>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'x-component',
+      behaviors: [
+        Blackfynn.MentionsBehavior
+      ],
+      listeners: {
+        'keyup': 'checkForMentions'
+      },
+      attached: function() {
+        this.set('inputField', this.$.comments);
+        this.set('allMentions', [
+          {
+            firstName: 'Al Dufresne'
+          },
+          {
+            firstName: 'Vella Trent'
+          },
+          {
+            firstName: 'Yolande Casimir'
+          },
+          {
+            firstName: 'Shavonda Hilgendorf'
+          },
+          {
+            firstName: 'Jamaal Sumner'
+          },
+          {
+            firstName: 'Alex Tetterton'
+          },
+          {
+            firstName: 'Adria Shedd'
+          },
+          {
+            firstName: 'Lindsay Legree'
+          },
+          {
+            firstName: 'Karey Hedgepeth'
+          },
+          {
+            firstName: 'Rey Vannest'
+          },
+          {
+            firstName: 'Tula Nemitz'
+          },
+          {
+            firstName: 'Quiana Presgraves'
+          },
+          {
+            firstName: 'Merle Carbaugh'
+          },
+          {
+            firstName: 'Matt Mckillip'
+          },
+          {
+            firstName: 'Heike Leak'
+          },
+          {
+            firstName: 'Leslie Rauch'
+          },
+          {
+            firstName: 'Winifred Rochester'
+          },
+          {
+            firstName: 'Maurine Capra'
+          },
+          {
+            firstName: 'Marty Sabo'
+          },
+          {
+            firstName: 'Dinorah Colon'
+          },
+          {
+            firstName: 'Meta Jobe'
+          },
+          {
+            firstName: 'Jc Stott'
+          },
+          {
+            firstName: 'Lauran Grange'
+          },
+          {
+            firstName: 'Kattie Peil'
+          },
+          {
+            firstName: 'Sandie Eure'
+          },
+          {
+            firstName: 'Stella Steed'
+          },
+          {
+            firstName: 'Rubie Thorson'
+          },
+          {
+            firstName: 'Cindi Nemeth'
+          },
+          {
+            firstName: 'Sau Hollister'
+          },
+          {
+            firstName: 'Javier Farquhar'
+          },
+          {
+            firstName: 'Laura Uriarte'
+          },
+          {
+            firstName: 'Terrance Toal'
+          },
+          {
+            firstName: 'Reagan Masten'
+          },
+          {
+            firstName: 'Candra Peterka'
+          },
+          {
+            firstName: 'Tran Dawn'
+          },
+          {
+            firstName: 'Catherin Brase'
+          },
+          {
+            firstName: 'Christina Toner'
+          },
+          {
+            firstName: 'Lloyd Fury'
+          },
+          {
+            firstName: 'Kathlyn Trueman'
+          },
+          {
+            firstName: 'Treena Blowers'
+          },
+          {
+            firstName: 'Gilbert Yochum'
+          },
+          {
+            firstName: 'Kimber Baden'
+          },
+          {
+            firstName: 'Spring Fermin'
+          },
+          {
+            firstName: 'Errol Hovey'
+          },
+          {
+            firstName: 'Iraida Rawles'
+          },
+          {
+            firstName: 'Lance Ertl'
+          },
+          {
+            firstName: 'Aida Hawes'
+          },
+          {
+            firstName: 'Latasha Jeffries'
+          },
+          {
+            firstName: 'Na Bibbins'
+          },
+          {
+            firstName: 'Flor Devane'
+          }
+        ]);
+      }
+    });
+  </script>
+</dom-module>

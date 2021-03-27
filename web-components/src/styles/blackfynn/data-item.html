@@ -1,0 +1,159 @@
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<dom-module id="bf-data-item-styles">
+  <template>
+    <style>
+      .memberWrapper {
+        display: flex;
+        flex-direction: row;
+      }
+      .leftColFolder {
+        width: 100%;
+      }
+      .action-menu {
+        width: 100%;
+        line-height: 26px;
+      }
+      .rightColFolder {
+        width: 100%;
+      }
+      .headers .col {
+        color: var(--glial);
+      }
+      .col {
+        padding-left: 30px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-flex);
+      }
+      .col[sort-method]{
+        cursor: pointer;
+      }
+      .col[sort-method]:hover {
+        color: var(--app-primary-color);
+      }
+      .col[is-sorting] {
+        color: #000;
+      }
+      .col .icon-sort {
+        display: none;
+        height: 5px;
+        margin-left: 5px;
+        width: 8px;
+      }
+      .col[is-sorting] .icon-sort {
+        display: block;
+      }
+      .col-name {
+        padding-left: 0;
+        flex: 3;
+      }
+
+      .nameVal{
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        @apply(--layout-flex);
+      }
+      .nameValEdit{
+        overflow: hidden;
+        white-space: nowrap;
+        box-shadow: 0 -2px 0 0px var(--primary-color) inset;
+        @apply(--layout-flex);
+      }
+      .children{
+        font-weight: normal;
+      }
+      .icon-item {
+        color: var(--blackfynn-data);
+        border-bottom: none;
+        height: 24px;
+        width: 24px;
+      }
+      .icon-item.folder, .icon-item.folder-special, .icon-item.folder-shared {
+        color: var(--glial);
+      }
+      .icon-item.text {
+        color: #85949e;
+      }
+      .icon-item.image {
+        color: var(--blackfynn-green);
+      }
+      .icon-item.video {
+        color: #b74b4b
+      }
+      .icon-item.pdf {
+        color: var(--blackfynn-data);
+      }
+      .icon-item.microscope, .icon-item.mri {
+        color: var(--blackfynn-blue);
+      }
+      .icon-item.file {
+        color: var(--blackfynn-med-grey);
+      }
+      .icon-item.timeseries, .icon-item.tabular {
+        color: var(--blackfynn-blue-bright);
+      }
+      .icon-wrap {
+        align-self: center;
+        display: inline-flex;
+        margin-right: 16px;
+      }
+      .dotsCol {
+        padding: 0 10px;
+        @apply(--layout-flex-none);
+      }
+      .itemRow{
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+      }
+      .col{
+        width: 100%;
+        overflow: hidden;
+        @apply(--layout-horizontal);
+      }
+      .col-member {
+        flex: 3;
+      }
+      .col-menu {
+        flex: none;
+        width: 24px;
+        margin: 0;
+        padding: 0 20px 0 30px;
+      }
+      .col-annotation-attachment {
+        justify-content: flex-end;
+        padding: 0 10px 0 0;
+      }
+      .action-menu {
+        color: var(--blackfynn-med-grey);
+        padding: 0 10px;
+        --iron-icon-height: 22px;
+        --iron-icon-width: 22px;
+        flex-basis: 24px;
+        padding: 2px;
+      }
+      .dragOver{
+        border-left: 1px solid black;
+      }
+      input {
+        font-weight: 400;
+        background: transparent;
+        border: none;
+        font: inherit;
+        padding: 0;
+        width: 100%;
+      }
+      input:focus {
+        outline: none;
+      }
+      paper-spinner-lite {
+        height: 18px;
+        padding: 3px;
+        width: 18px;
+        --paper-spinner-stroke-width: 2.5px;
+      }
+    </style>
+  </template>
+</dom-module>

@@ -1,0 +1,92 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+<link rel="import" href="../shared/bf-ajax-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-member-remove-two-factor-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <bf-dialog id="dialog" on-iron-overlay-opened="patchOverlay">
+      <h2 slot="heading">Disable Two-factor Authentication</h2>
+
+      <div slot="body">
+        Are you sure you want to disable two factor authentication?
+      </div>
+
+      <div slot="buttons">
+        <paper-button id="submit" class="primary" on-tap="_removeTwoFactor">Disable</paper-button>
+      </div>
+    </bf-dialog>
+
+    <iron-ajax
+      id="deleteTwoFactor"
+      method="DELETE"
+      url="[[deleteTwoFactorUrl]]"
+      handle-as="json"
+      content-type="application/json"
+      on-error="ajaxError"
+      on-response="_handleTwoFactorDelete"
+      debounce-duration="300"></iron-ajax>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-member-remove-two-factor-window',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.AjaxBehavior,
+        Blackfynn.PatchedOverlayBehavior
+      ],
+
+      properties: {
+        /**
+         * two factor delete url
+         */
+        deleteTwoFactorUrl: {
+          type: 'String',
+          computed: '_computeDeletedTwoFactorUrl(state.apiUrl, state.userToken)'
+        }
+      },
+
+      /**
+       * compute two factor delete url
+       */
+      _computeDeletedTwoFactorUrl: function(apiUrl, userToken) {
+        return `${apiUrl}/user/twofactor?api_key=${userToken}`;
+      },
+
+      /**
+       * generate request to remove two factor authentication for user
+       */
+      _removeTwoFactor: function() {
+        this.$.deleteTwoFactor.generateRequest();
+        this.$.dialog.toggle();
+      },
+
+      /**
+       * successfully handle removal of two factor authentication for user
+       */
+      _handleTwoFactorDelete: function(e, detail) {
+        this.fire('twoFactorDeleted');
+      },
+    });
+
+  </script>
+
+</dom-module>

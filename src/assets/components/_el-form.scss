@@ -1,0 +1,40 @@
+@import '../_variables.scss';
+
+.el-form-item {
+  margin-bottom: 16px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.el-form-item__error {
+  color: $error-color;
+  padding-top: 8px;
+  position: relative;
+}
+.el-form-item__label {
+  color: $text-color;
+  font-weight: 500;
+  line-height: 16px;
+  margin-bottom: 8px;
+}
+.el-form--label-top .el-form-item__label {
+  padding: 0;
+}
+.el-form-item.is-required {
+  .el-form-item__label:before {
+    display: none;
+  }
+}
+.label-helper {
+  color: $glial;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+a.label-helper {
+  color: $app-primary-color
+}
+.label-flex {
+  display: flex;
+  justify-content: space-between
+}

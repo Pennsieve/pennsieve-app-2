@@ -1,0 +1,171 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="../bf-concepts-instance-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+## bf-relationships-list
+
+`<bf-relationships-list>` is a component for displaying concept relationships
+
+@element bf-relationships-list
+@demo demo/index.html
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--relationship-group` | Group's style | `{}`
+`--relationship-heading` | Group's heading style | `{}`
+`--relationship-item` | Group's item style | `{}`
+-->
+
+<dom-module id="bf-relationships-list">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-grid-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      h3 {
+        font-size: 12px;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        @apply(--relationship-heading);
+      }
+      .relationship-group {
+        border-top: 1px solid #DADADA;
+        padding: 18px 20px;
+        @apply(--relationship-group);
+      }
+      .relationship-group:first-child {
+        border: none;
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 8px;
+        @apply(--relationship-item);
+      }
+      a {
+        text-decoration: none;
+      }
+      #empty-state {
+        padding: 20px;
+      }
+    </style>
+
+    <div>
+      <template is="dom-repeat" items="[[relationships]]">
+        <div class="relationship-group">
+          <h3>[[item.conceptType]]</h3>
+          <ul>
+            <template is="dom-repeat" items="[[item.items]]" as="concept">
+              <li><a href="[[_computeConceptUrl(state.activeOrganization.organization.id, concept.type, concept.id)]]">[[_computeName(concept)]]</a></li>
+            </template>
+          </ul>
+        </div>
+      </template>
+    </div>
+
+    <bf-empty-state id="empty-state" hidden$="[[_hasRelationships]]">
+      <p class="no-margin">No relationships</p>
+    </bf-empty-state>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-relationships-list',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.ConceptsInstanceBehavior
+      ],
+
+      properties: {
+        /**
+         * Concept ID
+         */
+        conceptId: {
+          type: String
+        },
+        /**
+         * Compute if there are relationships
+         */
+        _hasRelationships: {
+          type: Boolean,
+          computed: '_computeHasRelationships(relationships.length)'
+        },
+        /**
+         * Concepts
+         */
+        concepts: {
+          type: Array,
+          value: function() {
+            return []
+          }
+        },
+        /**
+         * Relationships
+         */
+        relationships: {
+          type: Array,
+          computed: '_computeRelationships(concepts.*)'
+        }
+      },
+
+      /**
+       * Group relationships by conceptType
+       * @param {Object} concepts
+       * @returns {Array}
+       */
+      _computeRelationships: function(concepts) {
+        const base = R.prop('base', concepts);
+        if(base) {
+          const grouped = R.groupBy(R.prop('type'), base);
+
+          return Object.keys(grouped).map(function(key) {
+            return {
+              conceptType: key,
+              items: grouped[key]
+            }
+          });
+        }
+      },
+
+      /**
+       * Compute if there are relationships
+       * @param {int} relationshipsLength
+       * @returns {Boolean}
+       */
+      _computeHasRelationships: function(relationshipsLength) {
+        return Boolean(relationshipsLength > 0);
+      },
+
+      /**
+       * Compute concept URL
+       * @param {String} orgId
+       * @param {String} conceptType
+       * @param {String} conceptId
+       * @returns {String}
+       */
+      _computeConceptUrl: function(orgId, conceptType, conceptId) {
+        return `/${orgId}/explore/detail/${conceptType}/${conceptId}`;
+      }
+
+    });
+
+  </script>
+
+</dom-module>

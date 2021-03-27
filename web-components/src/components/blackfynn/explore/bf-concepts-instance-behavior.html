@@ -1,0 +1,45 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+
+  Blackfynn.ConceptsInstanceBehavior = {
+
+    /**
+     * Get name property from values
+     */
+    getNameProp: R.compose(
+      R.prop('value'),
+      R.defaultTo({}),
+      R.find(R.propEq('name', 'name')),
+      R.propOr([], 'values')
+    ),
+
+    /**
+     * Compute name from concept, defaulting to ID
+     * @param {Object} concept
+     * @returns {String}
+     */
+    _computeName: function(concept) {
+      if(Object.keys(concept).length) {
+        const nameProp = this.getNameProp(concept);
+        return R.defaultTo(R.prop('id', concept), nameProp);
+      }
+    },
+    /**
+     * Compute name from list of headings
+     * @param {Array} headings
+     * @returns {String}
+     */
+    _computeHeading: function(headings) {
+      if (headings.indexOf('name') >= 0) {
+        return 'name';
+      }
+      return 'id';
+    }
+  }
+
+</script>

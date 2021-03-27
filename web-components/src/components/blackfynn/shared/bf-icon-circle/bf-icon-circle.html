@@ -1,0 +1,62 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-icon/iron-icon.html">
+
+<!--
+## bf-icon-circle
+
+`<bf-icon-circle>` is a component to display the user's initials and assigned color.
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--bf-icon-circle-background` | Background color | `#ccc`
+`--bf-icon-circle-color` | Color of the icon | `#666`
+`--bf-icon-circle` | Mixin applied to the component | `{}`
+`--iron-icon` | Mixin applied to the icon | `{}`
+
+This element is `display: inline-flex` by default.
+
+@demo
+-->
+
+<dom-module id="bf-icon-circle">
+
+  <template>
+    <style>
+      :host {
+        background: var(--bf-icon-circle-background, #ccc);
+        border-radius: 50%;
+        color: var(--bf-icon-circle-color, #666);
+        height: 36px;
+        width: 36px;
+        @apply(--layout-inline);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+
+        @apply(--bf-icon-circle);
+      }
+      ::slotted(iron-icon) {
+        height: 16px;
+        width: 16px;
+
+        @apply(--iron-icon);
+      }
+    </style>
+
+    <slot></slot>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-icon-circle'
+    });
+
+  </script>
+
+</dom-module>

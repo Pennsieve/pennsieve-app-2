@@ -1,0 +1,82 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../../styles/blackfynn/explore.html">
+
+<!--
+## bf-query-builder-no-results
+
+`<bf-query-builder-no-results>` is a component for displaying query builder empty result set for a concept.
+
+@element bf-query-builder-no-results
+@demo demo/index.html
+-->
+
+<dom-module id="bf-query-builder-no-results">
+    <template>
+      <style include="blackfynn-main-styles"></style>
+      <style include="bf-explore-styles"></style>
+      <style>
+        :host {
+          display: block;
+          margin: 40px 0;
+
+          @apply(--layout-vertical);
+          @apply(--layout-center-center);
+        }
+        h3 {
+          color: #000000;
+          font-size: 24px;
+          font-weight: bold;
+          line-height: 29px;
+          margin: 20px 0 0 0;
+          text-align: center;
+        }
+        p {
+          color: var(--glial);
+          font-size: 16px;
+          line-height: 24px;
+          margin: 6px 0;
+          max-width: 576px;
+        }
+      </style>
+
+      <img src="../../../../../../../static/images/illustrations/spot-magnifying-glass.svg" width="89" height="91" />
+
+      <h3>No results found</h3>
+
+      <p>We couldn't find any results for [[conceptName]]. Try removing some filters or browse a different concept.</p>
+
+    </template>
+    <script>
+      Polymer({
+        is: 'bf-query-builder-no-results',
+
+        properties: {
+          /**
+           * Initial Concept from which to pivot the query
+           */
+          initialConcept: {
+            type: String,
+            value: ''
+          },
+          /**
+           * Computes concept display name for message
+           */
+          conceptName: {
+            type: String,
+            computed: '_computeConceptName(initialConcept)'
+          },
+        },
+
+        /**
+         * Computes concept display name for message
+         * @param {String} initialConcept
+         * @returns {String}
+         */
+        _computeConceptName(initialConcept) {
+          return initialConcept && initialConcept.length > 0 ? initialConcept : 'Concept';
+        }
+      });
+    </script>

@@ -1,0 +1,56 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<!--
+## bf-viewer-toolbar-horizontal
+
+`<bf-viewer-toolbar-horizontal>` is a component to contain and position viewer controls.
+-->
+
+<dom-module id="bf-viewer-toolbar-horizontal">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        background: #F9F9F9;
+        box-shadow: 0 -1px var(--cortex) inset;
+        color: var(--neuron);
+        position: relative;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-flex-auto);
+      }
+      ::slotted(.toolbar-section), .toolbar-section {
+        @apply(--layout-horizontal);
+        flex: 1 1 100%;
+      }
+      ::slotted(.toolbar-section) .viewer-btn {
+        color: var(--neuron);
+      }
+      ::slotted(.toolbar-section) .viewer-btn[selected], ::slotted(.toolbar-section) .viewer-btn:hover, ::slotted(.toolbar-section) .viewer-btn:focus {
+        color: var(--dopamine);
+      }
+      ::slotted(.toolbar-section) .viewer-btn.grey {
+        color: var(--glial);
+      }
+      ::slotted(.toolbar-section) .viewer-btn.grey[selected], ::slotted(.toolbar-section) .viewer-btn.grey:hover, ::slotted(.toolbar-section) .viewer-btn.grey:focus {
+        color: #000;
+      }
+    </style>
+
+    <slot name="left"></slot>
+    <slot name="center"></slot>
+    <slot name="right"></slot>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-viewer-toolbar-horizontal'
+    });
+
+  </script>
+</dom-module>

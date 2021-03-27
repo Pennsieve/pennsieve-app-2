@@ -1,0 +1,41 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.VuexBehavior = {
+    properties: {
+      $store: {
+        type: Object,
+        value: function() {
+          return {}
+        }
+      },
+      vuex: {
+        type: Object,
+        value: function() {
+          return {}
+        }
+      },
+    },
+
+    attached: function() {
+      this.fire('get-vuex-state', this)
+    },
+
+   /**
+    * Initialize the store and state subscription
+    * @param {Object} store
+    */
+    initStore: function(store) {
+      this.set('$store', store)
+      this.set('vuex', Object.assign({}, store.state))
+
+      store.subscribe((mutation, state) => {
+        this.set('vuex', Object.assign({}, state))
+      })
+    }
+  }
+</script>

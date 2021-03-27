@@ -1,0 +1,85 @@
+.add-member-dialog {
+  .search-icon-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .search-icon {
+      color: $glial;
+    }
+  }
+
+  .org-members {
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid $light-gray;
+    border-radius: 3px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .team-name-wrapper {
+    display: flex;
+    margin-bottom: 26px;
+
+    .team-name {
+      font-size: 14px;
+      line-height: 20px;
+      margin-left: 8px;
+      color: #000;
+    }
+  }
+
+  .team-icon {
+    color: $dopamine;
+  }
+
+  .collaborators-icon {
+    color: $dopamine;
+  }
+
+  .el-dialog__body {
+    position: relative;
+  }
+
+  .autocomplete {
+    width: 100%;
+    max-width: 474px;
+    max-height: 225px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0;
+
+    h4 {
+      margin: 8px 0 8px 8px;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin: 0;
+        padding: 8px;
+
+        .email {
+          color: $dark-gray;
+        }
+
+        &:hover {
+          cursor: pointer;
+          color: $white-matter;
+          background: $dopamine;
+
+          .email {
+            color: $white-matter;
+          }
+        }
+      }
+    }
+  }
+}

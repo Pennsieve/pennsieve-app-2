@@ -1,0 +1,298 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../shared/bf-zoom-tool/bf-zoom-tool.html">
+
+<link rel="import" href="../../shared/bf-rotate-tool/bf-rotate-tool.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">>
+<link rel="import" href="../bf-palette-styles.html">>
+<!--
+`<bf-palette-navigator>` is a component that contains zoom, rotation and image features for a Slide viewer
+
+    <bf-palette-navigator></bf-palette-navigator>
+
+@element bf-palette-navigator
+-->
+<dom-module id="bf-palette-navigator">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-palette-styles"></style>
+    <style type="text/css">
+      :host {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        @apply(--layout-start);
+      }
+      #ruler {
+        font-size: 12px;
+        line-height: 1;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      #iconRuler {
+        margin-right: 5px;
+      }
+      #navigatorWrap {
+        box-sizing: border-box;
+        height: 224px;
+        padding: 5px;
+      }
+      #navigator {
+        background: #dedede;
+        height: 100%;
+        width: 100%;
+      }
+      #navigator-displayregion {
+        border: 2px solid var(--synapse) !important;
+      }
+    </style>
+
+    <div id="navigatorWrap" class="palette-section">
+      <div id="navigator"></div>
+    </div>
+
+    <bf-zoom-tool class="palette-section"
+      min="[[min]]"
+      max="[[max]]"
+      zoom="{{zoom}}"
+      _zoom="{{_zoom}}"
+      on-zoom-in="zoomIn"
+      on-zoom-out="zoomOut"></bf-zoom-tool>
+
+    <bf-rotate-tool class="palette-section"
+      angle="{{angle}}"></bf-rotate-tool>
+
+    <div id="ruler" class="palette-section" hidden$="[[!isMppVisible]]">
+      <iron-icon id="iconRuler" icon="blackfynn:ruler"></iron-icon> Ruler:&nbsp;<span hidden$="[[!activeViewer.slide.isMeasuring]]">[[ruler]]</span>
+    </div>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'bf-palette-navigator',
+
+      behaviors: [
+        Polymer.IronResizableBehavior,
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        /**
+         * Zoom level
+         */
+        zoom: {
+          type: Number,
+          computed: '_computeZoom(activeViewer.slide.curZoom, activeViewer.slide.maxZoom, activeViewer.slide.minZoom)'
+        },
+        /**
+         * Zoom level
+         */
+        _zoom: {
+          type: Number,
+          value: 0,
+          observer: 'setZoom'
+        },
+        /**
+         * Zoom by amount, computed by the image and browser dimensions
+         */
+        zoomBy: {
+          type: Number,
+          computed: '_computeZoomBy(activeViewer.slide.zoomPerClick)'
+        },
+        /**
+         * Minimum zoom level
+         */
+        min: {
+          type: Number,
+          value: 0
+        },
+        /**
+         * Maximum zoom level
+         */
+        max: {
+          type: Number,
+          value: 200
+        },
+        /**
+         * Rotation angle
+         */
+        angle: {
+          type: Number,
+          value: 0,
+          observer: 'setRotation'
+        },
+        ruler: {
+          type: String,
+          computed: '_computeRuler(activeViewer.isMeasuring, activeViewer.measureLength)'
+        }
+      },
+
+      observers: [
+        'watchViewer(activeViewer.viewer)',
+        'watchSidePanelState(vuex.viewer.viewerSidePanelOpen, vuex.viewer.viewerSidePanelView)'
+      ],
+
+      listeners: {
+        'zoom-fit-on-screen': '_fitOnScreen'
+      },
+
+      /**
+       * Observe side panel state for open and current view
+       * @param {Boolean} open
+       * @param {String} view
+       */
+      watchSidePanelState: function(open, view) {
+        if(open && view === 'navigator') {
+          this.async(function() {
+            this.redraw();
+          }, 100);
+        }
+      },
+
+      /**
+       * Observe the OpenSeadragon viewer
+       * @param {Object} viewer
+       */
+      watchViewer: function(viewer) {
+        if(viewer) {
+          // Reset navigator
+          this.resetPalette(viewer);
+
+          // Create navigator
+          viewer.navigator = new OpenSeadragon.Navigator({
+            element: this.$$('#navigator'),
+            viewer: viewer,
+            width: 311,
+            height: 224,
+            autoResize: false,
+            navigatorRotate: true
+          });
+
+        }
+      },
+
+      /**
+       * Compute Zoom by a calculated percentage within a range of min zoom and max zoom
+       * @param {Number} zoom
+       * @return {Number}
+       */
+      _computeZoom: function(zoom, maxZoom, minZoom) {
+        if(zoom && maxZoom && minZoom) {
+          return ((zoom - minZoom) * this.max) / (maxZoom - minZoom)
+        }
+      },
+
+      /**
+       * Compute Zoom by amount
+       * @param {Number} zoomBy
+       * @return {Number}
+       */
+      _computeZoomBy: function(zoomBy) {
+        return zoomBy;
+      },
+
+      _computeRuler: function(isMeasuring, measureLength) {
+        return measureLength;
+      },
+
+      /**
+       * Reset palette to default state
+       * @param {Object} viewer
+       */
+      resetPalette: function() {
+        const viewer = this.activeViewer;
+
+        this.$.navigatorWrap.innerHTML = '<div id="navigator"></div>';
+
+        const angle = R.pathOr(0, ['slide', 'curRotation'])(viewer);
+        this.set('angle', angle);
+
+        const zoom = R.pathOr(0, ['slide', 'curZoom'])(viewer);
+        this.set('_zoom', zoom);
+      },
+
+      /**
+       * Set viewer's zoom by a calculated percentage within a range of min zoom and max zoom
+       * @param {Number} zoom
+       */
+      setZoom: function(zoom) {
+        if(this.state && this.activeViewer && zoom >= 0 && this.activeViewer.viewer) {
+          const viewer = this.activeViewer.slide;
+          const zoomValue = (zoom * (viewer.maxZoom - viewer.minZoom) / this.max) + viewer.minZoom;
+          this.activeViewer.zoomTo(zoomValue);
+        }
+      },
+
+      /**
+       * Zoom in listener
+       */
+      zoomIn: function() {
+        this.zoomTo(this.zoomBy / 1.0);
+      },
+
+      /**
+       * Zoom out listener
+       */
+      zoomOut: function() {
+        this.zoomTo(1.0 / this.zoomBy);
+      },
+
+      /**
+       * Zoom in or out
+       * @param {Number} zoom
+       */
+      zoomTo: function(zoom) {
+        if(this.state && this.activeViewer) {
+          const viewport = this.activeViewer.viewer.viewport;
+
+          viewport.zoomBy(zoom);
+          viewport.applyConstraints();
+        }
+      },
+
+      /**
+       * Rotate viewer
+       * @param {Number} angle
+       */
+      setRotation: function(angle) {
+        if(this.state && this.activeViewer) {
+          this.activeViewer.rotateCallback({
+            detail: {
+              angle
+            }
+          });
+        }
+      },
+
+      /**
+       * zoom-fit-on-screen event callback
+       */
+      _fitOnScreen: function() {
+        this.activeViewer.viewer.viewport.goHome();
+      },
+
+      /**
+       * Redraw opensedragon viewer and update size of navigator
+       * This ensures that the navigator is up to date with the viewer
+       */
+      redraw: function() {
+        if(this.state && this.state.viewer) {
+          const viewer = this.activeViewer.viewer;
+          viewer.navigator.updateSize();
+          viewer.forceRedraw();
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>

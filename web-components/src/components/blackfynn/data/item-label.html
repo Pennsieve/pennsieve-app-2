@@ -1,0 +1,88 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../shared/filetype-mapper-behavior.html">
+<link rel="import" href="../shared/item-icon-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/data-item.html">
+
+<dom-module id="blackfynn-data-item-label">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-data-item-styles"></style>
+    <style type="text/css">
+      :host {
+        overflow-x: hidden;
+        min-height: 26px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+        @apply(--layout-center);
+      }
+      :host([is-hovering]) .nameVal span {
+        color: var(--app-primary-color);
+        text-decoration: underline;
+      }
+    </style>
+
+    <div class="icon-wrap" hidden="[[!isProcessing]]">
+      <paper-spinner-lite active></paper-spinner-lite>
+    </div>
+
+    <div class="icon-wrap" hidden="[[isProcessing]]">
+      <img src$="[[_computeIcon(data)]]" alt="icon" class="svg-icon icon-item">
+    </div>
+
+    <div class="nameVal" hidden="[[isEditing]]">
+      <span on-tap="_openItem">[[data.content.name]]</span>
+    </div>
+
+    <div class="nameValEdit" hidden="[[!isEditing]]" ><input id="editInput" value="[[data.content.name]]"></div>
+
+    <iron-a11y-keys target="[[renameTarget]]" keys="enter" on-keys-pressed="stopEditing"></iron-a11y-keys>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-data-item-label',
+      behaviors:[
+        Blackfynn.FileTypeMapperBehavior,
+        Blackfynn.ItemIconBehavior
+      ],
+      properties: {
+        isProcessing: {
+          type: Boolean,
+          value: false
+        },
+        renameTarget: {
+          type: Object,
+          value: function() {
+            return this.$.editInput;
+          }
+        }
+      },
+
+      attached: function() {
+        if (this.isEditing === undefined) {
+          this.set('isEditing', false);
+        }
+      },
+
+      stopEditing: function() {
+        this.fire('stop-editing');
+      },
+
+      _openItem: function() {
+        this.fire('open-item');
+      },
+
+    });
+
+  </script>
+</dom-module>

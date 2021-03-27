@@ -1,0 +1,151 @@
+<template>
+  <bf-page class="dataset-records">
+    <locked-banner
+      slot="banner"
+    />
+    <bf-rafter slot="heading">
+      <h1
+        slot="heading"
+        class="flex-heading"
+      >
+        {{ datasetName }}
+      </h1>
+
+      <span slot="breadcrumb">
+        Records
+      </span>
+
+      <ul
+        slot="tabs"
+        class="tabs unstyled"
+      >
+        <li>
+          <router-link :to="{ name: 'records-overview' }">
+            Overview
+          </router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'graph-browser' }">
+            Graph Browser
+          </router-link>
+        </li>
+      </ul>
+
+      <template slot="stats">
+        <stat-block
+          class="mr-32"
+          :stat="totalRecords"
+          label="Unique Records"
+        />
+        <stat-block
+          class="mr-32"
+          :stat="totalModels"
+          label="Graph Models"
+        />
+      </template>
+    </bf-rafter>
+
+    <bf-stage
+      slot="stage"
+      :fullscreen="true"
+    >
+      <router-view name="stage" />
+    </bf-stage>
+  </bf-page>
+</template>
+
+<script>
+  import {
+    mapState,
+    mapGetters
+  } from 'vuex'
+
+  import {
+    pathOr
+  } from 'ramda'
+
+  import BfRafter from '../../../shared/bf-rafter/BfRafter.vue'
+  import LockedBanner from '../../LockedBanner/LockedBanner';
+  import StatBlock from '../../../shared/StatBlock/StatBlock.vue'
+
+  const formatNumber = (number) => new Intl.NumberFormat('en-EN').format(number)
+
+  export default {
+    name: 'DatasetRecords',
+
+    components: {
+      BfRafter,
+      StatBlock,
+      LockedBanner
+    },
+
+    data() {
+      return {
+      }
+    },
+
+    computed: {
+      ...mapState([
+        'dataset'
+      ]),
+
+      ...mapGetters([
+        'modelsCount',
+        'totalRecordsCount'
+      ]),
+
+      /**
+       * Compute dataset name
+       * @returns {String}
+       */
+      datasetName: function() {
+        return pathOr('', ['content', 'name'], this.dataset)
+      },
+
+      /**
+       * Compute and format total models
+       * @returns {String}
+       */
+      totalModels: function() {
+        return formatNumber(this.modelsCount)
+      },
+
+      /**
+       * Compute and format total records
+       * @returns {String}
+       */
+      totalRecords: function() {
+        return formatNumber(this.totalRecordsCount)
+      }
+    },
+
+    methods: {
+    }
+  }
+</script>
+
+<style lang="scss">
+  @import '../../../../assets/_variables.scss';
+
+  .dataset-records {
+    background: #fff;
+    h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      line-height: 32px;
+    }
+    .stat-block {
+      color: #000;
+      text-align: center;
+      .stat {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 22px;
+        margin: 0;
+      }
+      .label {
+        font-size: 12px;
+      }
+    }
+  }
+</style>

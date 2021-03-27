@@ -1,0 +1,128 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../../data/bf-search-input/bf-search-input.html">
+<link rel="import" href="../../data/bf-aux-menu/bf-aux-menu.html">
+<link rel="import" href="../bf-main-menu/bf-main-menu.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/aux-menu.html">
+
+<!--
+`<bf-header>` is a global component for the header of the Blackfynn app.
+
+    <bf-header></bf-header>
+
+-->
+<dom-module id="bf-header">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-aux-menu-styles"></style>
+    <style type="text/css">
+      :host {
+        background: #F9F9F9;
+        border-bottom: 2px solid var(--cortex);
+        padding: 11px 10px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        display: none;
+      }
+      #blackfynnLogo {
+        cursor: pointer;
+        height: 20px;
+        margin-right: 31px;
+        width: 28px;
+      }
+    </style>
+
+    <iron-icon
+      id="blackfynnLogo"
+      class="logo-mark-color"
+      icon="blackfynn:logo_mark"
+      on-tap="_handleLogoClick"
+      noink></iron-icon>
+
+    <bf-main-menu></bf-main-menu>
+
+    <!-- search -->
+    <bf-search-input
+      id="searchInput"
+      class="aux-item"
+      isSearch="{{!showTree}}"
+      api="[[api]]"
+      user="[[user]]"
+      query="{{searchString}}"></bf-search-input>
+
+    <!-- new... & user menu -->
+    <bf-aux-menu
+      id="auxMenu"
+      api="[[api]]"
+      user="[[user]]"
+      profile="[[profile]]"
+      cur-route="[[routeDataTail]]"
+      bucket="[[bucket]]"
+      bucket-name="[[bucketName]]"
+      cur-package="{{curPackage}}"
+      upload-destination="[[uploadDestination]]"
+      organizations="[[organizations]]"
+      active-organization="[[activeOrganization]]"
+      is-uploading="[[isUploading]]"></bf-aux-menu>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-header',
+
+      behaviors: [
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * current package
+         */
+        curPackage: {
+          type: Object,
+          value: function() {
+            return {}
+          }
+        },
+        /**
+        * active organization
+        */
+        activeOrganization: {
+          type: Object,
+          value: function() {
+            return {}
+          }
+        }
+      },
+
+      _getPreviousPage: function() {
+        const activeOrg = this.activeOrganization.organization.id
+        const currentCollection = this.curPackage.path
+        return `/${activeOrg}/data-catalog${currentCollection}`
+      },
+
+      _handleLogoClick: function() {
+        const { pathname } = window.location
+        const previousPage = this._getPreviousPage()
+
+        if (pathname.includes('viewer')) {
+          window.history.pushState({}, null, previousPage);
+          this.fire('location-changed')
+        } else {
+          window.history.pushState({}, null, this.homeUrl);
+          this.fire('cancel-search')
+          this.fire('location-changed')
+        }
+      }
+    });
+
+  </script>
+
+</dom-module>

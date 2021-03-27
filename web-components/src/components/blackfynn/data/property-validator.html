@@ -1,0 +1,25 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-validator-behavior/iron-validator-behavior.html">
+
+<link rel="import" href="property-validation-behavior.html">
+<dom-module id="blackfynn-property-validator">
+  <script>
+    Polymer({
+      is: 'blackfynn-property-validator',
+      behaviors: [
+        Polymer.IronValidatorBehavior,
+      ],
+      properties: {
+        pattern: {
+          type: String,
+          value: '.*'
+        }
+      },
+
+      validate: function(value) {
+        const regexp = new RegExp('^' + this.pattern + '$');
+        return !value || (value.match(regexp) !== null);
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,97 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-zoom-tool tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../bf-zoom-tool.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <bf-zoom-tool></bf-zoom-tool>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('Basic', () => {
+      let basic;
+
+      setup(() => {
+        basic = fixture('basic');
+      });
+
+      test('Changing value should change dropdown and slider', () => {
+        basic.set('zoom', 21);
+        expect(basic.$$('bf-select-input').$.input.value).to.be.equal('21');
+        expect(basic.$.zoomSlider.value).to.be.equal(21);
+      });
+
+      test('Zoom buttons fire appropriate events', function() {
+        sinon.spy(basic, 'fire');
+
+        // Tap on icon
+        basic.$$('paper-icon-button[zoom-type="out"]').click();
+        expect(basic.fire).to.have.been.calledWith('zoom-out');
+
+        // Tap on icon
+        basic.$$('paper-icon-button[zoom-type="in"]').click();
+        expect(basic.fire).to.have.been.calledWith('zoom-in');
+      });
+
+      test('Fit on screen button fires appropriate event', function() {
+        sinon.spy(basic, 'fire');
+
+        // Tap on icon
+        basic.$$('paper-icon-button[icon="blackfynn:size-to-fit"]').click();
+        expect(basic.fire).to.have.been.calledWith('zoom-fit-on-screen');
+      });
+
+      test('Digital zoom is computed and notice displays only when over 100%', function(done) {
+        // Set max to 150 to allow for digital zooming
+        basic.set('max', 150);
+
+        basic.set('zoom', 150);
+        expect(basic._digitalZoom).to.be.true;
+
+        flush(() => {
+          expect(basic.$.digitalZoomMsg.style.display).to.be.equal('');
+          done();
+        });
+
+        basic.set('zoom', 50);
+        expect(basic._digitalZoom).to.be.false;
+
+        flush(() => {
+          expect(basic.$.digitalZoomMsg.style.display).to.be.equal('none');
+          done();
+        });
+      });
+
+      test('Zoom cannot be set over max allowed', function() {
+        basic.set('zoom', 150);
+
+        expect(basic.zoom).to.be.equal(100);
+      });
+    });
+  </script>
+
+</body>
+</html>

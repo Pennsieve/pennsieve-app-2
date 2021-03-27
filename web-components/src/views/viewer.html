@@ -1,0 +1,271 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../components/blackfynn/shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../components/blackfynn/state/bf-state-behavior.html">
+<link rel="import" href="../components/blackfynn/data/bf-viewer/bf-viewer.html">
+
+<link rel="import" href="../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-view-viewer">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        background-color: var(--white-matter);
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+    </style>
+
+    <bf-viewer
+      id="blackfynnDataView"
+      items="{{openData}}"
+      cur-package="[[curPackage]]"
+      dataset="[[dataset]]"
+      user-token="[[userToken]]"
+      api-url="[[apiUrl]]"
+      is-package-loading="[[isPackageLoading]]"
+      query-params="{{queryParams}}"></bf-viewer>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-view-viewer',
+
+      behaviors: [
+        StateBehavior,
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        /**
+         * Open packages
+         */
+        openData: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * determines whether or not data viewer has a split or single pane
+         */
+        hasSplitView: {
+          type: Boolean,
+          value: false
+        },
+        dataset: {
+          type: Object,
+          value: function() {
+            return {}
+          },
+          observer: 'watchDataset'
+        },
+        profile: {
+          type: String,
+          observer: 'watchProfile'
+        },
+        activeOrganization: {
+          type: String,
+          observer: 'watchActiveOrganization'
+        },
+        userToken: {
+          type: String,
+          observer: 'watchUserToken'
+        },
+        /**
+         * Default state of viewer
+         */
+         defaultViewerState: {
+          type: Object,
+          value: function() {
+            return {
+              sidePanel: {
+                view: 'info-panel',
+                open: false
+              },
+              viewers: []
+            }
+          }
+        },
+      },
+
+      listeners: {
+        'toggle-view-panes': '_toggleViewPanes',
+        'close-selected-viewer': '_closeSelectedViewer'
+      },
+
+      watchDataset: function(dataset) {
+        const datasetId = R.pathOr('', ['content', 'id'], dataset)
+        if (datasetId) {
+          this.fire('set-state-path', {
+            path: 'curDataSet',
+            state: dataset
+          });
+        }
+      },
+
+      watchUserToken: function(userToken) {
+        this.fire('set-state', {
+          userToken
+        })
+      },
+
+      watchProfile: function(profile) {
+        this.fire('set-state', {
+          profile: JSON.parse(profile)
+        })
+      },
+
+      watchActiveOrganization: function(activeOrganization) {
+        this.fire('set-state', {
+          activeOrganization: JSON.parse(activeOrganization)
+        })
+      },
+
+      attached: function() {
+        this.fire('set-state-path', {
+          path: 'viewer',
+          state: this.defaultViewerState
+        });
+      },
+
+      /**
+       * Toggles between single and split pane data view
+       * @param {Event} evt
+       * @param {Object} detail
+       */
+      _toggleViewPanes: function(evt, detail) {
+        const val = detail === 'single' ? false : true;
+        this.set('hasSplitView', val);
+
+        if (detail === 'single') {
+          this.async(() => {
+            const viewer = this.$.blackfynnDataView
+            viewer._setSplitViewProp()
+          }, 200)
+        }
+      },
+
+      _closeSelectedViewer: function(evt, detail) {
+        const { isActive } = detail
+        const activeViewerIdx = this.state.viewer.active
+
+        let viewerIdx
+        if (isActive) {
+          viewerIdx = activeViewerIdx
+        } else if (!isActive && activeViewerIdx === 1) {
+          viewerIdx = 0
+        } else {
+          viewerIdx = 1
+        }
+
+        this.splice('openData', viewerIdx, 1)
+
+        this.fire('set-state-path', {
+          path: 'viewer.active',
+          state: viewerIdx === 0 ? 1 : 0
+        })
+
+        this.fire('set-state', {
+          showPkgTitle: false
+        })
+
+        const fileId = R.pathOr('', [0, 'content', 'id'], this.openData)
+
+        this.fire('set-vue-route', {
+          name: 'viewer',
+          params: {
+            fileId
+          }
+        })
+
+        this.set('hasSplitView', false);
+
+        this.async(() => {
+          const viewer = this.$.blackfynnDataView
+          viewer._setSplitViewProp()
+          viewer.notifyResize()
+        }, 200)
+      },
+
+      /**
+       * set or update openData array
+       * @param {Object} item
+       * @param {String} targetId
+       */
+      _setOpenData: function(item, targetId) {
+        switch (true) {
+          case (!this.hasSplitView && this.openData && this.openData.length === 1):
+          this.set('openData.0', item);
+          break;
+        case (this.hasSplitView && this.openData.length === 2):
+          const idx = targetId === 'viewer0' ? 0 : 1;
+          this.set(`openData.${idx}`, item);
+          break;
+        default:
+          if (!this.hasSplitView) {
+            this.set('openData', []);
+          }
+          this.push('openData', item);
+          break;
+        }
+
+        this.fire('set-state', {
+          showPkgTitle: this.openData.length > 1 ? true : false
+        })
+      },
+
+      /**
+       * Called by bf-data-item to open an item
+       * @param {Event} evt
+       */
+      openItem: function(evt) {
+        const item = R.pathOr({}, ['detail', 'item'], evt);
+
+        if (this.openData !== undefined) {
+          // Don't do anything if item is already open
+          for (let i = 0; i < this.openData.length; i++) {
+            if (item.content.id === this.openData[i].content.id) {
+              return;
+            }
+          }
+        }
+
+        // Add item to openData
+        const defaultTarget = this.hasSplitView ? 'viewer1' : 'viewer0';
+        const targetId = R.pathOr(defaultTarget, ['detail', 'target', 'id'], evt);
+        this._setOpenData(item, targetId);
+      },
+
+      /**
+       * Close viewers and reset viewer state
+       */
+      closeViewer: function() {
+        // Reset state
+        this.fire('set-state-path', {
+          path: 'viewer',
+          state: {
+            sidePanel: {
+              view: 'info-panel',
+              open: false
+            },
+            viewers: [],
+            active: 0
+          }
+        });
+
+        this.set('openData', []);
+        this.set('hasSplitView', false);
+      }
+
+    });
+
+  </script>
+
+</dom-module>

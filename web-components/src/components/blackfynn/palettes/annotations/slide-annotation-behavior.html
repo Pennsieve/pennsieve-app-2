@@ -1,0 +1,311 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.SlideAnnotationBehavior = {
+
+    properties: {
+      /**
+       * annotations url for GET
+       */
+      getAnnotationsUrl: {
+        type: String,
+        computed: '_computeGetAnnotationsUrl(vuex.config.apiUrl, vuex.userToken, data.id)'
+      },
+      annotations: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      }
+    },
+
+    listeners: {
+      'create-annotation': 'createAnnotation',
+      'edit-annotation': 'editAnnotation',
+      'remove-annotation-on-canvas': 'removeAnnotationOnCanvas'
+    },
+
+    /**
+     * compute annotations url for GET
+     */
+    _computeGetAnnotationsUrl: function(api, user, itemId) {
+      return `${api}/packages/${itemId}/annotations?api_key=${user}`
+    },
+
+    /**
+     * annotations url for GET
+     * @param {Object} evt
+     */
+    _handleGet: function(evt) {
+      const response = R.pathOr({}, ['detail', 'response'], evt);
+      const annotations = R.propOr({}, 'annotations', response);
+      const layers = R.propOr([], 'layers', response)
+
+      if (!layers.length) {
+        // crete default layer if one doesn't exist
+        this.fire('create-layer', {
+          layer: {
+            name: 'Default',
+            annotatedItem: this.data.id,
+            color: '#18BA62'
+          }
+        })
+      } else {
+        for (let layer of layers) {
+          layer.annotations = annotations[layer.id] || []
+
+          if (!layer.color) {
+            layer.color = '#18BA62'
+          }
+          layer.hexColor = layer.color
+        }
+
+        this.$store.dispatch('viewer/setAnnotations', layers);
+
+        this.fire('add-to-overlay', {
+          annotation: response.annotations
+        });
+      }
+    },
+
+    /**
+    * Remove individual annotation
+    * @param {Number} annotationId
+    */
+    deleteAnnotation: function(payload) {
+      const annotationId = R.propOr(0, 'id', payload);
+      const layerId = R.propOr(0, 'layerId', payload);
+      const withDiscussions = R.propOr(false, 'withDiscussions', payload);
+
+      const url = `${this.vuex.config.apiUrl}/annotations/${annotationId}?api_key=${this.vuex.userToken}&withDiscussions=${withDiscussions}`;
+      fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-type': 'application/json'
+          }
+        })
+        .then(response => {
+          const {status, statusText} = response;
+          if (status >= 400) {
+            throw new Error(statusText);
+          }
+          return response.json();
+        })
+        .then(() => {
+          this.$store.dispatch('viewer/deleteAnnotation', payload)
+
+          // Find annotation on canvas and remove it
+          try {
+            this.overlay.removeAnnotation(annotationId);
+            this.fire('toast', {type: 'MESSAGE', msg: 'Annotation deleted'});
+          } catch(ex) {
+            this.fire('toast', {type: 'MESSAGE', msg: 'There was an error'});
+          }
+        })
+        .catch((err) => {
+          const ann = {
+            withDiscussions: true,
+            annotation: {
+              id: annotationId,
+              layer_id: layerId
+            }
+          };
+          const newPayload = Object.assign({}, payload, ann);
+          this.confirmDeleteAnnotation(newPayload);
+        })
+    },
+
+    /**
+     * Create annotation
+     * @param {Object} evt
+     * @param {Object} annotation
+     */
+    createAnnotation: function(evt, annotation) {
+      const ajaxRequest = this.$.ajCreateAnnotation;
+
+      // Map positioning information from the canvas
+      let metadata;
+      if(annotation) {
+        metadata = Object.keys(annotation).map(function(key, index) {
+          let value;
+          if(key !== 'path') {
+            value = annotation[key];
+          } else {
+            value = '';
+          }
+
+          return { key, value};
+        });
+      } else {
+        metadata = [];
+      }
+
+      // Encode path for database
+      let encodedPath;
+      if(annotation) {
+        if(annotation.path) {
+          encodedPath = [];
+          for (let i = 0; i < annotation.path.length; i++) {
+
+            const pathObj = {
+              elementType: '',
+              data: []
+            };
+
+            for (let index = 0; index < annotation.path[i].length; index++) {
+              if(index === 0) {
+                pathObj.elementType = annotation.path[i][index];
+              } else {
+                pathObj.data.push(annotation.path[i][index]);
+              }
+            }
+
+            encodedPath.push(pathObj);
+          }
+        } else {
+          encodedPath = '';
+        }
+      }
+
+      ajaxRequest.body = {
+        layerId: annotation.newLayerId,
+        description: annotation.description,
+        annotatedItem: this.data.id,
+        path: encodedPath,
+        properties: metadata
+      };
+
+      ajaxRequest.generateRequest();
+    },
+
+    /**
+     * Call edit annotation endpoint
+     * @param {Object} evt
+     * @param {Object} detail
+     */
+    editAnnotation: function(evt, detail) {
+      const ajaxRequest = this.$.ajEditAnnotation;
+      ajaxRequest.url = `${this.vuex.config.apiUrl}/annotations/${detail.id}?api_key=${this.vuex.userToken}`;
+      ajaxRequest.body = {
+        description: detail.description,
+        layerId: detail.newLayerId
+      }
+
+      ajaxRequest.generateRequest()
+        .completes
+        .then(payload => this._handleEditAnnotation(detail, payload))
+    },
+
+    /**
+     * Edit annotation endpoint callback
+     * @param {Object} detail - request object
+     * @param {Object} payload - XHR response object
+     */
+    _handleEditAnnotation: function(detail, payload) {
+      const annotation = R.path(['response', 'annotation'])(payload);
+      const layers = this.vuex.viewer.viewerAnnotations
+      const layerIndex = layers.findIndex(layer => layer.id === detail.newLayerId)
+
+      if (layerIndex === -1) {
+        return
+      }
+
+      const layer = layers[layerIndex]
+
+      // find old layer and remove annotation
+      if (detail.newLayerId !== detail.layer_id) {
+        const oldLayerIndex = layers.findIndex(layer => layer.id === detail.layer_id)
+        const oldLayer = layers[oldLayerIndex]
+        const oldLayerAnnotations = [...oldLayer.annotations]
+        const oldAnnIndex = oldLayerAnnotations.findIndex(item => item.id === detail.id)
+
+        oldLayerAnnotations.splice(oldAnnIndex, 1)
+
+        layers[oldLayerIndex].annotations = oldLayerAnnotations
+        layers[layerIndex].annotations = [annotation, ...layer.annotations]
+
+        // @TODO test with annotation palette
+        this.$store.dispatch('viewer/setAnnotations', layers)
+
+        // update canvas
+        const fabricAnn = this.overlay.getAnnotationByUuid(annotation.id);
+
+        fabricAnn.set({
+          annID: annotation.id,
+          layerId: layer.id,
+          stroke: layer.color,
+          fill: this.overlay.getRGBA(layer.color)
+        })
+        this.overlay._fabricCanvas.renderAll()
+      } else {
+        const layerAnnotations = [...layer.annotations]
+        const annotationIndex = layerAnnotations.findIndex(item => item.id === annotation.id)
+
+        layerAnnotations.splice(annotationIndex, 1, annotation)
+
+        // @TODO test with annotation palette
+        layers[layerIndex].annotations = layerAnnotations
+        this.$store.dispatch('viewer/setAnnotations', layers)
+      }
+
+      this.fire('close-annotation-window');
+    },
+
+    getOldId: R.compose(
+      R.propOr('', 'value'),
+      R.defaultTo({}),
+      R.find(R.propEq('key', 'annID')),
+      R.propOr([], 'attributes')
+    ),
+
+    /**
+     * Create annotation endpoint callback
+     * @param {Object} evt
+     * @param {Object} detail - XHR response
+     */
+    _handleCreateAnnotation: function(evt, detail) {
+      const annotation = R.pathOr({}, ['response', 'annotation'])(detail);
+      const layers = this.vuex.viewer.viewerAnnotations
+      const layerIndex = layers.findIndex(layer => layer.id === annotation.layer_id)
+
+      if (layerIndex === -1) {
+        return
+      }
+
+      const layer = layers[layerIndex]
+
+      this.$store.dispatch('viewer/createAnnotation', annotation)
+
+      const newId = R.propOr('', 'id', annotation);
+
+      const oldId = this.getOldId(annotation);
+      const existingAnnotation = this.overlay.getAnnotationByUuid(oldId);
+
+      existingAnnotation.set({
+        annID: newId,
+        layerId: layer.id,
+        stroke: layer.color,
+        fill: this.overlay.getRGBA(layer.color)
+      })
+      this.overlay._fabricCanvas.renderAll()
+      this.fire('close-annotation-window');
+    },
+
+    /**
+     * Remove annotation on canvas
+     * @param {Object} evt
+     * @param {Object} annotation
+     */
+    removeAnnotationOnCanvas: function(evt, annotation) {
+      const id = R.propOr('', 'annID')(annotation);
+      this.overlay.removeAnnotation(id);
+    }
+
+
+  }
+</script>

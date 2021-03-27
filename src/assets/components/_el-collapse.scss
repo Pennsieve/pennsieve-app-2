@@ -1,0 +1,25 @@
+@import '../_variables.scss';
+
+.el-collapse {
+  border: none;
+}
+.el-collapse-item__header {
+  .el-collapse-item__arrow {
+    display: none;
+  }
+}
+
+.el-collapse-item__content {
+  font-size: inherit;
+  line-height: inherit;
+  padding: 0 24px;
+  .zero-padding & {
+    padding: 0;
+  }
+}
+
+.el-collapse-item__wrap {
+  .no-border & {
+    border-bottom: none;
+  }
+}

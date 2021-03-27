@@ -1,0 +1,40 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.UniqueNameBehavior = {
+    /**
+     * Gets all items from an array by path and returns as lowercase string
+     * @param {Array} path
+     * @return {Array}
+     */
+    getItemsLower: (path) => R.compose(
+      R.toLower(),
+      R.path(path),
+      R.defaultTo([])
+    ),
+
+    /**
+     * Checks if items in an array are unique compared to the input
+     * @param {Array} list
+     * @param {Array} path
+     * @param {string} name
+     * @param {string} exclude
+     * @return {Boolean}
+     */
+    checkUniqueName: function(list, path, name, exclude) {
+      let filteredNames = R.map(this.getItemsLower(path), list);
+
+      // Remove name from list if excluding
+      if(exclude) {
+        const index = R.indexOf(R.toLower(exclude), filteredNames);
+        if(index >= 0) {
+          filteredNames.splice(index, 1);
+        }
+      }
+
+      return R.not(R.contains(R.toLower(name), filteredNames));
+    }
+  }
+</script>

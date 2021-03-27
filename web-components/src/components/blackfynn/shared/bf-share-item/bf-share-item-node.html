@@ -1,0 +1,139 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../bf-icon-circle/bf-icon-circle.html">
+<link rel="import" href="../bf-avatar/bf-avatar.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+  `bf-share-item-node` is the common designed list item for sharing
+
+  For example:
+
+    <bf-share-item-node
+      on-tap="_setActiveViewToPrivate"
+      class="share-list-item"
+      icon-name="blackfynn:lock-outline">
+      <strong>Private</strong> - Only you can access this.
+      <a on-tap="" class="right">Change...</a>
+    </bf-share-item-node>
+
+@element bf-share-item-node
+@demo demo/index.html
+-->
+
+<dom-module id="bf-share-item-node">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      :host([focused]) {
+        outline: none;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      li {
+        @apply(--layout-horizontal);
+        align-items: center;
+        background: white;
+        justify-content: space-between;
+        padding: 10px 30px;
+      }
+
+      iron-icon {
+        --iron-icon-height: 16px;
+        --iron-icon-width: 16px;
+      }
+      .icon-container {
+        margin-right: 10px;
+      }
+
+      li.nav-item:hover {
+        cursor: pointer;
+        color: #fff;
+        background: var(--dopamine);
+      }
+
+      li.nav-item:hover bf-icon-circle {
+        background: white;
+        color: var(--dopamine);
+      }
+
+      div.content {
+        @apply(--layout-flex);
+      }
+
+      a {
+        color: var(--dopamine);
+        text-decoration: none;
+      }
+
+    </style>
+
+    <li class$="[[classNames]]">
+      <div class="icon-container">
+        <template is="dom-if" if="[[isUser]]">
+          <bf-avatar profile="[[item]]"></bf-avatar>
+        </template>
+        <template is="dom-if" if="[[!isUser]]">
+          <bf-icon-circle>
+            <iron-icon icon="[[iconName]]"></iron-icon>
+          </bf-icon-circle>
+        </template>
+      </div>
+      <div class="content">
+        <content></content>
+      </div>
+      <template is="dom-if" if="[[linkText]]">
+        <div hidden$="[[!_isOwner]]">
+          <a href="#" on-tap="fireLinkEvent">[[linkText]]</a>
+        </div>
+      </template>
+    </li>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-share-item-node',
+
+      properties: {
+
+        eventName: {
+          type: String
+        },
+
+        item: {
+          type: Object
+        },
+
+        classNames: {
+          type: String,
+          value: ''
+        },
+
+        isUser: {
+          type: Boolean,
+          computed: '_isUser(item)',
+          value: false
+        }
+
+      },
+
+      _isUser: function(item) {
+        return item && R.match(/:user:/, item.id).length === 1;
+      },
+
+      fireLinkEvent: function(e) {
+        this.fire(this.eventName, {item: this.item});
+      }
+
+    });
+  </script>
+</dom-module>

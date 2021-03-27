@@ -1,0 +1,153 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+
+<link rel="import" href="../components/blackfynn/state/bf-state-behavior.html">
+<link rel="import" href="onboarding/bf-setup-profile.html">
+<link rel="import" href="onboarding/bf-onboarding-next-steps.html">
+<link rel="import" href="onboarding/bf-onboarding-organization.html">
+<link rel="import" href="onboarding/bf-onboarding-invite-people.html">
+
+<link rel="import" href="../styles/blackfynn/main.html">
+<link rel="import" href="../styles/blackfynn/login.html">
+
+<dom-module id="bf-onboarding">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-login-styles"></style>
+    <style>
+      :host {
+        background: var(--neuron);
+        display: block;
+      }
+      iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      #logo {
+        height: 20px;
+        left: 20px;
+        position: fixed;
+        top: 20px;
+        width: 28px;
+      }
+    </style>
+
+    <iron-icon id="logo" class="logo-mark-color" icon="blackfynn:logo_mark"></iron-icon>
+
+    <iron-pages id="pages" selected="[[view]]" attr-for-selected="name">
+      <bf-setup-profile
+        api-url="{{apiUrl}}"
+        name="setup-profile"
+        token="{{setupProfileToken}}"
+        active-organization-id="{{activeOrganizationId}}"></bf-setup-profile>
+
+      <!-- <bf-onboarding-next-steps name="next-steps"></bf-onboarding-next-steps> -->
+
+      <bf-onboarding-organization
+        api-url="{{apiUrl}}"
+        name="terms-of-service"
+        user-token="{{userToken}}"
+        active-organization-id="{{activeOrganizationId}}"
+      ></bf-onboarding-organization>
+
+      <bf-onboarding-invite-people
+        api-url="{{apiUrl}}"
+        name="invite-people"
+        user-token="{{userToken}}"
+        active-organization-id="{{activeOrganizationId}}"></bf-onboarding-invite-people>
+    </iron-pages>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:page/:view"
+      data="{{routeData}}"></app-route>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-onboarding',
+
+      behaviors: [
+        StateBehavior
+      ],
+
+      properties: {
+        /**
+         * API url
+        */
+        apiUrl: {
+          type: String,
+          value: ''
+        },
+        /**
+         * User token
+        */
+        userToken: {
+          type: String,
+          value: ''
+        },
+        view: {
+          type: String,
+          value: ''
+        },
+        /**
+         * User Token
+         */
+        setupProfileToken: {
+          type: String,
+          value: ''
+        },
+        /*
+         * If the user and organization are already registered
+         * @param {string} subscriptionState
+         */
+        _isRegistered: {
+          type: Boolean,
+          computed: '_computeIsRegistered(state.activeOrganization.organization.subscriptionState)',
+          observer: '_isUserRegistered'
+        },
+        _isOrgOwner: {
+          type: Boolean,
+          computed: '_computeIsOrgOwner(state.activeOrganization)',
+          observer: '_isUserOrgOwner'
+        }
+      },
+      /*
+       * If the user and organization are already registered
+       * @param {string} subscriptionState
+       */
+       _computeIsRegistered: function(subscriptionState) {
+        return R.propOr(false, 'date', subscriptionState)
+      },
+      /*
+       * Observe if the user is registered, and send them to datasets if they are
+       * @param {boolean} isRegistered
+       */
+       _isUserRegistered: function(isRegistered) {
+        if (isRegistered) {
+          // this.fire('set-vue-route', { name: 'datasets-list' });
+        }
+      },
+      _computeIsOrgOwner: function(activeOrganization) {
+        const isOwner = R.propOr(false, 'isOwner', activeOrganization)
+        const isAdmin = R.propOr(false, 'isAdmin', activeOrganization)
+
+        if (!isOwner && !isAdmin) {
+          return false
+        }
+        return true
+      },
+      _isUserOrgOwner: function(isOrgOwner) {
+        // TODO: Add logic to route user to setup-profile if they aren't owner?
+      }
+    });
+
+  </script>
+
+</dom-module>

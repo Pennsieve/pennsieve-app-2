@@ -1,0 +1,90 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/browse.html">
+<link rel="import" href="../shared/blackfynn-heading-panel.html">
+<link rel="import" href="team.html">
+<link rel="import" href="team-list.html">
+
+<dom-module id="blackfynn-teams">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <blackfynn-team-list
+      hidden$="[[_isViewingTeam]]"
+      teams="{{teams}}"
+      user="[[user]]"
+      api="[[api]]"
+      people="[[people]]"
+      profile="[[profile]]"
+      active-organization="[[activeOrganization]]"></blackfynn-team-list>
+
+    <blackfynn-team
+      hidden$="[[!_isViewingTeam]]"
+      name="detail"
+      team="[[activeTeam]]"
+      profile="[[profile]]"
+      user="[[user]]"
+      api="[[api]]"
+      active-organization="[[activeOrganization]]"></blackfynn-team>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-teams',
+
+      properties: {
+        _isViewingTeam: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      listeners: {
+        'team-created': '_teamCreated',
+        'teamDeleted': '_teamDeleted',
+        'back-to-list': 'backToList',
+        'view-team': 'viewTeam'
+      },
+
+      attached: function() {
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      _teamCreated: function(e, detail) {
+        this.push('teams', detail.team);
+      },
+
+      _teamDeleted: function(e) {
+        const teamIndex = this.teams.indexOf(e.detail.team);
+        this.splice('teams', teamIndex, 1);
+        this.fire('toast', {type: 'MESSAGE', msg: `Team deleted`});
+      },
+
+      viewTeam(e, detail) {
+        this.set('activeTeam', detail.team.organization);
+
+        this.set('_isViewingTeam', true);
+      },
+
+      backToList() {
+        this.set('_isViewingTeam', false);
+      }
+
+    });
+
+  </script>
+
+</dom-module>

@@ -1,0 +1,173 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+# bf-overflow
+Component that renders truncated data using an ellipsis along with a 'more' button.
+
+@element bf-overflow
+@demo demo/index.html
+-->
+
+<dom-module id="bf-overflow">
+  <style include="blackfynn-main-styles"></style>
+  <style>
+    :host {
+      display: block;
+      max-width: var(--max-width, 200px);
+      overflow: hidden;
+      position: relative;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .content {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    :host([gradient]) .content {
+      text-overflow: clip;
+    }
+    :host([gradient]) .content[overflow]:before {
+      background: linear-gradient(90deg, transparent, #f7f7f7);
+      content: '';
+      display: block;
+      height: 100%;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+    }
+    :host([gradient][ellipsis]) .content:before {
+      right: 24px;
+    }
+    .more-data-icon {
+      cursor: pointer;
+      min-width: 24px;
+      outline: none;
+      @apply(--layout-horizontal);
+      @apply(--layout-end-justified);
+    }
+  </style>
+  <template>
+
+    <div class="content" overflow$="[[hasOverflow]]">
+      <slot></slot>
+    </div>
+
+    <template is="dom-if" if="[[_displayEllipsis]]">
+      <iron-icon
+        class="more-data-icon"
+        tabindex="-1"
+        icon="blackfynn:more-h"
+        on-tap="tapAction"></iron-icon>
+    </template>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'bf-overflow',
+
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+
+      properties: {
+        /**
+         * The component has overflowed content
+         */
+        hasOverflow: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * Should display ellipsis on overflow
+         */
+        ellipsis: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Should display gradient on overflow
+         */
+        gradient: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * tracks whether or not to display an ellipsis menu
+         */
+        _displayEllipsis: {
+          type: Boolean,
+          computed: '_computeDisplayEllipsis(ellipsis, hasOverflow)'
+        },
+        /**
+         * buffer used to calculate overflow detection
+         */
+         _buffer: {
+           type: Number,
+           value: 15.5
+         }
+      },
+
+      listeners: {
+        'iron-resize': 'onIronResize'
+      },
+
+      /**
+       * Polymer lifecycle method
+       */
+      attached: function() {
+        this.checkOverflow();
+      },
+
+      /**
+       * Compute if ellipsis should display
+       * @param {Boolean} ellipsis
+       * @param {Boolean} hasOverflow
+       * @return {Boolean}
+       */
+      _computeDisplayEllipsis: function(ellipsis, hasOverflow) {
+        return ellipsis && hasOverflow;
+      },
+
+      /**
+       * Iron resize callback
+       */
+      onIronResize: function() {
+        // Cancel the debouncer
+        this.cancelDebouncer('check-overflow');
+
+        // Debounce the resize event
+        this.debounce('check-overflow', function() {
+          this.checkOverflow();
+        }, 100);
+      },
+
+      /**
+       * Check content overflow
+       */
+      checkOverflow: function() {
+        const content = this.$$('.content');
+        this.set('hasOverflow', content.scrollWidth - this._buffer > content.clientWidth);
+      },
+
+      /**
+       * Fires tap event
+       * @param {Event} e
+       */
+      tapAction: function(e) {
+        this.fire('bf-overflow-tapped', e);
+      },
+
+    });
+  </script>
+</dom-module>

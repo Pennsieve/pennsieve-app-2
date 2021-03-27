@@ -1,0 +1,194 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/grid.html">
+<link rel="import" href="../../../../styles/blackfynn/explore.html">
+
+<!--
+## bf-saved-queries-list
+
+`<bf-saved-queries-list>` is a component for displaying the list of saved queries for a user.
+
+@element bf-saved-queries-list
+@demo demo/index.html
+-->
+
+<dom-module id="bf-saved-queries-list">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-grid-styles"></style>
+    <style include="bf-explore-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      h3 {
+        color: #000000;
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 29px;
+        text-align: center;
+      }
+      .empty-queries {
+        border: solid 1px var(--cortex);
+        border-radius: 4px;
+        color: var(--glial);
+        font-size: 16px;
+        height: 314px;
+        line-height: 24px;
+        overflow: hidden;
+        text-align: center;
+        width: 100%;
+
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+      img {
+        margin-bottom: 20px;
+      }
+      .empty-queries p {
+        max-width: 676px;
+      }
+      .query {
+        border-top: 1px solid var(--cortex);
+        margin-top: 14px;
+        padding-top: 20px;
+      }
+      .query:first-of-type {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+      }
+      p {
+        margin: 6px 0;
+      }
+      .timestamp {
+        color: #979797;
+      }
+      .includes {
+        text-transform: capitalize;
+      }
+    </style>
+
+    <div class="row">
+      <div class="col-sm-11 col-sm-offset-1">
+        <h2>Saved Searches</h2>
+      </div>
+    </div>
+
+    <div hidden$="[[!hasQueries]]">
+      <template is="dom-repeat" items="[[savedQueries]]">
+        <div class="row query">
+          <div class="col-sm-7 col-sm-offset-1">
+            <a href="[[_computeSaveQueryLink(state.activeOrganization.organization.id, item.query.type, item.id)]]">[[item.name]]</a>
+            <p class="includes" hidden$="[[!_hasJoins(item.query)]]"><strong>Includes:</strong> [[_computeJoins(item.query)]]</p>
+            <p class="timestamp">Last updated [[_displayLastUpdated(item.updatedAt)]]</p>
+          </div>
+          <div class="col-sm-4">
+            <a href="[[_computeSaveQueryLink(state.activeOrganization.organization.id, item.query.type, item.id)]]">
+              <paper-button class="light-gradient" noink>View Results</paper-buttton>
+            </a>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div hidden$="[[hasQueries]]" class="empty-queries">
+      <img src="../../../../../../static/images/illustrations/spot-magnifying-glass.svg" width="89" height="91" />
+      <h3>You haven't saved any searches yet</h3>
+      <p>Start a new search by browsing and filtering your concepts. Save your search and come back here any
+        time to view your results or make changes.</p>
+    </div>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-saved-queries-list',
+
+      behaviors: [
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * determines whether or not queries exist
+         */
+        hasQueries: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * list of saved queries
+         */
+        savedQueries: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        }
+      },
+
+      /**
+       * Computes saved query url
+       * @param {String} activeOrgId
+       * @param {String} conceptNameOrId
+       * @param {String} itemId
+       * @returns {String}
+       */
+      _computeSaveQueryLink(activeOrgId, queryType, itemId) {
+        const conceptNameOrId = queryType.concept ? queryType.concept.type : queryType.proxy.type;
+        return `/${activeOrgId}/explore/concept/${conceptNameOrId}/search/${itemId}`;
+      },
+
+      /**
+       * Computes whether or not saved query has joins
+       * @param {Object} query
+       * @returns {Boolean}
+       */
+      _hasJoins: function(query) {
+        const joins = this._computeJoins(query);
+        return joins.length > 0;
+      },
+
+      /**
+       * computes list of joins
+       * @param {Object} query
+       * @returns {String}
+       */
+      _computeJoins: function(query) {
+        const joins = R.propOr([], 'joins', query);
+        return joins
+          .map(join => {
+            const concept = R.path(['targetType', 'concept', 'type'], join);
+            const proxy = R.path(['targetType', 'proxy', 'type'], join);
+            return R.defaultTo(concept, proxy);
+          })
+          .join(', ');
+      },
+
+      /**
+       * computes last updated date and time
+       * @param {Number} updatedAt
+       * @returns {String}
+       */
+       _displayLastUpdated: function(updatedAt) {
+        const timestamp = R.defaultTo('', updatedAt);
+        if (timestamp) {
+          const dt = moment(timestamp).utc().format('MMMM D, YYYY');
+          const time = moment(timestamp).utc().format('h:mm:ss A');
+          return `${dt} at ${time}`;
+        }
+        return timestamp;
+      },
+
+    });
+
+  </script>
+
+</dom-module>

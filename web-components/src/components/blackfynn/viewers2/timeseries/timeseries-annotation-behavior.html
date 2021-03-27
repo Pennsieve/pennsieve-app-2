@@ -1,0 +1,202 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.TimeseriesAnnotationBehavior = {
+    properties: {
+      /**
+       * main annotation GET url
+       */
+      mainAnnDataUrl:{
+        computed: '_computeMainAnnUrl(vuex.config.apiUrl, vuex.userToken, summary.content.id, activeLayer.*)'
+      },
+      /**
+       * annotation GET url
+       */
+      getAnnDataUrl:{
+        computed: '_computeGetAnnUrl(vuex.config.apiUrl, vuex.userToken, summary.content.id)'
+      },
+      /**
+       * annotation layer GET url
+       */
+      getLayerUrl:{
+        computed: '_computeGetLayerUrl(vuex.config.apiUrl, vuex.userToken, summary.content.id)'
+      },
+    },
+    /**
+     * computes annotation url for GET
+     * @param {String} api
+     * @param {String} user
+     * @param {String} timeseriesId
+     * @param {String} layerId
+     * @returns {String}
+     */
+    _computeMainAnnUrl: function(api, user, timeseriesId, layer) {
+      return `${api}/timeseries/${timeseriesId}/layers/${layer.base}/annotations?api_key=${user}`;
+    },
+    /**
+     * computes annotation url for GET
+     * @param {String} api
+     * @param {String} user
+     * @param {String} timeseriesId
+     * @returns {String}
+     */
+    _computeGetAnnUrl: function(api, user, timeseriesId) {
+      return `${api}/timeseries/${timeseriesId}/annotations?api_key=${user}`;
+    },
+    /**
+     * computes annotation url for GET
+     * @param {String} api
+     * @param {String} user
+     * @param {String} timeseriesId
+     * @returns {String}
+     */
+    _computeGetLayerUrl: function(api, user, timeseriesId) {
+      return `${api}/timeseries/${timeseriesId}/layers?api_key=${user}`
+    },
+    /**
+     * updates annotation layer
+     * @param {Object} e
+     * @param {Object} layer
+     */
+    updateLayer: function(e, detail) {
+        const { layer } = detail
+        const ajax = this.$.updateLayerAjax;
+        const apiUrl = this.vuex.config.apiUrl
+        ajax.url = `${apiUrl}/timeseries/${this.summary.content.id}/layers/${layer.id}?api_key=${this.vuex.userToken}`;
+        ajax.body = {
+          name: layer.name,
+          color: layer.color,
+          description: layer.description
+        };
+        ajax.generateRequest();
+    },
+    /**
+     * update annotation layer success callback
+     * @param {Object} e
+     * @param {Object} detail
+     */
+     _updateLayerResponse(e, detail) {
+      const layers = this.vuex.viewer.viewerAnnotations;
+      const layer = detail.response
+      const layerIndex = R.findIndex(R.propEq('id', layer.id), layers);
+      const hexColor = layer.color
+
+      layer.annotations = layers[layerIndex].annotations
+      layer.hexColor = hexColor
+      layer.color = this.hexToRgbA(hexColor, 0.7),
+      layer.bkColor = this.hexToRgbA(hexColor, 0.15),
+      layer.selColor = this.hexToRgbA(hexColor, 0.9)
+      layer.visible = true
+
+      this.$store.dispatch('viewer/updateLayer', layer)
+      this.annotationChange(layer.id);
+
+      this.fire('toast', {type: 'MESSAGE', msg: `'${layer.name}' Layer Updated` });
+      this.$.layerDeleteWindow.$.dialog.close()
+    },
+    /**
+    * Confirm layer deletion
+    * @param {Object} payload
+    */
+    deleteLayerConfirmation: function(payload) {
+      const layer = R.propOr({}, 'layer', payload)
+      this.$.layerDeleteWindow.set('layer', layer)
+      this.$.layerDeleteWindow.$.dialog.open()
+    },
+    /**
+     * deletes an annotation layer
+     * @param {Object} e
+     * @param {Object} detail
+     */
+    deleteLayer: function(e, detail) {
+      const { layer } = detail
+      const ajax = this.$.deleteLayerAjax;
+      const apiUrl = this.vuex.config.apiUrl
+      ajax.url = `${apiUrl}/timeseries/${this.data.id}/layers/${layer.id}?api_key=${this.vuex.userToken}`;
+
+      ajax
+        .generateRequest()
+        .completes
+        .then(response => {
+          this.$store.dispatch('viewer/deleteLayer', layer).then(() => {
+
+            if (this.vuex.viewer.viewerAnnotations.length) {
+              this.setSelectedLayer(this.vuex.viewer.viewerAnnotations[0].id, this.vuex.viewer.viewerAnnotations)
+            }
+
+            const layerId = layer.id;
+            this.annotationChange(layerId, 'DELETE');
+
+            this.fire('toast', {type: 'MESSAGE', msg: `'${layer.name}' Layer Deleted` });
+            this.$.layerDeleteWindow.$.dialog.close()
+          });
+        });
+    },
+
+    /**
+     * Creates an annotations layer
+     * @param {Object} e
+     * @param {Object} layer
+     */
+    saveNewLayer: function(e, detail) {
+      const { layer } = detail
+      const ajax = this.$.createLayerAjax;
+      const firstLayer = R.propOr(false, 'firstLayer', detail)
+
+      ajax.body = {
+        name: layer.name,
+        color: layer.color,
+        description: layer.name
+      }
+
+      ajax
+        .generateRequest()
+        .completes
+        .then(success => {
+          const layer = success.response;
+          layer.annotations = []
+
+          const hexColor = layer.color
+          layer.hexColor = hexColor
+          layer.color = this.hexToRgbA(hexColor, 0.7),
+          layer.bkColor = this.hexToRgbA(hexColor, 0.15),
+          layer.selColor = this.hexToRgbA(hexColor, 0.9)
+          layer.visible = true
+
+          if (firstLayer) {
+            this.$store.dispatch('viewer/createLayer', layer).then(() => {
+              this.setSelectedLayer(layer.id, [layer])
+              this.annotationChange(layer.id)
+            })
+          } else {
+            const updatedLayers = [layer].concat(this.vuex.viewer.viewerAnnotations)
+            this.setSelectedLayer(layer.id, updatedLayers)
+            this.annotationChange(layer.id);
+
+            this.fire('toast', {type: 'MESSAGE', msg: `'${layer.name}' Layer Created` });
+            this.$.layerDeleteWindow.$.dialog.close()
+          }
+        });
+    },
+    setSelectedLayer: function(layerId, layers) {
+      for (let layer of layers) {
+        if (layer.id === layerId) {
+          layer.selected = true
+          this.set('activeLayer', layer.id)
+        } else {
+          layer.selected = false
+        }
+      }
+
+      this.$store.dispatch('viewer/setAnnotations', layers)
+    },
+    annotationChange: function(layerId, type = 'UPDATE') {
+      this.fire('annotation-change', {
+        layerId,
+        type
+      });
+    }
+  }
+</script>

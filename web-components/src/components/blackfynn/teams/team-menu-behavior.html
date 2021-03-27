@@ -1,0 +1,39 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.TeamMenuBehavior = {
+    properties: {
+      /**
+       * tracks whether team menu is opened or closed
+       */
+       opened: {
+         type: Boolean,
+         value: false
+       }
+    },
+
+    observers: [
+      '_watchOpened(opened)'
+    ],
+
+    /**
+     * watches for opened property toggle and focuses first menu item
+     */
+    _watchOpened: function(opened) {
+      if (opened === true) {
+        this.$.teamMenu.open();
+      }
+    },
+
+    /**
+     * generic function to emit events and close the team menu
+     * @param {String} name of event to emit
+     */
+    _fireEvent: function(eventName) {
+      this.fire(eventName, this.team);
+      this.close();
+    }
+  }
+</script>

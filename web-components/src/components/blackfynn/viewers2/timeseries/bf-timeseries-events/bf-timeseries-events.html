@@ -1,0 +1,150 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../charts/bf-box-chart/bf-box-chart.html">
+
+<!--
+## bf-timeseries-events
+
+`<bf-timeseries-events>` is a component to display an individual package.
+
+## Chart table layout
+
+```
+|----------------------------|      A: yAxis
+|   |                        |      B: eventPlots
+| A |          B             |      C: xAxis
+|   |                        |      D: overviewPlots
+|---|------------------------|
+|   |          C             |
+|   |------------------------|
+|   |                        |
+|   |          D             |
+|   |                        |
+|----------------------------|
+```
+@demo
+-->
+
+<dom-module id="bf-timeseries-events">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        overflow: scroll;
+      }
+    </style>
+
+    <template is="dom-repeat" items="[[annLayers]]" on-dom-change="annLayerChange">
+      <bf-box-chart
+        ann-layer="[[item]]"
+        api="[[api]]"
+        user="[[user]]"
+        summary="[[summary]]"
+        viewer-start="[[viewerStart]]"
+        viewer-duration="[[viewerDuration]]"
+        scrubber-period="[[scrubberPeriod]]"
+        chart-info></bf-box-chart>
+    </template>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-timeseries-events',
+      properties: {
+        /**
+        * Annotation layers
+        */
+        annLayers: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        charts: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Detect if the viewport has changed
+         */
+        _viewportChange: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * If the charts should request annotations
+         * Used for delaying requests if on another tab
+         */
+        shouldRequest: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      listeners: {
+        'update-count': 'updateCount',
+        'selected': 'onSelected'
+      },
+
+      observers: [
+        'onViewportChange(_viewportChange)'
+      ],
+
+      annLayerChange: function() {
+        this.set('charts', Polymer.dom(this.root).querySelectorAll('bf-box-chart'));
+      },
+
+      updateCount: function(e, detail) {
+        const charts = this.charts;
+        for (let i = 0; i < charts.length; i++) {
+          charts[i].updateInfo(false, detail.domain);
+        }
+      },
+
+      onViewportChange: function(_viewportChange) {
+        if(_viewportChange) {
+          // Only get annotations if the user is in the tab
+          if(this.selectedTab === 'events') {
+            this.getAnnotations();
+          } else {
+            // Queue the events tab to request annotations next time the user goes to it
+            this.set('shouldRequest', true);
+          }
+          this.set('_viewportChange', false);
+        }
+      },
+
+      /**
+       * Fired when the user selects this page to be viewed
+       */
+      onSelected: function() {
+        // Render the charts
+        for (let i = 0; i < this.charts.length; i++) {
+          this.fire('render', {}, { node: this.charts[i] });
+        }
+        if(this.shouldRequest) {
+          this.getAnnotations();
+        }
+      },
+
+      /**
+       * Get annotations for the given viewport
+       */
+      getAnnotations: function() {
+        this.set('shouldRequest', false);
+
+        for (let i = 0; i < this.charts.length; i++) {
+          this.charts[i].getAnnotations();
+        }
+      }
+    });
+
+  </script>
+</dom-module>

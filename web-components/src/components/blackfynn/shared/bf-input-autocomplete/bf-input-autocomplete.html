@@ -1,0 +1,184 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-input-autocomplete-chips/paper-input-autocomplete-chips.html">
+<link rel="import" href="../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+
+<link rel="import" href="bf-autocomplete-suggestions.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-input-autocomplete">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host([focused]) {
+        outline: none;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      bf-input {
+        margin-bottom: 0;
+      }
+
+      bf-autocomplete-suggestions {
+        background: #fff;
+        position: absolute;
+        width: 526px;
+        margin-top: -3px;
+        border: 1px solid var(--cortex);
+        border-radius: 0pt 0pt 5px 5px;
+        z-index: 9999;
+      }
+
+      .suggestion {
+        display: block;
+        padding: 8px 0pt 8px 12px;
+      }
+
+    </style>
+
+    <iron-a11y-keys keys="enter" on-keys-pressed="selectFirstItem"></iron-a11y-keys>
+
+    <div>
+  		<bf-input value="{{inputValue}}"
+        id="bfInput"
+        class="autocomplete-input"
+        on-keyup="_keyup"
+        on-keydown="_keydown"
+        placeholder="[[placeholderText]]">
+      </bf-input>
+      <template is="dom-if" if="{{displaySuggestions}}">
+        <bf-autocomplete-suggestions>
+          <template is="dom-repeat"
+            items="{{_suggestions}}">
+            <a class="suggestion" href="#" on-tap="selectItem">[[_displayName(item)]]</a>
+          </template>
+        </bf-autocomplete-suggestions>
+      </template>
+  	</div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'bf-input-autocomplete',
+
+      behaviors: [
+        WebPaperElem.InputAutoCompleteBehavior
+      ],
+
+      properties: {
+
+        /**
+         * Parent passes in eventName; listens to eventName to trigger behavior
+         */
+        eventName: {
+          type: String
+        },
+
+        /**
+          * Computed boolean to determine if we need to display suggestions or not
+         */
+        displaySuggestions: {
+          type: Boolean,
+          computed: '_displaySuggestions(_suggestions.length)',
+          value: false
+        }
+      },
+
+      observers: [
+        '_setSearchText(localCandidates.*)'
+      ],
+
+      _displaySuggestions: function(suggestions) {
+        return suggestions > 0;
+      },
+
+      /**
+       * Selects the suggestion
+       */
+      selectItem: function(e) {
+        this.selectCollaborator(e.model.item);
+      },
+
+      /**
+       * Selects the first suggestion from the list
+       */
+      selectFirstItem: function() {
+        this.selectCollaborator(R.head(this._suggestions));
+      },
+
+      selectCollaborator: function(collaborator) {
+        this.set('inputValue', null);
+        this.set('_suggestions', []);
+
+        this.fire('collaboratorSelected', collaborator);
+      },
+
+      /**
+       * Fires an event that is passed in on component creation
+       */
+      _fireEvent: function(e) {
+        this.fire(this.eventName, {item: e.model.item});
+      },
+
+      /**
+       * Builds the `text` attribute that is used for
+       * search suggestions. Uses first name, last name, and email.
+       */
+      _setSearchText: function() {
+        if (!this.localCandidates) {
+          return;
+        }
+        for (let i = 0; i < this.localCandidates.length; i++) {
+          const item = this.localCandidates[i];
+          let text = '';
+          if (!item || !item.id) {
+            return;
+          }
+          if (R.match(/:user:/, item.id).length === 1) {
+            text = item.firstName + ' ' + item.lastName + ' ' + item.email;
+          } else if (R.match(/:team:/, item.id).length === 1) {
+            text = item.name;
+          }
+          item.text = text;
+        }
+      },
+
+      /**
+       * Helper function to build user node display name;
+       * Uses first and last name, and falls back to email address
+       */
+      _displayName: function(obj) {
+        let text = 'Unknown';
+        if (obj) {
+          if (R.match(/:team:/, obj.id).length === 1) {
+            text = obj.name;
+          } else if (R.match(/:user:/, obj.id).length === 1) {
+            if (obj.email) {
+              text = obj.email;
+            }
+            if (obj.firstName) {
+              text = obj.firstName + ' ' + obj.lastName;
+            }
+          }
+        }
+        return text;
+      },
+
+      /**
+       * Overrides function on WebPaperElem.InputAutoCompleteBehavior to
+       * suppress enter key stroke
+       */
+      _checkTokenAcceptKeyCode() {
+        return;
+      }
+
+    });
+  </script>
+</dom-module>

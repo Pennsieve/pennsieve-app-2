@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>Create: Default</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0.2" offset="2%"></stop>
+            <stop stop-color="#F2F3F4" stop-opacity="0.19" offset="32%"></stop>
+            <stop stop-color="#CACDD1" stop-opacity="0.15" offset="58%"></stop>
+            <stop stop-color="#878D96" stop-opacity="0.08" offset="81%"></stop>
+            <stop stop-color="#3B4554" stop-opacity="0.01" offset="100%"></stop>
+        </linearGradient>
+        <path d="M1.8,4.8 L1.8,2.4 C1.8,1.07442915 2.87442915,0 4.2,0 C5.52557085,0 6.6,1.07442915 6.6,2.4 L6.6,4.8 L8.4,4.8 L8.4,12 L0,12 L0,4.8 L1.8,4.8 Z M3,4.8 L5.4,4.8 L5.4,2.4 C5.4,1.73717085 4.86282915,1.2 4.2,1.2 C3.53717085,1.2 3,1.73717085 3,2.4 L3,4.8 Z M3.6,7.8 L3.6,9 C3.6,9.3318 3.8682,9.6 4.2,9.6 C4.5318,9.6 4.8,9.3318 4.8,9 L4.8,7.8 C4.8,7.4682 4.5318,7.2 4.2,7.2 C3.8682,7.2 3.6,7.4682 3.6,7.8 Z" id="path-2"></path>
+    </defs>
+    <g id="locked-or-read-only-state" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="locked-record" transform="translate(-80.000000, -72.000000)">
+            <g id="Create" transform="translate(80.000000, 56.000000)">
+                <g id="Create:-Default" transform="translate(0.000000, 16.000000)">
+                    <g id="Icons/File-Type/generic">
+                        <g id="icon-generic">
+                            <g id="_artwork_" fill-rule="nonzero">
+                                <polygon id="Shape" fill="#DADADA" points="24 24 0 24 0 0 16.8 0 24 7.164"></polygon>
+                                <path d="M16.8,0 L16.8,5.4 C16.8,6.39411255 17.6058875,7.2 18.6,7.2 L24,7.2 L16.8,0 Z" id="Shape" fill="#71747C"></path>
+                            </g>
+                            <path d="M16.8,0 L16.8,5.4 C16.8,6.39411255 17.6058875,7.2 18.6,7.2 L24,7.2 L16.8,0 Z" id="_gradient_" fill="url(#linearGradient-1)" fill-rule="nonzero"></path>
+                        </g>
+                    </g>
+                    <g id="Icons/locked" transform="translate(6.000000, 6.000000)">
+                        <g id="Tints/black" transform="translate(1.800000, 0.000000)">
+                            <mask id="mask-3" fill="white">
+                                <use xlink:href="#path-2"></use>
+                            </mask>
+                            <use id="Mask" fill="#000000" xlink:href="#path-2"></use>
+                            <g id="Tints/404554" mask="url(#mask-3)" fill="#404554">
+                                <g transform="translate(-1.800000, 0.000000)" id="Rectangle">
+                                    <rect x="0" y="0" width="12" height="12"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

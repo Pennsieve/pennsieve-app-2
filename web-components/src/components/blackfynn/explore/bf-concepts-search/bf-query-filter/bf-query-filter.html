@@ -1,0 +1,205 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../shared/bf-select-menu/bf-select-menu.html">
+<link rel="import" href="../../../shared/bf-input/bf-input.html">
+
+<link rel="import" href="../../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../../styles/blackfynn/icons.html">
+<!--
+`bf-query-filter`
+A filter component used to create the concepts query builder.
+
+@demo demo/index.html
+-->
+
+<dom-module id="bf-query-filter">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        max-height: 42px;
+
+        @apply(--layout-horizontal);
+
+        --bf-input-container: {
+          height: 33px;
+        }
+        --bf-input-container-input: {
+          font-size: 12px;
+        }
+        --bf-select-menu-container-styles: {
+          border-radius: 4px;
+        }
+        --iron-icon-height: 24px;
+        --iron-icon-width: 24px;
+      }
+      bf-select-menu, bf-input {
+        width: 150px;
+      }
+      #operatorsMenu {
+        max-width: 105px;
+      }
+      iron-icon {
+        color: var(--glial);
+        cursor: pointer;
+        transform: translate3d(12px, 12px, 0);
+      }
+    </style>
+
+    <bf-select-menu
+      id="conceptsMenu"
+      items="[[concepts]]"
+      selected-value="{{selectedConcept}}"
+      tabindex="0"></bf-select-menu>
+
+    <bf-select-menu
+      id="relatedFieldsMenu"
+      items="[[relatedFields]]"
+      selected-value="{{selectedRelatedField}}"
+      tabindex="0"></bf-select-menu>
+
+    <bf-select-menu
+      id="operatorsMenu"
+      items="[[operators]]"
+      selected-value="{{selectedOperator}}"
+      tabindex="0"></bf-select-menu>
+
+    <bf-input
+      id="valueToCompareField"
+      value="{{valueToCompare}}"></bf-input>
+
+    <iron-icon
+      id="deleteIcon"
+      class="icon-menu"
+      icon="blackfynn:close"
+      on-tap="removeFilter"></iron-icon>
+
+    <iron-a11y-keys
+      keys="enter"
+      target="[[keyTarget]]"
+      on-keys-pressed="applyFilter"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bf-query-filter',
+
+      properties: {
+        /**
+         * concepts
+         */
+         concepts: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * concept related fields
+         */
+         relatedFields: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * operators options
+         */
+        operators: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * selected concept value
+         */
+        selectedConcept: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        /**
+         * selected related field value
+         */
+        selectedRelatedField: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        /**
+         * selected operator
+         */
+        selectedOperator: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        /**
+         * specific value to filter query upon
+         */
+        valueToCompare: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        /**
+         * Target for keyboard functionality
+         */
+        keyTarget: {
+          type: Object,
+          value: function() {
+            return this.$.valueToCompareField;
+          }
+        },
+        /**
+         * index of filter within dom-repeat
+         */
+        index: {
+          type: Number,
+          value: 0
+        }
+      },
+
+      listeners: {
+        'conceptsMenu.selected-value-changed': '_updateRelatedFields'
+      },
+      /**
+       * fires custom event to get the related fields for a given concept
+       * @param {Object} evt
+       */
+      _updateRelatedFields: function(evt) {
+        const concept = R.path(['detail', 'value'], evt);
+        if (!concept) {
+          return;
+        }
+        this.fire('update-related-fields', {
+          conceptType: evt.detail.value,
+          index: this.index
+        });
+      },
+
+      /**
+       * fires custom event to apply the filter
+       */
+      applyFilter: function() {
+        this.fire('apply-concept-filter', {
+          concept: this.selectedConcept,
+          relatedField: this.selectedRelatedField,
+          operator: this.selectedOperator,
+          valueToCompare: this.valueToCompare
+        });
+      },
+
+      /**
+       * fires custom event to remove the selected filter from a list
+       */
+       removeFilter: function() {
+        this.fire('remove-concept-filter', this.index);
+      }
+    });
+  </script>
+</dom-module>

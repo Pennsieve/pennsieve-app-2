@@ -1,0 +1,485 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../data/bf-package-list/bf-package-list.html">
+<link rel="import" href="../../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../../shared/patched-overlay-behavior.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../shared/bf-select-menu/bf-select-menu.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<!--
+## attach-package-window
+
+`<attach-package-window>` allows the user to select a package and attach it to a TimeSeries Annotation.
+-->
+
+<dom-module id="attach-package-window">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      #dialog {
+        max-width: 540px;
+        min-width: 540px;
+      }
+      #dialog-body {
+        border-bottom: 1px solid var(--cortex);
+        max-height: 290px;
+        min-height: 290px;
+        padding: 20px;
+        @apply(--layout-vertical);
+      }
+      #packageList {
+        border: 1px solid var(--cortex);
+        border-top: none;
+      }
+      .save {
+        margin-left: 20px;
+      }
+      #heading {
+        padding: 24px 32px;
+        border-bottom: 1px solid var(--cortex);
+        margin: 0;
+      }
+      #navigation {
+        cursor: pointer;
+        font-size: 14px;
+        margin: 24px 30px 8px;
+      }
+      #buttons {
+        text-align: left;
+        margin: 0;
+        padding: 16px 32px;
+      }
+      paper-button {
+        background: linear-gradient(180deg, var(--white-matter) 0%, #F9F9F9 100%);
+        border: 1px solid #D3D5DA;
+        border-radius: 3px;
+        color: var(--glial);
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 20px;
+        margin: 0;
+        outline: none;
+        padding: 7px 45px;
+        text-transform: none;
+      }
+      .cancel {
+        padding: 7px 25px;
+      }
+      .save {
+        background: linear-gradient(180deg, var(--dopamine) 0%, #1F55EA 100%) !important;
+        border-color: transparent !important;
+        color: #fff;
+        padding: 7px 15px;
+      }
+      #navigationMenu {
+        margin: 0;
+        --menu-padding: {
+          padding: 0 10px 0 20px;
+        }
+        --dropdown-item-padding: {
+          padding: 7px 10px 7px 20px;
+        }
+        --no-bottom-border-radius: {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+      }
+    </style>
+
+    <bf-dialog id="dialog" class="no-padding" opened="{{opened}}" processing="[[processing]]" on-iron-overlay-opened="patchOverlay">
+      <h2 slot="heading" id="heading">Choose Existing File</h2>
+
+      <div id="dialog-body" slot="body">
+        <bf-select-menu
+          id="navigationMenu"
+          hidden$="[[!_hasParent]]"
+          selected-value-icon="blackfynn:folder"
+          items="[[navigationItems]]"></bf-select-menu>
+
+        <bf-package-list
+          name="list"
+          is-auto="[[isAuto]]"
+          id="packageList"
+          cur-package="{{curPackage}}"
+          catalog-route="{{curPackage}}"
+          hide-item-menu
+          hide-headings
+          hide-empty-text
+          in-ts-annotation
+          parent-id="[[parentId]]"></bf-package-list>
+      </div>
+
+      <div slot="buttons" id="buttons">
+        <paper-button
+          class="cancel"
+          noink
+          dialog-dismiss>Back</paper-button>
+
+        <paper-button
+          class="save"
+          noink
+          on-tap="saveAnnotation"
+          dialog-confirm>Save Annotation</paper-button>
+      </div>
+    </bf-dialog>
+
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+    is: 'attach-package-window',
+
+    behaviors: [
+      Blackfynn.PatchedOverlayBehavior,
+      Blackfynn.VuexBehavior
+    ],
+
+    properties: {
+      _this: {
+        type: Object,
+        value: function() {
+          return this;
+        }
+      },
+      /**
+       * The items to be moved
+       */
+      item: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      curPackage: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      _curPackage: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      /**
+       * Show or hide the move item dialog
+       */
+      opened: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      /**
+       * Allow users to drag items in the list
+       */
+      canDragItems: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Allow users to select multiple items
+       */
+      multiSelectItems: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Show or hide the item menu (including context menu)
+       */
+      hideItemMenu: {
+        type: Boolean,
+        value: true
+      },
+      /**
+       * Hide bf-package-list headings
+       */
+      hideHeadings: {
+        type: Boolean,
+        value: true
+      },
+      _hasParent: {
+        type: Boolean,
+        computed: '_computeHasParent(navigationItems.*)'
+      },
+      /**
+       * Sets styles and limits functionality to only collections for data-items
+       */
+      collectionsOnly: {
+        type: Boolean,
+        value: true
+      },
+      /**
+       * Tracks whether or not the form is processing
+       */
+      processing: {
+        type: Boolean,
+        value: false
+      },
+      selectedPackage: {
+        type: Object,
+        value: function() {
+          return {}
+        }
+      },
+      annotation: {
+        type: Object,
+        value: function() {
+          return {}
+        }
+      },
+      activeViewer: {
+        type: Object,
+        computed: '_computeActiveViewer(vuex.viewerActiveIndex, vuex.viewers)'
+      },
+      /**
+       * computes navigation items
+       */
+       navigationItems: {
+        type: Array,
+        computed: '_computeNavItems(curPackage.*)'
+      }
+    },
+
+    listeners: {
+      'dialog.iron-overlay-opened': '_onOpened',
+      'dialog.iron-overlay-closed': '_onClosed',
+      'set-breadcrumbs': '_preventBubble',
+      'view-info-panel': '_preventBubble',
+      'items-selected': '_onItemsSelected',
+      'selected-value-changed': 'goUp'
+    },
+
+    /**
+     * Compute if number of selected channels is all channels
+     * @param {Number} selectedChannels
+     * @param {Number} channelsLength
+     * @returns {Boolean}
+     */
+     _computeActiveViewer: function(activeIndex, viewers) {
+      return viewers[activeIndex];
+    },
+
+    /**
+     * Fire event to create annotation
+     * @param {Object} e
+     */
+    saveAnnotation: function(e) {
+      const pkgId = R.propOr('', 'id', this.selectedPackage)
+      if (this.processing || !pkgId) {
+        return
+      }
+
+      this.set('processing', true);
+      this.annotation.linkedPackage = pkgId
+      this.annotation.linkedPackageDTO = this.selectedPackage
+
+      this.fire('edit-annotation', this.annotation);
+
+      this.closeWindow()
+    },
+
+    /**
+     * Open modal window
+     */
+    openWindow: function() {
+      this.$.dialog.open()
+    },
+
+    /**
+     * Close modal window
+     */
+    closeWindow: function() {
+      this.set('opened', false);
+    },
+
+    /**
+     * Open the annotation edit / create window
+    */
+    openAnnotationWindow: function() {
+      const annotationInfo = {
+        annotation: this.annotation,
+        layers: this.activeViewer.annLayers,
+        selectedLabelId: this.annotation.label,
+        selectedLayerId: this.annotation.layer_id,
+        isCreating: true
+      }
+
+      this.fire('active-viewer-action', {
+        method: 'openAnnotationWindow',
+        payload: annotationInfo
+      })
+    },
+
+    /**
+     * Reset the Form
+    */
+    reset: function() {
+      this.set('annotation', {});
+      this.set('selectedPackage', {});
+      this.set('processing', false);
+    },
+
+    /**
+     * Prevents events from bubbling up
+     */
+    _preventBubble: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    },
+
+    /**
+     * Handle window close event
+    */
+    _onClosed: function(e, detail) {
+      this.$.packageList.set('isAuto', false);
+      this.set('curPackage', this._curPackage);
+      const { confirmed } = detail
+
+      if (!confirmed) {
+        this.openAnnotationWindow()
+      }
+      this.reset()
+    },
+
+    /**
+     * Computes whether or not node has parent
+     * @param {Array} navigationItems
+     */
+     _computeHasParent: function(navigationItems) {
+       if (navigationItems.base) {
+        return navigationItems.base.length > 0;
+       }
+       return false
+    },
+
+    /**
+     * Handle window open event
+     * @param {Object} e
+    */
+    _onOpened: function(e) {
+      const pkgList = this.$.packageList
+      pkgList.set('isAuto', true);
+      pkgList.$.browseContent.scrollTo(0, 0)
+      this.set('_curPackage', this.curPackage);
+      this.loadData(e, this.curPackage.content);
+    },
+
+    /**
+     * Moves up one level in directory hierarchy
+     * @param {Event} evt
+     */
+     goUp: function(evt) {
+      const defaultValue = R.prop('detail', evt);
+      const value = R.pathOr(defaultValue, ['detail', 'value'], evt);
+      if (!value || !this.navigationItems || this.navigationItems.length === 0) {
+        return;
+      }
+      const curPackage = R.find(R.propEq('value', value))(this.navigationItems);
+      if (!curPackage) {
+        return;
+      }
+      this.loadData(evt, curPackage.data.content);
+      this.set('curPackage', curPackage.data);
+      this._computeNavItems();
+    },
+
+    /**
+     * Open a collection
+     * @param {Object} e
+     * @param {Object} item
+    */
+    loadData: function(e, item) {
+      const detail = {
+        data: item,
+        triggerLoad: true
+      }
+
+      this.$.packageList.openCollection(e, detail);
+    },
+
+    /**
+    * Handle items-selected event from bf-package-behavior
+    * @param {Object} e
+    * @param {Object} detail
+    */
+    _onItemsSelected: function(e, detail) {
+      const pkg = R.pathOr('', [0, 'data', 'content'], detail)
+      this.set('selectedPackage', pkg)
+    },
+
+    /**
+     * Computes navigation items using curPackage.ancestors
+     * @param {Object} curPackage
+     * @returns {Array}
+     */
+     _computeNavItems: function(curPackage) {
+       const id = R.pathOr('', ['base', 'content', 'id'], curPackage)
+       if (id) {
+        return this._createBreadcrumb(curPackage.base)
+       }
+      return [];
+    },
+
+    /**
+     * Creates breadcrumb trail used to populate navigation menu
+     * @param {Object} package
+     * @returns {Array}
+     */
+     _createBreadcrumb: function(curPackage) {
+      let breadcrumb = [];
+      const getValue = R.path(['content', 'id']);
+      const getLabel = R.path(['content', 'name']);
+      // prepend current dataset
+      if (curPackage && curPackage.content) {
+        breadcrumb.push({
+          label: getLabel(curPackage),
+          value: getValue(curPackage),
+          data: curPackage
+        });
+      }
+      // check for ancestors
+      if (curPackage && curPackage.ancestors) {
+        const ancestors = curPackage.ancestors.reverse()
+        ancestors.forEach(ancestor => {
+          breadcrumb.push({
+            label: getLabel(ancestor),
+            value: getValue(ancestor),
+            data: ancestor
+          });
+        });
+      }
+
+      // concat current dataset
+      const curDataset = R.propOr({}, 'dataset', this.vuex);
+      const datasetContent = R.prop('content', curDataset);
+
+      if (datasetContent && curPackage && datasetContent.id !== getValue(curPackage)) {
+        const dataset = {
+          label: getLabel(curDataset),
+          value: getValue(curDataset),
+          data: curDataset
+        };
+        breadcrumb.push(dataset);
+      }
+
+      // set selectedValue
+      if (breadcrumb.length > 0) {
+        const menu = this.$.navigationMenu;
+        menu.set('selectedValue', breadcrumb[0].value);
+        menu.removeAttribute('open');
+      }
+      // return unique values
+      return breadcrumb;
+    },
+  });
+
+</script>

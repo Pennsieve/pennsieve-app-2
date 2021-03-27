@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>bf-query-filter test</title>
+
+    <script src="../../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../bf-query-filter.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template is="dom-template">
+        <bf-query-filter
+          tabindex="0"
+          concepts="[[concepts]]"
+          related-fields="[[relatedFields]]"
+          operators="[[operators]]"></bf-query-filter>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('basic', function() {
+        let basic;
+        let _updateConceptFieldsSpy;
+        setup(function() {
+          basic = fixture('basic', {
+            concepts: [
+              {
+                label: 'Animal',
+                value: 'Animal'
+              },
+              {
+                label: 'Study',
+                value: 'Study'
+              }
+            ],
+            relatedFields: [
+              {
+                label: 'ID',
+                value: 'ID'
+              },
+              {
+                label: 'Name',
+                value: 'Name'
+              }
+            ],
+            operators: [
+              {
+                label: 'equals',
+                value: 'equals'
+              },
+              {
+                label: 'not equal',
+                value: 'not equal'
+              }
+            ]
+          });
+          _updateConceptFieldsSpy = sinon.spy(basic, '_updateRelatedFields');
+        });
+
+        teardown(() => {
+          _updateConceptFieldsSpy.restore();
+        });
+
+        test('instantiating the element works', function(done) {
+          flush(() => {
+            assert.equal(basic.is, 'bf-query-filter');
+            done();
+          });
+        });
+
+        test('fires apply-concept-filter event', function(done) {
+          basic.addEventListener('apply-concept-filter', (evt) => {
+            expect(evt.detail.concept).to.be.equal('Animal');
+            expect(evt.detail.relatedField).to.be.equal('ID');
+            expect(evt.detail.operator).to.be.equal('equals');
+            done();
+          });
+          basic.applyFilter();
+        });
+
+        test('changing the concept menu fires an event', function(done) {
+          flush(() => {
+            basic.$.conceptsMenu.set('selectedValue', 'Study');
+            // called once when component automatically selects the first item;
+            // then a second time when we manually update the selectedValue of the concepts menu
+            expect(_updateConceptFieldsSpy).to.have.been.calledTwice;
+            done();
+          });
+        });
+      });
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,145 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../../../../../bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-input-behavior.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-input-char-counter.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-input-error.html">
+
+<link rel="import" href="bf-input-container.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+
+<!--
+`<bf-textarea>` is a multi-line text field based on Polymer's Paper-Textarea without the material design.
+    <bf-textarea label="Textarea label"></bf-textarea>
+See `Polymer.PaperInputBehavior` for more API docs.
+### Validation
+Currently only `required` and `maxlength` validation is supported.
+### Styling
+See `Polymer.PaperInputContainer` for a list of custom properties used to
+style this element.
+
+@element bf-textarea
+@demo demo/bf-textarea-demo.html
+-->
+
+<dom-module id="bf-textarea">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+        outline: 0;
+        --iron-autogrow-textarea-placeholder: {
+          color: var(--bf-input-container-color, --input-placeholder-text);
+        }
+      }
+      :host([hidden]) {
+        display: none !important;
+      }
+      label {
+        pointer-events: none;
+      }
+    </style>
+
+    <bf-input-container hide-label$="[[hideLabel]]" auto-validate$="[[autoValidate]]" disabled$="[[disabled]]" invalid="[[invalid]]" class$="[[className]]">
+
+      <label hidden$="[[!label]]" aria-hidden="true">[[label]]</label>
+
+      <iron-autogrow-textarea id="input" class="paper-input-input"
+        bind-value="{{value}}"
+        invalid="{{invalid}}"
+        validator$="[[validator]]"
+        disabled$="[[disabled]]"
+        autocomplete$="[[autocomplete]]"
+        autofocus$="[[autofocus]]"
+        inputmode$="[[inputmode]]"
+        name$="[[name]]"
+        placeholder$="[[placeholder]]"
+        readonly$="[[readonly]]"
+        required$="[[required]]"
+        minlength$="[[minlength]]"
+        maxlength$="[[maxlength]]"
+        autocapitalize$="[[autocapitalize]]"
+        rows$="[[rows]]"
+        max-rows$="[[maxRows]]"
+        on-change="_onChange"
+        slot="input"
+        noink></iron-autogrow-textarea>
+
+      <template is="dom-if" if="[[errorMessage]]">
+        <paper-input-error>[[errorMessage]]</paper-input-error>
+      </template>
+
+      <template is="dom-if" if="[[charCounter]]">
+        <paper-input-char-counter></paper-input-char-counter>
+      </template>
+
+    </bf-input-container>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'bf-textarea',
+    behaviors: [
+      Polymer.PaperInputBehavior,
+      Polymer.IronFormElementBehavior
+    ],
+    properties: {
+      _ariaLabelledBy: {
+        observer: '_ariaLabelledByChanged',
+        type: String
+      },
+      _ariaDescribedBy: {
+        observer: '_ariaDescribedByChanged',
+        type: String
+      },
+      /**
+       * The initial number of rows.
+       *
+       */
+      rows: {
+        type: Number,
+        value: 1
+      },
+      /**
+       * The maximum number of rows this element can grow to until it
+       * scrolls. 0 means no maximum.
+       *
+       */
+      maxRows: {
+       type: Number,
+       value: 0
+     },
+     /**
+      * CSS class list
+      *
+      */
+     className: {
+      type: String,
+      value: ''
+     }
+    },
+    _ariaLabelledByChanged: function(ariaLabelledBy) {
+      this.$.input.textarea.setAttribute('aria-labelledby', ariaLabelledBy);
+    },
+    _ariaDescribedByChanged: function(ariaDescribedBy) {
+      this.$.input.textarea.setAttribute('aria-describedby', ariaDescribedBy);
+    },
+    get _focusableElement() {
+      return this.$.input.textarea;
+    }
+  });
+</script>

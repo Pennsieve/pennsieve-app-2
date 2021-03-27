@@ -1,0 +1,134 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../../shared/bf-input-autocomplete/bf-input-autocomplete.html">
+<link rel="import" href="../../state/bf-state-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+
+<!--
+  `bf-share-search-input` is the search box to add users
+  has autocomplete/suggestions
+  uses chips/tags
+
+  For example:
+
+    <bf-share-search-input>
+    </bf-share-search-input>
+
+@element bf-share-item-node
+@demo demo/index.html
+-->
+
+<dom-module id="bf-share-search-input">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host([focused]) {
+        outline: none;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+    </style>
+
+    <!-- PUT /datasets/{id}/collaborators -->
+    <iron-ajax
+      id="addCollaborators"
+      debounce-duration="300"
+      method="PUT"
+      params="[[ajaxParams]]"
+      content-type="application/json"
+      url="[[apiUrl]]"
+      on-response="_onAddCollaborators"
+      on-error="ajaxError">
+    </iron-ajax>
+
+    <content></content>
+
+    <bf-input-autocomplete
+      id="bfItemAutocomplete"
+      event-name="addUser"
+      placeholder-text="[[placeholderText]]"
+      helper-text="[[helperText]]"
+      filter-on="isCollaborator"
+      local-candidates="{{candidates}}">
+    </bf-input-autocomplete>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-share-search-input',
+
+      behaviors: [
+        Blackfynn.AjaxBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+
+        candidates: {
+          type: Array,
+          value: []
+        },
+
+        collaborators: {
+          type: Array,
+          value: []
+        },
+
+      },
+
+      listeners: {
+        'collaboratorSelected': '_collaboratorSelected'
+      },
+
+      _collaboratorSelected: function(e) {
+        const ajaxRequest = this.$.addCollaborators;
+        ajaxRequest.body = [e.detail.id]; // endpoint supports adding multiples
+        ajaxRequest.generateRequest();
+
+
+        // Focus on the input
+        this.async(function() {
+          this.$.bfItemAutocomplete.$.bfInput.$.input.focus();
+        });
+      },
+
+      /**
+       * Callback from adding collaborator
+       * @param {Object} Event object
+       * @param {Object} XHR response
+       */
+      _onAddCollaborators: function(e, detail) {
+        this.fire('add-collaborators', { response: detail.response });
+      },
+
+      /**
+       * Filter function used by dom-repeat
+       */
+      isCollaborator: function(user) {
+        return !user.isCollaborator;
+      },
+
+      reset: function() {
+        const bfItemAutocomplete = this.$.bfItemAutocomplete;
+
+        // Clear the input value
+        bfItemAutocomplete.set('inputValue', '');
+
+        // Clear the suggestions
+        bfItemAutocomplete.setSuggestions([]);
+      }
+
+    });
+  </script>
+</dom-module>

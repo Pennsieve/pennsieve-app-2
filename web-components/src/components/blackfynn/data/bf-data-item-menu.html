@@ -1,0 +1,237 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<link rel="import" href="../shared/blackfynn-menu.html">
+<link rel="import" href="../shared/blackfynn-menu-item.html">
+<link rel="import" href="../shared/filetype-mapper-behavior.html">
+<link rel="import" href="bf-data-item-behavior.html">
+
+<dom-module id="bf-data-item-menu">
+
+  <template>
+    <style type="text/css">
+      :host {
+        width: 190px;
+      }
+    </style>
+
+    <blackfynn-menu center id="menu" hidden="[[isHidden]]">
+      <div hidden$="[[!_isDataSetList]]">
+        <blackfynn-menu-item on-tap="createCollection" icon="blackfynn:create-new-folder">
+          Create Collection
+        </blackfynn-menu-item>
+      </div>
+
+      <div hidden$="[[_isDataSetList]]">
+        <div hidden="[[multiSelect]]">
+          <blackfynn-menu-item on-tap="openItem" hidden$="[[!_canOpen]]" icon="blackfynn:remove-red-eye">
+            Open
+          </blackfynn-menu-item>
+
+          <blackfynn-menu-item on-tap="downloadItem" hidden="[[_isCollection]]" icon="blackfynn:file-download">
+            Download
+          </blackfynn-menu-item>
+
+          <!-- <blackfynn-menu-item on-tap="openPackage" hidden="[[_isCollection]]" icon="blackfynn:package">
+            View Package
+          </blackfynn-menu-item> -->
+
+          <!-- <blackfynn-menu-item on-tap="viewDetails" icon="blackfynn:info-outline">
+            View Details
+          </blackfynn-menu-item> -->
+
+          <blackfynn-menu-item on-tap="renameItem" icon="blackfynn:create">
+            Rename
+          </blackfynn-menu-item>
+        </div>
+
+        <blackfynn-menu-item on-tap="moveItem" icon="blackfynn:file-download">
+          Move<span hidden="[[!multiSelect]]">&nbsp;[[selected.length]] items&nbsp;</span> to&hellip;
+        </blackfynn-menu-item>
+
+        <blackfynn-menu-item on-tap="deleteItem" icon="blackfynn:trash">
+          Delete<span hidden="[[!multiSelect]]">&nbsp;[[selected.length]] items</span>
+        </blackfynn-menu-item>
+      </div>
+    </blackfynn-menu>
+
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'bf-data-item-menu',
+
+    behaviors: [
+      Blackfynn.DataItemBehavior,
+      Blackfynn.FileTypeMapperBehavior
+    ],
+
+    properties: {
+      isHidden:{
+        type: Boolean,
+        value: true
+      },
+      currentId: {
+        type: String,
+        value: ''
+      },
+      package: {
+        type: Object,
+        notify: true
+      },
+      /**
+       * Compute if the package is a Collection or DataSet
+       */
+      _isCollection: {
+        type: Boolean,
+        computed: '_computeIsCollection(package.data.content.packageType, nodeTypes)'
+      },
+      /**
+       * Compute if the package can be opened
+       */
+      _canOpen: {
+        type: Boolean,
+        computed: '_computeCanOpen(package.data.content.packageType)'
+      },
+      multiSelect: {
+        type: Boolean,
+        computed: '_computeMultiSelect(selected.length)'
+      },
+      isConverting: {
+        type: Boolean,
+        value: false
+      },
+      _isDataSetList: {
+        type: Boolean,
+        computed: '_computeIsDataSetList(package.id)'
+      }
+    },
+
+    observers: [
+      '_computeIsConverting(package.data.content.isConverting)'
+    ],
+
+    /**
+     * Compute if the package can be opened
+     * @param {String} packageType
+     */
+    _computeCanOpen: function(packageType) {
+      const type = packageType ? packageType.toLowerCase() : packageType;
+      if (type === 'collection') {
+        return false;
+      }
+      // open viewer
+      const viewer = this.viewerForType(packageType);
+
+      if(viewer) {
+        return true;
+      }
+
+      return false;
+    },
+
+    _computeIsDataSetList(id) {
+      return id === 'packageList'
+    },
+
+    _computeHasMeta: function(item) {
+      const elemKeys = Object.keys(item.data.detailedMetadata);
+      if(elemKeys.length > 0) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    _computeMultiSelect: function(selected) {
+      // Returns length of this.selected
+      if(selected > 1 ) {
+        return true;
+      }
+
+      return false;
+    },
+
+    _computeIsConverting: function(isConverting) {
+      let converting = false;
+      if(isConverting) {
+        converting = true;
+      }
+      this.set('isConverting', converting);
+    },
+    _computeHidden: function(type, isConverting) {
+      if(isConverting) {
+        return true;
+      }
+
+      return type;
+    },
+    open: function() {
+      this.isHidden = false;
+    },
+    close: function() {
+      // Reset data
+      this.set('currentId', '');
+      this.set('package', {});
+      this.isHidden = true;
+      this.style.top = 0;
+      this.style.left = 0;
+    },
+    moveItem: function(e) {
+      let itemToMove = [this.package];
+
+      if(this.selected.length > 1) {
+        itemToMove = this.selected;
+      }
+
+      this.fire('open-move-dialog', { item: itemToMove });
+      this.close();
+    },
+    openItem: function(ev) {
+      this.fire('open-viewer', {item: this.package.data});
+      this.close();
+    },
+    createCollection: function(ev) {
+      this.fire('create-collection', { item: this.package });
+      this.close();
+    },
+    renameItem: function() {
+      this.fire('open-collection-dialog', this.package);
+      this.close();
+    },
+    deleteItem: function(ev) {
+      if(this.selected.length > 1) {
+        this.fire('deleteItem', { item: this.selected });
+      } else {
+        this.fire('deleteItem', { item: [this.package] });
+      }
+
+      this.close();
+    },
+    downloadItem: function(ev) {
+      this.fire('download-item', { item: this.package });
+      this.close();
+    },
+    openPackage: function(e) {
+      this.fire('open-package', {item: this.package});
+      this.close();
+    },
+    ready: function() {
+      this.style.position='fixed';
+    },
+    viewDetails: function(ev) {
+      // Fire event to open meta data
+      this.fire('view-info-panel', {id: this.package.data.content.id, name: this.package.data.content.name, reset: false});
+
+      // Close the menu
+      this.close();
+    }
+  });
+
+</script>

@@ -1,0 +1,449 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<link rel="import" href="bf-annotation-group.html">
+<link rel="import" href="bf-annotation.html">
+<link rel="import" href="bf-ts-annotation.html">
+
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/browse.html">
+
+<dom-module id="bf-annotations-list">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-browse-styles"></style>
+    <style type="text/css">
+      :host {
+        display: block;
+        background: var(--white-matter);
+        height: 100%;
+        @apply(--layout-vertical);
+
+        --accordion-duration: .5s;
+        --accordion-icon-styles: {
+          margin-right: 4px;
+          transform: rotate(-90deg);
+          transition: transform .2s linear;
+        }
+        --accordion-icon-open-styles: {
+          transform: rotate(0deg);
+        }
+        --accordion-title-styles: {
+          color: #000;
+          border-bottom: solid 1px var(--cortex);
+          font-size: 12px;
+          height: 34px;
+        }
+      }
+
+      :host([hidden]) {
+        display: none;
+      }
+
+      h3 {
+        margin: 15px 0;
+      }
+
+      .annotations-heading {
+        background: #f7f7f7;
+        border-bottom: solid 1px var(--cortex);
+        min-height: 33px;
+        overflow: hidden;
+        width: 100%;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+
+      .controls {
+        margin-left: 10px;
+        @apply(--layout-flex);
+      }
+
+      .controls .inner {
+        width: 100px;
+      }
+
+      .controls .inner:hover {
+        cursor: pointer;
+      }
+
+      .visibility {
+        margin-right: 10px;
+        @apply(--layout-flex-end);
+      }
+
+      .annotation-control {
+        height: 20px;
+        width: 20px;
+        transition: color .15s linear;
+      }
+
+      .annotation-control:hover {
+        cursor: pointer;
+      }
+
+      #annotationWrap {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      bf-accordion {
+        --iron-icon-width: 10px;
+        --iron-icon-height: 6px;
+      }
+
+      [slot="title"] {
+        flex: 1;
+        height: 100%;
+      }
+
+      iron-icon {
+        color: #9B9B9B;
+      }
+      iron-icon:hover, iron-icon[focused] {
+        color: var(--dopamine);
+      }
+      .all-hidden {
+        color: #DADADA;
+      }
+    </style>
+
+  <div class="annotations-heading">
+    <div class="controls">
+      <div class="inner" on-tap="_createLayer">
+        <iron-icon class="annotation-control create-new-layer" icon="blackfynn:add"></iron-icon>
+        New Layer
+      </div>
+    </div>
+    <div class="visibility">
+      <iron-icon class$="[[visibilityIconClasses]]" icon="blackfynn:remove-red-eye" on-tap="toggleAllGroupsVisibility"></iron-icon>
+    </div>
+  </div>
+
+    <div id="annotationWrap">
+      <template is="dom-repeat" items="[[layers]]" as="layer" id="layerRepeater">
+        <bf-accordion icon="blackfynn:chevron-down-small" border-color="[[layer.hexColor]]" layer-id$="[[layer.id]]">
+          <div slot="title">
+            <bf-annotation-group
+              layer="[[layer]]"
+              state="[[state]]"
+              orig-label="[[layer.name]]"
+              profile="[[vuex.profile]]"
+              active-viewer="[[activeViewer]]"
+            ></bf-annotation-group>
+          </div>
+          <div slot="items">
+            <template is="dom-if" if="[[isTimeseriesViewer]]">
+              <template is="dom-repeat" items="[[layer.annotations]]"  sort="[[sortByStart]]" id="annRepeater-ts">
+                <bf-ts-annotation
+                  id="ann-[[item.id]]"
+                  layer-id="[[layer.id]]"
+                  annotation="[[item]]"
+                  active-viewer="[[activeViewer]]"
+                  on-tap="_onAnnTap"
+                  ></bf-ts-annotation>
+              </template>
+            </template>
+            <template is="dom-if" if="[[!isTimeseriesViewer]]">
+              <template is="dom-repeat" items="[[layer.annotations]]"  sort="[[sortMethod]]" id="annRepeater">
+                <bf-annotation
+                  id="ann-[[item.id]]"
+                  layer-id="[[layer.id]]"
+                  annotation="[[item]]"
+                  active-viewer="[[activeViewer]]"
+                  on-tap="_onAnnTap"
+                  ></bf-annotation>
+              </template>
+            </template>
+          </div>
+        </bf-accordion>
+      </template>
+
+      <bf-viewer-side-panel-empty-state hidden$="[[_hasAnnotations]]">
+        <img id="illustration" src="/static/images/illustrations/illo-sharing.svg" alt="illustration of two people interacting">
+        <p>Add an annotation by using the annotation tool.</p>
+      </bf-viewer-side-panel-empty-state>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bf-annotations-list',
+
+      behaviors: [
+        Blackfynn.AjaxBehavior,
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        /**
+         * background color
+         */
+        borderColor: {
+          type: String,
+          value: '#0000ff'
+        },
+        /**
+         * Sort attribute for annotations
+         */
+         sortMethod: {
+          type: String,
+          value: 'byDate'
+        },
+        /**
+        *
+        */
+        sortByStart: {
+          type: String,
+          value: 'byStart'
+        },
+        /**
+         * Tracks global toggle for all annotation layers
+         */
+         allVisible: {
+          type: Boolean,
+          value: true
+        },
+        /**
+         * Tracks global toggle for all annotation layers
+         */
+         isTimeseriesViewer: {
+          type: Boolean,
+          computed: '_computeIsTimeseriesViewer(vuex.viewerActiveIndex, vuex.viewers)'
+        },
+        /**
+         * Determines css classes for visibility icon
+         */
+         visibilityIconClasses: {
+           type: String,
+           computed: '_computeVisibilityIconClasses(allVisible)'
+         },
+         /**
+         * List of annotation layers
+         */
+         layers: {
+           type: Array,
+           value: function() {
+             return []
+           },
+           computed: '_computeLayers(vuex.viewerActiveIndex, vuex.viewers)'
+         },
+         /**
+          * Computes title of annotation
+          */
+         _computeTitle: function(item) {
+           return item.description && item.description.length > 0 ? item.description : item.label;
+         },
+         /**
+          * Computes whether or not there are annotations
+          */
+         _hasAnnotations: {
+           type: Boolean,
+           computed: '_computeHasAnnotations(layers.*)'
+         },
+      },
+
+      observers: [
+        'watchLayers(layers.*)'
+      ],
+
+      attached: function() {
+        // this.$store.watch(this.$store.getters.getActiveTool, this.setActiveTool.bind(this))
+      },
+
+      _onAnnTap: function(e) {
+        const ann = R.pathOr({}, ['model', '__data__', 'item'])(e)
+        const annStart = R.propOr(null, 'start')(ann)
+        const detail = {}
+
+        if (annStart) {
+          detail.annStart = annStart
+        }
+        this.activeViewer.fire('annotation-selected', detail)
+      },
+      watchLayers: function(layers) {
+        if (layers.base && layers.base.length) {
+          this.renderLayers()
+
+          this.async(() => {
+            for (let item in layers.base) {
+              if (layers.base[item].hasOwnProperty('id')) {
+                const layer = layers.base[item]
+                this.renderAnnotations(layer.id)
+              }
+            }
+          }, 200)
+        }
+      },
+
+      renderLayers: function() {
+        const layerRepeater = this.$$('#layerRepeater')
+        layerRepeater.render()
+      },
+
+      renderAnnotations: function(layerId) {
+        let annRepeater;
+        if (this.isTimeseriesViewer) {
+          annRepeater = this.$$(`bf-accordion[layer-id="${layerId}"] #annRepeater-ts`)
+        } else {
+          annRepeater = this.$$(`bf-accordion[layer-id="${layerId}"] #annRepeater`)
+        }
+        // const annRepeater = this.$$(`bf-accordion[layer-id="${layerId}"] #annRepeater`)
+        if (annRepeater) {
+          annRepeater.render()
+        }
+      },
+
+      /**
+       * Computes whether or not there are annotations
+       * @param {Array} layers
+       */
+      _computeHasAnnotations(layers) {
+        if (!layers.base) {
+          return
+        }
+
+        for (let layer of layers.base) {
+          if (layer && layer.annotations && layer.annotations.length) {
+            return true
+          }
+        }
+        return false
+      },
+
+      /**
+       * Computes annotation id
+       */
+      _computeAnnotationId: function(item) {
+        const contentId = R.path(['content', 'id'], item);
+        return contentId ? contentId : R.propOr('', 'id', item);
+      },
+
+      /**
+       * Computes whether or not the viewer is timeseries or not
+       * @param {Number} idx
+       * @param {Array} viewers
+       * @returns {Boolean}
+       */
+      _computeIsTimeseriesViewer: function(idx, viewers) {
+        const activeViewer = R.defaultTo({}, viewers[idx])
+        const packageType = R.pathOr('', ['content', 'packageType'], activeViewer)
+
+        return packageType === 'TimeSeries'
+      },
+
+      /**
+       * checks if any objects within an array have an id === 0
+       * @param {Array}
+       * @returns undefined | Object
+       */
+      _hasNewLayer: R.find(R.propEq('id', 0)),
+
+      /**
+       * Open layer window in create state
+       */
+      _createLayer: function(evt) {
+        this.activeViewer.openLayerWindow(evt, {
+          isCreating: true
+        });
+      },
+
+      /**
+       * computes layers list
+       * @param {Number} idx
+       * @param {Array} viewers
+       * @returns {Array}
+       */
+      _computeLayers: function(idx, viewers) {
+        return viewers[idx].annLayers
+      },
+
+      /**
+       * Sorting results  newest to oldest by `ITEM.updatedAt`
+       * @param {Object} data item #1 to compare
+       * @param {Object} data item #2 to compare
+       * @return {Number}
+       */
+      byDate: function(item1, item2) {
+        const date1 = new Date(item1.updatedAt);
+        const date2 = new Date(item2.updatedAt);
+        return date2 - date1;
+      },
+      byStart: function(a, b) {
+        if (a.start < b.start) {
+          return -1;
+        }
+        if (a.start > b.start) {
+          return 1;
+        }
+        return 0
+      },
+
+      /**
+       * Gets the first group's layers property
+       * @param {Array}
+       * @returns {Array}
+       */
+      _getLayers: R.compose(R.propOr([], 'layer'), R.defaultTo({}), R.head),
+
+      /**
+       * toggles visibility of all groups
+       */
+      toggleAllGroupsVisibility: function() {
+        // check if all layers are all hidden; visible property does not initially exist
+        const allHiddenLayers = this.layers.filter(layer => layer.visible === false);
+        const allVisibleValue = allHiddenLayers.length === this.layers.length ? true : !this.allVisible;
+
+        this.set('allVisible', allVisibleValue);
+
+        const groups = Polymer.dom(this.root).querySelectorAll('bf-annotation-group');
+        groups.forEach(group => group.toggleLayer(this.allVisible));
+      },
+
+      /**
+       * toggles visibility of all groups
+       * @param {Boolean} allVisible
+       * @returns {String}
+       */
+      _computeVisibilityIconClasses: function(allVisible) {
+        const baseCss = 'annotation-control toggle-visibility'
+        return allVisible ? baseCss : `${baseCss} all-hidden`;
+      },
+
+      /**
+       * View annotation
+       * @param {Number} id
+       */
+      viewAnnotation: function(id) {
+        // Scroll to annotation
+        const annotation = Polymer.dom(this.root).querySelector(`#ann-${id}`);
+        if (annotation) {
+          const layerId = annotation.layerId
+          const layer = Polymer.dom(this.root).querySelector(`bf-accordion[layer-id="${layerId}"]`)
+          layer.open()
+
+          let annotationSelector = 'bf-annotation'
+          if (this.isTimeseriesViewer) {
+            annotationSelector = 'bf-ts-annotation'
+          }
+
+          const annotations = Polymer.dom(this.root).querySelectorAll(annotationSelector)
+          annotations.forEach(ann => ann.selected = false)
+          annotation.selected = true
+          annotation.scrollIntoView();
+        }
+      }
+
+    });
+  </script>
+</dom-module>

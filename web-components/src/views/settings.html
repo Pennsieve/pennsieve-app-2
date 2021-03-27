@@ -1,0 +1,292 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="../components/blackfynn/settings/bf-settings-user/bf-settings-user.html">
+<link rel="import" href="../components/blackfynn/settings/people.html">
+<link rel="import" href="../components/blackfynn/settings/api-keys/api-keys.html">
+<link rel="import" href="../components/blackfynn/settings/bf-organization/bf-organization.html">
+<link rel="import" href="../components/blackfynn/teams/team-list.html">
+<link rel="import" href="../components/blackfynn/state/bf-state-aware-behavior.html">
+<link rel="import" href="../components/blackfynn/global/bf-footer/bf-footer.html">
+<link rel="import" href="../vendor-scripts.html">
+
+<link rel="import" href="../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-view-settings">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+        height: calc(100vh - 60px);
+        overflow: hidden;
+        @apply(--layout-vertical);
+      }
+
+      .settings-wrap {
+        @apply(--layout-horizontal);
+      }
+
+      .page-content-wrap {
+        width: 100%;
+        @apply(--layout-vertical);
+      }
+
+      .page-wrap {
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 100%;
+        height: 100vh;
+        @apply(--layout-horizontal);
+      }
+
+      bf-footer {
+        padding: 10px 0 20px 30px;
+        @apply(--layout-horizontal);
+      }
+
+      bf-footer.no-nav {
+        padding: 10px 0 20px 60px;
+      }
+
+      .settings-nav {
+        background: var(--settings-nav-background);
+        box-shadow: inset -1px 0 0 0 var(--cortex);
+        height: 100vh;
+        width: 250px;
+        @apply(--layout-vertical);
+      }
+
+      .settings-nav a {
+        display: block;
+        padding: 16px 30px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+      }
+
+      .settings-nav a.iron-selected {
+        background: var(--cortex);
+      }
+
+      #pages {
+        margin-top: 30px;
+        width: 50%;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+    </style>
+
+    <div class="settings-wrap">
+      <div class="settings-nav">
+        <iron-selector selected="[[routeData.view]]" attr-for-selected="name" class="drawer-list" role="navigation">
+          <a name="profile" href="[[profileUrl]]">Profile</a>
+          <a name="api-keys" href="[[apiKeysUrl]]">API Keys</a>
+          <a name="organization" href="[[organizationUrl]]" hidden$="[[!_isAdmin]]">Organization Settings</a>
+          <a name="members" href="[[membersUrl]]">Team Members</a>
+          <a name="teams" href="[[teamsUrl]]" hidden$="[[!_isAdmin]]">Teams</a>
+        </iron-selector>
+      </div>
+
+      <div class="page-content-wrap">
+        <div class="page-wrap">
+          <iron-pages id="pages" selected="[[routeData.view]]" attr-for-selected="name" selected-item="{{selectedItem}}" class$="[[_componentClass]]">
+            <bf-settings-user
+              name="profile"
+              component-class="[[_componentClass]]"></bf-settings-user>
+
+            <api-keys
+              name="api-keys"></api-keys>
+
+            <bf-organization
+              name="organization"></bf-organization>
+
+            <bf-people
+              id="settingsPeople"
+              name="members"
+              admin="{{_isAdmin}}"
+              people="{{people}}"></bf-people>
+
+            <blackfynn-team-list
+              name="teams"></blackfynn-team-list>
+          </iron-pages>
+        </div>
+
+        <bf-footer class$="[[_componentClass]]"></bf-footer>
+      </div><!--/.content-wrap -->
+    </div>
+    <app-route
+      route="{{route}}"
+      pattern="/:view"
+      data="{{routeData}}"
+      tail="{{routeDataTail}}"></app-route>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-view-settings',
+
+      behaviors: [
+        StateAwareBehavior,
+      ],
+
+      properties: {
+        /**
+         * teams page path
+         */
+        _teamsPath: {
+          type: String,
+          value: 'teams'
+        },
+        /**
+         * profile page path
+         */
+        _profilePath: {
+          type: String,
+          value: 'profile'
+        },
+        /**
+         * api keys page path
+         */
+        _apiKeysPath: {
+          type: String,
+          value: 'api-keys'
+        },
+        /**
+         * team members page path
+         */
+        _membersPath: {
+          type: String,
+          value: 'members'
+        },
+        /**
+         * organization settings page path
+         */
+         _orgPath: {
+          type: String,
+          value: 'organization'
+        },
+        /**
+         * profile page url
+         */
+        profileUrl: {
+          type: String,
+          computed: '_computeSettingsNavUrl(state.*, _profilePath)'
+        },
+        /**
+         * profile page url
+         */
+        apiKeysUrl: {
+          type: String,
+          computed: '_computeSettingsNavUrl(state.*, _apiKeysPath)'
+        },
+        /**
+         * team members page url
+         */
+        membersUrl: {
+          type: String,
+          computed: '_computeSettingsNavUrl(state.*, _membersPath)'
+        },
+        /**
+         * teams page url
+         */
+        teamsUrl: {
+          type: String,
+          computed: '_computeSettingsNavUrl(state.*, _teamsPath)'
+        },
+        /**
+         * organization settings page url
+         */
+         organizationUrl: {
+          type: String,
+          computed: '_computeSettingsNavUrl(state.*, _orgPath)'
+        },
+        /**
+         * determines whether or not components have additional css properties
+         */
+        _componentClass: {
+          type: Boolean,
+          computed: '_computeComponentClass(state.isOrganizationAdmin)'
+        },
+        /**
+         * route data object
+         */
+        routeData: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * route view object
+         */
+        routeView: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+        * Check user permissions
+        */
+        _isAdmin: {
+          type: Boolean,
+          computed: '_computeIsAdmin(state.isOrganizationAdmin)'
+        }
+      },
+
+      listeners: {
+        'iron-select': '_handleIronSelected'
+      },
+
+      /**
+       * Handles iron-select event
+       * @param {Object} evt
+       */
+      _handleIronSelected: function(evt) {
+        const item = R.path(['detail', 'item'], evt);
+        if (item.localName === 'bf-organization') {
+          item._fetchData();
+        }
+      },
+
+      /**
+      * Compute property for _isAdmin
+      */
+      _computeIsAdmin: function(isOrganizationAdmin) {
+        return isOrganizationAdmin
+      },
+
+       /**
+        * computes class for no settings nav components
+        * @param {boolean} isActiveOrgAdmin
+        */
+       _computeComponentClass: function(isActiveOrgAdmin) {
+         return !isActiveOrgAdmin ? 'no-nav' : '';
+       },
+
+       /**
+        * generic url builder for settings view navigation
+        * @param {Object} state
+        * @param {String} path
+        */
+       _computeSettingsNavUrl: function(state, path) {
+        const activeOrganizationId = R.path(['base', 'activeOrganization', 'organization', 'id'], state);
+        const routeDataPath = R.pathOr('', ['base', 'route', 'path'], state)
+        const splitData = routeDataPath.split('/')
+        const pathOrgId = R.pathOr('', [1], splitData)
+        const orgId = R.defaultTo(pathOrgId, activeOrganizationId);
+
+         return `/${orgId}/settings/${path}`;
+       },
+
+    });
+
+  </script>
+
+</dom-module>

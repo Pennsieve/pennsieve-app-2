@@ -1,0 +1,152 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="./bf-team-menu.html">
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/team.html">
+
+<dom-module id="bf-team">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-team-styles"></style>
+    <style>
+      :host {
+        border-bottom: 1px solid var(--cortex);
+        display: block;
+      }
+      .remove-team {
+        color: var(--glial);
+        cursor: pointer;
+        height: 12px;
+        margin-left: 10px;
+        width: 12px;
+      }
+      .remove-team:hover {
+        opacity: .8;
+      }
+      .team-wrap {
+        color: var(--glial);
+        padding: 15px 20px;
+        position: relative;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .team-info {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      .name {
+        color: var(--text-color);
+        font-weight: 500;
+      }
+    </style>
+
+    <div class="team-wrap">
+
+      <div class="team-info">
+        <div class="name">[[item.team.name]]</div>
+        <div class="members" hidden$="[[!_showMemberCount]]">[[_membersCount]]</div>
+      </div>
+
+      <iron-icon
+        id="teamMenuIcon"
+        class="team-menu-icon"
+        tabindex="0"
+        icon="blackfynn:more-h"
+        on-tap="_openTeamMenu"></iron-icon>
+
+      <bf-team-menu
+        id="teamMenu"
+        team="[[item.team]]"></bf-team-menu>
+
+    </div>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-team',
+
+      properties: {
+        /**
+         * team object
+         */
+        team: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * tracks whether or not the member count should be displayed
+         */
+        _showMemberCount: {
+          type: Boolean,
+          computed: '_computeShowMemberCount(item.memberCount)'
+        },
+        /**
+         * displays member count for team
+         */
+        _membersCount: {
+          type: String,
+          computed: '_computeMembersCount(item.memberCount)'
+        }
+      },
+
+      listeners: {
+        'keydown': '_captureEnter',
+      },
+
+      /**
+       * Captures keydown key code to trigger team menu items
+       * @param {Object} Event object
+       */
+      _captureEnter: function(e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          this._openTeamMenu();
+          e.target.blur();
+        }
+      },
+
+      /**
+       * computes whether or not to display team member count
+       * @param {Number} number of team members
+       * @return {Boolean}
+       */
+      _computeShowMemberCount: function(numberOfTeamMembers) {
+        return numberOfTeamMembers > 0;
+      },
+
+      /**
+       * computes the total members for a team
+       * @param {Number} number of team members
+       * @return {Boolean}
+       */
+      _computeMembersCount: function(numberOfTeamMembers) {
+        switch(numberOfTeamMembers) {
+          case 0:
+            return '';
+          case 1:
+            return '1 Member';
+          default:
+            return `${numberOfTeamMembers} Members`;
+        }
+      },
+
+      /**
+       * opens team menu
+       */
+      _openTeamMenu: function() {
+        this.$.teamMenu.set('opened', true);
+      },
+
+    });
+
+  </script>
+
+</dom-module>

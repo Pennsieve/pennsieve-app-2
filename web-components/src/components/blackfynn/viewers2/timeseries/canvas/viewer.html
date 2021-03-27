@@ -1,0 +1,2136 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../../bower_components/iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+
+<link rel="import" href="data-behavior.html">
+<link rel="import" href="annotation-behavior.html">
+<link rel="import" href="annotation-popover.html">
+<link rel="import" href="../../../shared/resize-behavior.html">
+<link rel="import" href="../../../shared/color-behavior.html">
+<link rel="import" href="../../../shared/plugin-behavior.html">
+<link rel="import" href="../../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-viewer-timeseries-canvas-viewer">
+
+    <!-- Defines the element's style and local DOM -->
+    <template>
+        <style include="blackfynn-main-styles"></style>
+        <style>
+            :host {
+                display: flex;
+                background-color: white;
+                flex: 1;
+            }
+            #channelCanvas {
+                display: flex;
+            }
+            #channelLabels {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                line-height: normal;
+                margin-bottom: 20px;
+                min-width: 75px;
+            }
+
+            .chLabelWrap {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                cursor: pointer;
+
+            }
+            .chLabelIndWrap {
+                position: relative;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                width: 100%;
+                color: #3c54a4;
+            }
+           .chLabelInd {
+                font-size: 0.6em;
+                min-width: 70px;
+                color: rgb(150,150,150);
+                text-align: right;
+                white-space: nowrap;
+            }
+            .labelDiv[selected] {
+               color:#295eff; /*#ff9800;/*#358855;*/
+            }
+            .chLabelIndWrap[selected]{
+               color:#295eff; /*#ff9800; /*#358855;*/
+            }
+            .labelDiv {
+                align-self: flex-end;
+                white-space: nowrap;
+                color: var(--neuron);
+            }
+            .canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                margin-left: 5px;
+                cursor: ew-resize;
+                outline: none;
+            }
+            .canvas[active]{
+                cursor: pointer;
+            }
+            .canvas[col_resize]{
+                cursor: col-resize;
+            }
+            .canvas[point]{
+                cursor: default;
+            }
+            .canvas[cursor_hover]{
+                cursor: col-resize;
+            }
+            #cursorArea {
+                margin-left: 0;
+            }
+            #annotationPopover {
+              position: absolute;
+              opacity: 0;
+              display: none;
+              top: 75px;
+              z-index: 1000;
+              left: 400px;
+            }
+        </style>
+
+        <annotation-popover on-mouseleave="_onPopoverMouseLeave" id="annotationPopover"></annotation-popover>
+
+        <div id="plotWrapper" on-tap="onTap">
+            <div id="channelCanvas">
+
+                <!-- Channel labels -->
+                <div id="channelLabels" >
+                    <template id="labelTemplate" is="dom-repeat" items="[[vuex.viewer.viewerChannels]]" sort="_sortChannels">
+                        <div hidden="{{!item.visible}}">
+                            <div class="chLabelWrap" data-id$="[[item.id]]" on-tap="onLabelTap" draggable="true"
+                                 on-dragstart="dragStart" on-dragover="dragOver" on-dragenter="dragEnter"
+                                 on-dragleave="dragLeave" on-drop="dragDrop" on-mouseenter="hoverChannel" on-mouseleave="exitHoverChannel">
+                                <div class="labelDiv" style$="[[_cpStyleLabels(pHeight, nrVisibleChannels)]]"
+                                     selected$="[[_cpChannelLabelHighlight(item.selected, item.hover)]]">{{_computeChannelLabel(item, item.*)}}</div>
+                                <div class="chLabelIndWrap" hidden$="{{hideLabelInfo}}" selected$="{{item.selected}}">
+                                    <div class="chLabelInd" hidden$="{{hideLabelInfo}}">{{_computeLabelInfo(item, globalZoomMult, item.rowScale)}}</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Timeseries viewport -->
+                <div id="canvasWrapper" style$="{{_cpCanvasWrapStyle(cHeight)}}">
+                    <canvas id="blurArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 0)]]" height="[[_cpCanvasScaler(pHeight, pixelRatio,0)]]" ></canvas>
+                    <canvas id="axisArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 0)]]" height="[[_cpCanvasScaler(cHeight, pixelRatio,0)]]" ></canvas>
+                    <canvas id="annArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 0)]]" height="[[_cpCanvasScaler(pHeight, pixelRatio,0)]]" ></canvas>
+                    <canvas id="plotArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 0)]]" height="[[_cpCanvasScaler(pHeight, pixelRatio,0)]]" ></canvas>
+                    <canvas id="cursorArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 5)]]" height="[[_cpCanvasScaler(cHeight, pixelRatio,0)]]" ></canvas>
+                    <canvas id="annLabelArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 0)]]" height="[[_cpCanvasScaler(pHeight, pixelRatio,0)]]" ></canvas>
+                    <canvas id="iArea" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio, 0)]]" height="[[_cpCanvasScaler(cHeight, pixelRatio,0)]]"
+                            on-track="handleTrack" on-wheel="_onMouseWheel" on-mousemove="_onMouseMove" on-mousedown="_onMouseDown"
+                            on-mouseup="_onMouseUp" on-mouseOut="_onMouseOut" on-mouseEnter="_onMouseEnter" tabindex="-1"></canvas>
+                </div>
+
+            </div>
+        </div>
+
+    </template>
+
+    <!-- Creates the element's prototype and registers it -->
+    <script>
+        Polymer({
+            is: 'blackfynn-viewer-timeseries-canvas-viewer',
+            properties: {
+                annLayers: {
+                  type: Array,
+                  value: function() {
+                    return []
+                  }
+                },
+                annotations: {
+                  type: Array,
+                  value: function() {
+                    return []
+                  }
+                },
+                // Constants:
+                constants: {
+                    type: Object,
+                    value: {
+                      TIMEUNIT: 'microSeconds',   // Basis for time
+                      XOFFSET: 0,                 // X-offset of graph in canvas
+                      XGRIDSPACING: 1000000,      // Time in microseconds between vertical lines
+                      NRPXPERLABEL: 150,          // Number of pixels per label on x-axis
+                      USEREALTIME: true,          // If true than interpret timepoints as UTC microseconds.
+                      DEFAULTDPI: 96,             // Default pixels per inch
+                      ANNOTATIONLABELHEIGHT: 20,  // Height of annotation label
+                      ROUNDDATAPIXELS: false,     // If true, canvas point will be rounded to integer pixels for faster render (faster)
+                      MINMAXPOLYGON: true,        // If true, then polygon is rendered thru minMax values, otherwise vertical lines (faster)
+                      PAGESIZEDIVIDER: 0.5,       // Number of pages that span the current canvas.
+                      PREFETCHPAGES: 2,           // Number of pages to read ahead of view.
+                      LIMITANNFETCH: 500,         // Maximum number of annotations that are fetched per request
+                      USEMEDIAN: false,           // Use Median instead of mean for centering channels
+                      CURSOROFFSET: 5,            // Offset of cursor canvas
+                      SEGMENTSPAN: 1209600000000, // One week of gap-data is returned per request.
+                      MAXRECURSION: 20            // Maximum recursion depth of gap-data requests (max 2 years)
+                  }
+                },
+                // ChannelConfiguration (bound to parent)
+                channelConfig:{
+                    notify: true,
+                    type: Array
+                },
+
+                // Dataset Package (bound to parent)
+                data: {
+                    type: Object
+                },
+
+                // User id (bound to parent)
+                user: {
+                    type: String
+                },
+                // Duration of viewport in us (bound to parent)
+                duration:{
+                    notify: true,
+                    type: Number,
+                },
+
+                // Time per pixel
+                //rsPeriod:{
+                //    computed: '_computeRsPeriod(cWidth, duration)'
+                //},
+                rsPeriod: {
+                    type: Number,
+                    value: 0
+                },
+
+                // Height of the plotted area (in px)
+                pHeight: {
+                    computed: '_computePlotHeight(cHeight)'
+                },
+
+                // Width of the viewer in pixels (bound to parent)
+                cWidth: {
+                    notify: true,
+                    type: Number,
+                },
+                // Height of the viewer in pixels (bound to parent)
+                cHeight:  {
+                    notify: true,
+                    type: Number,
+                },
+                // Width of the sidePanel(s)
+                sidePanelWidth:{
+                    type: Number,
+                    value: 0
+                },
+
+                // Ids of channels that should be hidden
+                hiddenChannels: {
+                    type: Array,
+                    value: function() {
+                      return [];
+                    }
+                },
+
+                // Ordered list of channel Labels to be displayed ( bound to DOM)
+                nrVisibleChannels: {
+                    type: Number,
+                    value: null
+                },
+
+                // Used for Tracking pan
+                startDragCoord: {
+                    type: Number
+                },
+
+                // Multiplier for zoom
+                globalZoomMult: {
+                    notify: true,
+                    type: Number,
+                    value: 1
+                },
+
+                // dragTimes
+                dragTimes: {
+                  type: Array,
+                  value: function() {
+                    return [];
+                  }
+                },
+
+                // Used during tracking for determining direction
+                trackDirection:{
+                    type: Boolean,
+                    value: false
+                },
+
+                // Channel ID that is currently being dragged (can't use dataTransfer object as need
+                // access during enter)
+                dragItem: {
+                    type: Object,
+                    value: null
+                },
+
+                // Show/Hide additional info below the channel label
+                hideLabelInfo:{
+                    computed: '_cpHiddenLabels(cHeight, viewerIsReady, nrVisibleChannels)'
+                },
+
+                // Parent Polymer object that contains the viewer
+                parent:{
+                    type: Object,
+                    value:null
+                },
+
+                // MousePointer mode --> and actionMode
+                pointerMode: {
+                    type: String,
+                    value:'pan'
+                },
+
+                // Used to make sure that tracking starts when cliked on edge annotation
+                resizeClicked:{
+                    type: Boolean,
+                    value: false
+                },
+
+                // Track if mouse if pressed
+                mouseDown: {
+                    type: Boolean,
+                    value: false
+                },
+
+
+                // Used to queue animationframe
+                ticking:{
+                    type: Boolean,
+                    value: false
+                },
+
+                // if -1: don't autoscale, if 0: scale zoom, if >0 count down to 0 on incoming segments
+                autoScale:{
+                    type: Number,
+                    value: 0
+                },
+
+                // Object for protobuf
+                segment: {
+                    type: Object,
+                    value: function() {return {}}
+                },
+
+                // Start time of viewer (bound to parent)
+                start:{
+                    notify: true,
+                    type: Number
+                },
+                // Indicate that viewer is ready (summary available and open webSocket)
+                viewerIsReady:{
+                    type: Boolean,
+                },
+
+                // Summary of data
+                summary: {
+                    type: Object,
+                    value: function() {
+                      return {};
+                    }
+                },
+
+                // Timer for opening websocket
+                socketTimer: {
+                    type: Object
+                },
+
+                // Toggle streaming on/off
+                isStreaming: {
+                    notify: true,
+                    type: Boolean,
+                    value: false
+                },
+                catchUpPeriod: {
+                    type: Number,
+                    value: 0
+                },
+                invalidateCache: {
+                    type: Boolean,
+                    value: false
+                },
+                streamUpdateRate: {
+                    type: Number,
+                    value: 100
+                },
+                // Pixel Ratio of screen (1 for regular, >1 for high-res screens)
+                pixelRatio: {
+                    notify:true,
+                    type: Number,
+                    value: 1
+                },
+                shiftOnInitDrag: {
+                    type: Boolean,
+                    value: false
+                },
+                renderThrottle: {
+                    type: Number,
+                    value: 100
+                },
+                // Location of cursor in canvas in px.
+                cursorLoc: {
+                    type: Number,
+                    value: 0
+                },
+                // True id user is currently dragging on canvas
+                isDragging: {
+                    type: Boolean,
+                    value: false
+                },
+                // Init is used to undo any filters
+                init: {
+                    type: Boolean,
+                    value: true
+                },
+                // Url for websocket data
+                timeSeriesUrl: {
+                  computed: '_computeTimeSeriesUrl(vuex.config.timeSeriesUrl, vuex.userToken, data.id)',
+                  observer: '_watchTimeSeriesUrl'
+                }
+            },
+
+            behaviors: [
+              Blackfynn.TsDataBehavior,
+              Blackfynn.ResizeBehavior,
+              Blackfynn.ColorBehavior,
+              Blackfynn.PluginBehavior,
+              Polymer.IronA11yKeysBehavior,
+              Blackfynn.VuexBehavior
+            ],
+
+            keyBindings: {
+                'space': '_handleKey',
+                's': '_toggleStream'
+            },
+            _computeTimeSeriesUrl: function(timeSeriesUrl, userToken, dataId) {
+              if (timeSeriesUrl && userToken && dataId) {
+                return timeSeriesUrl + '?session=' + userToken + '&package=' + dataId
+              }
+            },
+            _watchTimeSeriesUrl: function(url) {
+              if (this.init && url) {
+                this.openWebsocket()
+              }
+            },
+            _computeChannelLabel: function(channel) {
+                if (!R.isEmpty(channel.filter)) {
+                    return channel.label + ' [f]'
+                }
+                return channel.label;
+            },
+            _cpCanvasScaler: function(sz, pixelRatio, offset) {
+                return pixelRatio * (sz + offset);
+            },
+
+            _cpChannelLabelHighlight: function(isSelected, isHover) {
+                return isSelected || isHover;
+            },
+
+            _computeWebSocketUrl: function(user, url) {
+                let packageId = this.data.id
+                return url + '?session=' + user + '&package=' + packageId;
+            },
+
+            _cpCanvasWrapStyle: function(height) {
+                return 'position:relative; height:' + height +'px';
+            },
+            _computeLabelInfo: function(item, globalZoomMult, rowscale) {
+                const n = ( ( (this.constants['DEFAULTDPI'] * window.devicePixelRatio)/(globalZoomMult * rowscale) )/25.4).toFixed(1);
+                return n+ ' ' + item.unit + '/mm'
+            },
+            _cpStyleLabels: function(height, nrVisCh) {
+
+              const h = Math.max(1, Math.min(12, (height)/nrVisCh-2));
+              return 'font-size:' + h + 'px; height:' + h + 'px';
+            },
+            _cpHiddenLabels: function(height, viewerIsReady, nrVisChannels) {
+                let hide = false;
+                if (height/nrVisChannels < 30) {
+                    hide = true;
+                }
+                return hide;
+            },
+
+            _sortChannels: function(a, b) {
+                if (a.rank === b.rank) return 0;
+                return a.rank < b.rank ? -1 : 1;
+
+            },
+            _onPopoverMouseLeave: function(e) {
+              const annotationPopover = this.$.annotationPopover
+              if (e.toElement !== annotationPopover) {
+                annotationPopover.style.opacity = 0;
+                annotationPopover.style.display = 'none';
+              }
+            },
+            _onMouseOut: function(e) {
+                this.mouseDown = false;
+            },
+            _onMouseEnter: function(e) {
+                if (e.buttons === 1) {
+                    this.mouseDown = true;
+                } else {
+                    this.mouseDown = false;
+                }
+
+            },
+            // Update mouse pointer when hovering over annotations.
+            _onMouseMove: function(e) {
+
+                // Don't update during tracking
+                if (this.isDragging) {
+                    return
+                }
+
+                // Get pointer coordinates relative to canvas
+                const cCoord = this.$.iArea.getBoundingClientRect();
+                const mX = e.clientX - cCoord.left;
+                const mY = e.clientY - cCoord.top;
+
+                this.$.iArea.removeAttribute('col_resize');
+                this.$.iArea.removeAttribute('active');
+
+                // special case when under graph
+                if (mY > this.pHeight ) {
+                    const cursorLoc = this.cursorLoc - this.constants['CURSOROFFSET'];
+
+                    // Include hysteresis to prevent switching mode before track
+                    if (mX > (cursorLoc - 10) && mX < (cursorLoc + 10)) {
+                        this.$.iArea.removeAttribute('point');
+                        this.$.iArea.setAttribute('cursor_hover', true);
+                        this.pointerMode = 'cursor_hover';
+                    } else if( mX < (cursorLoc - 15) || mX > (cursorLoc + 15) ) {
+                        this.$.iArea.removeAttribute('point');
+                        this.$.iArea.removeAttribute('cursor_hover');
+                        this.pointerMode = this.actionMode;
+                        switch (this.pointerMode) {
+                            case 'pan':
+                                break;
+                            case 'point':
+                                this.$.iArea.setAttribute('point', true);
+                                break;
+                            case 'annotate':
+                                this.$.iArea.setAttribute('point', true);
+                                break;
+                           }
+                    }
+                } else {
+                    // check for special case when moving over annotations
+                    this.$.iArea.removeAttribute('cursor_hover');
+                    this.$.iArea.removeAttribute('point');
+                    this.pointerMode = this.plugins['annotate'].panel.onMouseMove(mX, mY, this.pointerMode, this.actionMode, this.mouseDown);
+
+                    if (this.pointerMode === 'annResize-left' || this.pointerMode === 'annResize-right') {
+                        this.$.iArea.setAttribute('col_resize', true);
+                    } else if (this.pointerMode === 'annSelect') {
+                        this.$.iArea.setAttribute('active', true);
+                    } else {
+                        this.pointerMode = this.actionMode;
+                        switch (this.actionMode) {
+                            case 'pan':
+                                break;
+                            case 'point':
+                                this.$.iArea.setAttribute('point', true);
+                                break;
+                            case 'annotate':
+                                this.$.iArea.setAttribute('point', true);
+                                break;
+                           }
+                    }
+                }
+            },
+
+            //Clicking on channel Label --> show channel menu / select channel
+            onLabelTap: function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                this.focus();
+
+                const append = e.detail.sourceEvent.metaKey;
+                this.selectChannel(e.model.__data__.item.id, append);
+                this._renderData(true);
+            },
+
+            selectChannel: function(id, option) {
+              const _channels = this.vuex.viewer.viewerChannels.map(channel => {
+                const selected = channel.selected
+
+                if (option === false) {
+                  channel.selected = false
+                }
+
+                if (id === channel.id) {
+                  channel.selected = !selected
+                }
+
+                return channel
+              })
+
+              this.$store.dispatch('viewer/setChannels', _channels)
+
+            },
+            _onMouseUp: function() {
+                this.resizeClicked = false;
+                this.mouseDown = false;
+            },
+            _onMouseDown: function() {
+                this.mouseDown = true;
+                switch(this.pointerMode) {
+                    case 'annResize-left':
+                    case 'annResize-right':
+                        this.resizeClicked = true;
+                        break;
+                }
+            },
+            onTap: function(e) {
+                this.plugins['annotate'].panel.onTap(e, this.pointerMode);
+
+            },
+            unfocusElements: function() {
+                this.plugins['annotate'].panel.unfocusElements();
+            },
+
+            onResize: function() {
+                this.resize();
+            },
+
+            resize: function() {
+                if(this.parent === null) {
+                    return;
+                }
+
+                const labelDiv = this.$.channelLabels;
+                const annotatePanelWidth = this.parent.hideAnnotatePanel ? 0: (this.parent.$.annotatePanelWrapper.offsetWidth +10);
+                this.sidePanelWidth = annotatePanelWidth;
+
+                const newCWidth = (this.windowWidth - labelDiv.clientWidth - 5 - 10);
+                const newCHeight = (this.windowHeight - 88);
+
+
+                // Only rerender canvas if canvas is resized --> resize can be called only on resize side-panelss
+                let oldWidth = this.cWidth;
+                if (newCWidth !== this.cWidth || newCHeight !== this.cHeight ) {
+                    this.set('cWidth', newCWidth);
+                    this.set('cHeight', newCHeight);
+
+                    const widthStr = newCWidth + 'px';
+                    const widthStrCursor = (newCWidth + this.constants['CURSOROFFSET']) + 'px';
+                    const heightStr = newCHeight + 'px';
+
+                    const heightStrP = this._computePlotHeight(newCHeight) + 'px';
+
+                    this.$.axisArea.setAttribute('style', `width:${widthStr}; height: ${heightStr};`);
+                    this.$.annArea.setAttribute('style', `width:${widthStr}; height: ${heightStrP};`);
+                    this.$.blurArea.setAttribute('style', `width:${widthStr}; height: ${heightStrP};`);
+                    this.$.annLabelArea.setAttribute('style', `width:${widthStr}; height: ${heightStrP};`);
+                    this.$.iArea.setAttribute('style', `width:${widthStr}; height: ${heightStr};`);
+                    this.$.plotArea.setAttribute('style', `width:${widthStr}; height: ${heightStrP};`);
+                    this.$.cursorArea.setAttribute('style', `width:${widthStrCursor}; height: ${heightStr};`);
+                    this.updateRsPeriod(newCWidth, this.duration);
+                    // Obly render
+                    if (this.viewerIsReady) {
+                        this.renderAll(100);
+                    }
+                }
+
+                // update cursor location to be in same relative position in viewport.
+                this.cursorLoc = Math.round((this.cursorLoc/oldWidth)*newCWidth);
+
+                for (let i in this.plugins) {
+                  if (this.plugins.hasOwnProperty(i)) {
+                    this.plugins[i].panel.updateSize();
+                  }
+                }
+
+            },
+
+            // Zoom in Time, or Amplitude on Mouse-wheel
+            _onMouseWheel: function(e, details) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if(e.shiftKey) {
+                    if (e.deltaY >0) {
+                        this.setDuration(this.duration*1.1);
+                    } else {
+                        this.setDuration(this.duration/1.1);
+                    }
+
+                    this.renderAll(100);
+
+                }else{
+                    if (e.deltaY >0) {
+                        this.globalZoomMult = this.globalZoomMult*1.2;
+                    } else {
+                        this.globalZoomMult = this.globalZoomMult/1.2;
+                    }
+                    this._renderData(true);
+
+                }
+            },
+            // Returns the period in usec per pixel
+            updateRsPeriod: function(w, d) {
+                const oldRs = this.rsPeriod;
+                const newPeriod = (d / w);
+                if (newPeriod !== oldRs) {
+                    this.invalidateCache = true;
+                    this.lastRsUpdate = Date.now();
+                    this.rsPeriod = newPeriod;
+                    this.pageSize = Math.floor(this.duration / this.constants['PAGESIZEDIVIDER']);
+                }
+           },
+
+            _computePlotHeight: function(h) {
+                return h - 20;
+            },
+            handleTrack: function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                switch (e.detail.state) {
+                    case 'start':
+
+                        this.oldDx = 0;
+                        this.isDragging = true;
+
+                        if (this.pointerMode === 'cursor_hover') {
+                            this.startDragCoord = this.cursorLoc;
+                        } else {
+                            switch (this.actionMode) {
+                            case 'pan':
+                                if (!e.detail.sourceEvent.shiftKey) {
+                                    this.startDragCoord = this.start;
+                                    break;
+                                } else {
+                                    this.shiftOnInitDrag = true;
+                                    this.pointerMode = 'point';
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    case 'track':
+
+                        this.trackDirection = e.detail.dx >= this.oldDx;
+                        this.oldDx = e.detail.dx;
+
+                        if (this.pointerMode === 'cursor_hover') {
+                            this.cursorLoc = this.startDragCoord + e.detail.dx;
+                            const cursorOffset = this.constants['CURSOROFFSET'];
+                            this.cursorLoc = this.cursorLoc < cursorOffset ? cursorOffset: this.cursorLoc;
+                            this._renderCursor();
+
+                            const cursorFrac = (this.cursorLoc - cursorOffset) / this.cWidth;
+                            this.fire('updateCursor', cursorFrac)
+                        } else {
+                            switch (this.actionMode) {
+                            case 'pan':
+
+                                if (!this.shiftOnInitDrag) {
+                                  // Update StartTime and get new data
+                                  const setStart = this.startDragCoord - (e.detail.dx * this.rsPeriod);
+                                  this.setStart(setStart );
+                                  this.renderAll(50);
+                                } else {
+                                    this.renderSelectBox(e.detail);
+                                }
+                                break;
+                            case 'point':
+                                this.renderSelectBox(e.detail);
+                                break;
+                            }
+
+                        }
+                        break;
+                    case 'end':
+                        // Always clear interactive canvas
+                        const iCanvas = this.$.iArea;
+                        const ctx = iCanvas.getContext('2d');
+                        ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+                        this.isDragging = false;
+                        const cursorOffset = this.constants['CURSOROFFSET'];
+
+                        if (this.pointerMode === 'cursor_hover') {
+                            const cursorFrac = (this.cursorLoc - cursorOffset) / this.cWidth;
+                            this.fire('updateCursor', cursorFrac);
+                        } else {
+                            switch (this.actionMode) {
+                            case 'pan':
+                                if (!this.shiftOnInitDrag) {
+                                    const setStart = this.startDragCoord - (e.detail.dx * this.rsPeriod);
+                                    this.setStart(setStart);
+                                    this.renderAll(50);
+                                } else {
+                                    this.setSelected(e.detail);
+                                    this._renderData();
+                                }
+                                break;
+                            case 'point':
+                                this.setSelected(e.detail);
+                                this._renderData(true);
+                                break;
+                            }
+                        }
+                        this.trackDirection = null;
+                        this.shiftOnInitDrag = false
+                        break;
+                }
+
+                // Call Annotate Plugin onTrack callback.
+                for(let i in this.plugins) {
+                  if (this.plugins.hasOwnProperty(i)) {
+                    this.plugins[i].panel.onTrack(e, this.pointerMode);
+                  }
+                }
+
+                if (e.detail.state === 'end') {
+                    this.pointerMode = this.actionMode;
+                }
+
+            },
+            // Helper function used by ChannelMenu to update channelPanel (should work through binding)
+            notifyProp: function(prop, index, subProp, value) {
+                this.notifyPath(prop + '.' + index + '.' + subProp, value);
+            },
+
+            // Set selected channels.
+            setSelected: function(detail) {
+                const iCanvas = this.$.iArea;
+                // Find channels inside rect
+                const append = detail.sourceEvent.metaKey;
+                const startRect = detail.y - iCanvas.getBoundingClientRect().top;
+                const endRect = detail.y-iCanvas.getBoundingClientRect().top - detail.dy;
+
+                const channels = this.vuex.viewer.viewerChannels.map(channel => {
+                  if (append === false) {
+                    channel.selected = false
+                  }
+                  if( (channel.rowBaseline > startRect && channel.rowBaseline < endRect) ||
+                          (channel.rowBaseline < startRect && channel.rowBaseline > endRect)) {
+                            channel.selected = true
+                  }
+
+                  return channel
+                })
+
+                this.$store.dispatch('viewer/setChannels', channels)
+            },
+
+            // Render the selection box on click-drag using point for selecting channels
+            renderSelectBox: function(detail) {
+                const iCanvas = this.$.iArea;
+                const ctx = iCanvas.getContext('2d');
+                ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+
+                ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+
+                ctx.beginPath();
+                ctx.lineWidth=2;
+                ctx.strokeStyle='#295eff';
+                ctx.setLineDash([5, 5, 15, 5]);
+
+                const xStart = detail.x - iCanvas.getBoundingClientRect().left;
+                const yStart = detail.y - iCanvas.getBoundingClientRect().top;
+
+                ctx.rect(xStart, yStart, -detail.dx, -detail.dy);
+                ctx.stroke();
+            },
+
+            // ------- Dragging Channels functions
+            findChannelByRank: function(rank) {
+                let channel = null
+                for (let i = 0; i < this.vuex.viewer.viewerChannels.length; i++) {
+                    if (this.vuex.viewer.viewerChannels[i].rank === rank) {
+                        channel = this.vuex.viewer.viewerChannels[i];
+                    }
+                }
+                return channel;
+            },
+            dragStart: function(ev, details) {
+                ev.stopPropagation();
+
+                // Set DragData to index of channel in dom-repeat
+                const curView = this.findChannelByRank(ev.model.index);
+                this.dragItem = {id: curView.id, rank: curView.rank};
+
+            },
+            dragEnter: function(ev, details) {
+                // re-sort channel-views and rerender
+
+                const hoverView = this.findChannelByRank(ev.model.index);
+                if (hoverView.id === this.lastHover) {
+                    return
+                }
+
+                this.lastHover = hoverView.id;
+                const newRank = hoverView.rank;
+                let originView = null;
+
+                if(hoverView && this.dragItem && hoverView.id !== this.dragItem.id) {
+
+                  const channels = R.clone(this.vuex.viewer.viewer.viewerChannels)
+
+                    for (let i=0; i< channels.length; i++) {
+                        if (this.dragItem.id === channels[i].id) {
+                            originView = channels[i];
+                            break;
+                        }
+                    }
+
+                    if (this.dragItem.rank > hoverView.rank) {
+                        for (let j = 0; j< channels.length; j++) {
+                            if (channels[j].rank >= newRank && channels[j].rank < this.dragItem.rank) {
+                              channels[j].rank = channels[j].rank + 1
+                            }
+                        }
+                    } else if (this.dragItem.rank < hoverView.rank) {
+                        for (let j = 0; j< channels.length; j++) {
+                            if (channels[j].rank <= newRank && channels[j].rank > this.dragItem.rank) {
+                              channels[j].rank = channels[j].rank - 1
+                            }
+                        }
+                    }
+
+                    this.$store.dispatch('viewer/setChannels', channels).then(() => {
+                      originView.rank = newRank;
+                      this.dragItem.rank = newRank;
+                      this.fire('channelRankChangeInViewer');
+                      this.renderAll(50);
+                    })
+                }
+
+            },
+            hoverChannel: function(evt) {
+              this.setHoverChannel(evt, true)
+            },
+            exitHoverChannel: function(evt) {
+              this.setHoverChannel(evt, false)
+            },
+
+            setHoverChannel: function(evt, isHovering) {
+              const channel = R.pathOr({}, ['model', 'item'], evt)
+              channel.hover = isHovering
+
+              this.$store.dispatch('viewer/updateChannel', channel).then(() => {
+                this.renderAll(50)
+              })
+            },
+
+            dragLeave: function(ev, details) {
+                this.lastHover = null;
+            },
+            dragDrop: function(ev, details) {
+                ev.stopPropagation();
+                ev.preventDefault();
+            },
+            dragOver: function(ev, details) {
+                // Called every 120ms when dragging on receiving element
+                ev.preventDefault();
+                ev.dataTransfer.dropEffect = 'move';
+
+            },
+
+            // ------- --------------------------
+
+            updateStart: function(setPoint) {
+              this.start = setPoint;
+            },
+
+            _renderData: function(isRedraw=false) {
+
+                const ba = this.$.blurArea;
+                const ctxb = ba.getContext('2d');
+                ctxb.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+                ctxb.fillStyle = 'rgb(220,220,220)'
+
+
+                const pa = this.$.plotArea;
+                const ctx = pa.getContext('2d');
+                ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+
+                // clear canvas
+                ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+                ctxb.clearRect(0, 0, this.cWidth, this.cHeight);
+
+                // update number of visible channels
+                const nrVisCh = this.vuex.viewer.viewerChannels.reduce((accumulator, currentValue) => {
+                  if(currentValue.visible) {
+                    return accumulator + 1
+                  }
+                  return accumulator
+                }, 0)
+
+                this.nrVisibleChannels = nrVisCh;
+
+                // Update label Div
+                this.$.labelTemplate.render();
+
+                // Compute the channel views for returned data
+                this._computeChannelViews();
+
+                ctx.save();
+                // let allTimes = 0;
+                for (let ch in this.viewData.channels ) {
+                    if (this.viewData.channels.hasOwnProperty(ch)) {
+                        // const chTimeStart = new Date().getTime();
+
+                        const curChannelData = this.viewData.channels[ch];
+
+                        // Get channelview for current channel
+                        let curChannelView = null;
+                        curChannelView = this.vuex.viewer.viewerChannels.find((elem) => {
+                            return elem.id === curChannelData.id
+                        })
+
+                        if(!curChannelView || !curChannelView.visible) {
+                            continue;
+                        }
+
+                        // Render segment placeholders
+                        const startT = this.start;
+                        const rsP = this.rsPeriod;
+                        const xOffset = this.constants['XOFFSET'];
+                        const blurHeight = Math.min( Math.round((this.cHeight/this.viewData.channels.length)- 2), 10);
+                        for (let i = 0; i < curChannelView.dataSegments.length; i+=2) {
+                            if (curChannelView.dataSegments[i + 1] < startT) {
+                                continue
+                            }
+                            if (curChannelView.dataSegments[i] > (startT + this.duration)) {
+                                break;
+                            }
+                            let xPos1 = Math.floor((((xOffset + (curChannelView.dataSegments[i] - startT ) / (rsP)))));
+                            let xPos2 = Math.floor((((xOffset + (curChannelView.dataSegments[i + 1] - startT ) / (rsP)))));
+                            let yPos = Math.floor(curChannelView.rowBaseline - blurHeight/2);
+                            ctxb.fillRect(xPos1, yPos, xPos2-xPos1, blurHeight);
+                        }
+
+                        // Get canvas points for current channel
+                        this.getPointCoords(curChannelView, curChannelData, isRedraw);
+
+                        // check Channel-Type
+                        const nrBlocks = curChannelData.blocks.length;
+                        let channelType = 'Continuous';
+                        if (nrBlocks) {
+                            channelType = curChannelData.blocks[0].type;
+                        }
+
+                        // draw channel segments.
+                        if(curChannelView.hover) {
+                            if (curChannelView.selected) {
+                                ctx.strokeStyle = 'rgba(39,96,255,0.70)';
+                                ctx.fillStyle = 'rgba(39,96,255,0.70)';
+                            } else {
+                                ctx.strokeStyle = 'rgba(39,96,255,0.60)';
+                                ctx.fillStyle = 'rgba(39,96,255,0.60)';
+                            }
+
+                        } else if(curChannelView.selected) {
+                            ctx.strokeStyle = 'rgb(39,96,255)';
+                            ctx.fillStyle = 'rgb(39,96,255)';
+                        } else if (channelType === 'Neural') {
+                            ctx.strokeStyle = 'rgb(120,120,120)';
+                        } else {
+                            ctx.strokeStyle = 'black';
+                            ctx.fillStyle = 'black';
+                        }
+
+                        let lastBlockEnd = null;
+                        let doPolFill = true;
+                        let realSamplePeriod = 1000000 * (1/curChannelView.sf);
+
+                        for (let block = 0; block < nrBlocks; block++) {
+
+                            const curBlock = curChannelData.blocks[block];
+
+                            if (curBlock.nrPoints === 0) {
+                                continue;
+                            }
+
+                            const curData = curBlock.cData;
+                            const curDataLength = curBlock.nrPoints;
+                            const xVec = curData[0];
+                            const yVec = curData[1];
+                            const y2Vec = curData[2];
+
+                            let startIndex = curBlock.renderStartIndex;
+                            let endIndex = curBlock.renderEndIndex
+
+                            ctxb.clearRect(Math.floor(xVec[startIndex]), Math.floor(curChannelView.rowBaseline - blurHeight/2), Math.ceil(xVec[endIndex]-xVec[startIndex] + 2), blurHeight+1);
+
+                            // Check if minMax and render data
+                            switch (curBlock.type) {
+                                case 'Continuous':
+                                case 'realtime':
+
+                                if (curBlock.isMinMax) {
+                                    /*
+                                    Data is served as min/max per timespan. Based on render settings
+                                    we render polygon through points, or render vertical lines.
+                                    Default is rendering polygon for accuracy.
+                                    */
+
+                                    if ((curBlock.samplePeriod / realSamplePeriod) < 3) {
+                                        doPolFill = false;
+                                    }
+
+                                    if (doPolFill) {
+
+                                        ctx.beginPath();
+
+                                        // set cursor to starting point of polygon
+                                        if (block > 0 ) {//&& !this.isStreaming){
+                                            if(xVec[startIndex] < (lastBlockEnd.x + 3)) {
+                                                ctx.moveTo(lastBlockEnd.x, lastBlockEnd.y);
+                                            } else {
+                                                ctx.moveTo(xVec[startIndex], yVec[startIndex]);
+                                            }
+
+                                        } else{
+                                            ctx.moveTo(xVec[startIndex], yVec[startIndex]);
+                                        }
+
+                                        // Draw lines in segment
+                                        for (let i = startIndex; i < (endIndex+1); i++) {
+                                            ctx.lineTo(xVec[i], yVec[i]);
+                                        }
+                                        for (let i2 = (endIndex-1); i2 >= startIndex; i2--) {
+                                            ctx.lineTo(xVec[i2], y2Vec[i2]);
+                                        }
+
+                                        // Draw line to end of last segment
+                                        if (block > 0 ) {//&& !this.isStreaming){
+                                            if(xVec[startIndex] < (lastBlockEnd.x + 3)) {
+                                                ctx.lineTo(lastBlockEnd.x, lastBlockEnd.y2);
+                                            }
+                                        }
+
+                                        ctx.closePath();
+                                        ctx.fill();
+                                    } else {
+
+                                        ctx.beginPath();
+                                        for (let i = startIndex; i < (endIndex+1); i++) {
+
+                                            ctx.lineTo(xVec[i], yVec[i]);
+                                            ctx.lineTo(xVec[i], y2Vec[i]);
+                                            ctx.moveTo(xVec[i], yVec[i]);
+                                        }
+                                        ctx.stroke();
+                                    }
+
+                                } else {
+                                    if(block===0) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(xVec[startIndex], yVec[startIndex]);
+                                    } else if(xVec[startIndex] > (lastBlockEnd.x + 2)) {
+                                        ctx.moveTo(xVec[startIndex], yVec[startIndex]);
+                                    }
+                                    for (let i = startIndex; i < (endIndex+1); i++) {
+                                        ctx.lineTo(xVec[i], yVec[i]);
+                                    }
+                                    if (block===(nrBlocks-1)) {
+                                        ctx.stroke();
+                                    }
+
+                                }
+                                break;
+                                case 'Neural':
+
+                                    /* is neural event data
+                                        render timestamps as vertical lines. We are currently assuming
+                                        single cluster of event --> single color. V2 should include
+                                        coloring based on cluster number.
+                                    */
+
+                                    // Assume that the data is sorted by cluster
+                                    ctx.beginPath();
+                                    for (let i = 0; i < curDataLength; i++) {
+                                        ctx.moveTo(xVec[i], yVec[i] );
+                                        ctx.lineTo(xVec[i], y2Vec[i] );
+                                    }
+                                    ctx.stroke();
+
+
+                            }
+
+                            lastBlockEnd = {
+                                x: xVec[curDataLength -1],
+                                y: yVec[curDataLength -1],
+                                y2: y2Vec[curDataLength -1]
+                            }
+
+                        }
+
+                        // const chTimeEnd = new Date().getTime();
+                        // allTimes = allTimes +(chTimeEnd-chTimeStart);
+                    }
+                }
+                ctx.restore();
+               // console.log('render time: ' + allTimes)
+            },
+
+            // Compute canvas coordinates from datarray
+            getPointCoords: function(channelInfo, channelData, isRedraw) {
+                // Iterate over channelData on single channel ---> channelData are continuous in time
+                let segmLength = channelData.blocks.length;
+
+                // find mean of rendered data
+                switch (channelInfo.type) {
+                    case 'UNIT':
+                        if (!isRedraw) {
+                            for (let iSegm = 0; iSegm < segmLength; iSegm++) {
+
+                                const curSeg = channelData.blocks[iSegm];
+
+                                // Iterate over points in segment and set cx, cy, and cy2
+                                const curCData = curSeg.cData;
+                                const curData = curSeg.parsedData;
+                                const xOffset = this.constants['XOFFSET'];
+
+                                // create local variable for speed
+                                const length = curSeg.parsedData[0].length;
+                                const cXArray = curCData[0];
+                                const cYArray = curCData[1];
+                                const cY2Array = curCData[2];
+                                const XArray = curData[0];
+
+                                // RowBaseline is offset of channel in viewPort
+                                const rowBaseLine = channelInfo.rowBaseline | 0;
+
+                                // satrtTime
+                                const startT = this.start;
+
+                                // Pixel Period
+                                const rsP = this.rsPeriod;
+
+                                const spikeHeigth = (this.cHeight / (2 * (this.nrVisibleChannels + 1))) |0;
+
+
+                                for(let iPoint = 0; iPoint < length; iPoint++) {
+
+                                    cXArray[iPoint] = (((xOffset + (XArray[iPoint] - startT ) / (rsP))));
+                                    cYArray[iPoint] = rowBaseLine - spikeHeigth;
+                                    cY2Array[iPoint] = rowBaseLine + spikeHeigth;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'CONTINUOUS':
+                        let totalPointsInMean = 0;
+
+                        if (!isRedraw) {
+                            channelData.mean = 0;
+                            channelData.median = 0;
+                            for (let iSegm = 0; iSegm < segmLength; iSegm++) {
+                                const curBlock = channelData.blocks[iSegm];
+                                if (curBlock.nrValidPoints > 0) {
+                                    channelData.mean = ( curBlock.sumElem +
+                                        (totalPointsInMean * channelData.mean)) / (totalPointsInMean + curBlock.nrValidPoints);
+                                    channelData.median = ( curBlock.median +
+                                        (totalPointsInMean * channelData.median)) / (totalPointsInMean + curBlock.nrValidPoints);
+                                    totalPointsInMean += curBlock.nrValidPoints;
+                                }
+                            }
+                        }
+
+                        for (let iSegm = 0; iSegm < segmLength; iSegm++) {
+
+                            const curSeg = channelData.blocks[iSegm];
+
+                            // Find startIndex viewPort
+                            let startIndex = Math.floor((this.start - curSeg.startTs ) / curSeg.samplePeriod);
+                            curSeg.renderStartIndex = ((startIndex > 0) ? startIndex : 0)
+
+                            let endIndex = Math.floor( ((this.start + this.duration) - (curSeg.startTs + curSeg.nrPoints*curSeg.samplePeriod))/curSeg.samplePeriod );
+                            curSeg.renderEndIndex = endIndex >= 0 ? (curSeg.nrPoints-1) : (curSeg.nrPoints + endIndex);
+
+                            // Iterate over points in segment and set cx, cy, and cy2
+                            const curCData = curSeg.cData;
+                            const curData = curSeg.parsedData;
+                            const curScale = this.globalZoomMult * channelInfo.rowScale;
+                            const xOffset = this.constants['XOFFSET'];
+
+                            // create local variable for speed
+                            const length = curSeg.parsedData[0].length;
+                            const cXArray = curCData[0];
+                            const cYArray = curCData[1];
+                            const cY2Array = curCData[2];
+                            const XArray = curData[0];
+                            const YArray = curData[1];
+                            const Y2Array = curData[2];
+
+                            // RowBaseline is offset of channel in viewPort
+                            const rowBaseLine = channelInfo.rowBaseline;
+
+                            // chDatMean is mean value of channel in viewport
+                            let chDatCenterer = 0;
+                            if (this.parent.$.viewer.constants['USEMEDIAN']) {
+                                chDatCenterer = channelData.median;
+                            } else {
+                                chDatCenterer = channelData.mean;
+                            }
+
+                            const rsp = this.rsPeriod;
+                            const startT = this.start;
+                            for(let iPoint = 0; iPoint < length; iPoint++) {
+
+                                cXArray[iPoint] = (((xOffset + (XArray[iPoint] - startT ) / rsp)));
+                                cYArray[iPoint] = (((rowBaseLine + (YArray[iPoint] - chDatCenterer) * curScale)));
+
+                                if (curSeg.isMinMax) {
+
+                                    // If min and max are the same --> force 1 pixel line.
+                                    if (YArray[iPoint] === Y2Array[iPoint]) {
+                                        cY2Array[iPoint] = cYArray[iPoint] + 1;
+                                    }else {
+                                        cY2Array[iPoint] = (((rowBaseLine + (Y2Array[iPoint] - chDatCenterer) * curScale)));
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                }
+            },
+
+            getUTCTimeString: function(d) {
+                return ( ('0' + d.getUTCHours()).slice(-2) + ':' +
+                    ('0' + d.getUTCMinutes()).slice(-2) + ':' + ('0' + d.getUTCSeconds()).slice(-2) );
+            },
+            _renderCursor: function() {
+                // --- --- --- --- ---
+                // Render cursor
+
+                const pa = this.$.cursorArea;
+                const ctx = pa.getContext('2d');
+                ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+                ctx.clearRect(0, 0, (this.cWidth + this.constants['CURSOROFFSET']), this.cHeight);
+
+                ctx.save()
+                ctx.beginPath();
+                ctx.fillStyle = 'red';
+                if (this.cursorLoc > this.constants['CURSOROFFSET']) {
+                    ctx.strokeStyle = 'red';
+                    ctx.moveTo(this.cursorLoc, 0);
+                    ctx.lineTo(this.cursorLoc, this.pHeight);
+                    ctx.stroke();
+                } else {
+                    ctx.moveTo(this.cursorLoc, this.pHeight);
+                }
+
+                ctx.beginPath();
+                ctx.lineTo(this.cursorLoc - 5, this.pHeight + 8);
+                ctx.lineTo(this.cursorLoc + 5, this.pHeight + 8);
+                ctx.lineTo(this.cursorLoc, this.pHeight );
+                ctx.fill();
+
+                ctx.restore();
+            },
+
+            // Render the X and Y axis, and time ticks
+            _renderAxis: function() {
+                const pa = this.$.axisArea;
+                const ctx = pa.getContext('2d');
+                ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+
+                // clear canvas
+                ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+                ctx.stroke();
+                // render side/bottom line
+                ctx.beginPath();
+                ctx.lineWidth = 1;
+                ctx.moveTo(this.constants.XOFFSET+0.5, 0.5);
+                ctx.lineTo(this.constants.XOFFSET+0.5, (this.pHeight +0.5));
+                ctx.lineTo(this.cWidth+0.5, (this.pHeight+0.5));
+                ctx.stroke();
+
+                // Render y-ticks
+                let tickOffset = (((this.pHeight/(2*this.nrVisibleChannels))+0.5)<<1)>>1;
+                ctx.lineWidth=0.5;
+                for (let i = 0; i< this.nrVisibleChannels; i++) {
+
+                    ctx.beginPath();
+                    ctx.moveTo(this.constants.XOFFSET - 2, tickOffset);
+                    ctx.lineTo(this.constants.XOFFSET + 2, tickOffset);
+                    ctx.stroke();
+                    tickOffset += this.pHeight/this.nrVisibleChannels;
+                }
+
+
+                // --- --- --- --- ---
+                // Render x-ticks
+                const gridSpacing = this.constants['XGRIDSPACING'] * Math.ceil(this.duration / 100000000);
+                const nrGridLines = Math.ceil(this.duration / gridSpacing) + 1;
+                const labelDecimator = Math.ceil( this.constants['NRPXPERLABEL'] / (gridSpacing / this.rsPeriod));
+                let curXLabelIdx = 1;
+
+                // XLOC1 is time to first timeIndicator line
+                const xLoc1 = (gridSpacing - (this.start % gridSpacing) ) % gridSpacing;
+
+                // Iterate over all potential time-lines
+                for(let i = 0; i < nrGridLines; i++) {
+
+                    // actual time of the timeline = canvas start time + xLoc1 time
+                    let realX = this.start + xLoc1 + i * gridSpacing;
+                    if (realX > this.summary.span.end) {
+                        break;
+                    }
+
+                    // Don't render timelines after last gap
+                    if ( this.summary.globalGaps.length > 0) {
+                        const lastGap = this.summary.globalGaps[this.summary.globalGaps.length - 1];
+                        if (lastGap.isEndGap && realX > lastGap.pageStart ) {
+                            break;
+                        }
+                    }
+
+                    // curLoc is pixel coordinates of realX
+                    const realOffset = realX - this.start;
+                    const curLoc = ( this.constants['XOFFSET'] + (realOffset / this.rsPeriod) );
+                    const roundedCurLoc = Math.round(curLoc);
+
+                    if (roundedCurLoc > 1) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.lineWidth=0.5;
+                        ctx.strokeStyle='rgb(235,235,235)';
+                        ctx.moveTo(roundedCurLoc + 0.5, 0.5);
+                        ctx.lineTo(roundedCurLoc+ 0.5, this.pHeight -0.5);
+                        ctx.stroke();
+                        ctx.restore();
+
+                        // Render X-Label when appropriate
+                        const test = (((realX / gridSpacing) + gridSpacing / 10) % labelDecimator) |0;
+                        if( test === 1 || labelDecimator === 1 ) {
+
+                            ctx.beginPath();
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(roundedCurLoc+ 0.5, this.pHeight - 3);
+                            ctx.lineTo(roundedCurLoc+ 0.5, this.pHeight + 3);
+                            ctx.stroke();
+
+                            const d = new Date(realX/1000);
+                            ctx.font = '12px sans-serif';
+                            ctx.fillStyle = 'rgb(150,150,150)';
+                            ctx.fillText(this.getUTCTimeString(d), roundedCurLoc - 20.5, this.cHeight-0.2);
+
+                            curXLabelIdx = curXLabelIdx + 1;
+                        }
+                    }
+                }
+            },
+
+
+            // computes the channelConfig properties based on current settings of viewer.
+            _computeChannelViews: function() {
+
+                // find channel order based on rank
+                const mapped = this.vuex.viewer.viewerChannels.map(function(el, i) { return { index: i, value: el.rank }; })
+                mapped.sort(function(a, b) {return +(a.value > b.value) || +(a.value === b.value) - 1;});
+                const rankedIds = mapped.map(function(el) {return el.index;});
+                const interChannelDist = this.pHeight / this.nrVisibleChannels;
+
+                // update properties
+                let curIdx = 0;
+                for (let i = 0; i < rankedIds.length; i++) {
+                    const curRow = this.vuex.viewer.viewerChannels[rankedIds[i]];
+                    if (curRow.visible) {
+                        curRow.rowBaseline = (0.5*interChannelDist) + curIdx * interChannelDist;
+                        curIdx++;
+                    } else {
+                        curRow.rowBaseline = null;
+                    }
+                }
+            },
+            // Change viewport width
+            setDuration: function(value) {
+                this.duration = value;
+                this.updateRsPeriod(this.cWidth, value);
+
+                this.onViewportChange('duration');
+            },
+            setStart: function(value ) {
+
+                const gStart = this.summary.span.start;
+                const gEnd = this.summary.span.end;
+
+                if(value + this.duration >= gEnd) {
+                  value = gEnd - this.duration;
+                } else if (value < (gStart - (this.cursorLoc - this.constants['CURSOROFFSET'])*this.rsPeriod )) {
+                  value = gStart - (this.cursorLoc - this.constants['CURSOROFFSET'])*this.rsPeriod;
+                }
+
+                this.start = value;
+                this.onViewportChange('start');
+
+                return value;
+            },
+
+            onViewportChange: function(type) {
+              this.debounce('viewport-change', () => {
+                this.fire('viewport-change');
+              }, 400);
+            },
+
+            // Method sets the global zoom multiplier based on the viewport data buffer.
+            // This is called once when first page is available
+            autoScaleViewData: function() {
+
+                let sumMedian = 0;
+                let nrSeg = 0;
+                let allChannels = this.viewData.channels;
+                const allSums = []
+                for (let i=0; i<allChannels.length; i++) {
+
+
+                    let curBlocks = allChannels[i].blocks;
+                    for (let j=0; j<curBlocks.length; j++) {
+                        if(curBlocks[j].type !== 'Continuous') {
+                            continue;
+                        }
+
+                        sumMedian += this.standardDeviation(curBlocks[j].parsedData[1]);
+                        nrSeg++;
+                        allSums.push({channel: i, sumMedian})
+                    }
+                }
+                const percentage = allSums.length * .80;
+                const median = this.calcSumMedian(percentage, allSums);
+                const avgStd = median / nrSeg;
+                if (!isNaN(avgStd)) {
+                    this.globalZoomMult = (this.cHeight / allSums.length) / (2 * avgStd);
+                }
+            },
+
+            /**
+             * Calculate median sum for list of channels
+             * @param {Number} percentage
+             * @param {Array} list
+             * @returns {Number}
+             */
+            calcSumMedian: (percentage, list) => R.compose(
+              R.sum,
+              R.map(R.prop('sumMedian')),
+              R.take(percentage),
+              R.sortBy(R.prop('sumMedian'))
+            )(list),
+
+            // Helper function for autoscale
+            standardDeviation: function(values) {
+                const avg = this.average(values);
+
+                const squareDiffs = values.map(function(value) {
+                    const diff = value - avg;
+                    const sqrDiff = diff * diff;
+                    return sqrDiff;
+                });
+
+                const avgSquareDiff = this.average(squareDiffs);
+
+                const stdDev = Math.sqrt(avgSquareDiff);
+                return stdDev;
+            },
+
+            // Helper function for autoscale
+            average: function(data) {
+                const sum = data.reduce(function(sum, value) {
+                    return sum + value;
+                }, 0);
+
+                const avg = sum / data.length;
+                return avg;
+            },
+
+            // Render all layers in Timeseries viewer with debounce
+            renderAll: function(delay, requestLeadingEdge = true) {
+                if (!this.renderFnc || delay !== this.renderThrottle || this.requestLeadingEdge !== requestLeadingEdge) {
+                    this.renderFnc = this.throttle(this._renderAll, delay, {leading: requestLeadingEdge} );
+                    this.renderThrottle = delay;
+                    this.requestLeadingEdge = requestLeadingEdge;
+                }
+                this.renderFnc(this);
+            },
+            _renderAll: function(that) {
+                that.generatePoints();
+                that._renderAxis();
+                that._renderCursor();
+                that._renderData();
+                for(let i in that.plugins) {
+                  if (that.plugins.hasOwnProperty(i)) {
+                    that.plugins[i].panel.render();
+                  }
+                }
+            },
+
+            _toggleStream: function(e) {
+                if (this.isStreaming) {
+                    this.trackStream.chId = null;
+                    this.isStreaming = false;
+                    const message = JSON.stringify({'pixelWidth':0, 'buffer':0, 'channels':[]});
+                    this._websocket.send(message);
+                    for (let i=0; i<this.viewData.channels.length; i++) {
+                        this.viewData.channels[i].blocks = [];
+                    }
+                    clearInterval(this.intervalTimer);
+
+                } else {
+                    this.invalidateCache = true;
+                    this.invalidateCache = true;
+                    this.isStreaming = true;
+                    this.renderAll(100);
+                }
+            },
+            initStream: function() {
+                let channels = [];
+                for (let i = 0; i < this.vuex.viewer.viewerChannels.length; i++) {
+                    channels[i] = this.vuex.viewer.viewerChannels[i].id;
+                }
+
+                clearTimeout(this.intervalTimer);
+                this.catchupPeriod = 0;
+                this.streamErrorInt = 0;
+                this.intervalTimer = setTimeout(this.intervalTimerFnc.bind(this), 200);
+
+                if (!this._websocket.readyState === 1) {
+                    setTimeout(function() {
+                        const message = JSON.stringify({'pixelWidth':this.rsPeriod, 'buffer':0, 'channels':channels});
+                        this._websocket.send(message);
+                    }, 200);
+                } else{
+                    const message = JSON.stringify({'pixelWidth':this.rsPeriod, 'buffer':0, 'channels':channels});
+                    this._websocket.send(message);
+                }
+            },
+            resetFilter: function(channelId) {
+                const message = JSON.stringify({'channelFiltersToClear':[channelId]});
+                this._websocket.send(message);
+                this.invalidateCache = true;
+                this.renderAll();
+            },
+            sendFilterMessage: function(msg) {
+              if (this._websocket && this._websocket.readyState === 1) {
+                const parms = msg.filterParameters || [];
+                parms.forEach( p => {
+                    if (!this.isTruthy(p)) {
+                        return;
+                    }
+                });
+                this._websocket.send(JSON.stringify(msg));
+              } else {
+                this.async(() => {this.sendFilterMessage(msg)}, 200);
+              }
+            },
+            updateFilter: function(channelId, type, input0, input1, notchFreq) {
+                if (this._websocket.readyState === 1) {
+                    let message = {};
+                    switch (type) {
+                        case 'clear':
+                            message = {'channelFiltersToClear':[channelId]};
+                            break;
+                        case 'bandpass':
+                            let bp_center = (input0 + input1) / 2;
+                            let bp_width = Math.abs( (input1 - input0) / 2 )
+                            message = {'filter':type, 'filterParameters': [4, bp_center, bp_width], 'channels':[channelId]};
+                            break;
+                        case 'highpass':
+                            message = {'filter':type, 'filterParameters': [4, input0], 'channels':[channelId]};
+                            break;
+                        case 'lowpass':
+                            message = {'filter':type, 'filterParameters': [4, input0], 'channels':[channelId]};
+                            break;
+                        case 'bandstop':
+                            let bs_width = 10;
+                            const bs_center = notchFreq;
+                            message = {'filter':type, 'filterParameters': [4, bs_center, bs_width], 'channels':[channelId]};
+                            break;
+                        default:
+                            return;
+                    }
+
+                    let channel = R.find(R.propEq('id', channelId), this.vuex.viewer.viewerChannels)
+
+                    if (type === 'clear') {
+                      channel.filter = {}
+                      // this.set('channelConfig.' + i + '.filter', {});
+                    } else {
+                      channel.filter = {
+                        type: type,
+                        input0: input0,
+                        input1: input1,
+                        notchFreq: notchFreq
+                      }
+                    }
+                    this.$store.dispatch('viewer/updateChannel', channel).then(() => {
+                      this.sendFilterMessage(message);
+                      this.invalidateCache = true;
+                      this.renderAll();
+                    })
+                }
+            },
+
+            isTruthy: val => val && val !== '' && !val.isNaN,
+
+            calcFilterType: function(low, high, notch) {
+              switch(true) {
+                case !this.isTruthy(low) && !this.isTruthy(high) && !notch:
+                  return 'clear';
+                case this.isTruthy(low) && this.isTruthy(high):
+                  return 'bandpass';
+                case this.isTruthy(low):
+                  return 'highpass';
+                case this.isTruthy(high):
+                  return 'lowpass';
+                default:
+                  return 'bandstop';
+              }
+            },
+
+            /**
+            * Send montage scheme message
+            * @param {Object} msg
+            */
+            sendMontageMessage: function(msg) {
+              if (this._websocket && this._websocket.readyState === 1) {
+                const payload = Object.assign({}, msg, { packageId: this.data.id })
+                this._websocket.send(JSON.stringify(payload))
+                this.$store.dispatch('viewer/setViewerMontageScheme', msg.montage)
+              } else {
+                this.async(() => {this.sendMontageMessage(msg)}, 500)
+              }
+            },
+
+            // Finds the type of filter given filtersettings
+            findFilterType: function(low, high, notch) {
+              return notch ? 'bandstop' : this.calcFilterType(low, high, notch);
+            },
+
+            _handleKey: function(e) {
+                // Spacebar pressed
+                switch (e.detail.keyboardEvent.code) {
+                    case 'Space':
+                        this.spacePressed = true;
+                        if (e.detail.keyboardEvent.shiftKey) {
+                            this.setStart(this.start - (3*this.duration)/4);
+                        }else {
+                            this.setStart(this.start + (3*this.duration)/4);
+                        }
+
+                        // Create event listener for key-up that fires when space-bar is released.
+                        // This allows the user to hold the spacebar and fast-forward without
+                        // fetching all the data (but with rerendering axis), and fetch data on single click.
+                        const that = this;
+                        this.addEventListener('keyup', this._handleKeyUp, false);
+                        this.spaceTimer = setTimeout(function() {
+                            if(that.spacePressed)
+                            {that.renderAll(100)}
+                        }, 250);
+
+                        break;
+                }
+            },
+
+            // Handle key-up for spacebar forwarding.
+            _handleKeyUp: function(viewer) {
+                this.spacePressed = false;
+                this.removeEventListener('keyup', this._handleKeyUp);
+                this.renderAll(100);
+            },
+
+            _onWebsocketClose: function(e) {
+                this.generatePoints();
+            },
+            _onWebsocketFinalClose: function(e) {
+                // console.log('Websocket closed');
+            },
+
+            _onWebsocketOpen: function(e) {
+                if (this.init) {
+                    let chIds = [];
+                    for (let i=0; i<this.vuex.viewer.viewerChannels.length; i++) {
+                        chIds.push(this.vuex.viewer.viewerChannels[i].id)
+                    }
+                    let message = {'channelFiltersToClear':chIds};
+                    // clear filters
+                    this.sendFilterMessage(message);
+                    // clear montage
+                    const payload = { montage: 'NOT_MONTAGED', packageId: this.data.id }
+                    this._websocket.send(JSON.stringify(payload))
+                    this.init = false;
+                }
+
+                if (this.catchUpRequestPages && this.catchUpRequestPages.length > 0) {
+                    this.requestDataFromServer(this.catchUpRequestPages);
+                }
+                this.catchUpRequestPages = [];
+
+                if(this.isStreaming) {
+                    this.initStream();
+                }
+
+                this.generatePoints();
+            },
+
+            _onWebsocketMessage: function(msg) {
+              // process json messages
+              if (typeof msg.data === 'string') {
+                let data = {}
+
+                try {
+                  data = JSON.parse(msg.data)
+                } catch (e) {
+                  this.$store.dispatch('setViewerErrors', { error: 'JSON Parse Error' })
+                }
+
+                if (data.virtualChannels) {
+                  const baseChannels = this.vuex.viewer.activeViewer.channels
+                  const virtualChannels = data.virtualChannels.map(({ id, name }) => {
+                    const baseChannel = baseChannels.find(ch => (ch.content.id === id))
+                    const content = {
+                      id,
+                      name,
+                      channelType: baseChannel.content.channelType,
+                      label: name,
+                      unit: baseChannel.content.unit,
+                      rate: baseChannel.content.rate,
+                      start: baseChannel.content.start,
+                      end: baseChannel.content.end,
+                      virtualId: `${id}_${name}`
+                    }
+                    // ensure that channel ids are unique for montages
+                    if (this.vuex.viewer.viewerMontageScheme !== 'NOT_MONTAGED') {
+                      content.id = `${id}_${name}`
+                    }
+                    return { content, properties: [] }
+                  })
+
+                  this.initChannels(virtualChannels)
+                    .then(() => {
+                      this.invalidateCache = true
+                      this.renderAll()
+                    })
+                } else if (data.error) {
+                  this.$store.dispatch('setViewerErrors', data)
+                }
+
+                // short circuit
+                return
+              }
+
+              // process protobuf messages
+              const myReader = new FileReader();
+              myReader.parent = this;
+              myReader.addEventListener('loadend', function(e) {
+                  const buffer = e.srcElement ? e.srcElement.result : e.target.result; //arraybuffer object
+                  const barray = new Uint8Array(buffer)
+
+                  const timeSeriesMessage = this.parent.timeSeriesMessage.decode(barray);
+                  const segment = timeSeriesMessage.segment;
+
+                  // Handle Neural Data
+                  if (timeSeriesMessage.event && timeSeriesMessage.event.length>0 && timeSeriesMessage.event[0].pageStart) {
+
+                      const tsEvent = timeSeriesMessage.event[0];
+                      const dataPoints = [[], []];
+                      const nrVal = tsEvent.times.length/2;
+
+                      let curI = 0;
+                      for (let i = 0; i < nrVal; i++) {
+                          dataPoints[0].push( tsEvent.times[curI].toNumber());
+                          dataPoints[1].push( tsEvent.times[curI + 1].toNumber());
+                          curI += 2;
+                      }
+
+                      let cData = new Array(3);
+                      let k=0;
+                      while (k < 3) {
+                          cData[k] = new Float32Array(dataPoints[0].length);
+                          k++;
+                      }
+
+                      const segm = {
+                          chId: tsEvent.source,
+                          lastUsed: 0,
+                          unit: 'uV',
+                          samplePeriod: tsEvent.samplePeriod,
+                          pageStart: tsEvent.pageStart.toNumber(),
+                          pageEnd: tsEvent.pageEnd.toNumber(),
+                          startTs: tsEvent.pageStart.toNumber(),
+                          isMinMax: tsEvent.isResampled,
+                          unitM: 1,
+                          type: 'Neural',
+                          nrPoints: nrVal,
+                          parsedData: dataPoints,
+                          cData: cData
+                      };
+
+                      this.parent.dataCallback({
+                          pageStart: tsEvent.pageStart.toNumber(),
+                          data: segm,
+                          type: 'Neural',
+                          nrResponses: timeSeriesMessage.totalResponses.toNumber()
+                      });
+                  }
+
+                  // Handle Regular Timeseries data package.
+                  if (segment !== null) {
+                      // Check if viewer is still interested in the arriving data
+                      if (segment.requestedSamplePeriod !== Math.ceil(this.parent.rsPeriod)) {
+                          return
+                      }
+
+                      // create array from points of data.
+                      let nrVal = null;
+                      if (segment.isMinMax) {
+                          // Create min/max vectors
+                          nrVal = segment.data.length/2;
+                      } else {
+                          //its just one big list of values
+                          nrVal = segment.data.length;
+                      }
+
+                      const parsedData = new Array(3);
+                      const startTs = segment.startTs.toNumber()
+
+                      let sumElem = 0;
+                      let nrValidPoints = 0;
+                      let i = 0;
+                      while (i < 3) {
+                          parsedData[i] = new Float64Array(nrVal);
+                          i++;
+                      }
+
+                      if (segment.isMinMax) {
+                        // Create min/max vectors
+                        let curI = 0;
+                        for (let i = 0; i < nrVal; i++) {
+                          let curY = -segment.data[curI];
+                          let curY2 = -segment.data[curI + 1];
+                          parsedData[0][i] = startTs + (i * segment.samplePeriod);
+                          parsedData[1][i] = curY;
+                          parsedData[2][i] = curY2;
+                          if (!isNaN(curY)) {
+                              nrValidPoints++;
+                              sumElem += curY + (curY2 - curY)/2;
+                          }
+                          curI += 2;
+
+                        }
+
+                      } else {
+                        //its just one big list of values
+                          for (let i = 0; i < nrVal; i++) {
+                              let curY = -segment.data[i];
+                              parsedData[0][i] = startTs + (i * segment.samplePeriod);
+                              parsedData[1][i] = curY;
+                              if (!isNaN(curY)) {
+                                  nrValidPoints++;
+                                  sumElem += curY;
+                              }
+                          }
+                      }
+
+                      let elemMedian = 0;
+                      if (this.parent.constants['USEMEDIAN']) {
+                          const sortedYvals = Array.prototype.slice.call(parsedData[1]).sort();
+                          if (segment.isMinMax) {
+                              elemMedian = sortedYvals[Math.round(sortedYvals.length/2)];
+                          } else {
+                              elemMedian = sortedYvals[Math.round(sortedYvals.length)];
+                          }
+                      }
+
+                      let cData = new Array(3);
+                      let k=0;
+                      while (k < 3) {
+                          cData[k] = new Float32Array(parsedData[0].length);
+                          k++;
+                      }
+
+                      const segm = {
+                          chId: segment.source,
+                          lastUsed: segment.lastUsed.toNumber(),
+                          unit:segment.unit,
+                          samplePeriod: segment.samplePeriod,
+                          pageStart: segment.pageStart.toNumber(),
+                          pageEnd: segment.pageEnd.toNumber(),
+                          startTs: startTs,
+                          isMinMax: segment.isMinMax,
+                          unitM: segment.unitM.toNumber(),
+                          type: segment.segmentType,
+                          nrPoints: nrVal,
+                          cData: cData,
+                          parsedData: parsedData,
+                          median: elemMedian,
+                          sumElem: sumElem,
+                          nrValidPoints: nrValidPoints,
+                          name: segment.channelName,
+                          label: segment.channelName,
+                          virtualId: `${segment.source}_${segment.channelName}`
+                      };
+
+                      if(segm.nrPoints>0) {
+
+                          this.parent.dataCallback({
+                              pageStart: segment.pageStart.toNumber(),
+                              data: segm,
+                              type: segment.segmentType,
+                              nrResponses: timeSeriesMessage.totalResponses.toNumber()
+                          });
+                      } else {
+                          // Check if already in Gap Array
+                          this.parent.dataCallback({
+                              pageStart: segment.pageStart.toNumber(),
+                              data: segm,
+                              nrResponses: timeSeriesMessage.totalResponses.toNumber(),
+                              type: 'gap'
+                          });
+
+                      }
+                  }
+              });
+
+              myReader.readAsArrayBuffer(msg.data);
+            },
+
+            openWebsocket: function() {
+
+                //if the websocket is opening or already open, don't open a new one
+                if (this._websocket && (this._websocket.readyState === 0 || this._websocket.readyState === 1) ) {
+                    return;
+                }
+
+                let url = this.timeSeriesUrl
+
+                if (!url) {
+                  throw Error('url property is required');
+                }
+
+                this._websocket = new WebSocket(url);
+                this._websocket.onopen = this._onWebsocketOpen.bind(this);
+                this._websocket.onclose = this._onWebsocketClose.bind(this);
+                this._websocket.onmessage = this._onWebsocketMessage.bind(this);
+
+            },
+            websocketKeepAlive: function() {
+                if(this._websocket && this._websocket.readyState === 3) {
+                    this.requestedPages.clear();
+                    clearTimeout(this.preFetchTime);
+                    this.aSyncPreRequests = [];
+                    this.openWebsocket();
+                    return;
+                }
+
+                 // Check requestedPages and remove when all data arrived
+                let anyReturned = false;
+                let hasPageViews = false;
+                for (let [key, value] of this.requestedPages.entries()) {
+
+                    const now = Date.now();
+                    let endT = key + this.pageSize;
+                    let endIn = endT < (this.start+ this.duration) && endT > this.start;
+                    let startIn = key > this.start && key < (this.start +this.duration);
+                    let spanView = key < this.start && endT > (this.start +this.duration);
+
+
+                    if ( endIn || startIn || spanView) {
+                        hasPageViews = true;
+                        const dif = now - value.ts;
+                        if(dif < 2000) {
+                            anyReturned = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!anyReturned && hasPageViews ) {
+                    clearTimeout(this.prefetchTimer);
+                    this.aSyncPreRequests = [];
+                    this._websocket.close(1000, 'delibarate closing of websocket');
+                    this.reRequestPages();
+                    this.openWebsocket();
+
+                }
+            },
+            // IntervalTimerFnc: timer function that is used for real-time viewing
+            intervalTimerFnc: function() {
+
+                let nextStart = this.start;
+                const streamStep = (this.streamUpdateRate * this.trackStream.avInterval) / (this.trackStream.avTime );
+                if (streamStep) {
+
+                    if (this.catchUpPeriod === 0) {
+                        this.catchUpPeriod = streamStep/4;
+                    } else {
+
+                        const difference = this.trackStream.latestTime - (nextStart + this.duration);
+                        this.streamErrorInt = this.streamErrorInt + difference;
+                        const ci = 0.1*(difference + 0.1*this.streamErrorInt);
+                        this.catchUpPeriod = ci;
+                    }
+
+                    nextStart = this.start + this.catchUpPeriod;
+                }
+
+                this.setStart(nextStart);
+                this.renderAll(0);
+                this.intervalTimer = setTimeout( this.intervalTimerFnc.bind(this), this.streamUpdateRate);
+
+            },
+            getScreenPixelRatio: function() {
+                let ctx = this.$.axisArea.getContext('2d');
+                let dpr = window.devicePixelRatio || 1
+                let bsr = ctx.webkitBackingStorePixelRatio ||
+                ctx.mozBackingStorePixelRatio ||
+                ctx.msBackingStorePixelRatio ||
+                ctx.oBackingStorePixelRatio ||
+                ctx.backingStorePixelRatio || 1;
+
+                return dpr / bsr;
+            },
+            created: function() {
+            },
+
+            attached: function() {
+                this.keepAliveTimer = setInterval(this.websocketKeepAlive.bind(this), 1000);
+                this.pixelRatio = this.getScreenPixelRatio();
+                this.init = true;
+            },
+            detached: function() {
+                window.clearTimeout(this.keepAliveTimer);
+                window.clearTimeout(this.socketTimer);
+                window.clearTimeout(this.intervalTimer);
+
+                if (this._websocket.readyState !== 1) {
+                  return;
+                }
+                // Unsubscribe from realtime streaming.
+                const message = JSON.stringify({'pixelWidth':0, 'buffer':0, 'channels':[]});
+                this._websocket.send(message);
+                this._websocket.onclose = this._onWebsocketFinalClose.bind(this);
+                this._websocket.close(1000, 'delibarate closing of websocket');
+
+
+            },
+
+            setActiveLayer: function(layer) {
+              this.set('activeLayer', layer);
+            },
+        });
+    </script>
+
+</dom-module>

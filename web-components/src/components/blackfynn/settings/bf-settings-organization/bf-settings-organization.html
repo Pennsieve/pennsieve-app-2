@@ -1,0 +1,50 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../people.html">
+<link rel="import" href="../bf-organization/bf-organization.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+
+<dom-module id="bf-settings-organization">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <bf-organization
+      api="[[api]]"
+      user="[[user]]"
+      active-organization="[[activeOrganization]]"></bf-organization>
+
+    <hr>
+
+    <bf-people
+      id="settingsPeople"
+      name="people"
+      hidden$="[[!isOrganizationAdmin]]"
+      api="[[api]]"
+      user="[[user]]"
+      people="{{people}}"
+      profile="[[profile]]"
+      active-organization="[[activeOrganization]]"></bf-people>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-settings-organization',
+
+      properties: {
+      }
+    });
+
+  </script>
+
+</dom-module>

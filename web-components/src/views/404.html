@@ -1,0 +1,60 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-view-404">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        background-color: var(--white-matter);
+        display: block;
+        height: calc(100vh - 69px);
+        overflow: hidden;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      .page-wrap {
+        overflow: scroll;
+        padding: 20px 0 20px 20px;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      a {
+        cursor: pointer;
+      }
+    </style>
+
+    <div class="page-wrap">
+      <h2>Page Not Found</h2>
+      <p><a on-tap="gotoDataCatalog" class="paper-button"><paper-button class="primary" noink>Go to Data</paper-button></a></p>
+    </div>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-view-404',
+      properties: {
+        /**
+          * computed property data-url passed down from app shell
+          */
+        dataUrl: {
+          type: String,
+          value: ''
+        }
+      },
+      gotoDataCatalog: function() {
+        this.fire('set-page', {
+          page: this.dataUrl
+        })
+      }
+    });
+
+  </script>
+
+</dom-module>

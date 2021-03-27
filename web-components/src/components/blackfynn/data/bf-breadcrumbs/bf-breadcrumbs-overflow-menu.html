@@ -1,0 +1,61 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
+
+
+
+<!--
+## bf-breadcrumbs-overflow-menu
+
+`<bf-breadcrumbs-overflow-menu>` is a menu to display any overflow breadcrumbs.
+-->
+
+<dom-module id="bf-breadcrumbs-overflow-menu">
+
+  <template>
+
+    <blackfynn-menu left id="overflowMenu" hidden$="[[hiddenMenu]]">
+      <template is="dom-repeat" items="[[breadcrumbsOverflow]]">
+
+        <blackfynn-menu-item
+          hide-icon
+          on-tap="navigate">[[item.content.name]]</blackfynn-menu-item>
+
+      </template>
+    </blackfynn-menu>
+
+  </template>
+
+
+  <script>
+    Polymer({
+      is: 'bf-breadcrumbs-overflow-menu',
+
+      behaviors: [
+        Polymer.IronOverlayBehavior
+      ],
+
+      properties: {
+        breadcrumbsOverflow: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        hiddenMenu: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      navigate: function(e) {
+        this.close();
+
+        this.fire('breadcrumb-navigate', { data: e.model.item.content } );
+      },
+
+
+    });
+
+  </script>
+
+</dom-module>

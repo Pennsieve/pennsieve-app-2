@@ -1,0 +1,125 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<link rel="import" href="../../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../../shared/bf-input/bf-input.html">
+<link rel="import" href="../../shared/patched-overlay-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+# api-keys-delete-window
+Component that handles delete confirmation operations for client's API keys.
+
+@element api-keys-delete-window
+-->
+<dom-module id="api-keys-delete-window">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <bf-dialog id="dialog" on-iron-overlay-opened="patchOverlay">
+      <h2 slot="heading">Confirm Removal</h2>
+      <p slot="body">Are you sure you want to remove this API key: <strong>[[key.name]]</strong>?</p>
+      <div slot="buttons">
+        <paper-button hidden$="[[processing]]" class="delete" noink on-tap="_removeFromKeys">Remove</paper-button>
+      </div>
+    </bf-dialog>
+
+    <iron-ajax
+      id="removeKey"
+      method="DELETE"
+      handle-as="json"
+      content-type="application/json"
+      url="[[_deleteKeyUrl]]"
+      loading="{{processing}}"
+      on-error="ajaxError"
+      on-response="_handleRemoveFromKeys"></iron-ajax>
+
+    <iron-a11y-keys keys="enter" on-keys-pressed="_removeFromKeys"></iron-a11y-keys>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'api-keys-delete-window',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.AjaxBehavior,
+        Blackfynn.PatchedOverlayBehavior,
+      ],
+
+      properties: {
+        /**
+         * current key object
+         */
+        key: {
+          type: Object,
+          value: function() {
+            return {};
+          },
+          notify: true
+        },
+        /**
+         * tracks whether or not xhr call is executing
+         */
+        processing: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * computes delete key api endpoint
+         */
+        _deleteKeyUrl: {
+          type: String,
+          computed: '_computeKeyUrl(state.apiUrl, state.userToken, key.key)'
+        },
+      },
+
+      /**
+       * Builds endpoint for DELETE
+       * @param {String} api
+       * @param {String} user
+       * @param {String} keyUuid
+       * @returns {String}
+       */
+      _computeKeyUrl: function(api, user, keyUuid) {
+        return `${api}/token/${keyUuid}?api_key=${user}`;
+      },
+
+      /**
+       * Executes DELETE for API key
+       */
+      _removeFromKeys: function() {
+        this.set('processing', true);
+        this.$.removeKey.generateRequest();
+      },
+
+      /**
+       * Handles successful DELETE for API key
+       * @param {e} Event object
+       */
+      _handleRemoveFromKeys: function(e) {
+        this.fire('remove-api-key', this.key);
+
+        this.fire('toast', {
+          type: 'MESSAGE',
+          msg: `${this.key.name} has been deleted`
+        });
+
+        this.$.dialog.close();
+        this.set('key', {});
+        this.set('processing', false);
+      }
+    });
+
+  </script>
+</dom-module>

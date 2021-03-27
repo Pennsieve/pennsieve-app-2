@@ -1,0 +1,196 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../bf-select-input/bf-select-input.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+<!--
+`<bf-zoom-tool>` is a component to control zoom.
+
+    <bf-zoom-tool zoom="{{zoomProperty}}"></bf-zoom-tool>
+
+@element bf-zoom-tool
+-->
+
+<dom-module id="bf-zoom-tool">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        display: block;
+        width: 100%;
+      }
+      :host([hidden]) {
+        display: none;
+      }
+      .tool-wrap {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-flex);
+      }
+      span {
+        overflow: hidden;
+        width: 50px;
+      }
+      #zoomSlider {
+        width: auto;
+        @apply(--layout-flex);
+      }
+      .slide-wrap {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-flex);
+      }
+      #digitalZoomMsg {
+        font-size: 10px;
+        margin: 0;
+      }
+    </style>
+
+    <div class="tool-wrap">
+      <bf-select-input
+        label="Zoom level"
+        label-icon="blackfynn:magnifying-glass"
+        items="[[zoomValues]]"
+        selected="2"
+        value="{{_zoom}}"
+        unit="%"
+        allowed-pattern="[0-9]"></bf-select-input>
+
+      <paper-icon-button
+        icon="blackfynn:size-to-fit"
+        alt="Fit on screen"
+        on-tap="_fitOnScreen"
+        noink></paper-icon-button>
+
+      <div class="slide-wrap">
+        <paper-icon-button icon="blackfynn:zoom-out" zoom-type="out" noink on-tap="_zoomInOut"></paper-icon-button>
+        <paper-slider id="zoomSlider" min="[[min]]" max="[[max]]" value="{{zoom}}" immediate-value="{{_zoom}}"></paper-slider>
+        <paper-icon-button icon="blackfynn:zoom-in" zoom-type="in" noink on-tap="_zoomInOut"></paper-icon-button>
+      </div>
+    </div>
+
+    <p id="digitalZoomMsg" hidden$="[[!_digitalZoom]]">Using <em>digital zoom</em>. View at 100% or below for optimal resolution.</p>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'bf-zoom-tool',
+
+      properties: {
+        /**
+         * Zoom level
+         */
+        zoom: {
+          type: Number,
+          value: 50
+        },
+        /**
+         * Zoom level. Immediately changes when the slider is changed
+         */
+        _zoom: {
+          type: Number,
+          value: 50,
+          notify: true
+        },
+        /**
+         * Minimum zoom level
+         */
+        min: {
+          type: Number,
+          value: 0
+        },
+        /**
+         * Maximum zoom level
+         */
+        max: {
+          type: Number,
+          value: 100
+        },
+        zoomValues: {
+          type: Array,
+          value: function() {
+            return [
+              {
+                label: '25%',
+                value: 25
+              },
+              {
+                label: '50%',
+                value: 50
+              },
+              {
+                label: '75%',
+                value: 75
+              },
+              {
+                label: '100%',
+                value: 100
+              },
+              {
+                label: '150%',
+                value: 150
+              },
+              {
+                label: '200%',
+                value: 200
+              }
+            ]
+          }
+        },
+        _digitalZoom: {
+          type: Boolean,
+          computed: '_computeDigitalZoom(zoom)'
+        }
+      },
+
+      /**
+       * Fired when user taps on the zoom in icon
+       *
+       * @event zoom-in
+       */
+
+      /**
+       * Fired when user taps on the zoom out icon
+       *
+       * @event zoom-out
+       */
+
+      /**
+       * Fired when user taps on the fit on screen icon
+       *
+       * @event zoom-fit-on-screen
+       */
+
+      _computeDigitalZoom: function(zoom) {
+        return zoom > 100;
+      },
+
+      /**
+       * Fire zoom in and out events
+       */
+      _zoomInOut: function(e) {
+        const type = e.currentTarget.getAttribute('zoom-type');
+        this.fire(`zoom-${type}`);
+      },
+
+      /**
+       * Fire fit on screen event
+       */
+      _fitOnScreen: function() {
+        this.fire('zoom-fit-on-screen');
+      }
+
+    });
+
+  </script>
+
+</dom-module>

@@ -1,0 +1,261 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-dataset-dialog tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../bf-dataset-dialog.html">
+</head>
+<body>
+
+  <test-fixture id="defaultTest">
+    <template>
+      <bf-dataset-dialog></bf-dataset-dialog>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="createTest">
+    <template>
+      <bf-dataset-dialog state="[[state]]"></bf-dataset-dialog>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="updateTest">
+    <template is="dom-template">
+      <bf-dataset-dialog state="[[state]]" cur-package="[[curPackage]]"></bf-dataset-dialog>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="deleteTest">
+    <template is="dom-template">
+      <bf-dataset-dialog state="[[state]]" cur-package="[[curPackage]]" dialog-page="delete"></bf-dataset-dialog>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    const state = {
+      apiUrl: 'http://test.blackfynn.com',
+      userToken: '12345'
+    };
+
+    suite('default tests', function() {
+      let defaultTest;
+      let dialog;
+
+      setup(function() {
+        defaultTest = fixture('defaultTest');
+        defaultTest.state = state;
+        dialog = Polymer.dom(defaultTest.root).querySelector('#dialog');
+      });
+
+      test('dialog should be hidden by default', function() {
+        assert.equal(dialog.opened, false);
+      });
+
+      test('setting `opened` to true will display the dialog', function() {
+        defaultTest.set('opened', true);
+        assert.equal(dialog.hidden, false);
+      });
+    });
+
+    suite('create tests', function() {
+      let createTest;
+      let createUpdateDatasetStub;
+      const createFn = sinon.spy();
+
+      setup(function() {
+        createTest = fixture('createTest');
+        createTest.state = state;
+        createUpdateDatasetStub = sinon.stub(createTest, 'createUpdateDataset', () => {
+          if (!createTest.curPackage.id) {
+            createFn();
+          }
+          createTest.opened = false;
+          createTest.processing = false;
+        });
+      });
+
+      teardown(function() {
+        createUpdateDatasetStub.restore();
+      });
+
+      test('Title text and button text should be correct', function() {
+        const ironPages = Polymer.dom(createTest.root).querySelector('[slot=body] iron-pages');
+
+        const titleText = ironPages.querySelector('h2').textContent;
+        assert.equal(titleText, 'New Dataset');
+
+        const buttonText = ironPages.querySelector('#submitBtn').textContent;
+        assert.equal(buttonText, 'Create Dataset');
+      });
+
+      test('XHR method should be POST', function() {
+        assert.equal(createTest._setMethod, 'POST');
+      });
+
+      test('XHR url should not have dataset id', function() {
+        assert.equal(createTest._createDatasetUrl, 'http://test.blackfynn.com/datasets?api_key=12345');
+      });
+
+      test('should have createUpdateDataset method', function() {
+        assert.equal(typeof createTest.createUpdateDataset, 'function');
+
+        const submitBtn = Polymer.dom(createTest.root).querySelector('#submitBtn');
+        submitBtn.click();
+
+        expect(createUpdateDatasetStub).to.have.been.calledOnce;
+        expect(createFn).to.have.been.calledOnce;
+        expect(createTest.opened, false);
+        expect(createTest.processing, false);
+      });
+    });
+
+    suite('update tests', function() {
+      let updateTest;
+      let createUpdateDatasetStub;
+      const updateFn = sinon.spy();
+
+      setup(function() {
+        updateTest = fixture('updateTest', {
+          curPackage: {
+            id: 'N:dataset:a33510f4-689e-4b48-bb00-baea2fbd7237',
+            name: 'My Data Set',
+            packageType: 'DataSet',
+            state: 'READY'
+          }
+        });
+        updateTest.state = state;
+
+        createUpdateDatasetStub = sinon.stub(updateTest, 'createUpdateDataset', () => {
+          if (updateTest.curPackage.id) {
+            updateFn();
+          }
+          updateTest.opened = false;
+          updateTest.processing = false;
+        });
+      });
+
+      teardown(function() {
+        createUpdateDatasetStub.restore();
+      });
+
+      test('Title text and button text should be correct', function() {
+        const ironPages = Polymer.dom(updateTest.root).querySelector('[slot=body] iron-pages');
+
+        const titleText = ironPages.querySelector('h2').textContent;
+        assert.equal(titleText, 'Dataset Settings');
+
+        const buttonText = ironPages.querySelector('#submitBtn').textContent;
+        assert.equal(buttonText, 'Save Changes');
+      });
+
+      test('XHR method should be PUT', function() {
+        assert.equal(updateTest._setMethod, 'PUT');
+      });
+
+      test('XHR url should be contain dataset id', function() {
+        const datasetId = 'N:dataset:a33510f4-689e-4b48-bb00-baea2fbd7237';
+        const expectedUrl = `http://test.blackfynn.com/datasets/${datasetId}?api_key=12345`;
+        assert.equal(updateTest._createDatasetUrl, expectedUrl);
+      });
+
+      test('should have createUpdateDataset method', function() {
+        assert.equal(typeof updateTest.createUpdateDataset, 'function');
+
+        const submitBtn = Polymer.dom(updateTest.root).querySelector('#submitBtn');
+        submitBtn.click();
+
+        expect(createUpdateDatasetStub).to.have.been.calledOnce;
+        expect(updateFn).to.have.been.calledOnce;
+        expect(updateTest.opened, false);
+        expect(updateTest.processing, false);
+      });
+
+      test('Clicking delete link will change view within dialog window', function() {
+        updateTest.$.deleteLink.click();
+        assert.equal(updateTest.dialogPage, 'delete');
+      });
+    });
+
+    suite('delete tests', function() {
+      let deleteTest;
+      let deleteDatasetStub;
+      const deleteFn = sinon.spy();
+
+      setup(function() {
+        deleteTest = fixture('deleteTest', {
+          curPackage: {
+            id: 'N:dataset:a33510f4-689e-4b48-bb00-baea2fbd7237',
+            name: 'My Data Set',
+            packageType: 'DataSet',
+            state: 'READY'
+          }
+        });
+        deleteTest.state = state;
+
+        deleteDatasetStub = sinon.stub(deleteTest, 'deleteDataset', () => {
+          if (deleteTest.curPackage.id) {
+            deleteFn();
+          }
+          deleteTest.opened = false;
+          deleteTest.processing = false;
+          deleteTest.dialogPage = 'createEdit';
+          deleteTest.isDeleteDisabled = true;
+        });
+        deleteTest.promptDelete();
+      });
+
+      teardown(function() {
+        deleteDatasetStub.restore();
+      });
+
+      test('Title text and button text should be correct', function() {
+        const titleText = Polymer.dom(deleteTest.root).querySelector('h2.deleteTitle').textContent;
+        assert.equal(titleText, 'Delete My Data Set Dataset');
+
+        const buttonText = Polymer.dom(deleteTest.root).querySelector('#deleteBtn').textContent;
+        assert.equal(buttonText, 'Delete Dataset');
+      });
+
+      test('XHR url should be contain dataset id', function() {
+        const datasetId = 'N:dataset:a33510f4-689e-4b48-bb00-baea2fbd7237';
+        const expectedUrl = `http://test.blackfynn.com/datasets/${datasetId}?api_key=12345`;
+        assert.equal(deleteTest._createDatasetUrl, expectedUrl);
+      });
+
+      test('should have deleteDataset method', function() {
+        assert.equal(typeof deleteTest.deleteDataset, 'function');
+
+        const deleteBtn = Polymer.dom(deleteTest.root).querySelector('#deleteBtn');
+        deleteBtn.click();
+
+        expect(deleteDatasetStub).to.have.been.calledOnce;
+        expect(deleteFn).to.have.been.calledOnce;
+        expect(deleteTest.opened, false);
+        expect(deleteTest.processing, false);
+        expect(deleteTest.dialogPage, 'createEdit');
+        expect(deleteTest.isDeleteDisabled, true);
+      });
+
+    });
+  </script>
+
+</body>
+</html>

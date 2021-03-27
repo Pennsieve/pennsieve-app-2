@@ -1,0 +1,195 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>blackfynn-view-settings test</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../../src/vendor-scripts.html">
+  <link rel="import" href="../../src/views/settings.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template is="dom-template">
+      <blackfynn-view-settings
+        api="https://test.blackfynn.com/"
+        user="1234"
+        route-data="[[routeData]]"
+        active-organization="[[activeOrganization]]"></blackfynn-view-settings>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="profile">
+    <template is="dom-template">
+      <blackfynn-view-settings
+        api="https://test.blackfynn.com/"
+        user="1234"
+        route-data="[[routeData]]"
+        active-organization="[[activeOrganization]]"></blackfynn-view-settings>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="members">
+    <template is="dom-template">
+      <blackfynn-view-settings
+        api="https://test.blackfynn.com/"
+        user="1234"
+        route-data="[[routeData]]"
+        active-organization="[[activeOrganization]]"></blackfynn-view-settings>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="teams">
+    <template is="dom-template">
+      <blackfynn-view-settings
+        api="https://test.blackfynn.com/"
+        user="1234"
+        route-data="[[routeData]]"
+        active-organization="[[activeOrganization]]"></blackfynn-view-settings>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+
+      setup(function() {
+        basic = fixture('basic', {
+          routeData: {
+            view: 'profile'
+          },
+          activeOrganization: {
+            isAdmin: false
+          }
+        });
+      });
+
+      test('Should only show profile view with no navigation', function(done) {
+        flush(function() {
+          const nav = Polymer.dom(basic.root).querySelector('.settings-nav');
+          assert.equal(nav.hidden, true);
+          assert.equal(basic.__data__._hideSettingsNav, true);
+          assert.equal(basic.__data__._componentClass, 'no-nav');
+
+          const view = Polymer.dom(basic.root).querySelector('#pages bf-settings-user');
+          assert.equal(basic.__data__.routeData.view, 'profile');
+          assert.equal(view.classList.contains('iron-selected'), true);
+
+          done();
+        });
+      });
+
+    });
+
+    suite('profile', function() {
+      let profile;
+
+      setup(function() {
+        profile = fixture('profile', {
+          routeData: {
+            view: 'profile'
+          },
+          activeOrganization: {
+            isAdmin: true
+          }
+        });
+      });
+
+      test('Should show profile view with navigation', function(done) {
+        flush(function() {
+          const nav = Polymer.dom(profile.root).querySelector('.settings-nav');
+          assert.equal(nav.hidden, false);
+          assert.equal(profile.__data__._hideSettingsNav, false);
+          assert.equal(profile.__data__._componentClass, '');
+
+          const view = Polymer.dom(profile.root).querySelector('#pages bf-settings-user');
+          assert.equal(profile.__data__.routeData.view, 'profile');
+          assert.equal(view.classList.contains('iron-selected'), true);
+
+          done();
+        });
+      });
+
+    });
+
+    suite('members', function() {
+      let members;
+
+      setup(function() {
+        members = fixture('members', {
+          routeData: {
+            view: 'members'
+          },
+          activeOrganization: {
+            isAdmin: true
+          }
+        });
+      });
+
+      test('Should show members view with navigation', function(done) {
+        flush(function() {
+          const nav = Polymer.dom(members.root).querySelector('.settings-nav');
+          assert.equal(nav.hidden, false);
+          assert.equal(members.__data__._hideSettingsNav, false);
+          assert.equal(members.__data__._componentClass, '');
+
+          const view = Polymer.dom(members.root).querySelector('#pages bf-people');
+          assert.equal(members.__data__.routeData.view, 'members');
+          assert.equal(view.classList.contains('iron-selected'), true);
+
+          done();
+        });
+      });
+
+    });
+
+    suite('teams', function() {
+      let teams;
+
+      setup(function() {
+        teams = fixture('teams', {
+          routeData: {
+            view: 'teams'
+          },
+          activeOrganization: {
+            isAdmin: true
+          }
+        });
+      });
+
+      test('Should show teams view with navigation', function(done) {
+        flush(function() {
+          const nav = Polymer.dom(teams.root).querySelector('.settings-nav');
+          assert.equal(nav.hidden, false);
+          assert.equal(teams.__data__._hideSettingsNav, false);
+          assert.equal(teams.__data__._componentClass, '');
+
+          const view = Polymer.dom(teams.root).querySelector('#pages blackfynn-team-list');
+          assert.equal(teams.__data__.routeData.view, 'teams');
+          assert.equal(view.classList.contains('iron-selected'), true);
+
+          done();
+        });
+      });
+
+    });
+  </script>
+
+</body>
+</html>

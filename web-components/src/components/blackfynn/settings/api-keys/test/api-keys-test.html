@@ -1,0 +1,140 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>api-keys tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../../../../../vendor-scripts.html">
+  <link rel="import" href="../api-keys.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template is="dom-template">
+      <api-keys></api-keys>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+      let server;
+      let mockResponse;
+
+      setup(function() {
+        basic = fixture('basic');
+        basic.state = {
+          apiUrl: 'https://api.blackfynn.net',
+          userToken: '1234567',
+          activeOrganization: {
+            organization: {
+              id: 123,
+              name: 'Blackfynn'
+            }
+          },
+        };
+        server = sinon.fakeServer.create();
+        mockResponse = '[{"key": "123", "name": "Macbook"}, {"key": "456", "name": "Work PC"}]';
+        server.respondWith('GET', /\/token.*/, [200, {'Content-Type': 'application/json'}, mockResponse]);
+      });
+
+      teardown(function() {
+        server.restore();
+      });
+
+      test('Handles GET for API Tokens', function(done) {
+        basic.$.getApiKeys.generateRequest();
+        server.respond();
+
+        flush(function() {
+          const numKeys = Polymer.dom(basic.root).querySelectorAll('api-keys-item').length;
+          assert.equal(basic._hasApiKeys, true);
+          assert.equal(numKeys, 2);
+          assert.equal(basic.keys.length, 2);
+          done();
+        });
+      });
+
+      test('Handles empty response for GET', function(done) {
+        mockResponse = '[]';
+        server.respondWith('GET', /\/token.*/, [200, {'Content-Type': 'application/json'}, mockResponse]);
+        basic.$.getApiKeys.generateRequest();
+        server.respond();
+
+        flush(function() {
+          const numKeys = Polymer.dom(basic.root).querySelectorAll('api-keys-item').length;
+          assert.equal(basic._hasApiKeys, false);
+          assert.equal(numKeys, 0);
+          assert.equal(basic.keys.length, 0);
+          done();
+        });
+      });
+
+      test('Clicking Create API Key button opens dialog', function(done) {
+        flush(function() {
+          basic._openCreateKeyWindow();
+          assert.equal(basic.$.apiKeysCreateWindow.$.dialog.opened, true);
+          done();
+        });
+      });
+
+      test('Handles open-remove-api-key event', function(done) {
+        basic.$.getApiKeys.generateRequest();
+        server.respond();
+
+        flush(function() {
+          const key = {key: 123, name: 'Macbook'};
+          basic.fire('open-remove-api-key', key);
+
+          assert.deepEqual(basic.key, key);
+          assert.equal(basic.$.apiKeysDeleteWindow.$.dialog.opened, true);
+          done();
+        });
+      });
+
+      test('Handles remove-api-key event', function(done) {
+        basic.$.getApiKeys.generateRequest();
+        server.respond();
+
+        flush(function() {
+          basic.fire('remove-api-key', {key: 123, name: 'Macbook'});
+          assert.equal(basic.keys.length, 1);
+          done();
+        });
+      });
+
+      test('Handles created-api-key event', function(done) {
+        basic.$.getApiKeys.generateRequest();
+        server.respond();
+
+        flush(function() {
+          const key = {key: 999, name: 'Test'};
+          basic.fire('created-api-key', key);
+
+          assert.deepEqual(basic.key, key);
+          assert.equal(basic.keys.length, 3);
+          assert.equal(basic.$.apiKeysInfoWindow.$.dialog.opened, true);
+          done();
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

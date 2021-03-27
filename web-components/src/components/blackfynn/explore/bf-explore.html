@@ -1,0 +1,258 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="./bf-concepts/bf-no-concepts.html">
+<link rel="import" href="./bf-concepts/bf-concepts-list.html">
+<link rel="import" href="./bf-saved-queries/bf-saved-queries-list.html">
+
+<link rel="import" href="./bf-concepts-ajax-behavior.html">
+<link rel="import" href="../shared/bf-ajax-behavior.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../../vendor-scripts.html">
+
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/grid.html">
+<link rel="import" href="../../../styles/blackfynn/explore.html">
+
+<dom-module id="bf-explore">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-grid-styles"></style>
+    <style include="bf-explore-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      h1 {
+        color: #000;
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 29px;
+        margin: 40px 0 50px;
+      }
+      .load-wrap {
+        height: calc(100vh - 68px);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--layout-flex);
+      }
+    </style>
+
+    <div hidden$="[[isLoading]]">
+      <bf-no-concepts hidden$="[[hasConcepts]]"></bf-no-concepts>
+
+      <div class="container" hidden$="[[!hasConcepts]]">
+        <div class="row">
+          <div class="col-sm-12">
+            <h1>Explore</h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <bf-concepts-list concepts="[[concepts]]"></bf-concepts-list>
+          </div>
+          <div class="col-sm-9">
+            <bf-saved-queries-list
+              has-queries="[[hasQueries]]"
+              saved-queries="[[savedQueries]]"></bf-saved-queries-list>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="load-wrap" hidden$="[[!isLoading]]">
+      <paper-spinner-lite id="browseLoading" active></paper-spinner-lite>
+    </div>
+
+    <iron-ajax
+      id="getConcepts"
+      handle-as="json"
+      content-type="application/json"
+      loading="{{loadingConcepts}}"
+      url="[[_getConceptsUrl]]"
+      headers="[[_conceptHeaders]]"
+      on-response="_handleConceptsGet"></iron-ajax>
+
+    <iron-ajax
+      id="getSavedQueries"
+      handle-as="json"
+      content-type="application/json"
+      loading="{{loadingSavedQueries}}"
+      url="[[_getSavedQueriesUrl]]"
+      headers="[[_conceptHeaders]]"
+      last-response="{{savedQueries}}"></iron-ajax>
+
+  </template>
+  <script>
+     Polymer({
+      is: 'bf-explore',
+
+      behaviors: [
+        Blackfynn.AjaxBehavior,
+        Blackfynn.ConceptsAjaxBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * current route object
+         */
+        route: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * list of saved queries
+         */
+        savedQueries: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * list of concepts
+         */
+        concepts: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * tracks whether or not concepts xhr requests are running
+         */
+        loadingConcepts: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * tracks whether or not saved queries xhr requests are running
+         */
+         loadingSavedQueries: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * tracks whether or not concepts and saved queries xhr requests are running
+         */
+         isLoading: {
+          type: Boolean,
+          computed: '_computeIsLoading(loadingConcepts, loadingSavedQueries)',
+        },
+        /**
+         * tracks whether or not organization has concepts
+         */
+        hasConcepts: {
+          type: Boolean,
+          computed: '_computeHasConcepts(isLoading, concepts.length)'
+        },
+        /**
+         * tracks whether or not a user has any saved queries
+         */
+         hasQueries: {
+          type: Boolean,
+          computed: '_computeHasQueries(isLoading, savedQueries.length)',
+        },
+        /**
+         * GET url for concepts endpoint
+         */
+        _getConceptsUrl: {
+          type: String,
+          computed: '_computeGetConceptsUrl(state.conceptsUrl)'
+        },
+        /**
+         * GET url for saved queries endpoint
+         */
+         _getSavedQueriesUrl: {
+          type: String,
+          computed: '_computeGetSavedQueriesUrl(state.conceptsUrl)'
+        },
+        /**
+         * If the view is current shown to the user
+         */
+        ironSelected: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      observers: [
+        '_watchAppView(ironSelected, concepts.length)'
+      ],
+      /**
+       * Computes whether or not app is loading
+       */
+      _computeIsLoading: function(loadingConcepts, loadingSavedQueries) {
+        return !loadingConcepts && !loadingSavedQueries ? false : true;
+      },
+
+      /**
+       * Observes state.appView to determine when to execute XHR calls
+       */
+      _watchAppView: function(ironSelected, conceptsLength) {
+        if (conceptsLength === 0 && ironSelected) {
+          this.$.getConcepts.generateRequest();
+          this.loadPage();
+        }
+      },
+
+      /**
+       * Load saved queries
+       */
+      loadPage: function() {
+        this.$.getSavedQueries.generateRequest();
+      },
+
+      /**
+       * Computes GET concepts URL
+       * @param {String} conceptsUrl
+       */
+      _computeGetConceptsUrl: function(conceptsUrl) {
+        return `${conceptsUrl}/concepts`;
+      },
+
+      /**
+       * Computes GET saved queries URL
+       * @param {String} conceptsUrl
+       */
+      _computeGetSavedQueriesUrl: function(conceptsUrl) {
+        return `${conceptsUrl}/query`;
+      },
+
+      /**
+       * Computes whether or not organization has concepts
+       * @param {Boolean} loadingConcepts
+       * @param {Number} savedConceptsLength
+       */
+      _computeHasConcepts: function(loadingConcepts, savedConceptsLength) {
+        return !loadingConcepts && savedConceptsLength > 0;
+      },
+
+      /**
+       * Computes whether or not users has saved queries
+       * @param {Boolean} loadingSavedQueries
+       * @param {Number} savedQueriesLength
+       */
+      _computeHasQueries: function(loadingSavedQueries, savedQueriesLength) {
+        return !loadingSavedQueries && savedQueriesLength > 0;
+      },
+
+      /**
+       * Handles successful GET for concepts endpoint
+       * @param {Object} payload
+       */
+      _handleConceptsGet: function(payload) {
+        const concepts = R.pathOr([], ['detail', 'response'], payload);
+        this.set('concepts', concepts);
+      },
+
+     });
+  </script>
+</dom-module>

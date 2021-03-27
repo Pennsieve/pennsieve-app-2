@@ -1,0 +1,68 @@
+$neuron: #3828AD;
+$dopamine: #5039F7;
+$dopamine-dark: #3828AD;
+
+$cortex: #DADADA;
+$white-matter: #FFFFFF;
+$dendrite: #F9F9F8;
+$dendrite-dark: #E7E5E1;
+$glial: #928D85;
+$synapse: #e94b4b;
+$synapse-dark: #d24343;
+$nucleus: #17bb62;
+$nucleus-dark: #14a758;
+$noradrenaline: #F9F9F8;
+$warning: #ffe393;
+$orange: #FFB000;
+$serotonin: #3828AD;
+$myelin: #404554;
+$axon: #F1F1F3;
+$midnight-blue: #11369C;
+$pale-blue: #EEEBFE;
+$red-tint: #FEE9E7;
+
+$dark-blue: #3828AD;
+$blackfynn-green: #358855;
+$blackfynn-blue-bright: #4870b1;
+$blackfynn-data: #BA5767;
+$default-primary-color: $dopamine;
+$primary-color: $default-primary-color;
+$app-primary-color: $dopamine;
+$app-secondary-color: black;
+$success-color: $nucleus;
+$info-color: #3167FF;
+$error-color: $synapse;
+$input-placeholder-text: #9f9f9f;
+$link-color: $app-primary-color;
+$link-color-hover: $glial;
+$settings-nav-background: #f9f9f9;
+$delete-button-background: $synapse;
+$light-gray: #BDBDBD;
+$dark-gray: $myelin;
+$table-background-color: #E2E3E8;
+$disabled-radio-button-text-color: #8A8E96;
+$disabled-radio-button-border-color: #E9E9E9;
+$disabled-radio-button-background-color: #FCFCFC;
+$table-border-dark: solid 1px $light-gray;
+$table-border-light: solid 1px $cortex;
+
+
+$text-color: $dark-gray;
+$input-text: #000;
+
+$nav-link-color: #565D70;
+$nav-link-color-hover: $dark-gray;
+
+$system-font:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+
+// Hide only visually, but have it available for screenreaders: h5bp.com
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}

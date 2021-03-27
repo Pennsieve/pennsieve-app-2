@@ -1,0 +1,304 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="item-label.html">
+
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/tree.html">
+
+<!--
+
+Clicking on a tree-element fires an event:
+
+  `this.fire('select-tree-element-simple', { element: this });`
+
+-->
+
+<dom-module id="blackfynn-data-tree-element-simple">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-tree-styles"></style>
+    <style type="text/css">
+      :host {
+        display: block;
+      }
+      :host([hidden]){
+        display: none;
+      }
+    </style>
+
+    <!-- Current node -->
+    <div class$="[[_cpClassCurrentNode(mydata)]]" on-tap="doSelect" hidden="[[hideItem]]">
+
+      <div class="col" style$="[[_cpStyleNameCol(level)]]">
+        <div class="expand-icon">
+          <iron-icon class="icon-tree" icon="[[_cpExpandIcon(hideChildren)]]" hidden="[[expandHidden]]" on-tap="toggleChildren"></iron-icon>
+        </div>
+
+        <blackfynn-data-item-label id="itemLabel" data="[[mydata]]" is-editing="[[isEditing]]" is-processing="[[isProcessing]]"></blackfynn-data-item-label>
+      </div>
+
+    </div>
+
+    <!--Recursive elements for children of current node-->
+    <div id="childDiv" class="children" hidden="[[hideChildren]]" >
+      <template id="treeElementTemplate" is="dom-repeat" items="[[mydata.children]]" sort="[[sortMethod]]">
+        <blackfynn-data-tree-element-simple class="elCh" level="[[_computeLevel(level)]]" mydata="[[item]]" parent-tree="[[parentTreeEl]]" api="[[api]]" user="[[user]]"></blackfynn-data-tree-element-simple>
+      </template>
+    </div>
+
+    <iron-ajax
+      id="ajGetChildren"
+      method="GET"
+      handle-as="json"
+      on-error="ajaxError"
+      on-response="_setChildren">
+    </iron-ajax>
+
+  </template>
+
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-data-tree-element-simple',
+      properties: {
+        parentTreeEl: {
+          type: Object,
+          value: function() {
+            return this;
+          }
+        },
+        mydata: {
+          type: Object,
+          notify: true
+        },
+        level: {
+          type: Number,
+          value: 0
+        },
+        hideChildren: {
+          type: Boolean,
+          value: true
+        },
+        hideItem: {
+          type: Boolean,
+          value: false
+        },
+        children: {
+          type: Object,
+          notify: true
+        },
+        sortMethod: {
+          type: String,
+          value: 'byName'
+        },
+        isRealFolder: {
+          computed: '_computeIsFolder(mydata)'
+        },
+        shouldShowChildren: {
+          type: Boolean,
+          value: false
+        },
+        isEditing: {
+          type: Boolean,
+          value: false
+        },
+        expandHidden: {
+          type: Boolean,
+          computed: '_computeExpandHidden(mydata.children.length,mydata.hasChildren)'
+        }
+      },
+      observers: [
+        'watchChildren(mydata.children.length)'
+      ],
+      attached: function() {
+
+      },
+      _computeIsFolder: function(mydata) {
+        if(Object.keys(mydata).length) {
+          return mydata.content.type === 'Folder' && mydata.content.packageType === undefined;
+        }
+      },
+
+      _cpExpandIcon: function(hideChildren) {
+        if (hideChildren) {
+          return 'blackfynn:folder-expand';
+        } else {
+          return 'blackfynn:folder-collapse';
+        }
+      },
+
+      // Bound to class of current item
+      _cpClassCurrentNode: function(me) {
+        // Bound to current item class
+
+        let itemClass = ' item';
+        if (this._computeIsFolder(me))
+          itemClass = ' folder';
+
+        return 'currentLevel' + itemClass;
+      },
+
+      // Bound to Style of all columns of current item
+      _cpClassCol: function(item, col) {
+        // Bound to columns in current item
+
+        let s = col;
+        if (this._computeIsFolder(item)) {
+          switch (col) {
+            case 'nameCol':
+              s += ' leftColFolder';
+              break;
+            case 'dotsCol':
+              s+= 'hDots ';
+              break;
+            case 'createCol':
+              break;
+            case 'menuCol':
+              s += ' middleColFolder';
+              break;
+            case 'pathCol':
+              s += ' rightColFolder';
+              break;
+          }
+        } else {
+          s += ' itemRow';
+        }
+        return s;
+      },
+      _cpStyleName: function(flexWidth) {
+        return 'flex-basis:' + flexWidth +'px';
+      },
+
+      // Bound to Style of first (Name) column of current item
+      _cpStyleNameCol: function(level) {
+        const offs = (this.level-1) * 22;
+        return 'margin-left:' + offs + 'px';
+      },
+
+      // Bound to level of children of current item.
+      _computeLevel: function(level) {
+        return this.level + 1;
+      },
+
+      // Callback for single click event on item
+      doSelect: function(e, details) {
+        this.fire('select-tree-element-simple', { element: this });
+      },
+
+      toggleChildren: function(e, details) {
+        // If children are already loaded
+        if(this.mydata.children.length && this.mydata.hasChildren) {
+          // Prevent registering as click on item.
+          e.stopPropagation();
+
+          // Toggle children on/off
+          if (this.hideChildren) {
+            this.showChildren();
+          } else {
+            this.hideChildren = true;
+          }
+        } else {
+          this.getChildren();
+          this.shouldShowChildren = true;
+        }
+      },
+
+      // Toggle view to show the children
+      showChildren: function(forceReload) {
+        if (forceReload===undefined) {
+          forceReload = false;
+        }
+        this.hideChildren = false;
+
+        // Load grandchildren
+        this.prefetchGrandchildren();
+      },
+
+      // Requests and sets children of the current item
+      _setChildren: function(e, detail) {
+        if(detail.status === 200 && detail.response) {
+          if(e.detail.response.children.length) {
+            // Add children to this node
+            this.set('mydata.children', detail.response.children);
+
+            // Show the new children
+            if(this.shouldShowChildren) {
+              this.showChildren(true);
+              this.shouldShowChildren = false;
+            }
+
+            // Set has children flag
+            this.set('mydata.hasChildren', true);
+          } else {
+            this.fire('toast', {type: 'MESSAGE', msg: `No children found for ${detail.response.content.name}`});
+
+            // Set has children flag
+            this.set('mydata.hasChildren', false);
+          }
+        } else {
+          this.fire('toast', {type: 'ERROR'});
+        }
+      },
+
+      // Call API to load children
+      getChildren: function(includePackages = false) {
+        let url = `${this.api}/packages/${this.mydata.content.id}?api_key=${this.user}`;
+        if(includePackages) {
+          // Add parameter to request
+          url +='&includePackages=true';
+          // Set should show children
+          this.set('shouldShowChildren', true);
+        }
+        this.$.ajGetChildren.url = url;
+        this.$.ajGetChildren.generateRequest();
+      },
+
+      prefetchGrandchildren: function() {
+        const chNodes = Polymer.dom(this.$.childDiv).querySelectorAll('.elCh');
+        chNodes.forEach(function(entry) {
+          if(entry.mydata.children.length === 0 && entry.mydata.hasChildren && entry.mydata.content.packageType === undefined) {
+            entry.getChildren();
+          }
+        });
+      },
+
+      // Sorting method that is used by default.
+      byName: function(item1, item2) {
+        return item1.content.name.localeCompare(item2.content.name);
+      },
+
+      // Rerenders the list of children and resorts after name change.
+      resetAllChildren: function() {
+        const chNodes = Polymer.dom(this.root).querySelectorAll('.elCh');
+        chNodes.forEach(function(entry) {
+          if(!entry.hideChildren) {
+            entry.set('hideChildren', true);
+            entry.resetAllChildren();
+          }
+        });
+      },
+
+      watchChildren: function(children) {
+        if(children) {
+          this.set('mydata.hasChildren', true);
+        }
+      },
+
+      _computeExpandHidden: function(children, hasChildren) {
+        if(children === 0 || !hasChildren) {
+          return true;
+        }
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      }
+
+
+    });
+
+  </script>
+</dom-module>

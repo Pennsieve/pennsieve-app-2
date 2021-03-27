@@ -1,0 +1,155 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../shared/filetype-mapper-behavior.html">
+
+<dom-module id="blackfynn-data-panel">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        background: #fff;
+        box-shadow: -1px -1px 0 #ddd inset;
+        display: block;
+        overflow: hidden;
+        position: absolute;
+        @apply(--layout-vertical);
+      }
+      #viewerWrap {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      .titlebar {
+        background: var(--white-matter);
+        color: var(--neuron);
+        border-bottom: 1px solid var(--cortex);
+        font-weight: 500;
+        padding: 20px 20px 10px;
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-center);
+      }
+      .buttonWrap {
+        @apply(--layout-horizontal);
+      }
+      #closeButton {
+        cursor: pointer;
+        --iron-icon-height: 12px;
+        --iron-icon-width: 12px;
+      }
+      .topIcon:hover {
+        opacity: .7;
+      }
+    </style>
+
+    <div class="titlebar">
+      <div class="title">[[data.name]]</div>
+
+      <div class="buttonWrap">
+        <iron-icon id="closeButton" icon="blackfynn:close_x" on-tap="remove"></iron-icon>
+        <paper-tooltip for="closeButton">Close</paper-tooltip>
+      </div>
+
+    </div>
+
+    <div id="viewerWrap"></div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'blackfynn-data-panel',
+
+      behaviors: [
+        Blackfynn.FileTypeMapperBehavior,
+        Polymer.IronResizableBehavior
+      ],
+
+      properties: {
+        data: {
+          type: Array
+        }
+      },
+      listeners: {
+        'load-slide-from-tray': 'refresh'
+      },
+      observers: [
+        'onLayoutChange(layout)'
+      ],
+      loadViewer: function(component) {
+        this.importHref(
+          this.resolveUrl(`/src/components/blackfynn/viewers/${component}/viewer.html`),
+          function(e) {
+            // post load, create the element based off new component
+            // note the order you assign parameters is super important
+            // be sure to pass in api, user, active organization, and
+            // data first. callbacks depend on them!!
+            const viewer = this.create(`blackfynn-viewer-${component}-viewer`, {
+              api: this.api,
+              user: this.user,
+              activeOrganization: this.activeOrganization,
+              data: this.data,
+              profile: this.profile, // used by slide
+              props: this.props, // used by tabular
+              timeSeriesUrl: this.timeSeriesUrl, // used by timeseries
+              timeSeriesApi: this.timeSeriesApi // used by timeseries
+            });
+
+            // append new element to local DOM
+            Polymer.dom(this.$.viewerWrap).appendChild(viewer);
+          },
+          // Error loading
+          function(e) {
+            this.remove();
+
+            this.fire('toast', {
+              type: 'ERROR_DETAIL',
+              msg: 'The viewer could not be opened'
+            });
+
+          }, true);
+      },
+      setPosition: function() {
+        if(this.layout) {
+          this.style.left = this.layout.x;
+          this.style.top = this.layout.y;
+          this.style.width = this.layout.width;
+          this.style.height = this.layout.height;
+        }
+      },
+      onLayoutChange: function(newVal, oldVal) {
+        this.setPosition();
+        // Trigger resize for the viewers
+        this.notifyResize();
+      },
+      attached: function() {
+        // Detect which viewer to load based on MIME
+        const viewerType = this.viewerForType(this.data.packageType);
+        this.loadViewer(viewerType);
+      },
+
+      remove: function() {
+        this.fire('remove-item', { itemId: this.data.id, index: this.index });
+      },
+
+      refresh: function(e, detail) {
+        // Set new data
+        this.set('data', detail.item);
+
+        // Remove viewer
+        Polymer.dom(this.$.viewerWrap).innerHTML = '';
+
+        // Load new viewer
+        const viewerType = this.viewerForType(detail.item.packageType);
+
+        this.loadViewer(viewerType);
+      }
+    });
+
+  </script>
+
+</dom-module>

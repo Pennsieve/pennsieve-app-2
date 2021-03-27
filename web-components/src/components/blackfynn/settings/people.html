@@ -1,0 +1,454 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../teams/bf-team-member.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/settings.html">
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/data-item.html">
+<link rel="import" href="../shared/bf-package-sort-behavior.html">
+
+<link rel="import" href="organization-settings-behavior.html">
+
+<dom-module id="bf-people">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-settings-styles"></style>
+    <style include="bf-data-item-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      bf-input {
+        max-width: 330px;
+      }
+      p {
+        margin-bottom: 30px;
+        max-width: 560px;
+      }
+      .member-wrap {
+        border: solid 1px var(--cortex);
+        border-radius: 2px;
+      }
+      bf-team-member:first-of-type {
+        border-top: none !important;
+      }
+      paper-spinner-lite {
+        margin: 20px;
+      }
+      .wrap {
+        margin: 0 30px 30px 30px;
+        min-width: 760px;
+        max-width: 1024px;
+      }
+      .divider {
+        background: var(--cortex);
+        height: 1px;
+        margin: 50px 1px 40px 1px;
+      }
+      .headers {
+        background: var(--dendrite);
+        border-bottom: 1px solid var(--cortex);
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 13px;
+        padding: 18px 0;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .pending {
+        margin-bottom: 40px;
+      }
+      .pending .col-status {
+        flex: 2;
+      }
+    </style>
+
+    <div class="wrap">
+      <h2>Team Members</h2>
+      <p class="helper" hidden="[[!admin]]">Members of your organization will be able to create datasets, add data to their datasets, and share datasets with other members of the team. You can make a team member an administrator of <strong>[[activeOrganization.name]]</strong> by clicking on their profile and changing their permissions.</p>
+
+      <bf-input
+        id="inputInviteMember"
+        label="Invite Team Member"
+        value="{{inviteMemberName}}"
+        hidden="[[!admin]]"></bf-input>
+
+      <div class="form-button" hidden="[[!admin}}">
+        <paper-button
+          class="save"
+          noink
+          on-tap="_inviteMember">Send Invitation</paper-button>
+        <paper-spinner-lite active$="[[_inviteMemberLoading]]"></paper-spinner-lite>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="wrap" hidden$="[[noPendingMembers]]">
+      <h2>Pending Team Members</h2>
+      <div class="member-wrap pending">
+        <div class="headers">
+          <div class="col col-member" on-tap="setSort" sort-method="email" sort-param="pendingSortBy" sort-dir-param="pendingSortDirection" is-sorting$="[[_isSorting(pendingSortBy, 'email')]]">Email <iron-icon class="icon-sort" icon="[[pendingSortIcon]]"></iron-icon></div>
+          <div class="col col-status" on-tap="setSort" sort-method="status" sort-param="pendingSortBy" sort-dir-param="pendingSortDirection" is-sorting$="[[_isSorting(pendingSortBy, 'status')]]">Status <iron-icon class="icon-sort" icon="[[pendingSortIcon]]"></iron-icon></div>
+          <div class="col col-menu"></div>
+        </div>
+        <template is="dom-repeat" items="[[peopleInvited]]" sort="[[_sort(pendingSortBy, pendingSortDirection)]]">
+          <bf-team-member
+            member="[[item]]"
+            admin="[[admin]]"
+            pending></bf-team-member>
+        </template>
+        <paper-spinner-lite active$="[[isLoadingPeopleInvited]]" hidden$="[[!isLoadingPeopleInvited]]"></paper-spinner-lite>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <h2>Team Members</h2>
+      <div class="member-wrap">
+        <div class="headers">
+          <div class="col col-member" on-tap="setSort" sort-method="lastName" is-sorting$="[[_isSorting(sortBy, 'lastName')]]">Team Member <iron-icon class="icon-sort" icon="[[sortIcon]]"></iron-icon></div>
+          <div class="col col-usage" on-tap="setSort" sort-method="size" is-sorting$="[[_isSorting(sortBy, 'size')]]">Data Usage <iron-icon class="icon-sort" icon="[[sortIcon]]"></iron-icon></div>
+          <div class="col col-role" on-tap="setSort" sort-method="role" is-sorting$="[[_isSorting(sortBy, 'role')]]">Role <iron-icon class="icon-sort" icon="[[sortIcon]]"></iron-icon></div>
+          <div class="col col-menu"></div>
+        </div>
+        <template is="dom-repeat" items="[[people]]" sort="[[_sort(sortBy, sortDirection)]]">
+          <bf-team-member
+            admin="[[admin]]"
+            member="[[item]]"></bf-team-member>
+        </template>
+        <paper-spinner-lite active$="[[isLoadingPeople]]" hidden$="[[!isLoadingPeople]]"></paper-spinner-lite>
+      </div>
+    </div>
+
+    <iron-ajax
+      auto$="[[isAuto]]"
+      id="getPeople"
+      method="GET"
+      url="[[_getPeopleUrl]]"
+      content-type="application/json"
+      handle-as="json"
+      loading="{{isLoadingPeople}}"
+      on-response="handleGetPeople"
+      on-error="ajaxError">
+    </iron-ajax>
+
+    <iron-ajax
+      auto$="[[isAutoInvite]]"
+      id="getPeopleInvited"
+      method="GET"
+      url="[[_getPeopleInvitedUrl]]"
+      content-type="application/json"
+      handle-as="json"
+      loading="{{isLoadingPeopleInvited}}"
+      last-response="{{peopleInvited}}"
+      on-error="ajaxError">
+    </iron-ajax>
+
+    <iron-ajax
+      id="inviteMember"
+      method="POST"
+      url="[[_inviteMemberUrl]]"
+      content-type="application/json"
+      handle-as="json"
+      loading="{{_inviteMemberLoading}}"
+      on-response="onPeopleInvited"
+      on-error="ajaxError">
+    </iron-ajax>
+
+    <iron-a11y-keys
+      keys="enter"
+      target="[[inviteMemberTarget]]"
+      on-keys-pressed="_inviteMember"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-people',
+
+      behaviors: [
+        StateAwareBehavior,
+        BlackfynnOrganizationSettingsBehavior,
+        Blackfynn.PackageSortBehavior
+      ],
+
+      properties: {
+        /**
+         * The people in the active organiation
+         */
+        pendingSortBy: {
+          type: String,
+          value: 'email'
+        },
+        /**
+         * The people in the active organiation
+         */
+         pendingSortDirection: {
+          type: String,
+          value: 'ASC'
+        },
+        /**
+         * The people in the active organiation
+         */
+        people: {
+          type: Array,
+          value: function() {
+            return [];
+          },
+          notify: true
+        },
+        /**
+         * Compute the endpoint URL to get people
+         */
+        _getPeopleUrl: {
+          type: String,
+          computed: '_computeGetPeopleUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id)'
+        },
+        /**
+         * The people who have been invited in the active organiation
+         */
+        peopleInvited: {
+          type: Array,
+          value: function() {
+            return [];
+          },
+          notify: true
+        },
+        /**
+         * Compute the endpoint URL to get people who have been invited
+         */
+        _getPeopleInvitedUrl: {
+          type: String,
+          computed: '_computeGetPeopleInvitedUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id)'
+        },
+        /**
+         * Compute the endpoint URL to invite people
+         */
+        _inviteMemberUrl: {
+          type: String,
+          computed: '_computeInviteMemberUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id)'
+        },
+        /**
+         * Name of member to invite
+         */
+        inviteMemberName: {
+          type: String
+        },
+        /**
+         * If a member invite is already being sent out
+         */
+        _inviteMemberLoading: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Invite member target for enter key
+         */
+        inviteMemberTarget: {
+          type: Object,
+          value: function() {
+            return this.$.inputInviteMember;
+          }
+        },
+        /**
+         * Compute if iron-ajax calls should be made
+         */
+        isAuto: {
+          type: Boolean,
+          computed: '_computeIsAuto(state.activeOrganization.organization.id, state.appView)'
+        },
+        /**
+         * Compute if iron-ajax get invitation calls should be made
+         */
+         isAutoInvite: {
+          type: Boolean,
+          computed: '_computeIsAutoInvite(state.activeOrganization.organization.id, state.activeOrganization.isAdmin, state.appView)'
+        },
+         /**
+         * Compute pending sort icon
+         */
+        pendingSortIcon: {
+          type: String,
+          computed: '_computeSortIcon(pendingSortDirection)'
+        },
+        /**
+         * Calculates if there are pending team member invitations
+         */
+        noPendingMembers: {
+          type: Boolean,
+          computed: '_computeNoPendingMembers(peopleInvited.length)'
+        }
+      },
+
+      listeners: {
+        'member-removed': '_removeMember'
+      },
+
+      ready: function() {
+        this.set('sortBy', 'lastName');
+      },
+
+      /**
+       * Computes if peopleInvited length equals 0
+       * @param {Number}
+       */
+      _computeNoPendingMembers: function(peopleInvitedLength) {
+        return peopleInvitedLength === 0;
+      },
+
+      /**
+       * Compute if iron-ajax should auto run
+       * @param {String} orgId
+       * @param {String} appView
+       * @return {Boolean}
+       */
+      _computeIsAuto: function(orgId, appView) {
+        return appView === 'settings';
+      },
+
+      /**
+       * Compute if iron-ajax should auto run to get invited users
+       * @param {String} orgId
+       * @param {Boolean} isAdmin
+       * @param {String} appView
+       * @return {Boolean}
+       */
+       _computeIsAutoInvite: function(orgId, isAdmin, appView) {
+        return appView === 'settings' && isAdmin;
+      },
+
+      /**
+       * Compute the endpoint URL to get people
+       */
+      _computeGetPeopleUrl: function(api, user, activeOrganizationId) {
+        return `${api}/organizations/${activeOrganizationId}/members?api_key=${user}`;
+      },
+
+      /**
+       * Compute the endpoint URL to get people invited to the active organization
+       */
+      _computeGetPeopleInvitedUrl: function(api, user, activeOrganizationId) {
+        return `${api}/organizations/${activeOrganizationId}/invites?api_key=${user}`;
+      },
+
+      /**
+       * Compute the endpoint URL to invite people
+       */
+      _computeInviteMemberUrl: function(api, user, organizationId) {
+        return `${api}/organizations/${organizationId}/members?api_key=${user}`;
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      /**
+       * Gets people from API endpoint
+       * Method gets called in BlackfynnOrganizationSettingsBehavior
+       */
+      loadData: function() {
+        this.$.getPeople.generateRequest();
+
+        this.set('_shouldLoad', false);
+      },
+
+      /**
+       * Sort people by email
+       */
+      sortByEmail: function(item1, item2) {
+        return item1.email.localeCompare(item2.email);
+      },
+
+      _inviteMember: function() {
+        const inviteMemberName = this.inviteMemberName;
+
+        // Don't send request again if already processing
+        if(inviteMemberName === undefined || inviteMemberName === '' || this._inviteMemberLoading === true) {
+          return;
+        }
+        const inviteMember = this.$.inviteMember;
+
+        inviteMember.body = {
+          emails: [inviteMemberName]
+        };
+        inviteMember.generateRequest();
+      },
+
+      /**
+       * Callback when people have been invited
+       * @param {Object} Event object
+       * @param {Object} XHR response
+       */
+      onPeopleInvited: function(e, detail) {
+        const response = detail.response;
+
+        // Loop through each user
+        Object.keys(response).map( (key) => {
+          // If inviting was successful
+          if(response[key].success) {
+            // Add to pending invites
+            if(response[key].invite) {
+              this.push('peopleInvited', response[key].invite);
+            } else {
+              // Add to existing members
+              this.push('people', response[key].user);
+            }
+
+            // Clear invite member email
+            this.set('inviteMemberName', '');
+          } else {
+            // Show a messsage about the user if there was an error adding
+            this.fire('toast', { msg: `Unable to invite ${key}`});
+          }
+        });
+      },
+
+      handleGetPeople: function(e) {
+        const people = e.detail.response;
+        const activeOrg = this.state.activeOrganization;
+
+        const updatedList = people.map(p => {
+          const id = p.id
+          // check if owner
+          const isOwner = R.find(R.propEq('id', id), activeOrg.owners);
+          const isAdmin = R.find(R.propEq('id', id), activeOrg.administrators);
+          if (isOwner) {
+            p.role = 'Owner';
+          } else if (isAdmin) {
+            p.role = 'Admin';
+          } else {
+            p.role = 'Member';
+          }
+          // check if admin
+          return p;
+        })
+        this.set('people', updatedList);
+      },
+
+      /**
+       * Callback when member has been removed
+       */
+      _removeMember: function(e, detail) {
+        e.stopPropagation();
+        // Remove the member from the list
+        if(!detail.member.validUntil) {
+          const index = this.people.indexOf(detail.member);
+          this.splice('people', index, 1);
+        } else {
+          const index = this.peopleInvited.indexOf(detail.member);
+          this.splice('peopleInvited', index, 1);
+        }
+      },
+
+    });
+
+  </script>
+
+</dom-module>

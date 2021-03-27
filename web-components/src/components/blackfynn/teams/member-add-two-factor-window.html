@@ -1,0 +1,131 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/gold-phone-input/gold-phone-input.html">
+
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+<link rel="import" href="../shared/bf-ajax-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-member-add-two-factor-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <bf-dialog id="dialog" opened="{{opened}}" processing="[[processing]]" on-iron-overlay-opened="patchOverlay">
+      <h2 slot="heading">Enable Two-factor Authentication</h2>
+
+      <div slot="body">
+        <paper-input type="number" label="Country Code" value="{{twoFactor.countryCode}}" required=true></paper-input>
+        <gold-phone-input id="phoneNumber"
+          autofocus
+          label="Phone Number"
+          country-code="[[twoFactor.countryCode]]"
+          auto-validate="true"
+          value="{{twoFactor.phoneNumber}}"
+          required=true></gold-phone-input>
+      </div>
+
+      <div slot="buttons">
+        <paper-button id="submit" class="save" on-tap="_doTwoFactorCreate" disabled>Enable</paper-button>
+      </div>
+    </bf-dialog>
+
+    <iron-ajax
+      id="postTwoFactor"
+      method="POST"
+      url="[[_doTwoFactorCreateUrl]]"
+      handle-as="json"
+      content-type="application/json"
+      loading="{{processing}}"
+      on-error="ajaxError"
+      on-response="_handleTwoFactorCreate"
+      debounce-duration="300"></iron-ajax>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-member-add-two-factor-window',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.AjaxBehavior,
+        Blackfynn.PatchedOverlayBehavior,
+      ],
+
+      properties: {
+        /**
+         * two factor local state
+         */
+        twoFactor: {
+          type: Object,
+          value: {
+            countryCode: 1,
+            phoneNumber: undefined
+          }
+        },
+        /**
+         * determines if component is processing a request
+         */
+        processing: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * computes two factor url
+         */
+        _doTwoFactorCreateUrl: {
+          type: String,
+          computed: '_computeDoTwoFactorCreateUrl(state.apiUrl, state.userToken)'
+        },
+      },
+
+      /**
+       * Polymer lifecycle event
+       */
+      ready: function() {
+        const $submit = this.$.submit
+        this.$.phoneNumber.addEventListener('input', function(e) {
+          $submit.disabled = !this.validate();
+        })
+      },
+
+      /**
+       * Generate two factor authentication url
+       */
+      _computeDoTwoFactorCreateUrl: function(apiUrl, userToken) {
+        return `${apiUrl}/user/twofactor?api_key=${userToken}`;
+      },
+
+      /**
+       * Generate request to enable two factor authentication for user
+       */
+      _doTwoFactorCreate: function() {
+        this.$.postTwoFactor.body = this.twoFactor;
+        this.$.postTwoFactor.generateRequest();
+        this.$.dialog.toggle();
+      },
+
+      /**
+       * Handles successful enabling of two factor authentication
+       */
+      _handleTwoFactorCreate: function(e, detail) {
+        this.fire('twoFactorCreated', detail.response);
+      }
+    });
+
+  </script>
+
+</dom-module>

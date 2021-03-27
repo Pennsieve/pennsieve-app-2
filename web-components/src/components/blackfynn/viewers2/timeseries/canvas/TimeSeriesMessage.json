@@ -1,0 +1,170 @@
+{
+  "nested": {
+    "Event": {
+      "fields": {
+        "source": {
+          "type": "string",
+          "id": 1
+        },
+        "pageStart": {
+          "type": "uint64",
+          "id": 2
+        },
+        "pageEnd": {
+          "type": "uint64",
+          "id": 3
+        },
+        "samplePeriod": {
+          "type": "double",
+          "id": 4
+        },
+        "pointsPerEvent": {
+          "type": "uint64",
+          "id": 5
+        },
+        "isResampled": {
+          "type": "bool",
+          "id": 6
+        },
+        "data": {
+          "rule": "repeated",
+          "type": "double",
+          "id": 7
+        },
+        "times": {
+          "rule": "repeated",
+          "type": "uint64",
+          "id": 8
+        },
+        "spikeGroup": {
+          "rule": "repeated",
+          "type": "uint32",
+          "id": 9
+        }
+      }
+    },
+    "Instruction": {
+      "fields": {
+        "command": {
+          "type": "string",
+          "id": 1
+        },
+        "argument": {
+          "type": "string",
+          "id": 2
+        }
+      }
+    },
+    "Segment": {
+      "fields": {
+        "startTs": {
+          "type": "uint64",
+          "id": 1
+        },
+        "source": {
+          "type": "string",
+          "id": 2
+        },
+        "lastUsed": {
+          "type": "uint64",
+          "id": 3
+        },
+        "unit": {
+          "type": "string",
+          "id": 4
+        },
+        "samplePeriod": {
+          "type": "double",
+          "id": 5
+        },
+        "requestedSamplePeriod": {
+          "type": "double",
+          "id": 6
+        },
+        "pageStart": {
+          "type": "uint64",
+          "id": 7
+        },
+        "isMinMax": {
+          "type": "bool",
+          "id": 8
+        },
+        "unitM": {
+          "type": "uint64",
+          "id": 9
+        },
+        "segmentType": {
+          "type": "string",
+          "id": 10
+        },
+        "nrPoints": {
+          "type": "uint64",
+          "id": 11
+        },
+        "data": {
+          "rule": "repeated",
+          "type": "double",
+          "id": 12
+        },
+        "pageEnd": {
+          "type": "uint64",
+          "id": 13
+        },
+        "channelName": {
+          "type": "string",
+          "id": 14
+        }
+      }
+    },
+    "IngestSegment": {
+      "fields": {
+        "channelId": {
+          "type": "string",
+          "id": 1
+        },
+        "startTime": {
+          "type": "uint64",
+          "id": 2
+        },
+        "samplePeriod": {
+          "type": "double",
+          "id": 3
+        },
+        "data": {
+          "rule": "repeated",
+          "type": "double",
+          "id": 4
+        }
+      }
+    },
+    "TimeSeriesMessage": {
+      "fields": {
+        "segment": {
+          "type": "Segment",
+          "id": 3
+        },
+        "event": {
+          "rule": "repeated",
+          "type": "Event",
+          "id": 4
+        },
+        "instruction": {
+          "type": "Instruction",
+          "id": 5
+        },
+        "ingestSegment": {
+          "type": "IngestSegment",
+          "id": 6
+        },
+        "totalResponses": {
+          "type": "uint64",
+          "id": 7
+        },
+        "responseSequenceId": {
+          "type": "uint64",
+          "id": 8
+        }
+      }
+    }
+  }
+}

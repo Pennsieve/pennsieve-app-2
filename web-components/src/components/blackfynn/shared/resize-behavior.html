@@ -1,0 +1,33 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.ResizeBehavior = {
+
+    properties: {
+        windowWidth: {
+            type: Number,
+            value: 0
+        },
+        windowHeight: {
+            type: Number,
+            value: 0
+        }
+    },
+
+    setWindowWidth: function(width) {
+        this.windowWidth = width;
+        this.onResize();
+    },
+    setWindowHeight: function(height) {
+        this.windowHeight = height;
+        this.onResize();
+    },
+    setWindowSize: function(width, height) {
+        this.windowHeight = height;
+        this.windowWidth = width;
+        this.onResize();
+    },
+  }
+</script>

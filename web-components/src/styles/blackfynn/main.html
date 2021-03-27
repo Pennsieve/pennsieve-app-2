@@ -1,0 +1,211 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="blackfynn-main-styles">
+  <template>
+    <style>
+      :root {
+        --neuron: #071540;
+        --dopamine: #2760FF;
+        --glial: #71747C;
+        --cortex: #DADADA;
+        --white-matter: #FFFFFF;
+        --dendrite: #FAFAFA;
+        --synapse: #e94b4b;
+        --nucleus: #17bb62;
+        --blackfynn-green: #358855;
+        --blackfynn-mustard: #c1c800;
+        --blackfynn-error: #B71C1C;
+        --blackfynn-blue-bright: #4870b1;
+        --blackfynn-data: #BA5767;
+        --default-primary-color: var(--dopamine);
+        --primary-color: var(--default-primary-color);
+        --app-primary-color: var(--dopamine);
+        --app-secondary-color: black;
+        --success-color: var(--nucleus);
+        --error-color: var(--synapse);
+        --text-color: #000;
+        --input-text: var(--text-color);
+        --input-placeholder-text: #9f9f9f;
+        --link-color: var(--app-primary-color);
+        --link-color-hover: var(--glial);
+        --settings-nav-background: #f9f9f9;
+        --delete-button-background: var(--synapse);
+        --light-gray: #BDBDBD;
+        --orange: #FFB000;
+        --table-background-color: #E2E3E8;
+        --table-border-dark: solid 1px var(--light-gray);
+        --table-border-light: solid 1px var(--cortex);
+        /* blackfynn-blue */
+        /* blackfynn-navy */
+        /* blackfynn-med-grey */
+        /* Layering */
+        --base: 1;
+        --overlay: 1000;
+        --dialog: 1050;
+      }
+      input, paper-button, .bf-input, .sans-serif {
+        font-family: 'FiraSans', sans-serif !important;
+      }
+      h1, h2, h3, h4 {
+        font-weight: 400;
+        margin: 0 0 15px;
+      }
+      h1 {
+        font-size: 26px;
+      }
+      h2 {
+        font-size: 20px;
+        line-height: 24px;
+      }
+      h2.sharp-sans {
+        color: #000;
+        font: 700 24px/31px 'SharpSans', sans-serif;
+      }
+      img.full-width {
+        height: auto;
+        width: 100%;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--cortex);
+        margin: 30px 0;
+      }
+      em {
+        color: var(--app-primary-color);
+        font-style: normal;
+      }
+      a {
+        color: var(--link-color);
+      }
+      a:hover {
+        color: var(--link-color-hover);
+      }
+      a.paper-button {
+        text-decoration: none;
+      }
+      a.plain {
+        color: var(--glial);
+        text-decoration: none;
+      }
+      a.plain:hover, a.plain:focus {
+        color: var(--app-primary-color);
+        outline: none;
+      }
+      ul.dot-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        @apply(--layout-horizontal);
+      }
+      ul.dot-list li {
+        @apply(--layout-inline);
+      }
+      ul.dot-list li:not(:first-child) {
+        margin-left: 5px;
+      }
+      ul.dot-list li:not(:first-child):before {
+        content: '\2022';
+        display: inline-block;
+        margin-right: 5px;
+      }
+      paper-button {
+        background: white;
+        border: 1px solid #BDBDBD;
+        border-radius: 5px;
+        color: var(--glial);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+        margin: 0;
+        padding: 9px 35px;
+        text-transform: none;
+      }
+      paper-button.no-border {
+        border: none;
+      }
+      paper-button.default-padding {
+        padding: 0.7em 0.57em;
+      }
+      paper-button.small {
+        font-size: 13px;
+        line-height: 1;
+        min-width: auto;
+        padding: 5px 10px;
+      }
+      button.primary, paper-button.primary {
+        background: var(--neuron);
+        border-color: var(--neuron);
+        color: white;
+      }
+      paper-button.light {
+        background: var(--app-primary-color);
+        border-color: var(--app-primary-color);
+        color: white;
+      }
+      paper-button.save {
+        background: var(--dopamine);
+        border-color: var(--dopamine);
+        color: white;
+      }
+      paper-button.delete {
+        background: var(--delete-button-background);
+        border-color: var(--delete-button-background);
+        color: white;
+      }
+      paper-button[disabled] {
+        background: var(--cortex);
+        border-color: var(--cortex);
+        color: var(--glial);
+      }
+      paper-button iron-icon {
+        margin-right: 5px;
+      }
+      paper-button.light-gradient {
+        border: 1px solid #D3D5DA;
+        background: linear-gradient(180deg, #FFFFFF 0%, #F9F9F9 100%);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      paper-spinner-lite {
+        --paper-spinner-color: var(--app-primary-color);
+      }
+      .dialog-body {
+        margin-bottom: 14px;
+      }
+      paper-dialog {
+        border-radius: 5px;
+        min-width: 400px;
+        box-shadow: none;
+      }
+      .no-margin {
+        margin: 0;
+      }
+      /* Hide only visually, but have it available for screenreaders: h5bp.com */
+      .visuallyhidden, [visuallyhidden] {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+      }
+      .helper {
+        color: var(--glial)
+      }
+
+      .logo-mark-color {
+        fill: var(--dopamine);
+        color: var(--neuron);
+      }
+      paper-tooltip {
+        --paper-tooltip: {
+          background: var(--neuron);
+          border: 1px solid var(--neuron);
+        }
+      }
+    </style>
+  </template>
+</dom-module>

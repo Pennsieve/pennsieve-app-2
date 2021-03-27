@@ -1,0 +1,175 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-data-set-list tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../bf-data-set-list.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template is="dom-template">
+      <bf-data-set-list
+        id="dataSetList"
+        api="[[api]]"
+        user="12345"
+        is-loading-collection="false"
+        active-organization="[[activeOrganization]]"
+        node-types="['dataset', 'collection']"
+        is-searching="false">
+    </template>
+  </test-fixture>
+
+  <test-fixture id="empty">
+    <template>
+      <bf-data-set-list></bf-data-set-list>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="emptySearch">
+    <template>
+      <bf-data-set-list is-searching="true"></bf-data-set-list>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+      let selectItem;
+      let mockPackage;
+      let mockResponse;
+      let ajax;
+
+      setup(function() {
+        basic = fixture('basic', {
+          activeOrganization: {
+            organization: {
+              id: 'abc'
+            }
+          }
+        });
+        basic.state = {
+          userToken: '123',
+          apiUrl: document.location.origin
+        };
+
+        mockPackage = {"data": {"id": "123", "name": "Data Set #1"}, "response": {}};
+        mockResponse = '{"children": [{"content": {"id": "123","name": "Data Set #1"}}, {"content": {"id": "234","name": "Data Set #2"}}]}';
+        server = sinon.fakeServer.create();
+        server.respondWith('GET', /\/datasets.*/, [200, {'Content-Type': 'application/json'}, mockResponse]);
+
+        ajax = Polymer.dom(basic.root).querySelector('#getDataSetList');
+
+        selectItem = sinon.spy(basic, 'selectItem');
+
+        basic.packages = [];
+      });
+
+      teardown(function() {
+        selectItem.restore();
+        server.restore();
+      });
+
+      test('Handles open-collection event', function() {
+        basic.fire('open-collection', mockPackage);
+        expect(basic.selected, []).to.be.equal;
+        expect(basic.catalogRoute.path, `/${mockPackage.data.id}`).to.be.equal;
+        expect(basic.curPackage, mockPackage.response)
+      });
+
+      test('Handles add-dataset event', function() {
+        basic.packages = [];
+        basic.fire('add-dataset', mockPackage);
+        expect(basic.packages.length, 1).to.be.equal;
+      });
+
+      test('Handles select-item event', function() {
+        basic.fire('select-item');
+        expect(selectItem).to.have.been.calledOnce;
+      });
+
+      test('Handles remove-dataset event', function() {
+        basic.fire('add-dataset', mockPackage);
+        expect(basic.packages.length, 1).to.be.equal;
+        basic.fire('remove-dataset', mockPackage.data.id);
+        expect(basic.packages.length, 0).to.be.equal;
+      });
+
+      test('Handles GET', function() {
+        const reply = {response: JSON.parse(mockResponse)};
+        basic._handleGetDataSetList(null, reply);
+
+        expect(basic.curPackage, reply.response).to.be.equal;
+        expect(basic.packages, reply.response.children).to.be.equal;
+      });
+
+      test('Successful GET renders <bf-data-set-item>', function(done) {
+        flush(function() {
+          ajax.generateRequest();
+          server.respond();
+
+          const listItems = Polymer.dom(basic.root).querySelectorAll('bf-data-set-item');
+          expect(listItems.length, 2).to.be.equal;
+
+          const menuContainer = basic.querySelectorAll('.data-set-list');
+          expect(menuContainer.length, 1).to.be.equal;
+
+          done();
+        });
+      });
+    });
+
+    suite('empty data list', function() {
+      let empty;
+
+      setup(function() {
+        empty = fixture('empty');
+      });
+
+      test('Has expected DOM', function() {
+        const menuContainer = empty.$$('.data-set-list');
+        expect(menuContainer).to.exist;
+
+        const item = empty.$$('bf-data-set-item');
+        expect(item).to.not.exist;
+      });
+
+    });
+
+    suite('emptySearch', function() {
+      let emptySearch;
+
+      setup(function() {
+        emptySearch = fixture('emptySearch');
+      });
+
+      test('Has expected DOM', function() {
+        const menuContainer = emptySearch.$$('.data-set-list');
+        expect(menuContainer).to.exist;
+
+        const item = emptySearch.$$('bf-data-set-item');
+        expect(item).to.not.exist;
+      });
+
+    });
+  </script>
+
+</body>
+</html>

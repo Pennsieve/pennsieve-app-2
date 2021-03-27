@@ -1,0 +1,49 @@
+@import '../../assets/_variables.scss';
+
+.bf-navigation {
+  background: $app-primary-color;
+  box-sizing: border-box;
+  color: $white-matter;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh-16px);
+  position: relative;
+  width: 230px;
+  transition: width .2s ease-out;
+  &.condensed {
+    width: 56px;
+    .menu-wrap {
+      margin: 0 0 16px -6px;
+    }
+  }
+  .menu-wrap {
+    flex: 1;
+  }
+}
+.collapse-handle {
+  border-left: 2px solid transparent;
+  cursor: ew-resize;
+  height: 100%;
+  position: absolute;
+  right: -18px;
+  top: 0;
+  width: 18px;
+  &:hover {
+    border-color: $app-primary-color;
+  }
+  .primary &:hover {
+    border-color: $dark-blue
+  }
+}
+.logo {
+  display: block;
+  min-height: 20px;
+  min-width: 28px;
+}
+
+.btn-expand-collapse {
+  cursor: pointer;
+  &:hover, &:focus {
+    opacity: .75
+  }
+}

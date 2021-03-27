@@ -1,0 +1,85 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/grid.html">
+<link rel="import" href="../../../../styles/blackfynn/explore.html">
+
+<!--
+## bf-no-concepts
+
+`<bf-no-concepts>` is a component for displaying the empty state when a user does not have any saved seaches
+  and no concepts associated with their organization.
+
+@element bf-no-concepts
+@demo demo/index.html
+-->
+
+<dom-module id="bf-no-concepts">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-grid-styles"></style>
+    <style include="bf-explore-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      h1 {
+        color: #000000;
+        font-size: 36px;
+        font-weight: bold;
+        line-height: 43px;
+        margin: 0;
+      }
+      p {
+        max-width: 476px;
+        color: #404554;
+        font-size: 20px;
+        font-weight: 300;
+        line-height: 28px;
+        margin: 22px 0 37px;
+      }
+      .learn-more {
+        color: #FFFFFF;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 19px;
+      }
+      .container {
+        margin-top: 160px;
+      }
+      .explore-your-data {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--layout-center-justified);
+      }
+    </style>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6 explore-your-data">
+          <h1>Explore your data.</h1>
+          <p>Go beyond files and discover more about your data with Blackfynn's Knowledge Graph. Use the
+            <a href="http://docs.blackfynn.io/" target="_blank">Blackfynn API</a> to organize your data into concepts.
+            Visually explore relationships between your data and discover insights without having to write complex queries.</p>
+          <a href="http://docs.blackfynn.io/" class="paper-button learn-more" target="_blank">
+            <paper-button class="light" noink>Learn more about concepts</paper-button>
+          </a>
+        </div>
+        <div class="col-sm-6">
+          <img height="407" width="475" class="full-width" src="/static/images/illustrations/illo-patient-data.svg" alt="Explore your data">
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-no-concepts'
+    });
+
+  </script>
+
+</dom-module>

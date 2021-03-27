@@ -1,0 +1,161 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+
+<link rel="import" href="../components/blackfynn/user-menu/user-menu.html">
+<link rel="import" href="../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-view-search">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        background-color: var(--neuron);
+        color: var(--white-matter);
+        @apply(--layout-vertical);
+        height: 100vh;
+      }
+      #blackfynnLogo {
+        height: 36px;
+        width: 44px;
+        --iron-icon-height: 20px;
+        --iron-icon-width: 28px;
+        @apply(--layout-start-justified);
+      }
+      .aux-menu {
+        padding: 10px 3px 0 12px;
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+        @apply(--layout-start-justified);
+        @apply(--layout-center);
+      }
+      .user-menu {
+        padding: 5px 20px 0 0;
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        @apply(--layout-center);
+      }
+      #search-wrap {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+      #search-wrap h2 {
+        font-family: 'SharpSans', sans-serif;;
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 47px;
+        margin: 140px 0 20px;
+      }
+      #searchForm {
+        margin-bottom: 30px;
+      }
+      .search-form-wrap {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      input {
+        border-radius: 5px;
+        border: 1px solid var(--cortex);
+        box-sizing: border-box;
+        color: var(--input-text);
+        display: block;
+        font-size: 18px;
+        line-height: inherit;
+        outline: none;
+        padding: 15px 15px 15px;
+        width: 550px;
+      }
+      .search-button {
+        font-size: 16px;
+        color: var(--cortex);
+        padding: 16px 0;
+        margin-left: 15px;
+        width: 130px;
+      }
+      .alt-option {
+        font-size: 16px;
+        color: var(--cortex);
+        margin: 0;
+      }
+      .alt-option a {
+        color: var(--cortex);
+        text-decoration: underline;
+      }
+      .alt-option a:hover {
+        color: var(--app-primary-color)
+      }
+    </style>
+
+    <app-header reveals>
+      <app-toolbar>
+        <div class="aux-menu">
+          <paper-icon-button id="blackfynnLogo" icon="blackfynn:logo_mark" noink></paper-icon-button>
+          <div class="user-menu">
+            <blackfynn-user-menu
+              profile="[[profile]]"
+              organizations="[[organizations]]"
+              active-organization="[[activeOrganization]]"
+              is-organization-admin="[[isOrganizationAdmin]]">
+            </blackfynn-user-menu>
+          </div>
+        </div>
+      </app-toolbar>
+    </app-header>
+
+    <div id="search-wrap">
+      <h2>What are you looking for?</h2>
+      <div id="searchForm" class="search-form-wrap">
+        <input
+          id="searchInput"
+          placeholder="Example: Age=45"
+          type="text"
+          bind-value="{{query}}"
+          is="iron-input"
+          required></input>
+
+        <paper-button
+          class="light search-button"
+          submit
+          noink
+          on-tap="_handleSearch">Search</paper-button>
+
+      </div>
+      <p class="alt-option">Or browse your <a href="[[dataUrl]]">Data Catalog</a>?</p>
+    </div>
+
+    <iron-a11y-keys target="{{searchTarget}}" keys="enter" on-keys-pressed="_handleSearch"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-view-search',
+
+      properties: {
+        query: {
+          type: String
+        },
+        searchTarget: {
+          type: Object,
+          value: function() {
+            return this.$.searchInput;
+          }
+        }
+      },
+
+      _handleSearch: function() {
+        this.fire('trigger-search', {query: this.query});
+      },
+
+    });
+
+  </script>
+
+</dom-module>

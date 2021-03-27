@@ -1,0 +1,78 @@
+{
+  "name": "blackfynn",
+  "version": "2.0.0",
+  "description": "",
+  "engines": {
+    "node": ">=4.0"
+  },
+  "scripts": {
+    "install-deps": "yarn && ./node_modules/.bin/bower install",
+    "build-dev": "./node_modules/.bin/gulp",
+    "build-production": "./node_modules/.bin/gulp production",
+    "serve": "./node_modules/.bin/polymer serve",
+    "serve-unbundled": "./node_modules/.bin/polymer serve build",
+    "watch": "./node_modules/.bin/browser-sync start --proxy localhost:8080 --files 'src/**/*, index.html'",
+    "start": "yarn run serve | yarn run watch",
+    "lint": "./node_modules/.bin/eslint gulp-tasks/** src/** test/** --ext js,html",
+    "nsp": "./node_modules/.bin/nsp check",
+    "test": "./node_modules/.bin/wct",
+    "pre-build": "yarn run lint && yarn run test",
+    "commit": "commit-wizard",
+    "update-component-browser": "node ./docs/build_component_index.js"
+  },
+  "private": true,
+  "devDependencies": {
+    "@polymer/test-fixture": "0.0.3",
+    "babel-plugin-transform-remove-strict-mode": "0.0.2",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-env": "^1.6.1",
+    "babili": "0.0.12",
+    "bower": "^1.8.0",
+    "browser-sync": "^2.18.8",
+    "del": "^2.2.1",
+    "eslint": "^3.18.0",
+    "eslint-config-es2015": "^1.1.0",
+    "eslint-config-google": "^0.7.1",
+    "eslint-plugin-html": "^2.0.3",
+    "fs-extra": "^2.1.2",
+    "glob": "^7.1.1",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-clean-css": "^2.3.2",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-if": "^2.0.2",
+    "gulp-ignore": "^2.0.1",
+    "gulp-imagemin": "^3.1.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-sourcemaps": "^1.6.0",
+    "merge-stream": "^1.0.1",
+    "nsp": "^2.6.3",
+    "polymer-build": "^0.9.1",
+    "polymer-cli": "0.17.0",
+    "pre-git": "^3.15.0",
+    "web-component-tester": "^6.4.1",
+    "yargs": "^7.0.2"
+  },
+  "dependencies": {
+    "autosize-input": "^0.4.0",
+    "clipboard-js": "^0.3.5",
+    "d3": "^4.11.0",
+    "highlightjs": "^9.10.0",
+    "plottable": "^3.1.1"
+  },
+  "config": {
+    "pre-git": {
+      "pre-commit": [
+        "yarn lint"
+      ],
+      "pre-push": [],
+      "post-commit": [],
+      "post-checkout": [],
+      "post-merge": []
+    }
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
+  }
+}

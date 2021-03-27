@@ -1,0 +1,204 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-running-job">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        color: #677b8a;
+        display: block;
+      }
+      :host(:first-of-type) paper-card{
+        border-radius: 2px 2px 0 0;
+      }
+      :host(:last-of-type) paper-card{
+        border-radius: 0 0 2px 2px;
+      }
+      strong {
+        color: #000;
+        font-size: 16px;
+        font-weight: 700
+      }
+      paper-card {
+        border-radius: 0;
+        margin: 0;
+      }
+      .workflow-icon {
+        margin-right: 10px;
+        padding-top: 3px;
+        width: 16px;
+      }
+      .workflow-name {
+        @apply(--layout-flex);
+      }
+      .workflow-name div {
+        max-width: 400px;
+      }
+      .workflow-status {
+        margin-left: 10px;
+        width: 120px;
+      }
+      .card-content {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+      .workflow-spinner, .icon-complete {
+        height: 16px;
+        width: 16px;
+      }
+      .workflow-spinner {
+        --paper-spinner-stroke-width: 2px;
+      }
+      .icon-complete {
+        background: #74cc00;
+        border-radius: 50%;
+      }
+      a {
+        color: #4A90E2
+      }
+    </style>
+
+
+      <paper-card>
+        <div class="card-content">
+          <div class="workflow-icon">
+            <paper-spinner-lite hidden$="[[complete]]" active class="workflow-spinner"></paper-spinner-lite>
+            <div hidden$="[[!complete]]" class="icon-complete"></div>
+          </div>
+          <div class="workflow-name">
+            <div><strong>Seizure Detection</strong></div>
+            <div>Detect seizures based on line length</div>
+          </div>
+          <div class="workflow-status">
+            <div hidden$="[[complete]]"><strong>Running</strong></div>
+            <div hidden$="[[!complete]]"><strong><a href="/data/view/[[data.content.id]]">Complete</a></strong></div>
+            <div>Status</div>
+          </div>
+        </div>
+      </paper-card>
+
+    <iron-ajax
+      id="triggerWorkflow"
+      url="[[triggerWorkflowUrl]]"
+      handle-as="json"
+      content-type="application/json"
+      body="[[yo]]"
+      method="POST"
+      on-response="handleTriggerWorkflow"></iron-ajax>
+
+    <iron-ajax
+      id="getWorkflowInstance"
+      url="[[getWorkflowInstanceUrl]]"
+      handle-as="json"
+      content-type="application/json"
+      on-response="handleGetWorkflowInstance"></iron-ajax>
+
+  </template>
+
+
+  <script>
+
+    Polymer({
+      is: 'bf-running-job',
+
+      properties: {
+        data: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        getWorkflowInstanceUrl: {
+          type: String,
+          computed: '_computeWorkflowInstanceUrl(api, user, data.content.id)'
+        },
+        triggerWorkflowUrl: {
+          type: String,
+          computed: '_computeTriggerWorkflowUrl(api, user, organization, workflowName)'
+        },
+        interval: {
+          type: Number,
+          value: 500
+        },
+        getWorkflowInstanceHandle: {
+          type: Number
+        },
+        complete: {
+          type: Boolean,
+          computed: '_computeComplete(data.complete)',
+          value: false
+        },
+        instanceId: {
+          type: String,
+          value: null
+        },
+        organization: {
+          type: String,
+          value: 'blackfynn'
+        },
+        workflowName: {
+          type: String,
+          value: 'mri-convert-to-nii-gz'
+        },
+        yo: {
+          type: Object,
+          value: {
+            mri: {
+              packageId: 'N:fo:fd10e992-4fa3-4c51-920d-71f29eba5aaa'
+            }
+          }
+        }
+      },
+
+      attached: function() {
+        this.$.triggerWorkflow.generateRequest();
+
+        // this.checkWorkflowInstance();
+      },
+
+      _computeWorkflowInstanceUrl: function(api, user, id) {
+        return `${api}/compute/instances/workflows/${id}?api_key=${user}`;
+      },
+
+      _computeTriggerWorkflowUrl: function(api, user, organization, workflowName) {
+        return `${api}/compute/trigger/${organization}/${workflowName}?api_key=${user}`;
+      },
+
+      _computeComplete: function(complete) {
+        return complete;
+      },
+
+      checkWorkflowInstance: function() {
+        this.getWorkflowInstanceHandle = this.async(function() {
+          this.handleGetWorkflowInstance({}, {response: { progress: this.progress + 5}});
+          this.$.getWorkflowInstance.body = {
+            packageId: this.data.content.id
+          }
+          // this.$.getWorkflowInstance.generateRequest();
+        }, this.interval);
+      },
+
+      handleGetWorkflowInstance: function(e, detail) {
+        const progress = detail.response.progress;
+
+        // If job is not done
+        if(progress < 100) {
+          this.checkWorkflowInstance();
+        }
+      },
+
+      handleTriggerWorkflow: function(e, detail) {
+
+      }
+    });
+
+  </script>
+</dom-module>

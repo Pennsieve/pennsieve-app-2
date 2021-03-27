@@ -1,0 +1,706 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<link rel="import" href="../bf-concepts-ajax-behavior.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="./bf-query-builder/bf-query-builder.html">
+<link rel="import" href="./bf-query-builder-results/bf-query-builder-results.html">
+
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+## bf-concepts-search
+
+`<bf-concepts-search>` is a component for searching concepts for an organization.
+
+@element bf-concepts-search
+@demo demo/index.html
+-->
+
+<dom-module id="bf-concepts-search">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      .loading-wrap {
+        margin-top: 80px;
+        width: 100%;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
+      .full-height {
+        height: 100vh;
+        margin-top: 0;
+      }
+    </style>
+
+    <div class="loading-wrap full-height" hidden$="[[!loadingConcept]]">
+      <paper-spinner-lite active="[[loadingConcept]]"></paper-spinner-lite>
+    </div>
+
+    <bf-query-builder
+      id="queryBuilder"
+      query-title="[[queryTitle]]"
+      topology="[[topology]]"
+      concept="[[concept]]"
+      query-filters="{{queryFilters}}"
+      limit="[[limit]]"
+      offset="[[offset]]"
+      hidden$="[[loadingConcept]]"></bf-query-builder>
+
+    <div hidden$="[[loadingConcept]]">
+      <bf-query-builder-results
+        id="queryBuilderResults"
+        results="[[results]]"
+        headings="[[headings]]"
+        loading-results="[[loadingQueryResults]]"
+        total-results="[[totalResults]]"
+        concept="[[concept]]"
+        hidden$="[[loadingQueryResults]]"
+        limit="[[limit]]"
+        offset="{{offset}}"
+        page="{{page}}"></bf-query-builder-results>
+
+      <div class="loading-wrap" hidden$="[[!loadingQueryResults]]">
+        <paper-spinner-lite active="[[loadingQueryResults]]"></paper-spinner-lite>
+      </div>
+    </div>
+
+    <iron-ajax
+      id="getConcept"
+      method="GET"
+      handle-as="json"
+      loading="{{loadingConcept}}"
+      url="[[_getConceptUrl]]"
+      content-type="application/json"
+      headers="[[_conceptHeaders]]"></iron-ajax>
+
+    <iron-ajax
+      id="getTopology"
+      method="GET"
+      handle-as="json"
+      loading="{{loadingTopology}}"
+      url="[[_getTopologyUrl]]"
+      content-type="application/json"
+      on-response="_handleGetTopology"
+      headers="[[_conceptHeaders]]"></iron-ajax>
+
+    <iron-ajax
+      id="getQuery"
+      method="GET"
+      handle-as="json"
+      loading="{{loadingQuery}}"
+      url="[[_getQueryUrl]]"
+      content-type="application/json"
+      last-response="{{savedQuery}}"
+      headers="[[_conceptHeaders]]"></iron-ajax>
+
+    <iron-ajax
+      id="postQueryResults"
+      method="POST"
+      handle-as="json"
+      loading="{{loadingQueryResults}}"
+      url="[[_postSearchUrl]]"
+      content-type="application/json"
+      headers="[[_conceptHeaders]]"></iron-ajax>
+
+    <iron-ajax
+      id="saveSearch"
+      method="POST"
+      handle-as="json"
+      loading="{{savingSearch}}"
+      url="[[_postSaveSearchUrl]]"
+      content-type="application/json"
+      headers="[[_conceptHeaders]]"></iron-ajax>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:id/search/:searchId"
+      data="{{searchRouteData}}"
+      active="{{searchRouteActive}}"></app-route>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:id"
+      data="{{routeData}}"
+      tail="{{routeDataTail}}"></app-route>
+
+  </template>
+  <script>
+      Polymer({
+        is: 'bf-concepts-search',
+
+        behaviors: [
+          Blackfynn.AjaxBehavior,
+          Blackfynn.ConceptsAjaxBehavior,
+          StateAwareBehavior,
+          Polymer.IronResizableBehavior
+        ],
+
+        properties: {
+          /**
+           * concept id
+           */
+          conceptId: {
+            type: String,
+            value: ''
+          },
+          /**
+           * saved search id
+           */
+          searchId: {
+            type: String,
+            value: ''
+          },
+          /**
+           * query filters
+           */
+          queryFilters: {
+            type: Array,
+            value: function() {
+              return [];
+            }
+          },
+          /**
+           * tracks when concept is being loaded
+           */
+           loadingConcept: {
+            type: Boolean,
+            value: true
+          },
+          /**
+           * tracks when results are being loaded
+           */
+           loadingQueryResults: {
+            type: Boolean,
+            value: false
+          },
+          /**
+           * tracks when query is being loaded
+           */
+           loadingQuery: {
+            type: Boolean,
+            value: false
+          },
+          /**
+           * tracks when topology is being loaded
+           */
+           loadingTopology: {
+            type: Boolean,
+            value: false
+          },
+          /**
+           * title of query
+           */
+          queryTitle: {
+            type: String,
+            value: ''
+          },
+          /**
+           * saved query object
+           */
+          savedQuery: {
+            type: Object,
+            value: function() {
+              return {};
+            }
+          },
+          /**
+           * concept object
+           */
+           concept: {
+            type: Object,
+            value: function() {
+              return {};
+            }
+          },
+          /**
+           * topology of concept
+           */
+          toplogy: {
+            type: Array,
+            value: function() {
+              return [];
+            }
+          },
+          /**
+           * results of query builder
+           */
+           results: {
+            type: Array,
+            value: function() {
+              return [];
+            }
+          },
+          /**
+           * GET url for concepts
+           */
+           _getConceptUrl: {
+            type: String,
+            computed: '_computeGetConceptUrl(state.conceptsUrl, conceptId)'
+          },
+          /**
+           * GET url for toplogy
+           */
+           _getTopologyUrl: {
+            type: String,
+            computed: '_computeGetTopologyUrl(state.conceptsUrl, conceptId)'
+          },
+          /**
+           * GET url for search query
+           */
+           _postSearchUrl: {
+            type: String,
+            computed: '_computePostSearchUrl(state.conceptsUrl)'
+          },
+          /**
+           * GET url for saved query
+           */
+           _getQueryUrl: {
+            type: String,
+            computed: '_computeSavedQueryUrl(state.conceptsUrl, searchId)'
+          },
+          /**
+           * GET url for search query
+           */
+           _postSaveSearchUrl: {
+            type: String,
+            computed: '_computePostSaveSearchUrl(state.conceptsUrl, searchId)'
+          },
+          /**
+           * Computes total results of concept instances
+           */
+          totalResults: {
+            type: Number,
+            computed: '_computeTotalResults(state.concepts, initialConcept)'
+          },
+          /**
+           * Run search query
+           */
+          runSearchQuery: {
+            type: Boolean,
+            value: false
+          },
+          /**
+           * Search results limit
+           */
+          limit: {
+            type: Number,
+            value: 100
+          },
+          /**
+           * Query offset
+           */
+          offset: {
+            type: Number,
+            value: 0
+          },
+          /**
+           * If the view is current shown to the user
+           */
+          ironSelected: {
+            type: Boolean,
+            value: false
+          }
+        },
+
+        observers: [
+          '_watchRouteData(route.path)',
+          '_watchSearchRouteData(route.path)',
+          '_watchResults(results.length)'
+        ],
+
+        listeners: {
+          'load-more-data': '_handleLoadMoreData',
+          'run-search': '_handleRunSearch',
+          'save-concept-query': '_handleSaveConceptQuery',
+          'notify-resize': 'notifyResize'
+        },
+
+        /**
+         * Observer to watch concept id changing
+         */
+         _watchRouteData: function(path) {
+          if (path && path.indexOf('/search/') > 0 || !this.ironSelected) {
+            return;
+          }
+          const conceptId = path && path.substr(1);
+          if (!conceptId) {
+            return;
+          }
+          if (this.loadingTopology || this.loadingQueryResults) {
+            return;
+          }
+          // reset filters upon route change
+          this._resetProps();
+          this.set('conceptId', conceptId);
+          this.set('runSearchQuery', true);
+          this.$.queryBuilderResults.set('page', 0);
+          // concept details
+          this.$.getTopology.generateRequest();
+        },
+
+        /**
+         * Observer to watch concept id and search id changing
+         */
+         _watchSearchRouteData: function(path) {
+          if (path && path.indexOf('/search/') < 0 || !this.ironSelected) {
+            return;
+          }
+          const splitPath = path && path.split('/');
+          if (!splitPath) {
+            return;
+          }
+          const conceptId = splitPath[1];
+          const searchId = splitPath[3];
+          if (!conceptId || !searchId) {
+            return;
+          }
+          if (this.loadingTopology || this.loadingQueryResults) {
+            return;
+          }
+          // reset filters upon route change
+          this._resetProps();
+          this.set('conceptId', conceptId);
+          this.set('searchId', searchId);
+          this.set('runSearchQuery', false);
+          // search
+          const topologyPromise = this.$.getTopology.generateRequest();
+          const getQueryPromise = this.$.getQuery.generateRequest();
+          Promise
+            .all([topologyPromise.completes, getQueryPromise.completes])
+            .then(([topologyResponse, getQueryResponse]) => this._displaySavedQuery(getQueryResponse));
+        },
+
+        /**
+         * Observer to watch results changing
+         */
+        _watchResults: function() {
+          this.notifyResize();
+        },
+
+        /**
+         * Resets properties
+         */
+        _resetProps: function() {
+          this.set('queryFilters', []);
+          this.set('queryTitle', '');
+          this.set('conceptId', '');
+          this.set('searchId', '');
+          this.set('results', []);
+          this.set('concept', {});
+          this.set('offset', 0);
+          this.set('page', 0);
+          this.set('loadingConcept', true);
+          this.set('loadingQueryResults', true);
+        },
+
+        /**
+         * Displays saved query
+         * @param {Object} payload
+         */
+        _displaySavedQuery: function(payload) {
+          const response = payload.response;
+          // populate saved search name
+          this.set('queryTitle', response.name);
+          // display filters
+          this._displaySavedFilters(response.query);
+          // execute query
+          const xhr = this.$.postQueryResults;
+          const body = Object.assign({}, response.query, {limit: this.limit, offset: 0});
+          xhr.body = body;
+          xhr.generateRequest().completes.then(payload => {
+            this.set('results', payload.response);
+
+            const headings = this._computeRowHeadings(this.results);
+            this.set('headings', headings);
+          });
+        },
+
+        /**
+         * Display saved filters
+         */
+        _displaySavedFilters: function(query) {
+          const conceptRelatedFields = query.filters.map(field => {
+            return {
+              label: field.key,
+              value: field.key
+            }
+          });
+          const conceptFilters = query.filters.map(filter => {
+            const selectedConcept = R.path(['type', 'concept', 'type'], query);
+            const selectedProxy = R.path(['type', 'proxy', 'type'], query);
+            return {
+              selectedConcept: R.defaultTo(selectedConcept, selectedProxy),
+              relatedFields: conceptRelatedFields,
+              selectedRelatedField: filter.key,
+              selectedOperator: filter.predicate.operation,
+              valueToCompare: filter.predicate.value
+            };
+          });
+          const relatedFilters = query.joins.map(join => {
+            const relatedFields = join.filters.map(field => {
+              return {
+                label: field.key,
+                value: field.key
+              }
+            });
+            return join.filters
+              .map(filter => {
+                  const selectedConcept = R.path(['targetType', 'concept', 'type'], join);
+                  const selectedProxy = R.path(['targetType', 'proxy', 'type'], join);
+                  return {
+                    selectedConcept: R.defaultTo(selectedConcept, selectedProxy),
+                    relatedFields: relatedFields,
+                    selectedRelatedField: filter.key,
+                    selectedOperator: filter.predicate.operation,
+                    valueToCompare: filter.predicate.value
+                  };
+                });
+              }).map(R.head);
+          const queryFilters = conceptFilters.concat(relatedFilters);
+          this.set('queryFilters', queryFilters);
+        },
+
+        /**
+         * Handles successful save search
+         */
+        _handleSaveConceptQuery: function(evt, detail) {
+          const xhr = this.$.saveSearch;
+          if (this.searchRouteData.searchId && this.searchRouteData.searchId.length > 0) {
+            xhr.method = 'PUT';
+            xhr.body = Object.assign({}, this.savedQuery, detail);
+          } else {
+            xhr.body = detail;
+          }
+          xhr.generateRequest().completes.then(() => {
+            this.fire('update-saved-search-list');
+            this.fire('toast', {type: 'MESSAGE', msg: `${detail.name} saved.`});
+          });
+        },
+
+        /**
+         * Computes total results for concept instances
+         * @param {Object} concepts
+         * @param {String} initialConcept
+         * @param {Number}
+         */
+        _computeTotalResults: function(concepts, initialConcept) {
+          const conceptObj = R.find(R.propEq('name', initialConcept), concepts);
+          return R.propOr(0, 'count', conceptObj);
+        },
+
+        /**
+       * Computes whether or not there are results
+       */
+        _computeRowHeadings: R.compose(
+          R.pluck('name'),
+          R.propOr([], 'values'),
+          R.head,
+          R.defaultTo([{}])
+        ),
+
+        /**
+         * Handles run-search event
+         * @param {Object} evt
+         * @param {Object} detail
+         */
+         _handleRunSearch: function(evt, detail) {
+          const xhr = this.$.postQueryResults;
+          xhr.body = detail;
+          xhr.generateRequest().completes.then(payload => {
+            const response = payload.response;
+            // only update if there are results
+            if (response.length === 0) {
+              return;
+            }
+            this.set('firstTime', false);
+            this.$.queryBuilderResults.$.threshold.clearTriggers();
+            response.forEach(resp => this.push('results', resp));
+
+            const headings = this._computeRowHeadings(this.results);
+            this.set('headings', headings);
+          });
+         },
+
+        /**
+         * Handles load-more-data event
+         * @param {Object} evt
+         * @param {Object} detail
+         */
+        _handleLoadMoreData: function(evt, detail) {
+          if (this.results.length > 0) {
+            this.$.queryBuilder.set('offset', detail);
+            this.$.queryBuilder.runSearch();
+          }
+        },
+
+        /**
+         * Computes url for POST search query
+         * @param {String} apiUrl
+         * @param {String} savedQueryId
+         * @returns {String}
+         */
+        _computeSavedQueryUrl(apiUrl, savedQueryId) {
+          return `${apiUrl}/query/${savedQueryId}`;
+        },
+
+        /**
+         * Computes url for POST search query
+         * @param {String} apiUrl
+         * @returns {String}
+         */
+         _computePostSearchUrl: function(apiUrl) {
+          return `${apiUrl}/query/run`;
+        },
+
+        /**
+         * Computes url for POST saving a search query
+         * @param {String} apiUrl
+         * @param {String} savedQueryId
+         * @returns {String}
+         */
+         _computePostSaveSearchUrl: function(apiUrl, searchId) {
+          if (searchId && searchId.length > 0) {
+            return `${apiUrl}/query/${searchId}`;
+          }
+          return `${apiUrl}/query`;
+        },
+
+        /**
+         * Computes url for concept
+         * @param {String} apiUrl
+         * @param {String} conceptId
+         * @returns {String}
+         */
+         _computeGetConceptUrl: function(apiUrl, conceptId) {
+          return `${apiUrl}/concepts/${conceptId}`;
+        },
+
+        /**
+         * Computes url for topology
+         * @param {String} apiUrl
+         * @param {String} conceptId
+         * @returns {String}
+         */
+         _computeGetTopologyUrl: function(apiUrl, conceptId) {
+          return `${apiUrl}/concepts/${conceptId}/topology`;
+        },
+
+        /**
+         * Computes when results are being loaded and should be displayed
+         * @param {Boolean} loadingQueryResults
+         * @param {Number} resultsLength
+         * @returns {Boolean}
+         */
+        _computeHasResults: function(loadingQueryResults, resultsLength) {
+          return !loadingQueryResults && resultsLength > 0;
+        },
+
+        /**
+         * Flattens topology
+         * @param {Object}
+         * @returns {Array}
+         */
+        _flattenTopology: R.compose(
+          R.uniqBy(R.prop('name')),
+          R.pathOr([], ['detail', 'response'])
+        ),
+
+        /**
+         * Gets schema for specific topology concept
+         * @param {String}
+         * @param {Array}
+         * @returns {Array}
+         */
+        _getTopologySchema: R.compose(
+          R.defaultTo([]),
+          R.prop('schema'),
+          R.useWith(
+            R.find, [R.propEq('name')]
+          )
+        ),
+
+        /**
+         * Gets schema for specific topology concept
+         * @param {Array}
+         * @returns {Array}
+         */
+        _getTopologyProps: function(schema) {
+          const list = R.defaultTo([], schema);
+          return list.map(s => {
+            return {
+              name: R.propOr('', 'name', s),
+              value: R.propOr('', 'name', s)
+            }
+          })
+        },
+
+        /**
+         * Predicate function to reject concept instances within topology
+         * @param {Object} concept
+         * @param {Object} item
+         * @returns {Boolean}
+         */
+        _isConcept: function(concept) {
+          return function(item) {
+            return item.conceptType === concept;
+          }
+        },
+
+        /**
+         * Handles success call for GET concept topology
+         * @param {Object} evt
+         */
+         _handleGetTopology: function(evt) {
+          const flatTopology = this._flattenTopology(evt);
+
+          const topology = flatTopology.map(concept => {
+            const conceptType = R.prop('name', concept);
+            const schema = this._getTopologySchema(conceptType, flatTopology);
+            const properties = this._getTopologyProps(schema);
+            // return data structure used by bf-select component
+            return {
+              conceptType,
+              properties
+            };
+          });
+
+          // get concept details
+          this.$.getConcept
+            .generateRequest()
+            .completes
+            .then(payload => {
+              const concept = payload.response;
+              this.set('concept', concept);
+
+              // remove any instances of initial concept within topology
+              const editedTopology = R.reject(this._isConcept(this.concept.name), topology);
+
+              const initialConcept = [{
+                conceptType: concept.name,
+                properties: this._getTopologyProps(concept.schema)
+              }];
+
+              // add initial concept to topology
+              const concatTopology = initialConcept.concat(editedTopology);
+
+              this.set('topology', concatTopology);
+
+              if (this.runSearchQuery) {
+                this.$.queryBuilder.runSearch();
+              }
+            });
+        }
+
+      });
+  </script>
+</dom-module>

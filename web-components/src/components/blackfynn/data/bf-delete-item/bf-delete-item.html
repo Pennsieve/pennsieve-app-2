@@ -1,0 +1,176 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../../shared/patched-overlay-behavior.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+
+<!--
+## bf-delete-item
+
+`<bf-delete-item>` is a component to delete an item.
+
+@demo
+-->
+
+<dom-module id="bf-delete-item">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      .item-wrap {
+        max-height: 250px;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+    </style>
+
+    <bf-dialog id="browseDialog" opened="{{opened}}" processing="[[processing]]" on-iron-overlay-opened="patchOverlay" closing-reason="{{closingReason}}">
+      <h2 slot="heading">Confirm Delete</h2>
+      <div slot="body">
+        <p>Are you sure you want to delete:</p>
+        <div class="item-wrap">
+          <template is="dom-repeat" items="[[deleteItems]]" sort="[[sortMethod]]">
+            <blackfynn-data-item-label data="[[item.data]]"></blackfynn-data-item-label>
+          </template>
+        </div>
+      </div>
+      <div slot="buttons">
+        <paper-button class="delete" dialog-confirm autofocus>Delete</paper-button>
+      </div>
+    </bf-dialog>
+
+    <iron-ajax
+      id="ajDeleteItem"
+      method="POST"
+      content-type="application/json"
+      handle-as="json"
+      on-response="_handleDeleteItem"
+      on-error="ajaxError">
+    </iron-ajax>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-delete-item',
+
+      behaviors: [
+        Blackfynn.PatchedOverlayBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+        deleteItems: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        sortMethod: {
+          type: String,
+          value: 'byName'
+        },
+        /**
+         * Contains the reason(s) this overlay was last closed (see `iron-overlay-closed`). `IronOverlayBehavior` provides the canceled reason.
+         */
+        closingReason: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        }
+      },
+
+      listeners: {
+        'browseDialog.iron-overlay-closed': 'onBrowseDialogClose'
+      },
+
+      byName: function(item1, item2) {
+        return item1.data.content.name.localeCompare(item2.data.content.name);
+      },
+
+      onBrowseDialogClose: function(e) {
+        // Clear delete items
+        if(this.closingReason.confirmed) {
+
+          const things = [];
+
+          for (let i = 0; i < this.deleteItems.length; i++) {
+            const item = this.deleteItems[i];
+            // Set processing
+            item.set('isProcessing', true);
+
+            // Add to delete items array
+            things.push(item.data.content.id);
+          }
+
+          // Send the request to API
+          const ajaxRequest = this.$.ajDeleteItem;
+          ajaxRequest.url = `${this.state.apiUrl}/data/delete?api_key=${this.state.userToken}`;
+          ajaxRequest.body = {
+            things
+          };
+
+          // Generate the request
+          ajaxRequest.generateRequest();
+        }
+
+        // Reset closingReason
+        this.set('closingReason', {});
+      },
+
+      _handleDeleteItem: function(e, detail) {
+        if (detail.response && detail.status === 200) {
+          // Remove successfully delete items from the list
+          const successItems = [];
+
+          for (let i = 0; i < detail.response.success.length; i++) {
+            const item = this.getItemById(detail.response.success[i], this.deleteItems);
+
+            if(item) {
+              successItems.push(item);
+            }
+          }
+
+          this.fire('remove-items', { items: successItems })
+
+          // Show message to user
+          if(successItems.length > 0) {
+            const itemLength = detail.response.success.length;
+
+            let msg = 'item';
+
+            if(itemLength > 1) {
+              msg = 'items';
+            }
+
+            this.fire('toast', { type: 'MESSAGE', msg: `${itemLength} ${msg} deleted` });
+          } else {
+            this.fire('toast', { type: 'ERROR' });
+          }
+        } else {
+          // Show error message to user
+          this.fire('toast', { type: 'ERROR' });
+        }
+      },
+
+      getItemById: function(id, data) {
+        for (let i = 0; i < data.length; i++) {
+          if(data[i].data.content.id === id) {
+            return data[i];
+          }
+        }
+
+        return false;
+      }
+    });
+
+  </script>
+</dom-module>

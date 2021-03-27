@@ -1,0 +1,525 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../bf-icon-circle/bf-icon-circle.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+<!--
+`<bf-input-container>` is a container for a `<label>`, an `<input is="iron-input">` or
+`<textarea>` and optional add-on elements such as an error message or character
+counter, used to implement Material Design text fields.
+
+For example:
+
+    <bf-input-container>
+      <label>Your name</label>
+      <input is="iron-input">
+    </bf-input-container>
+
+Do not wrap `<bf-input-container>` around elements that already include it, such as `<paper-input>`.
+Doing so may cause events to bounce infintely between the container and its contained element.
+
+### Listening for input changes
+
+By default, it listens for changes on the `bind-value` attribute on its children nodes and perform
+tasks such as auto-validating and label styling when the `bind-value` changes. You can configure
+the attribute it listens to with the `attr-for-value` attribute.
+
+### Using a custom input element
+
+You can use a custom input element in a `<bf-input-container>`, for example to implement a
+compound input field like a social security number input. The custom input element should have the
+`paper-input-input` class, have a `notify:true` value property and optionally implements
+`Polymer.IronValidatableBehavior` if it is validatable.
+
+    <bf-input-container attr-for-value="ssn-value">
+      <label>Social security number</label>
+      <ssn-input class="paper-input-input"></ssn-input>
+    </bf-input-container>
+
+
+If you're using a `<bf-input-container>` imperatively, it's important to make sure
+that you attach its children (the `iron-input` and the optional `label`) before you
+attach the `<bf-input-container>` itself, so that it can be set up correctly.
+
+### Validation
+
+If the `auto-validate` attribute is set, the input container will validate the input and update
+the container styling when the input value changes.
+
+### Add-ons
+
+Add-ons are child elements of a `<bf-input-container>` with the `add-on` attribute and
+implements the `Polymer.PaperInputAddonBehavior` behavior. They are notified when the input value
+or validity changes, and may implement functionality such as error messages or character counters.
+They appear at the bottom of the input.
+
+### Prefixes and suffixes
+These are child elements of a `<bf-input-container>` with the `prefix`
+or `suffix` attribute, and are displayed inline with the input, before or after.
+
+    <bf-input-container>
+      <label>Total</label>
+      <input is="iron-input">
+    </bf-input-container>
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--bf-input-container-background-color` | Background color of the inputer container | `---white-matter`
+`--bf-input-container-color` | Label color when the input is not focused | `--input-text`
+`--bf-input-container-focus-color` | Label color when the input is focused | `--app-primary-color`
+`--bf-input-container-invalid-color` | Label color when the input is is invalid | `--error-color`
+`--bf-input-container-input-color` | Input foreground color | `--primary-text-color`
+`--bf-input-container-helper-color` | Color of the helper copy below the input | `--glial`
+`--bf-input-container` | Mixin applied to the container | `{}`
+`--bf-input-container-disabled` | Mixin applied to the container when it's disabled | `{}`
+`--bf-input-container-label` | Mixin applied to the label | `{}`
+`--bf-input-container-label-focus` | Mixin applied to the label when the input is focused | `{}`
+`--bf-input-container-input` | Mixin applied to the input | `{}`
+`--bf-input-container-input-webkit-spinner` | Mixin applied to the webkit spinner | `{}`
+`--paper-input-prefix` | Mixin applied to the input prefix | `{}`
+`--paper-input-suffix` | Mixin applied to the input suffix | `{}`
+
+This element is `display:block` by default, but you can set the `inline` attribute to make it
+`display:inline-block`.
+-->
+
+<dom-module id="bf-input-container">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host([inline]) {
+        display: inline-block;
+      }
+
+      :host([disabled]) {
+        pointer-events: none;
+        opacity: 0.33;
+
+        @apply(--bf-input-container-disabled);
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      :host([invalid][show-invalid]) ::slotted([slot="helper"]) {
+        color: var(--error-color);
+      }
+
+      :host ::slotted([slot="password-recommendation"]) {
+        color: var(--success-color);
+      }
+
+      :host([invalid]) ::slotted([slot="password-recommendation"]) {
+        color: var(--error-color);
+      }
+
+      #labelWrap {
+        color: #000;
+        display: block;
+        font-weight: 500;
+        margin-bottom: 6px;
+        pointer-events: none;
+      }
+
+      .input-container {
+        @apply(--layout-flex-auto);
+        @apply(--layout-horizontal);
+
+        background: var(--bf-input-container-background-color, --white-matter);
+        border: 1px solid var(--cortex);
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 14px;
+        line-height: inherit;
+        max-width: 100%;
+        padding: 10px;
+        position: relative;
+        width: 100%;
+
+        @apply(--bf-input-container);
+      }
+
+      :host(.info-panel) .input-container {
+        border: solid 1px var(--white-matter);
+        border-radius: 0;
+        padding: 9px;
+      }
+
+      :host(.info-panel) .input-container:hover,
+      :host(.info-panel) .input-container:focus {
+        border: solid 1px var(--cortex);
+      }
+
+      .input-content ::content input,
+      .input-content ::content textarea,
+      .input-content ::content iron-autogrow-textarea,
+      .input-content ::content .paper-input-input {
+        position: relative; /* to make a stacking context */
+        outline: none;
+        box-shadow: none;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        background: transparent;
+        border: none;
+        color: var(--bf-input-container-input-color, --input-text);
+        -webkit-appearance: none;
+        font-family: 'FiraSans', sans-serif;
+        font-size: 14px;
+        line-height: 18px;
+
+        @apply(--bf-input-container-input);
+      }
+
+      .input-content ::content input::-webkit-outer-spin-button,
+      .input-content ::content input::-webkit-inner-spin-button {
+        @apply(--bf-input-container-input-webkit-spinner);
+      }
+
+      /* Firefox sets a min-width on the input, which can cause layout issues */
+      .input-content ::content input {
+        min-width: 0;
+      }
+
+      .input-content ::content textarea {
+        resize: none;
+      }
+
+      .add-on-content {
+        position: relative;
+      }
+
+      .add-on-content.is-invalid ::content * {
+        color: var(--bf-input-container-invalid-color, --error-color);
+      }
+
+      .add-on-content.is-highlighted ::content * {
+        color: var(--bf-input-container-focus-color, --app-primary-color);
+      }
+
+      ::slotted([slot="helper"]) {
+        color: var(--bf-input-container-helper-color, --glial);
+        font-size: 13px;
+        margin-top: 8px;
+      }
+      :slotted([slot="suffix"]) {
+        margin-left: 10px;
+      }
+
+      .icon-invalid {
+        --bf-icon-circle-background: var(--error-color);
+        --bf-icon-circle-color: var(--white-matter);
+        --bf-icon-circle: {
+          height: 22px;
+          margin: -2px 0 -2px 10px;
+          min-height: 22px;
+          min-width: 22px;
+          width: 22px;
+        }
+        --iron-icon: {
+          height: 8px;
+          width: 8px;
+        }
+      }
+    </style>
+
+    <div class$="[[_computeInputContentClass(focused,invalid,_inputHasContent)]]">
+      <div id="labelWrap" visuallyhidden$="[[hideLabel]]">
+        <content select="label"></content>
+      </div>
+
+      <div class="input-container" id="labelAndInputContainer">
+        <slot name="input"></slot>
+        <slot name="suffix"></slot>
+        <template is="dom-if" if="{{showIcon}}">
+          <bf-icon-circle class="icon-invalid" hidden$="[[!invalid]]">
+            <iron-icon icon="blackfynn:close_x"></iron-icon>
+          </bf-icon-circle>
+        </template>
+      </div>
+    </div>
+
+    <div class$="[[_computeAddOnContentClass(focused,invalid)]]">
+      <content id="addOnContent" select="[add-on]"></content>
+    </div>
+
+    <slot name="password-recommendation"></slot>
+
+    <slot name="helper"></slot>
+
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'bf-input-container',
+
+    properties: {
+
+      hideLabel: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+
+      /**
+       * The attribute to listen for value changes on.
+       */
+      attrForValue: {
+        type: String,
+        value: 'bind-value'
+      },
+
+      /**
+       * Set to true to auto-validate the input value when it changes.
+       */
+      autoValidate: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * True if the input is invalid. This property is set automatically when the input value
+       * changes if auto-validating, or when the `iron-input-validate` event is heard from a child.
+       */
+      invalid: {
+        observer: '_invalidChanged',
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * True if the input has focus.
+       */
+      focused: {
+        readOnly: true,
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+
+      _addons: {
+        type: Array
+        // do not set a default value here intentionally - it will be initialized lazily when a
+        // distributed child is attached, which may occur before configuration for this element
+        // in polyfill.
+      },
+
+      _inputHasContent: {
+        type: Boolean,
+        value: false
+      },
+
+      _inputSelector: {
+        type: String,
+        value: 'input,textarea,.paper-input-input'
+      },
+
+      _boundOnFocus: {
+        type: Function,
+        value: function() {
+          return this._onFocus.bind(this);
+        }
+      },
+
+      _boundOnBlur: {
+        type: Function,
+        value: function() {
+          return this._onBlur.bind(this);
+        }
+      },
+
+      _boundOnInput: {
+        type: Function,
+        value: function() {
+          return this._onInput.bind(this);
+        }
+      },
+
+      _boundValueChanged: {
+        type: Function,
+        value: function() {
+          return this._onValueChanged.bind(this);
+        }
+      },
+      showIcon: {
+        type: Boolean,
+        value: true
+      }
+    },
+
+    listeners: {
+      'addon-attached': '_onAddonAttached',
+      'iron-input-validate': '_onIronInputValidate'
+    },
+
+    get _valueChangedEvent() {
+      return this.attrForValue + '-changed';
+    },
+
+    get _propertyForValue() {
+      return Polymer.CaseMap.dashToCamelCase(this.attrForValue);
+    },
+
+    get _inputElement() {
+      return Polymer.dom(this).querySelector(this._inputSelector);
+    },
+
+    get _inputElementValue() {
+      return this._inputElement[this._propertyForValue] || this._inputElement.value;
+    },
+
+    ready: function() {
+      if (!this._addons) {
+        this._addons = [];
+      }
+      this.addEventListener('focus', this._boundOnFocus, true);
+      this.addEventListener('blur', this._boundOnBlur, true);
+    },
+
+    attached: function() {
+      if (this.attrForValue) {
+        this._inputElement.addEventListener(this._valueChangedEvent, this._boundValueChanged);
+      } else {
+        this.addEventListener('input', this._onInput);
+      }
+
+      // Hide label if needed
+      if(this.hideLabel) {
+        // Polymer.dom(this).querySelector('label').setAttribute('hidden', '');
+      }
+
+      // Only validate when attached if the input already has a value.
+      if (this._inputElementValue !== '') {
+        this._handleValueAndAutoValidate(this._inputElement);
+      } else {
+        this._handleValue(this._inputElement);
+      }
+    },
+
+    _onAddonAttached: function(event) {
+      if (!this._addons) {
+        this._addons = [];
+      }
+      const target = event.target;
+      if (this._addons.indexOf(target) === -1) {
+        this._addons.push(target);
+        if (this.isAttached) {
+          this._handleValue(this._inputElement);
+        }
+      }
+    },
+
+    _onFocus: function() {
+      this._setFocused(true);
+    },
+
+    _onBlur: function() {
+      this._setFocused(false);
+      this._handleValueAndAutoValidate(this._inputElement);
+    },
+
+    _onInput: function(event) {
+      this._handleValueAndAutoValidate(event.target);
+    },
+
+    _onValueChanged: function(event) {
+      this._handleValueAndAutoValidate(event.target);
+    },
+
+    _handleValue: function(inputElement) {
+      const value = this._inputElementValue;
+
+      // type="number" hack needed because this.value is empty until it's valid
+      if (value || value === 0 || (inputElement.type === 'number' && !inputElement.checkValidity())) {
+        this._inputHasContent = true;
+      } else {
+        this._inputHasContent = false;
+      }
+
+      this.updateAddons({
+        inputElement: inputElement,
+        value: value,
+        invalid: this.invalid
+      });
+    },
+
+    _handleValueAndAutoValidate: function(inputElement) {
+      if (this.autoValidate) {
+        let valid;
+        if (inputElement.validate) {
+          valid = inputElement.validate(this._inputElementValue);
+        } else {
+          valid = inputElement.checkValidity();
+        }
+        this.invalid = !valid;
+      }
+
+      // Call this last to notify the add-ons.
+      this._handleValue(inputElement);
+    },
+
+    _onIronInputValidate: function(event) {
+      this.invalid = this._inputElement.invalid;
+    },
+
+    _invalidChanged: function() {
+      if (this._addons) {
+        this.updateAddons({invalid: this.invalid});
+      }
+    },
+
+    /**
+     * Call this to update the state of add-ons.
+     * @param {Object} state Add-on state.
+     */
+    updateAddons: function(state) {
+      for (let addon, index = 0; addon = this._addons[index]; index++) {
+        addon.update(state);
+      }
+    },
+
+    _computeInputContentClass: function(focused, invalid, _inputHasContent) {
+      let cls = 'input-content';
+
+      if (invalid) {
+        cls += ' is-invalid';
+      } else if (focused) {
+        cls += ' label-is-highlighted';
+      }
+      return cls;
+    },
+
+    _computeAddOnContentClass: function(focused, invalid) {
+      let cls = 'add-on-content';
+      if (invalid) {
+        cls += ' is-invalid';
+      } else if (focused) {
+        cls += ' is-highlighted'
+      }
+      return cls;
+    }
+  });
+</script>

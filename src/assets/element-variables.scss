@@ -1,0 +1,25 @@
+@import './variables';
+
+/* icon font path, required */
+$--color-primary: $app-primary-color;
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+@import "~element-ui/packages/theme-chalk/src/index";
+@import './components/_el-popover';
+@import './components/_el-dialog';
+@import './components/_el-input';
+@import './components/_el-form';
+@import './components/_el-dropdown';
+@import './components/_el-checkbox';
+@import './components/_el-radio';
+@import './components/_el-message';
+@import './components/_el-select';
+@import './components/_el-collapse';
+@import './components/_el-loading';
+@import './components/_el-tooltip';
+@import './components/_bf-menu';
+@import './components/_bf-table';
+@import './components/_bf-tabs';
+@import './components/_pagination';
+@import './transitions';
+@import './base';

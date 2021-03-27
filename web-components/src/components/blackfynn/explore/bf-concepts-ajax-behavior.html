@@ -1,0 +1,52 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+
+  Blackfynn.ConceptsAjaxBehavior = {
+    behaviors: [
+      StateAwareBehavior
+    ],
+
+    properties: {
+      /**
+       * Compute xhr headers
+       */
+      _conceptHeaders: {
+        type: Object,
+        computed: '_computeConceptHeaders(state.userToken)'
+      }
+    },
+
+    /**
+     * Compute xhr headers
+     * @param {String} userToken
+     */
+    _computeConceptHeaders: function(userToken) {
+      return {
+        authorization: `bearer ${userToken}`
+      }
+    },
+
+    /**
+     * Get concept callback
+     * @param {Object} e
+     * @param {Object} detail
+     */
+    _onGetConcept: function(e, detail) {
+      const node = R.pathOr({}, ['response', 'node'], detail);
+      const edges = R.pathOr([], ['response', 'edges'], detail);
+      const concepts = R.pathOr([], ['response', 'concepts'], detail);
+      const proxyConcepts = R.pathOr([], ['response', 'proxyConcepts'], detail);
+      this.set('node', node);
+      this.set('edges', edges);
+      this.set('concepts', concepts);
+      this.set('proxyConcepts', proxyConcepts);
+    }
+  }
+
+</script>

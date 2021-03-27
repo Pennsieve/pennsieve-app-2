@@ -1,0 +1,130 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../../shared/patched-overlay-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<script src="../../../../../node_modules/clipboard-js/clipboard.min.js"></script>
+
+<!--
+# api-keys-info-window
+Component that displays newly created API token and allows user to copy API to clipboard.
+
+@element api-keys-info-window
+-->
+<dom-module id="api-keys-info-window">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        display: block;
+      }
+      .bold {
+        font-weight: 700;
+      }
+      .key {
+        color: var(--glial);
+      }
+      .copiedMsg {
+        color: var(--nucleus);
+        margin-bottom: 20px;
+      }
+      paper-button.save {
+        margin-right: 5px;
+      }
+      dt {
+        margin: 10px 0 5px 0;
+      }
+      dd {
+        margin: 0;
+      }
+      #apikey {
+        margin-bottom: 10px;
+      }
+    </style>
+
+    <bf-dialog id="dialog" on-iron-overlay-opened="patchOverlay" opened="{{opened}}" processing="[[processing]]">
+      <h2 slot="heading">API Key</h2>
+
+      <div slot="body">
+        <p class="bold">For your protection, store your access keys securely and do not share them. You will not
+        be able to access the key again once this window is closed.</p>
+        <dl>
+          <dt>Key</dt>
+          <dd id="apikey" class="key">[[key.key]]</dd>
+          <dt>Secret</dt>
+          <dd id="apisecret" class="key">[[key.secret]]</dd>
+        </dl>
+      </div>
+
+      <div slot="buttons">
+        <div hidden$="[[!isKeyCopied]]" class="copiedMsg">API key copied to the clipboard.</div>
+        <paper-button class="save" on-tap="_copyKey" noink hidden$="[[isKeyCopied]]">Copy API Key</paper-button>
+        <paper-button class="save" on-tap="_copySecret" noink hidden$="[[isSecretCopied]]">Copy API Secret</paper-button>
+        <div hidden$="[[!isSecretCopied]]" class="copiedMsg">API secret copied to the clipboard.</div>
+      </div>
+    </bf-dialog>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'api-keys-info-window',
+
+      behaviors: [
+        Blackfynn.PatchedOverlayBehavior,
+      ],
+
+      listeners: {
+        'iron-overlay-closed': '_resetDialog'
+      },
+      properties: {
+        /**
+         * newly created key object
+         */
+        key: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * tracks whether user clicked on Copy button
+         */
+        isKeyCopied: {
+          type: Boolean,
+          value: false
+        },
+        isSecretCopied: {
+          type: Boolean,
+          value: false
+        },
+      },
+
+      _resetDialog: function(e) {
+        this.set('isSecretCopied', false);
+        this.set('isKeyCopied', false);
+      },
+      /**
+       * Copies API key string to user's clipboard and fires toast
+       * @param {Event} e
+       */
+      _copyKey: function(e) {
+        const apiKey = this.$$('#apikey').textContent;
+        clipboard.copy(apiKey);
+        this.set('isKeyCopied', true);
+      },
+
+      _copySecret: function(e) {
+        const apiSecret = this.$$('#apisecret').textContent;
+        clipboard.copy(apiSecret);
+        this.set('isSecretCopied', true);
+      },
+
+
+    });
+  </script>
+</dom-module>

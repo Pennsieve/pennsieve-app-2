@@ -1,0 +1,23 @@
+@import './_variables.scss';
+
+.icon-item {
+  color: $blackfynn-data;
+}
+.icon-item.folder, .icon-item.folder-special, .icon-item.folder-shared {
+  color: $glial;
+}
+.icon-item.text {
+  color: #85949e;
+}
+.icon-item.image {
+  color: $blackfynn-green;
+}
+.icon-item.video {
+  color: #b74b4b
+}
+.icon-item.pdf {
+  color: $blackfynn-data;
+}
+.icon-item.timeseries, .icon-item.tabular {
+  color: $blackfynn-blue-bright;
+}

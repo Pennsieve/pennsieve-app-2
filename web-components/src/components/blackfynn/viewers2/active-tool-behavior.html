@@ -1,0 +1,29 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.ActiveToolBehavior = {
+    attached: function() {
+      this.$store.watch(state => state.viewer.viewerActiveTool, this.setActiveTool.bind(this))
+    },
+
+   /**
+    * Watch viewer active tool and set the tool in the viewer
+    * @param {String} viewerActiveTool
+    */
+    setActiveTool: function(viewerActiveTool) {
+      if (viewerActiveTool) {
+        // Set first character of tool to be capitalized to the method is camel case
+        const methodName = 'set' + viewerActiveTool.charAt(0).toUpperCase() + viewerActiveTool.slice(1)
+
+        // Check the method
+        if(typeof this[methodName] === 'function') {
+          this[methodName]()
+        }
+      }
+    }
+  }
+</script>

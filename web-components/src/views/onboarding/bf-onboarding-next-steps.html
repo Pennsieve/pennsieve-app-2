@@ -1,0 +1,89 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../components/blackfynn/shared/bf-icon-circle/bf-icon-circle.html">
+
+<link rel="import" href="../../styles/blackfynn/main.html">
+<link rel="import" href="../../styles/blackfynn/login.html">
+
+<dom-module id="bf-onboarding-next-steps">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-login-styles"></style>
+    <style>
+      :host {
+        background: var(--neuron);
+        display: block;
+      }
+      ol {
+        list-style: none;
+        margin: 0 0 40px -50px;
+        padding: 0;
+      }
+      li {
+        color: #000;
+        font-size: 16px;
+        margin-bottom: 20px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      li:last-of-type {
+        margin: 0;
+      }
+      bf-icon-circle {
+        --bf-icon-circle-background: var(--app-primary-color);
+        --bf-icon-circle-color: var(--white-matter);
+        margin-right: 18px;
+        --bf-icon-circle: {
+          font-size: 14px;
+          font-weight: 700;
+          height: 32px;
+          line-height: 1;
+          width: 32px;
+        }
+
+      }
+    </style>
+
+    <div class="wrapper">
+      <div class="login-wrap">
+        <h2 class="sharp-sans">Thanks. Let’s get started.</h2>
+        <p>In the next few steps we’ll help you get you and your team up and running with Blackfynn.</p>
+
+        <ol>
+          <li>
+            <bf-icon-circle>1</bf-icon-circle>
+            <span>Finish setting up your organization.</span>
+          </li>
+          <li>
+            <bf-icon-circle>2</bf-icon-circle>
+            <span>Invite your team.</span>
+          </li>
+          <li>
+            <bf-icon-circle>3</bf-icon-circle>
+            <span>Start uploading your data.</span>
+          </li>
+        </ol>
+
+        <paper-button class="save" noink on-tap="onGetStartedClick">Get started</paper-button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-onboarding-next-steps',
+      /**
+       * Route user to organization page
+       */
+      onGetStartedClick: function() {
+        this.fire('set-vue-route', { name: 'welcome', params: { page: 'organization' } })
+      }
+    });
+
+  </script>
+
+</dom-module>

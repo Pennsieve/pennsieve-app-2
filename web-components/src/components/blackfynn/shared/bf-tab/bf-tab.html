@@ -1,0 +1,173 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-behaviors/iron-button-state.html">
+<link rel="import" href="../../../../../bower_components/iron-behaviors/iron-control-state.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+`bf-tab` is styled to look like a tab.  It should be used in conjunction with
+`paper-tabs`. It is based off of the [paper-tab](https://www.webcomponents.org/element/PolymerElements/paper-tabs/paper-tab) component by Polymer.
+
+Example:
+
+    <paper-tabs selected="0">
+      <bf-tab>TAB 1</bf-tab>
+      <bf-tab>TAB 2</bf-tab>
+      <bf-tab>TAB 3</bf-tab>
+    </paper-tabs>
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--bf-tab` | Mixin applied to the tab | `{}`
+`--bf-tab-content` | Mixin applied to the tab content | `{}`
+`--bf-tab-content-unselected` | Mixin applied to the tab content when the tab is not selected | `{}`
+`--bf-tab-focus` | Mixing applied to the tab content when tab is focused | `{}`
+
+@element bf-input
+@demo demo/index.html
+-->
+
+<dom-module id="bf-tab">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        @apply(--layout-inline);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--layout-flex-auto);
+
+        background: #F9F9F9;
+        border-right: 1px solid var(--cortex);
+        box-shadow: 0 -1px var(--cortex) inset;
+        color: var(--text-color);
+        position: relative;
+        padding: 0 25px;
+        overflow: hidden;
+        cursor: pointer;
+        vertical-align: middle;
+
+        @apply(--bf-tab);
+      }
+
+      :host([first-of-type]){
+        border-left: 1px solid var(--cortex);
+      }
+
+      :host(:focus) {
+        outline: none;
+      }
+
+      :host(:not(.iron-selected)[focused]), :host(:not(.iron-selected):hover) {
+        background: var(--app-primary-color);
+        color: var(--white-matter);
+      }
+
+      :host([link]) {
+        padding: 0;
+      }
+
+      :host(.iron-selected){
+        background: var(--white-matter);
+        box-shadow: none;
+      }
+
+      .tab-content {
+        font-size: 12px;
+        height: 100%;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+        @apply(--layout-flex-auto);
+        @apply(--bf-tab-content);
+      }
+
+      :host(:not(.iron-selected)) {
+        color: var(--glial);
+      }
+      :host(:not(.iron-selected)) > .tab-content {
+        @apply(--bf-tab-content-unselected);
+      }
+
+      :host(:focus) .tab-content {
+        @apply(--bf-tab-content-focus);
+      }
+
+      .tab-content > ::content > a {
+        @apply(--layout-flex-auto);
+
+        height: 100%;
+      }
+    </style>
+
+    <div class="tab-content">
+      <content></content>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-tab',
+
+      behaviors: [
+        Polymer.IronControlState,
+        Polymer.IronButtonState,
+      ],
+
+      properties: {
+
+        /**
+         * If true, the tab will forward keyboard clicks (enter/space) to
+         * the first anchor element found in its descendants
+         */
+        link: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+
+      },
+
+      hostAttributes: {
+        role: 'tab'
+      },
+
+      listeners: {
+        tap: '_onTap'
+      },
+
+      _onTap: function(event) {
+        if (this.link) {
+          const anchor = this.queryEffectiveChildren('a');
+
+          if (!anchor) {
+            return;
+          }
+
+          // Don't get stuck in a loop delegating
+          // the listener from the child anchor
+          if (event.target === anchor) {
+            return;
+          }
+
+          anchor.click();
+        }
+      }
+
+    });
+  </script>
+</dom-module>

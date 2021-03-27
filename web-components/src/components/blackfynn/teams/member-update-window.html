@@ -1,0 +1,94 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-member-update-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <paper-dialog id="dialog" with-backdrop on-iron-overlay-opened="patchOverlay">
+      <div>
+        <h2>Edit [[member.firstName]] [[member.lastName]]</h2>
+      </div>
+
+      <div class="dialog-body">
+        <paper-input label="Email" value="{{member.email}}" disabled=true></paper-input>
+        <paper-input label="First name" value="{{member.firstName}}" required=true></paper-input>
+        <paper-input label="Last name" value="{{member.lastName}}" required=true></paper-input>
+        <paper-input label="Organization" value="{{member.organization}}" required=true></paper-input>
+        <paper-input label="Title" value="{{member.credential}}" required=true></paper-input>
+        <paper-input label="Website" value="{{member.url}}" required=true></paper-input>
+      </div>
+
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button class="primary" on-tap="_doUpdateMember">Save</paper-button>
+      </div>
+    </paper-dialog>
+
+    <iron-ajax
+      id="putMember"
+      method="PUT"
+      handle-as="json"
+      content-type="application/json"
+      on-error="ajaxError"
+      on-response="_handleUpdateMember"
+      debounce-duration="300"></iron-ajax>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-member-update-window',
+
+      behaviors: [
+        Blackfynn.PatchedOverlayBehavior
+      ],
+
+      properties: {
+        team : {
+          type: Object
+        },
+        member: {
+          type: Object
+        }
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      _doUpdateMember: function() {
+        this.$.putMember.url = `${this.api}/users/me?api_key=${this.user}`;
+        this.$.putMember.body = {
+          firstName: this.member.firstName,
+          lastName: this.member.lastName,
+          credential: this.member.credential,
+          organization: this.member.organization,
+          url: this.member.url
+        };
+        this.$.putMember.generateRequest();
+        this.$.dialog.toggle();
+      },
+
+      _handleUpdateMember: function(e, detail) {
+        this.fire('memberUpdated', detail.response);
+      }
+    });
+
+  </script>
+
+</dom-module>

@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+message Event {
+  string source = 1;     //channel id
+  uint64 pageStart = 2;  // the start of the requested range
+  uint64 pageEnd = 3;    // the end of the requested range
+  double samplePeriod = 4;  //number of microseconds represented by each sample
+  uint64 points_per_event = 5; //the number of data points in the data field for each event
+  bool isResampled = 6; //tells us whether the data field contains raw data points or event counts
+  repeated double data = 7 [packed=true];   // a flattened list of spike data, each one corresponding to a time in the times array
+  repeated uint64 times = 8 [packed=true];  //  a flattened list of (time,count) pairs
+  repeated uint32 spike_group = 9 [packed=true]; // which group each event belongs to  (determined by spike sorting)
+}
+message Instruction {
+  string command = 1;
+  string argument = 2;
+}
+
+message Segment {
+  uint64 startTs = 1;
+  string source = 2;
+  uint64 lastUsed = 3;
+  string unit = 4;
+  double samplePeriod = 5;
+  double requestedSamplePeriod = 6;
+  uint64  pageStart = 7;
+  bool isMinMax = 8;
+  uint64 unitM = 9;
+  string segmentType = 10;
+  uint64 nrPoints = 11;
+  repeated double data = 12 [packed=true];
+  uint64 pageEnd = 13;
+  string channelName = 14;
+}
+
+message IngestSegment {
+  string channelId = 1;
+  uint64 startTime= 2;
+  double samplePeriod = 3;
+  repeated double data = 4;
+}
+message TimeSeriesMessage {
+  Segment segment = 3;
+  repeated Event event = 4;
+  Instruction instruction = 5;
+  IngestSegment ingestSegment = 6;
+  uint64 totalResponses = 7;
+  uint64 responseSequenceId = 8;
+}

@@ -1,0 +1,55 @@
+@import '../../../../assets/_variables.scss';
+
+.concept-instance-property {
+  box-sizing: border-box;
+  color: #000;
+  border-top: 1px solid $cortex;
+  min-height: 49px;
+  padding: 16px 0;
+  &:first-child {
+    border: none;
+  }
+  &:hover {
+    .icon-prop {
+      display: inline-flex;
+    }
+  }
+  .name {
+    color: $glial;
+    font-weight: 500;
+    position: relative;
+  }
+  .property-label {
+    display: inline-block;
+    max-width: 85%;
+    overflow: hidden;
+    position: relative;
+    top: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    .editing & {
+      top: 12px;
+    }
+  }
+  .required {
+    display: inline-block;
+    position: relative;
+    top: 6px;
+  }
+  .property-value.boolean {
+    text-transform: capitalize
+  }
+  .icon-prop {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .button-edit {
+    color: $glial;
+    margin-left: 8px;
+    &:hover {
+      color: $app-primary-color
+    }
+  }
+}

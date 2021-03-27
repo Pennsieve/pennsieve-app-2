@@ -1,0 +1,53 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Blackfynn</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/images/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/static/images/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/static/images/favicons/favicon-16x16.png" sizes="16x16">
+  <link rel="mask-icon" href="/static/images/favicons/safari-pinned-tab.svg" color="#2760ff">
+  <link rel="manifest" href="/manifest.json">
+
+  <meta name="theme-color" content="#fff">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style is="custom-style">
+    iron-overlay-backdrop {
+      --iron-overlay-backdrop-opacity: 0.5;
+    }
+  </style>
+
+  <script src="src/app.js"></script>
+
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="bower_components/iron-input/iron-input.html">
+  <link rel="import" href="src/blackfynn-app.html">
+
+</head>
+<body>
+
+  <template is="dom-bind">
+    <blackfynn-app password="{{password}}" email="{{email}}"></blackfynn-app>
+
+    <form class="login-form">
+      <input is="iron-input" id="inputEmail" autocomplete="email" name="email" type="email" bind-value="{{email}}">
+      <input is="iron-input" id="inputPassword" autocomplete="current-password" name="password" type="password" bind-value="{{password}}">
+    </form>
+  </template>
+
+</body>
+</html>

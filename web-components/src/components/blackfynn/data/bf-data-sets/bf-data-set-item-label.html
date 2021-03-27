@@ -1,0 +1,106 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../shared/filetype-mapper-behavior.html">
+<link rel="import" href="../../shared/item-icon-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/data-item.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+<!--
+## bf-data-set-item-label
+
+`<bf-data-set-item-label>` is a component to display the icon, name, and share link for a given data set.
+
+Currently designed to be used within the `<bf-data-set-item>` component.
+
+@element bf-data-set-item-label
+@demo ./demo/label-demo.html
+-->
+
+<dom-module id="bf-data-set-item-label">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style include="bf-data-item-styles"></style>
+    <style>
+      :host {
+        align-items: center;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        overflow-x: hidden;
+        padding: 0 20px 0 20px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      :host([is-hovering]) .nameVal span {
+        color: var(--app-primary-color);
+        text-decoration: underline;
+      }
+      :host([is-hovering]) .nameVal span:hover {
+        cursor: pointer;
+      }
+      .data-set-icon {
+        background: #eee;
+        border: solid 1px var(--cortex);
+        height: 48px;
+        overflow: hidden;
+        width: 48px;
+      }
+      .data-set-info {
+        flex: 1;
+      }
+      .data-set-title {
+        color: var(--dopamine);
+        font-size: 16px;
+        line-height: 23px;
+        font-weight: 500;
+      }
+      .data-set-share {
+        color: #999;
+        font-size: 10px;
+      }
+    </style>
+
+    <!-- <div class="data-set-icon"></div> -->
+
+    <div class="data-set-info">
+      <div class="data-set-title nameVal" hidden="[[isEditing]]">
+        <span on-tap="_openItem">[[name]]</span>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-data-set-item-label',
+
+      behaviors: [
+        Blackfynn.FileTypeMapperBehavior,
+        Blackfynn.ItemIconBehavior
+      ],
+
+      properties: {
+        /**
+         * Name of the data set
+         */
+        name: {
+          type: String,
+          value: 'Data Set'
+        },
+      },
+
+      /**
+       * Dispatches an event to open a collection
+       */
+      _openItem: function() {
+        this.fire('open-item');
+      }
+    });
+  </script>
+
+</dom-module>

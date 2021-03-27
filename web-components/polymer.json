@@ -1,0 +1,41 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/blackfynn-app.html",
+  "fragments": [
+    "src/views/404.html",
+    "src/views/login.html",
+    "src/views/search.html",
+    "src/views/not-logged-in.html",
+    "src/views/settings.html",
+    "src/views/password.html",
+    "src/views/welcome.html",
+    "src/components/blackfynn/viewers2/pdf/viewer.html",
+    "src/components/blackfynn/viewers2/mri/viewer.html",
+    "src/components/blackfynn/viewers2/image/viewer.html",
+    "src/components/blackfynn/viewers2/timeseries/viewer.html",
+    "src/components/blackfynn/shared/bf-zoom-tool/test/bf-zoom-tool.html",
+    "src/components/blackfynn/shared/bf-rotate-tool/bf-rotate-tool.html",
+    "src/components/blackfynn/palettes/bf-palette-navigator/bf-palette-navigator.html",
+    "src/components/blackfynn/palettes/bf-palette-discussion/bf-palette-discussion.html",
+    "src/components/blackfynn/palettes/annotations/all-imports.html"
+  ],
+  "sources": [
+   "src/**/*",
+   "images/**/*",
+   "bower.json",
+   "css/**/*",
+   "font/**/*"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js",
+    "bower_components/web-animations-js/web-animations-next-lite.min.js.map",
+    "bower_components/paper-checkbox/**/*",
+    "bower_components/paper-listbox/**/*",
+    "bower_components/paper-checkbox/**/*",
+    "bower_components/paper-listbox/**/*",
+    "bower_components/app-storage/**/*",
+    "bower_components/paper-behaviors/paper-checked-element-behavior.html",
+    "bower_components/iron-checked-element-behavior/iron-checked-element-behavior.html"
+  ]
+}

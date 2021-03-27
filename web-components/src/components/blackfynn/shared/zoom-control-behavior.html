@@ -1,0 +1,136 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.SharedZoomControl = {
+    properties: {
+      icon1: {
+        type: String,
+        value: 'zoom-in'
+      },
+      icon2: {
+        type: String,
+        value: 'zoom-out'
+      },
+      icon3: {
+        type: String,
+        value: 'zoom-in'
+      },
+      label: {
+        type: String,
+        value: 'Value'
+      },
+      unit: {
+        type: String,
+        value: '(unit)'
+      },
+      value: {
+        type: String,
+        value: '',
+        observer: '_valueChanged'
+      },
+      parent: {
+        type: Object,
+        value: {}
+      },
+      parentfnc: {
+        type: String,
+        value: ''
+      },
+      precision: {
+        type: Number,
+        value: 3
+      },
+      noFormatting: {
+        type: Boolean,
+        value: false
+      },
+      target: {
+        type: Object,
+        value: function() {
+          return this.$.valueBox;
+        }
+      },
+      mwidth: {
+        notify: true,
+        type: Number,
+        value: null
+
+      },
+      calcStyle: {
+        computed: '_cpInputStyle(mwidth)'
+      },
+      hideIcon1: {
+        computed: '_cpHideIcon(icon1)'
+      },
+      hideIcon2: {
+        computed: '_cpHideIcon(icon2)'
+      }
+
+    },
+    _cpHideIcon: function(icon) {
+      return icon === '';
+    },
+    _cpInputStyle: function(m) {
+      if (m === null) {
+        return '';
+      }
+      return 'max-width:' + m + 'px';
+    },
+    _focusControl: function(e, details) {
+      this.noFormatting = true;
+    },
+    _blurinput: function(e, details) {
+      this.noFormatting = false;
+      if (this.parent) {
+        const fn = this.parent[this.parentfnc + '_blur'];
+        if (typeof fn === 'function') {
+          fn.apply(this.parent, [this.value]);
+        }
+      }
+    },
+
+    _valueChanged: function(newValue, oldValue) {
+      if (newValue === '' || !newValue) {
+        this.value = '';
+      } else if (!this.noFormatting && ((newValue / ((0.1) ^ this.precision)) % 1 !== 0)) {
+        this.value = parseFloat(newValue).toFixed(this.precision);
+      }
+
+      if (this.parent) {
+        const fn = this.parent[this.parentfnc + '_change'];
+        if (typeof fn === 'function') {
+          fn.apply(this.parent, [newValue]);
+        }
+      }
+
+    },
+
+    _onClick1: function(e, details) {
+      const wasFormatting = this.noFormatting
+      this.noFormatting = false;
+      if (this.parent) {
+        const fn = this.parent[this.parentfnc + '_btn1'];
+        if (typeof fn === 'function') {
+          fn.apply(this.parent, [this.value]);
+        }
+      }
+      this.noFormatting = wasFormatting
+    },
+    _onClick2: function(e, details) {
+      const wasFormatting = this.noFormatting
+      this.noFormatting = false;
+      if (this.parent) {
+        const fn = this.parent[this.parentfnc + '_btn2'];
+        if (typeof fn === 'function') {
+          fn.apply(this.parent, [this.value]);
+        }
+      }
+      this.noFormatting = wasFormatting
+    },
+
+    ready: function() {},
+    attached: function() {}
+  }
+</script>

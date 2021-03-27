@@ -1,0 +1,348 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../shared/bf-tab/bf-tab.html">
+<link rel="import" href="../../shared/zoom-control.html">
+<link rel="import" href="../../shared/bf-logger/bf-logger-behavior.html">
+<link rel="import" href="../../shared/value-control.html">
+
+<dom-module id="blackfynn-viewer-timeseries-toolbar">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+    </style>
+  </template>
+
+<script>
+  Polymer({
+
+    is: 'blackfynn-viewer-timeseries-toolbar',
+
+    behaviors: [
+      Blackfynn.LoggerBehavior
+    ],
+
+    properties: {
+      layers: {
+        type: Object,
+        notify: true,
+      },
+      playControlsOpen: {
+        notify:true,
+        type: Boolean,
+        value: false
+      },
+      duration: {
+        observer: '_durationChanged'
+      },
+
+      durationCtl:{
+        notify: true,
+        type: Number,
+        value: 15
+      },
+      startTime: {
+        notify: true,
+        type: Number,
+        value: 0
+      },
+      zoomControlsOpen: {
+        type: Boolean,
+        value: false
+      },
+      zoom2ControlsOpen: {
+        type: Boolean,
+        value: false
+      },
+      zoomLevels: {
+        type: Array,
+        value: [1, 2, 4, 8, 10, 20, 40]
+      },
+      parent: {
+        type: Object,
+        value: null
+      },
+      mode: {
+        type: String,
+        value: 'pan'
+      },
+      viewer: {
+        type: Object,
+        value: null
+      },
+      intervalTimer: {
+        type: Number,
+        value: null
+      },
+      intervalPageMult:{
+        type: Number,
+        value: 0.05
+      },
+      intervalPage:{
+        computed: 'computeInterval(intervalPageMult, duration)'
+      },
+      isPlaying:{
+        type: Boolean,
+        value: false
+      },
+      intervalPeriod:{
+        type: Number,
+        value: 150
+      },
+      /**
+      * The current active tab
+      */
+      selectedTab: {
+        type: String,
+        notify: true,
+        value: 'timeseries'
+      }
+
+    },
+    _durationChanged: function() {
+      this.durationCtl = this.duration / 1e6;
+    },
+    computeInterval: function(mult, duration) {
+      return mult*duration;
+    },
+    _pauseAutoScroll: function() {
+      if (this.isPlaying) {
+        this.stopPlay();
+      } else{
+        this.startPlay();
+      }
+
+    },
+    _increaseIntervalPage: function() {
+      if (this.intervalPageMult > 0.09) {
+        this.intervalPageMult = 0.01 * Math.round(100*Math.min(1, this.intervalPageMult+0.1));
+      }else {
+        this.intervalPageMult = 0.01 * Math.round(100*Math.min(1, this.intervalPageMult+0.01));
+      }
+    },
+    _decreaseIntervalPage: function() {
+      if (this.intervalPageMult > 0.11) {
+        this.intervalPageMult = 0.01 * Math.round(100*Math.max(0.01, this.intervalPageMult-0.1));
+      } else {
+        this.intervalPageMult = 0.01 * Math.round(100*Math.max(0.01, this.intervalPageMult-0.01));
+      }
+    },
+    _zoomSelect: function() {
+      this.zoomControlsOpen = !this.zoomControlsOpen;
+      if(this.zoomControlsOpen) {
+        this.$.zoomSelect.setAttribute('selected', true);
+      } else {
+        this.$.zoomSelect.removeAttribute('selected');
+      }
+
+      // Close widthSelect if open
+      if(this.zoom2ControlsOpen) {
+        this.zoom2ControlsOpen = !this.zoom2ControlsOpen;
+        this.$.zoom2Select.removeAttribute('selected');
+      }
+    },
+    _zoom2Select: function() {
+      this.zoom2ControlsOpen = !this.zoom2ControlsOpen;
+      if(this.zoom2ControlsOpen) {
+        this.$.zoom2Select.setAttribute('selected', true);
+      } else {
+        this.$.zoom2Select.removeAttribute('selected');
+      }
+
+      // Close widthSelect if open
+      if(this.zoomControlsOpen) {
+        this.zoomControlsOpen = !this.zoomControlsOpen;
+        this.$.zoomSelect.removeAttribute('selected');
+      }
+    },
+    _playSelect: function() {
+      this.playControlsOpen = !this.playControlsOpen;
+      if(this.playControlsOpen) {
+        this.$.playSelect.setAttribute('selected', true);
+        this.startPlay();
+      } else {
+        this.$.playSelect.removeAttribute('selected');
+        this.stopPlay();
+      }
+    },
+    startPlay: function() {
+      this.isPlaying = true;
+
+      let that = this;
+      this.intervalTimerFnc = function() {
+        /*let nrPending = that.viewer.pendingPages.size;
+        if(nrPending > 0){
+            var keys = that.viewer.pendingPages.keys();
+            for (var i = 0 ; i < nrPending ; i++){
+                if (that.viewer.pendingPages.get(keys.next().value).inViewport) {
+                    that.intervalPeriod = that.intervalPeriod + nrPending*20;
+                    break;
+                }
+            }
+        } else if(that.intervalPeriod > 100){
+          that.intervalPeriod = Math.max(100,that.intervalPeriod - 50);
+        }
+
+        */
+        that.viewer.setStart(that.viewer.start + that.intervalPage);
+        that.viewer.renderAll(50);
+        that.intervalTimer = setTimeout( that.intervalTimerFnc, that.intervalPeriod);
+      }
+
+      this.intervalTimer = setTimeout(this.intervalTimerFnc, this.intervalPeriod);
+
+    },
+    stopPlay: function() {
+      this.isPlaying = false;
+      this.intervalPeriod = 150;
+      clearInterval(this.intervalTimer);
+    },
+
+    zoomToggle: function() {
+      this.zoomControlsOpen = !this.zoomControlsOpen;
+      if(this.zoomControlsOpen) {
+        this.$.btnZoomToggle.setAttribute('selected', true);
+      } else {
+        this.$.btnZoomToggle.removeAttribute('selected');
+      }
+    },
+    _openAnnotationLayers: function(e, detail) {
+      this.fire('ts_editAnnotationLayers');
+    },
+
+    _openChannels: function(e, detail) {
+      if(this.$.chPanelBtn.hasAttribute('selected')) {
+        this.$.chPanelBtn.removeAttribute('selected');
+      } else{
+        this.$.chPanelBtn.setAttribute('selected', true);
+        if(this.$.filterPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleFilterPanel();
+          this.$.filterPanelBtn.removeAttribute('selected');
+        }
+        if(this.$.annotatePanelBtn.hasAttribute('selected')) {
+          this.parent.toggleAnnotatePanel();
+          this.$.annotatePanelBtn.removeAttribute('selected');
+        }
+        if(this.$.metaPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleMetaPanel();
+          this.$.metaPanelBtn.removeAttribute('selected');
+        }
+      }
+
+      this.parent.toggleChannelPanel();
+      this.parent.resizeViewer();
+    },
+    _openFilters: function(e, detail) {
+      if(this.$.filterPanelBtn.hasAttribute('selected')) {
+        this.$.filterPanelBtn.removeAttribute('selected');
+      } else{
+        this.$.filterPanelBtn.setAttribute('selected', true);
+        if(this.$.chPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleChannelPanel();
+          this.$.chPanelBtn.removeAttribute('selected');
+        }
+        if(this.$.annotatePanelBtn.hasAttribute('selected')) {
+          this.parent.toggleAnnotatePanel();
+          this.$.annotatePanelBtn.removeAttribute('selected');
+        }
+        if(this.$.metaPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleMetaPanel();
+          this.$.metaPanelBtn.removeAttribute('selected');
+        }
+      }
+
+      this.parent.toggleFilterPanel();
+      this.parent.resizeViewer();
+    },
+    _openAnnotate: function(e, detail) {
+      if(this.$.annotatePanelBtn.hasAttribute('selected')) {
+        this.$.annotatePanelBtn.removeAttribute('selected');
+      } else{
+        this.$.annotatePanelBtn.setAttribute('selected', true);
+        if(this.$.chPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleChannelPanel();
+          this.$.chPanelBtn.removeAttribute('selected');
+        }
+        if(this.$.filterPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleFilterPanel();
+          this.$.filterPanelBtn.removeAttribute('selected');
+        }
+        if(this.$.metaPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleMetaPanel();
+          this.$.metaPanelBtn.removeAttribute('selected');
+        }
+      }
+
+      this.parent.toggleAnnotatePanel();
+      this.parent.resizeViewer();
+    },
+    _openMeta: function(e, detail) {
+      if(this.$.metaPanelBtn.hasAttribute('selected')) {
+        this.$.metaPanelBtn.removeAttribute('selected');
+      } else{
+        this.$.metaPanelBtn.setAttribute('selected', true);
+        if(this.$.chPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleChannelPanel();
+          this.$.chPanelBtn.removeAttribute('selected');
+        }
+        if(this.$.filterPanelBtn.hasAttribute('selected')) {
+          this.parent.toggleFilterPanel();
+          this.$.filterPanelBtn.removeAttribute('selected');
+        }
+        if(this.$.annotatePanelBtn.hasAttribute('selected')) {
+          this.parent.toggleAnnotatePanel();
+          this.$.annotatePanelBtn.removeAttribute('selected');
+        }
+      }
+
+      this.parent.toggleMetaPanel();
+      this.parent.resizeViewer();
+    },
+
+    gain_btn1: function() {
+      this.parent.setGain(this.viewer.globalZoomMult*0.8)
+    },
+    gain_btn2: function() {
+      this.parent.setGain(this.viewer.globalZoomMult*1.25);
+    },
+    time_btn1: function() {
+      this.viewer.setDuration(this.duration*0.8);
+      this.viewer.renderAll(50);
+    },
+    time_btn2: function() {
+      this.viewer.setDuration(this.duration*1.25);
+      this.viewer.renderAll(50);
+    },
+    time_blur: function(value) {
+      this.viewer.setDuration(value * 1e6);
+      this.viewer.renderAll(50);
+    },
+    updateTimespan: function(value) {
+      this.$.zoomTime.preventChangeEvent = true;
+      this.timeSpan = value;
+    },
+    autoScale: function() {
+      this.parent.$.viewer.autoScaleViewData();
+      this.parent.$.viewer._renderData();
+    },
+    onSelectLayer: function(e, details) {
+      this.fire('ts-toolbar-layer-select', {value: this.layers[details.item.id]});
+    },
+    ready: function() {
+      this.layers = [];
+    },
+    detached: function() {
+      clearInterval(this.intervalTimer);
+    }
+
+  });
+
+  </script>
+</dom-module>

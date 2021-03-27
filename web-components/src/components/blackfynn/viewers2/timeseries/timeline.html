@@ -1,0 +1,486 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../shared/isPlugin-behavior.html">
+<link rel="import" href="../../shared/color-behavior.html">
+
+<dom-module id="blackfynn-viewer-timeseries-timeline">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+        :host {
+            color: #3c54a4;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        #timelineWrapper {
+            display: flex;
+            flex-direction: column;
+        }
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #timeline {
+            position: relative;
+            background-color: #F0F0F0;
+            height: 24px;
+            flex:1
+        }
+        #row2 {
+            margin: 0 80px ;
+            font-size: 12px;
+        }
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Chrome/Safari/Opera */
+            -khtml-user-select: none;    /* Konqueror */
+            -moz-user-select: none;      /* Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Non-prefixed version, currently not supported by any browser */
+        }
+
+        .canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+        .canvas[dragme] {
+            cursor: move;
+        }
+        .canvas[resizeme] {
+            cursor: ew-resize;
+        }
+
+        paper-icon-button.small {
+            padding: 0 8px;
+            height: 24px;
+        }
+
+    </style>
+
+    <div id="timelineWrapper">
+        <div id="row1" class="row">
+            <div id="leftMenu" class="row" noselect>
+                    <div>
+                        <paper-icon-button icon="blackfynn:skip-previous" on-tap="_onAnnBack" class="small" noink></paper-icon-button>
+                        <paper-tooltip>Previous annotation</paper-tooltip>
+                    </div>
+                    <div>
+                        <paper-icon-button icon="blackfynn:chevron-left" on-tap="_onPageBack" class="small" noink></paper-icon-button>
+                        <paper-tooltip>Page back</paper-tooltip>
+                    </div>
+            </div>
+
+            <div id="timeline" noselect>
+                <canvas id="annotationCanvas" class="canvas" width="{{cWidth}}" height=24/></canvas>
+                <canvas id="iCanvas" class="canvas" width="{{cWidth}}" height=24 on-track="_onTrack" on-tap="_onTap" on-mousemove="_onHover" on-mousedown="_onMouseDown" on-mouseup="_onMouseUp" on-mouseenter="_onMouseEnter"></canvas>
+            </div>
+
+            <div id="rightMenu" class="row" noselect>
+                <div>
+                    <paper-icon-button icon="blackfynn:chevron-right" on-tap="_onPageForward" class="small" noink></paper-icon-button>
+                    <paper-tooltip>Page forward</paper-tooltip>
+                </div>
+                <div>
+                    <paper-icon-button icon="blackfynn:skip-next" on-tap="_onAnnNext" class="small" noink></paper-icon-button>
+                    <paper-tooltip>Next Annotation</paper-tooltip>
+                </div>
+            </div>
+
+        </div>
+        <div id="row2" class="row noselect">
+            <div>{{startDateStr}}</div>
+            <div>{{layerStr}}</div>
+            <div>{{endDateStr}}</div>
+        </div>
+    </div>
+  </template>
+
+  <script>
+      Polymer({
+
+        is: 'blackfynn-viewer-timeseries-timeline',
+
+        properties: {
+          parent: {
+              type: Object,
+              value: null
+          },
+          viewer: {
+              type: Object,
+              value: null
+          },
+          summary: {
+              type: Object,
+          },
+          cWidth: {
+              type: Number,
+              value: 0
+          },
+          // Start of timeViewPort
+          cStart: {
+              type: Number,
+              value: 0
+          },
+          cDuration: {
+              type: Number,
+              value: 0
+          },
+          viewPortColor: {
+              type: String,
+              value: 'black'
+          },
+          startDragTime: {
+              type: Number,
+              value: null
+          },
+          activeLayer: {
+              type: Object,
+              value: null
+          },
+          layerStr: {
+              computed: '_cpLayerStr(activeLayer)'
+          },
+          startDateStr: {
+              computed: 'createDateStr("start", summary)'
+          },
+          endDateStr: {
+              computed: 'createDateStr("end", summary)'
+          },
+          pointerMode: {
+              type: String,
+              value: 'point'
+          },
+          mouseDown:{
+              type: Boolean,
+              value: false
+          },
+          // Indicate that viewer is ready (summary available and open webSocket)
+          viewerIsReady:{
+              type: Boolean,
+          },
+            lockMode: {
+                type: Boolean,
+                value: false
+            }
+
+        },
+        behaviors: [Blackfynn.IsPluginBehavior, Blackfynn.ColorBehavior],
+
+        _cpLayerStr: function(layer) {
+            if (layer) {
+                return 'Active Layer: ' + layer.label;
+            }
+            return '';
+
+        },
+        setActiveLayer: function(layer) {
+            this.activeLayer = layer;
+        },
+        createDateStr: function(option, summary) {
+
+            if (this.viewer && summary.span) {
+                const dStart = summary.span.start;
+                const dEnd = summary.span.end;
+
+                if ((dEnd - dStart) > (24 * 3600 * 1000000)) {
+                  if (option === 'start') {
+                    const d = new Date(dStart/1000);
+                    return d.toDateString();
+                  } else {
+                    const d = new Date(dEnd/1000);
+                    return d.toDateString();
+                  }
+
+                } else {
+                  if (option === 'start') {
+                    const d = new Date(dStart/1000);
+                    return d.toLocaleTimeString();
+                  } else {
+                    const d = new Date(dEnd/1000);
+                    return d.toLocaleTimeString();
+                  }
+                }
+            }
+        },
+
+        _onPageBack: function() {
+           this.viewer.setStart(this.viewer.start - (3*this.viewer.duration)/4);
+            this.viewer.renderAll(100);
+        },
+        _onPageForward: function() {
+            this.viewer.setStart(this.viewer.start + (3*this.viewer.duration)/4);
+            this.viewer.renderAll(100);
+        },
+        _onAnnNext: function() {
+            const annPanel = this.viewer.plugins['annotate'].panel;
+            const ann = annPanel.findNextAnnotation(this.viewer.start, this.activeLayer);
+            if (ann !== undefined) {
+              annPanel.selectAnnotation(ann, false);
+              this.viewer.setStart(ann.start);
+                this.viewer.renderAll(100);
+            }
+        },
+        _onAnnBack: function() {
+            const annPanel = this.viewer.plugins['annotate'].panel;
+            const ann = annPanel.findPrevAnnotation(this.viewer.start, this.activeLayer);  //
+            annPanel.selectAnnotation(ann, false);
+            this.viewer.setStart(ann.start);
+            this.viewer.renderAll(100);
+        },
+        _onHover: function(e) {
+
+            if (!this.mouseDown && !this.lockMode) {
+                const cCoord = this.$.iCanvas.getBoundingClientRect();
+                const cHoverOffset = e.clientX - cCoord.left;
+
+                const cEnd = this.cStart + this.cDuration;
+                const inResizeAreaLeft = cHoverOffset < this.cStart + 10 && cHoverOffset > this.cStart;
+                const inResizeAreaRight = cHoverOffset < cEnd && cHoverOffset > (cEnd-10);
+                const inResizeArea = inResizeAreaLeft || inResizeAreaRight;
+
+                const oldMode = this.pointerMode;
+
+                if (inResizeArea) {
+                    if (inResizeAreaLeft) {
+                        this.pointerMode = 'resize-left';
+                    } else {
+                        this.pointerMode = 'resize-right';
+                    }
+
+                    this.$.iCanvas.setAttribute('resizeme', true);
+                    this.$.iCanvas.removeAttribute('dragme');
+                }
+                else if (cHoverOffset > this.cStart && cHoverOffset < (this.cStart + this.cDuration)) {
+                    this.pointerMode = 'drag';
+                    this.$.iCanvas.setAttribute('dragme', true);
+                    this.$.iCanvas.removeAttribute('resizeme');
+                } else {
+                    this.pointerMode = 'point';
+                    this.$.iCanvas.removeAttribute('dragme');
+                    this.$.iCanvas.removeAttribute('resizeme');
+                }
+
+                if (oldMode !== this.pointerMode) {
+                    this.renderViewPort();
+                }
+
+            }
+        },
+        _onMouseUp: function() {
+            this.mouseDown = false;
+        },
+        _onMouseDown: function() {
+            this.mouseDown = true;
+
+        },
+        _onMouseEnter: function() {
+            this.mouseDown = false;
+        },
+
+        updateSize: function() {
+            this.set('cWidth', this.viewer.cWidth + this.viewer.sidePanelWidth - 80);
+            if (this.viewerIsReady) {
+                this.render();
+            }
+
+        },
+
+        _onTap: function(e) {
+            const cCoord = this.$.iCanvas.getBoundingClientRect();
+            const cClickOffset = e.detail.x - cCoord.left;
+            const realStart = ( (cClickOffset)/this.cWidth ) * (this.summary.span.end - this.summary.span.start );
+            this.viewer.setStart( realStart + this.summary.span.start);
+            this.viewer.renderAll(100);
+        },
+
+        // Handle tracking of canvas in this element
+        _onTrack: function(e) {
+            switch (e.detail.state) {
+                case 'start':
+                    this.startDragTime = this.viewer.start;
+                    this.startDuration = this.viewer.duration;
+                    this.startCDuration = this.cDuration;
+                    this.oldDx = 0;
+                    this.lockMode = true;
+
+                    break;
+                case 'track':
+                    this.trackDirection = e.detail.dx < this.oldDx;
+                    this.oldDx = e.detail.dx;
+
+                    let _dx;
+                    let _realTime;
+                    let _setDuration;
+
+                    switch (this.pointerMode) {
+                        case 'drag':
+                            _dx = e.detail.dx;
+                            const realStart = ( (_dx)/this.cWidth ) * (this.summary.span.end - this.summary.span.start );
+
+                            const setStart = this.startDragTime + realStart;
+                            this.viewer.setStart(setStart);
+
+                            this.viewer.renderAll(50);
+
+                            break;
+                        case 'resize-right':
+                            _dx = e.detail.dx;
+                            _realTime = ( (_dx)/this.cWidth ) * (this.summary.span.end - this.summary.span.start );
+
+                            _setDuration = this.startDuration + _realTime;
+                            if (this.startCDuration + _dx < 25) {
+                                return;
+                            }
+
+                            this.viewer.setDuration(_setDuration);
+                            this.viewer.renderAll(250);
+                            this.renderViewPort();
+
+                            break;
+                        case 'resize-left':
+                            _dx = e.detail.dx;
+                            _realTime = ( (_dx)/this.cWidth ) * (this.summary.span.end - this.summary.span.start );
+
+                            _setDuration = this.startDuration - _realTime;
+                            if (this.startCDuration - _dx < 25) {
+                                return;
+                            }
+
+                            this.viewer.setDuration(_setDuration);
+                            this.viewer.setStart(this.startDragTime + _realTime);
+
+                            this.viewer.renderAll(250);
+                            this.renderViewPort();
+
+
+                            break;
+                    }
+
+
+                    break;
+                case 'end':
+                    this.startDragTime = null;
+                    this.trackDirection = null;
+                    this.lockMode = false;
+
+                    break;
+            }
+
+
+        },
+
+        // Handle tracking of plugin host (is called by host element)
+        onTrack: function(e, pointerMode) {
+
+            switch (e.detail.state) {
+                case 'start':
+                    break;
+                case 'track':
+                    switch (pointerMode) {
+                        case 'pan':
+                            if (!e.detail.sourceEvent.shiftKey) {
+                                this.render();
+                                break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'end':
+
+                    break;
+            }
+        },
+
+        // Render Gaps if they are specified.
+        renderTimelimeLine: function() {
+            const ctx = this.$.annotationCanvas.getContext('2d');
+            ctx.clearRect(0, 0, this.cWidth, 24);
+
+            // Render Gaps
+            ctx.fillStyle = '#d9dde5';
+
+            const gStart = this.summary.span.start;
+            const gEnd = this.summary.span.end;
+
+            const summary = this.summary;
+            for (const i in summary.gaps) {
+              if (summary.gaps.hasOwnProperty(i)) {
+                const curGap = summary.gaps[i];
+
+                const cGapStart = (curGap.start /(gEnd - gStart)) * this.cWidth;
+                const cGapEnd = (curGap.end /(gEnd - gStart)) * this.cWidth;
+
+                ctx.fillRect(cGapStart, 0, cGapEnd - cGapStart, 24);
+              }
+            }
+        },
+
+        // Renders the scrollable viewport indicator on interactive canvas
+        renderViewPort: function() {
+
+            const ctx = this.$.iCanvas.getContext('2d');
+            ctx.clearRect(0, 0, this.cWidth, 24);
+
+            ctx.fillStyle = this.viewPortColor;
+
+            const start = this.viewer.start;
+            const duration = this.viewer.duration;
+
+            const gStart = this.summary.span.start;
+            const gEnd = this.summary.span.end;
+
+            this.cStart = (((start - gStart)/(gEnd-gStart)) * this.cWidth) |0;
+            this.cDuration = (((duration)/(gEnd-gStart)) * this.cWidth) |0;
+
+            // Set minimum width of scrubber-thing.
+            if (this.cDuration === 0) {
+                this.cDuration = 10;
+                this.cStart = this.cStart - 5;
+            }
+
+            ctx.fillRect(this.cStart, 0, this.cDuration, 24);
+
+            // Render resize handles if necesary
+                ctx.save();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+
+                ctx.beginPath();
+                ctx.moveTo(this.cStart + 5, 3);
+                ctx.lineTo(this.cStart + 5, 21);
+                ctx.moveTo(this.cStart + this.cDuration - 5, 21);
+                ctx.lineTo(this.cStart +this.cDuration -5, 3);
+                ctx.stroke();
+
+
+                ctx.restore();
+
+
+        },
+
+        render: function() {
+            this.renderViewPort();
+            this.renderTimelimeLine();
+        },
+
+        ready: function() {
+            this.viewPortColor = this.hexToRgbA('#3c54a4', 0.7);
+        },
+
+        attached: function() {
+
+        }
+
+
+      });
+
+  </script>
+</dom-module>

@@ -1,0 +1,220 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<link rel="import" href="./api-keys-create-window.html">
+<link rel="import" href="./api-keys-info-window.html">
+<link rel="import" href="./api-keys-delete-window.html">
+<link rel="import" href="./api-keys-item.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/settings.html">
+
+<!--
+# api-keys
+Component that handles CRUD operations for client's API keys.
+
+@element api-keys
+-->
+<dom-module id="api-keys">
+  <style include="blackfynn-main-styles"></style>
+  <style include="blackfynn-settings-styles"></style>
+  <style>
+    :host {
+      display: block;
+      margin: 0 30px 30px 30px;
+    }
+    p {
+      margin-bottom: 30px;
+      max-width: 560px;
+    }
+    .api-keys-wrap {
+      margin-top: 30px;
+      max-width: 675px
+    }
+    api-keys-item:first-of-type {
+      border-top: 1px solid var(--cortex);
+    }
+  </style>
+
+  <template>
+    <h2>API Keys</h2>
+    <p class="helper">This is the list of API keys associated with your account and organization.</p>
+
+    <div class="form-button">
+      <paper-button
+        class="save"
+        noink
+        on-tap="_openCreateKeyWindow">Create API Key</paper-button>
+    </div>
+
+    <div class="api-keys-wrap">
+      <paper-spinner-lite active="[[isLoadingKeys]]" hidden$="[[!isLoadingKeys]]"></paper-spinner-lite>
+
+      <template is="dom-if" if="[[_hasApiKeys]]">
+        <template is="dom-repeat" items="[[keys]]" sort="sortByName" hidden$="[[isLoadingKeys]]">
+          <api-keys-item key="[[item]]"></bf-team-member>
+        </template>
+      </template>
+
+      <template is="dom-if" if="[[!_hasApiKeys]]">
+        <div hidden$="[[isLoadingKeys]]">There are no API keys associated with this account and organization.</div>
+      </template>
+    </div>
+
+    <iron-ajax
+      auto
+      id="getApiKeys"
+      method="GET"
+      url="[[_getApiKeysUrl]]"
+      content-type="application/json"
+      handle-as="json"
+      loading="[[isLoadingKeys]]"
+      on-response="_handleResponse"
+      on-error="ajaxError">
+    </iron-ajax>
+
+    <api-keys-create-window id="apiKeysCreateWindow" keys="[[keys]]"></api-keys-create-window>
+
+    <api-keys-info-window id="apiKeysInfoWindow" key="{{key}}"></api-keys-info-window>
+
+    <api-keys-delete-window id="apiKeysDeleteWindow" key="{{key}}"></api-keys-delete-window>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'api-keys',
+
+      properties: {
+        /**
+         * The keys for current user in the active organization
+         */
+        keys: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * The currently selected key for current user in the active organization
+         */
+        key: {
+          type: Array,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * Compute the endpoint URL to get API keys
+         */
+        _getApiKeysUrl: {
+          type: String,
+          computed: '_computeGetApiKeysUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id)'
+        },
+        /**
+         * Determines when xhr call is executing
+         */
+        isLoadingKeys: {
+          type: Boolean,
+          value: true
+        },
+        /**
+         * Tracks whether or not user has API keys
+         */
+        _hasApiKeys: {
+          type: Boolean,
+          computed: '_computeHasApiKeys(keys.length, isLoadingKeys)'
+        },
+      },
+
+      behaviors: [
+        StateAwareBehavior
+      ],
+
+      listeners: {
+        'open-remove-api-key': '_openDeleteKeyWindow',
+        'remove-api-key': '_removeApiKey',
+        'created-api-key': '_addApiKey'
+      },
+
+      /**
+       * Opens the create API key window
+       */
+      _openCreateKeyWindow: function() {
+        this.$.apiKeysCreateWindow.$.dialog.open();
+      },
+
+      /**
+       * Opens the delete API key confirmation window
+       * @param {Event} e
+       */
+      _openDeleteKeyWindow: function(e) {
+        this.set('key', e.detail);
+        this.$.apiKeysDeleteWindow.$.dialog.open();
+      },
+
+      /**
+       * Compute whether or not account has API keys
+       * @param {Number} keysLength
+       * @param {Boolean} isLoadingKeys
+       * @returns {Boolean}
+       */
+      _computeHasApiKeys: function(keysLength, isLoadingKeys) {
+        return keysLength > 0 && !isLoadingKeys;
+      },
+
+      /**
+       * Compute the endpoint URL to get API keys
+       * @param {String} api
+       * @param {String} user
+       * @param {String} orgId
+       * @returns {String}
+       */
+      _computeGetApiKeysUrl: function(api, user, orgId) {
+        return `${api}/token/organization/${orgId}?api_key=${user}`;
+      },
+
+      /**
+       * Sort tokens by name
+       * @param {String} item1
+       * @param {String} item2
+       * @returns {Boolean}
+       */
+      sortByName: function(item1, item2) {
+        return item1.name.localeCompare(item2.name);
+      },
+
+      /**
+       * Handles successful GET of API keys
+       * @param {Event} e
+       */
+       _handleResponse: function(e) {
+         this.set('keys', e.detail.response);
+         this.set('isLoadingKeys', false);
+       },
+
+       /**
+        * Callback when API key has been created
+        * @param {Event} e
+        */
+       _addApiKey: function(e) {
+         this.push('keys', e.detail);
+         this.set('key', e.detail);
+         this.$.apiKeysInfoWindow.$.dialog.open();
+       },
+
+      /**
+       * Callback when API key has been removed
+       * @param {Event} e
+       */
+      _removeApiKey: function(e) {
+        const index = this.keys.indexOf(e.detail);
+        // Remove the key from the list
+        this.splice('keys', index, 1);
+      },
+
+    });
+  </script>
+</dom-module>

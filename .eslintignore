@@ -1,0 +1,9 @@
+/build/
+/config/
+/dist/
+/*.js
+/test/unit/coverage/
+/web-components/src/components/pennsieve/viewers/**/lib/*
+/web-components/src/components/pennsieve/viewers2/**/lib/*
+/web-components/src/components/pennsieve/analytics/*
+/web-components/**/test/*

@@ -1,0 +1,1814 @@
+// :root {
+//   --sidebar-width: 200px;
+// }
+
+// * {
+//   padding: 0;
+//   margin: 0;
+// }
+
+// html {
+//   height: 100%;
+//   width: 100%;
+//   /* Font size is needed to make the activity bar the correct size. */
+//   font-size: 10px;
+// }
+
+// body {
+//   height: 100%;
+//   width: 100%;
+//   background-color: #404040;
+//   background-image: url('../../../../static/images/pdf-viewer-icons/texture.png');
+//   font: message-box;
+//   outline: none;
+// }
+
+input, button, select {
+  font: message-box;
+  outline: none;
+}
+
+.hidden, [hidden] {
+  display: none !important;
+}
+
+#viewerContainer.pdfPresentationMode {
+  &:-ms-fullscreen {
+    top: 0px !important;
+    overflow: hidden !important;
+    &::-ms-backdrop {
+      background-color: #000;
+    }
+  }
+  &:fullscreen {
+    top: 0px;
+    border-top: 2px solid transparent;
+    background-color: #000;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: none;
+    user-select: none;
+  }
+}
+
+.pdfPresentationMode {
+  &:fullscreen {
+    a:not(.internalLink) {
+      display: none;
+    }
+    .textLayer > div {
+      cursor: none;
+    }
+  }
+  &.pdfPresentationModeControls {
+    > *, .textLayer > div {
+      cursor: default;
+    }
+  }
+}
+
+#outerContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+#sidebarContainer {
+  position: absolute;
+  top: 32px;
+  bottom: 0;
+  width: 200px;
+  /* Here, and elsewhere below, keep the constant value for compatibility
+     with older browsers that lack support for CSS variables. */
+  width: var(--sidebar-width);
+  visibility: hidden;
+  z-index: 100;
+  border-top: 1px solid #333;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+ #sidebarContainer {
+    transition-property: left;
+    left: -200px;
+    left: calc(-1 * var(--sidebar-width));
+  }
+
+.loadingInProgress #sidebarContainer {
+  top: 36px;
+}
+
+#outerContainer {
+  &.sidebarResizing #sidebarContainer {
+    /* Improve responsiveness and avoid visual glitches when the sidebar is resized. */
+    transition-duration: 0s;
+    /* Prevent e.g. the thumbnails being selected when the sidebar is resized. */
+    user-select: none;
+  }
+  &.sidebarMoving #sidebarContainer, &.sidebarOpen #sidebarContainer {
+    visibility: visible;
+  }
+}
+
+#outerContainer.sidebarOpen #sidebarContainer {
+  left: 0px;
+}
+
+
+#mainContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-width: 320px;
+}
+
+#sidebarContent {
+  top: 32px;
+  bottom: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  position: absolute;
+  width: 100%;
+  background-color: hsla(0, 0%, 0%, 0.1);
+}
+
+#sidebarContent {
+  left: 0;
+  box-shadow: inset -1px 0 0 hsla(0, 0%, 0%, 0.25);
+}
+
+
+#viewerContainer {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  position: absolute;
+  top: 32px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  outline: none;
+  &:not(.pdfPresentationMode) {
+    transition-duration: 200ms;
+    transition-timing-function: ease;
+  }
+}
+
+#viewerContainer {
+  box-shadow: inset 1px 0 0 hsla(0, 0%, 100%, 0.05);
+}
+
+#outerContainer.sidebarResizing #viewerContainer {
+  /* Improve responsiveness and avoid visual glitches when the sidebar is resized. */
+  transition-duration: 0s;
+}
+
+#outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+  transition-property: left;
+  left: 200px;
+  left: var(--sidebar-width);
+}
+
+.toolbar {
+  position: relative;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  cursor: default;
+}
+
+#toolbarContainer {
+  width: 100%;
+}
+
+#toolbarSidebar {
+  width: 100%;
+  height: 32px;
+  background-color: #424242;
+  margin-bottom: 10px;
+  /* fallback */
+  background-image: url('../../../../static/images/pdf-viewer-icons/texture.png'), linear-gradient(hsla(0, 0%, 30%, 0.99), hsla(0, 0%, 25%, 0.95));
+}
+
+#toolbarSidebar {
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25), inset 0 -1px 0 hsla(0, 0%, 100%, 0.05), 0 1px 0 hsla(0, 0%, 0%, 0.15), 0 0 1px hsla(0, 0%, 0%, 0.1);
+}
+
+
+#sidebarResizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  z-index: 200;
+  cursor: ew-resize;
+}
+
+
+#sidebarResizer {
+  right: -6px;
+}
+
+
+#toolbarContainer, .findbar, .secondaryToolbar {
+  position: relative;
+  height: 32px;
+  background-color: #474747;
+  /* fallback */
+  background-image: url('../../../../static/images/pdf-viewer-icons/texture.png'), linear-gradient(hsla(0, 0%, 32%, 0.99), hsla(0, 0%, 27%, 0.95));
+}
+
+#toolbarContainer, .findbar, .secondaryToolbar {
+  box-shadow: inset 0 1px 1px hsla(0, 0%, 0%, 0.15), inset 0 -1px 0 hsla(0, 0%, 100%, 0.05), 0 1px 0 hsla(0, 0%, 0%, 0.15), 0 1px 1px hsla(0, 0%, 0%, 0.1);
+}
+
+#toolbarViewer {
+  height: 32px;
+}
+
+#loadingBar {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background-color: #333;
+  border-bottom: 1px solid #333;
+  .progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    background-color: #ddd;
+    overflow: hidden;
+    transition: width 200ms;
+    &.indeterminate {
+      background-color: #999;
+      transition: none;
+      .glimmer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: calc(100% + 150px);
+        background: repeating-linear-gradient(135deg, #bbb 0, #999 5px, #999 45px, #ddd 55px, #ddd 95px, #bbb 100px);
+        animation: progressIndeterminate 950ms linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes progressIndeterminate {
+  0% {
+    left: -142px;
+  }
+
+  100% {
+    left: 0;
+  }
+}
+
+.findbar, .secondaryToolbar {
+  top: 32px;
+  position: absolute;
+  z-index: 10000;
+  height: auto;
+  min-width: 16px;
+  padding: 0px 6px 0px 6px;
+  margin: 4px 2px 4px 2px;
+  color: hsl(0, 0%, 85%);
+  font-size: 12px;
+  line-height: 14px;
+  text-align: left;
+  cursor: default;
+}
+
+.findbar {
+  min-width: 300px;
+  > div {
+    height: 32px;
+  }
+  &.wrapContainers > div {
+    clear: both;
+    &#findbarMessageContainer {
+      height: auto;
+    }
+  }
+}
+
+.findbar label {
+  user-select: none;
+}
+
+#findInput {
+  width: 200px;
+  &::-webkit-input-placeholder {
+    color: hsl(0, 0%, 75%);
+  }
+  &::placeholder {
+    font-style: italic;
+  }
+  &[data-status="pending"] {
+   /** background-image: url(images/loading-small.png);**/
+    background-repeat: no-repeat;
+    background-position: right;
+  }
+}
+
+.secondaryToolbar {
+  padding: 6px;
+  height: auto;
+  z-index: 30000;
+}
+
+.secondaryToolbar {
+  right: 4px;
+}
+
+#secondaryToolbarButtonContainer {
+  max-width: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: -4px;
+  &.hiddenScrollModeButtons > .scrollModeButtons, &.hiddenSpreadModeButtons > .spreadModeButtons {
+    display: none !important;
+  }
+}
+
+.doorHanger, .doorHangerRight {
+  border: 1px solid hsla(0, 0%, 0%, 0.5);
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.doorHanger {
+  &:after, &:before {
+    bottom: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+}
+
+.doorHangerRight {
+  &:after, &:before {
+    bottom: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+}
+
+.doorHanger:after, .doorHangerRight:after {
+  border-bottom-color: hsla(0, 0%, 32%, 0.99);
+  border-width: 8px;
+}
+
+.doorHanger:before, .doorHangerRight:before {
+  border-bottom-color: hsla(0, 0%, 0%, 0.5);
+  border-width: 9px;
+}
+
+
+.doorHanger:after {
+  left: 13px;
+  margin-left: -8px;
+}
+.doorHanger:before {
+  left: 13px;
+  margin-left: -9px;
+}
+
+
+#findResultsCount {
+  background-color: hsl(0, 0%, 85%);
+  color: hsl(0, 0%, 32%);
+  text-align: center;
+  padding: 3px 4px;
+}
+
+#findMsg {
+  font-style: italic;
+  color: #A6B7D0;
+  &:empty {
+    display: none;
+  }
+}
+
+#findInput.notFound {
+  background-color: rgb(255, 102, 102);
+}
+
+#toolbarViewerMiddle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#toolbarViewerLeft {
+  float: left;
+}
+
+#toolbarViewerRight {
+  float: right;
+  position: relative;
+  margin-top: 3px;
+  margin-right: 10px;
+}
+
+  // &[dir='ltr'] #toolbarViewerLeft, &[dir='rtl'] #toolbarViewerRight {
+  //   float: left;
+  // }
+  // &[dir='ltr'] #toolbarViewerRight, &[dir='rtl'] #toolbarViewerLeft {
+  //   float: right;
+  // }
+  // &#toolbarViewerLeft > *, #toolbarViewerMiddle > *, #toolbarViewerRight > *, .findbar * {
+  //     position: relative;
+  //     float: left;
+  // }
+  // &[dir='rtl'] {
+  //   #toolbarViewerLeft > *, #toolbarViewerMiddle > *, #toolbarViewerRight > *, .findbar * {
+  //     position: relative;
+  //     float: right;
+  //   }
+  // }
+.splitToolbarButton {
+  margin: 2px 3px 4px 0;
+  display: inline-block;
+  &.sidebar{
+    margin: 5px 170px 4px 0;
+  }
+}
+
+.splitToolbarButton > .toolbarButton {
+  border-radius: 0;
+  float: left;
+}
+
+
+.toolbarButton, .secondaryToolbarButton, .overlayButton {
+  border: 0 none;
+  background: none;
+  width: 32px;
+  height: 25px;
+}
+
+.toolbarButton {
+  > span {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  &[disabled] {
+    opacity: .5;
+  }
+}
+
+.secondaryToolbarButton[disabled], .overlayButton[disabled] {
+  opacity: .5;
+}
+
+.splitToolbarButton {
+  &.toggled .toolbarButton {
+    margin: 0;
+  }
+  &:hover > .toolbarButton, &:focus > .toolbarButton, &.toggled > .toolbarButton {
+    background-color: hsla(0, 0%, 0%, 0.12);
+    background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+    background-clip: padding-box;
+    border: 1px solid hsla(0, 0%, 0%, 0.35);
+    border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+}
+
+.toolbarButton.textButton {
+  background-color: hsla(0, 0%, 0%, 0.12);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  border: 1px solid hsla(0, 0%, 0%, 0.35);
+  border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+.splitToolbarButton > .toolbarButton {
+  &:hover, &:focus {
+    background-color: hsla(0, 0%, 0%, 0.2);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 0 1px hsla(0, 0%, 0%, 0.05);
+    z-index: 199;
+  }
+}
+
+.dropdownToolbarButton:hover {
+  background-color: hsla(0, 0%, 0%, 0.2);
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 0 1px hsla(0, 0%, 0%, 0.05);
+  z-index: 199;
+}
+
+.overlayButton {
+  &:hover, &:focus {
+    background-color: hsla(0, 0%, 0%, 0.2);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 0 1px hsla(0, 0%, 0%, 0.05);
+    z-index: 199;
+  }
+}
+
+.toolbarButton.textButton {
+  &:hover, &:focus {
+    background-color: hsla(0, 0%, 0%, 0.2);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 0 1px hsla(0, 0%, 0%, 0.05);
+    z-index: 199;
+  }
+}
+
+.splitToolbarButton > .toolbarButton {
+  position: relative;
+}
+
+.splitToolbarButton > .toolbarButton:first-child {
+  position: relative;
+  margin: 0;
+  margin-right: -1px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-right-color: transparent;
+}
+.splitToolbarButton > .toolbarButton:last-child {
+  position: relative;
+  margin: 0;
+  margin-left: -1px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-left-color: transparent;
+}
+
+
+.splitToolbarButtonSeparator {
+  padding: 8px 0;
+  width: 1px;
+  background-color: hsla(0, 0%, 0%, 0.5);
+  z-index: 99;
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.08);
+  display: inline-block;
+  margin: 5px 0;
+}
+
+
+.splitToolbarButtonSeparator {
+  float: left;
+}
+
+.splitToolbarButton {
+  &:hover > .splitToolbarButtonSeparator, &.toggled > .splitToolbarButtonSeparator {
+    padding: 12px 0;
+    margin: 1px 0;
+    box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.03);
+    transition-property: padding;
+    transition-duration: 10ms;
+    transition-timing-function: ease;
+  }
+}
+
+.toolbarButton, .dropdownToolbarButton, .secondaryToolbarButton, .overlayButton {
+  min-width: 16px;
+  padding: 2px 6px 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: hsla(0, 0%, 100%, 0.8);
+  font-size: 12px;
+  line-height: 14px;
+  user-select: none;
+  /* Opera does not support user-select, use <... unselectable="on"> instead */
+  cursor: default;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+// html {
+//   &[dir='ltr'] {
+//     .toolbarButton, .overlayButton, .dropdownToolbarButton {
+//       margin: 3px 2px 4px 0;
+//     }
+//   }
+//   &[dir='rtl'] {
+//     .toolbarButton, .overlayButton, .dropdownToolbarButton {
+//       margin: 3px 0 4px 2px;
+//     }
+//   }
+// }
+
+.toolbarButton {
+  &:hover, &:focus {
+    background-color: hsla(0, 0%, 0%, 0.12);
+    background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+    background-clip: padding-box;
+    border: 1px solid hsla(0, 0%, 0%, 0.35);
+    border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  }
+  &.sidebarToggle{
+    padding: 13px 0 0 0;
+    margin: 3px 0 0 5px;
+  }
+}
+
+.dropdownToolbarButton, .overlayButton {
+  background-color: hsla(0, 0%, 0%, 0.12);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  border: 1px solid hsla(0, 0%, 0%, 0.35);
+  border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+}
+
+.secondaryToolbarButton {
+  &:hover, &:focus {
+    background-color: hsla(0, 0%, 0%, 0.12);
+    background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+    background-clip: padding-box;
+    border: 1px solid hsla(0, 0%, 0%, 0.35);
+    border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  }
+}
+
+.toolbarButton:hover:active, .overlayButton:hover:active, .dropdownToolbarButton:hover:active, .secondaryToolbarButton:hover:active {
+  background-color: hsla(0, 0%, 0%, 0.2);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  border-color: hsla(0, 0%, 0%, 0.35) hsla(0, 0%, 0%, 0.4) hsla(0, 0%, 0%, 0.45);
+  box-shadow: 0 1px 1px hsla(0, 0%, 0%, 0.1) inset, 0 0 1px hsla(0, 0%, 0%, 0.2) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 10ms;
+  transition-timing-function: linear;
+}
+
+.toolbarButton.toggled, .splitToolbarButton.toggled > .toolbarButton.toggled, .secondaryToolbarButton.toggled {
+  background-color: hsla(0, 0%, 0%, 0.3);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  border-color: hsla(0, 0%, 0%, 0.4) hsla(0, 0%, 0%, 0.45) hsla(0, 0%, 0%, 0.5);
+  box-shadow: 0 1px 1px hsla(0, 0%, 0%, 0.1) inset, 0 0 1px hsla(0, 0%, 0%, 0.2) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 10ms;
+  transition-timing-function: linear;
+}
+
+.toolbarButton.toggled:hover:active, .splitToolbarButton.toggled > .toolbarButton.toggled:hover:active, .secondaryToolbarButton.toggled:hover:active {
+  background-color: hsla(0, 0%, 0%, 0.4);
+  border-color: hsla(0, 0%, 0%, 0.4) hsla(0, 0%, 0%, 0.5) hsla(0, 0%, 0%, 0.55);
+  box-shadow: 0 1px 1px hsla(0, 0%, 0%, 0.2) inset, 0 0 1px hsla(0, 0%, 0%, 0.3) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+}
+
+.dropdownToolbarButton {
+  max-width: 160px;
+  padding: 0;
+  overflow: hidden;
+  float: right;
+  margin-top: 5px;
+}
+
+select {
+  font-weight: bold
+}
+
+.dropdownToolbarButton {
+  background-position: 95%;
+}
+
+
+.dropdownToolbarButton > select {
+  font-size: 12px;
+  color: hsl(0, 0%, 95%);
+  margin: 0;
+  padding: 3px 2px 2px;
+  border: none;
+  background: rgba(0, 0, 0, 0);
+  /* Opera does not support 'transparent' <select> background */
+  > option {
+    background: hsl(0, 0%, 24%);
+  }
+}
+
+#customScaleOption {
+  display: none;
+}
+
+#pageWidthOption {
+  border-bottom: 1px rgba(255, 255, 255, 0.5) solid;
+}
+
+.splitToolbarButton:first-child, .toolbarButton:first-child {
+  float: left;
+}
+.splitToolbarButton:last-child, .toolbarButton:last-child {
+  margin-right: 4px;
+}
+
+.toolbarButtonSpacer {
+  width: 30px;
+  display: inline-block;
+  height: 1px;
+}
+
+#findPrevious {
+  margin-left: 3px;
+}
+#findNext {
+  margin-right: 3px;
+}
+
+.toolbarButton::before, .secondaryToolbarButton::before {
+  /* All matching images have a size of 16x16
+   * All relevant containers have a size of 32x25 */
+  position: absolute;
+  display: inline-block;
+  top: 4px;
+  left: 7px;
+}
+
+.secondaryToolbarButton::before {
+  left: 4px;
+}
+.toolbarButton#sidebarToggle::before {
+  margin-left: 6px;
+  margin-top: 3px;
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-sidebarToggle.png');
+}
+/**
+  &[dir='ltr'] .toolbarButton#secondaryToolbarToggle::before {
+    content: url('../../../../static/images/toolbarButton-secondaryToolbarToggle.png');
+  }
+  &[dir='rtl'] .toolbarButton#secondaryToolbarToggle::before {
+    content: url('../../../../static/images/toolbarButton-secondaryToolbarToggle-rtl.png');
+  }**/
+  /**
+  &[dir='rtl'] .toolbarButton.findPrevious::before {
+    content: url(images/findbarButton-previous-rtl.png);
+  }
+  &[dir='ltr'] .toolbarButton.findNext::before {
+    content: url(images/findbarButton-next.png);
+  }
+  &[dir='rtl'] .toolbarButton.findNext::before {
+    content: url(images/findbarButton-next-rtl.png);
+  }**/
+
+.toolbarButton.pageUp::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-pageUp.png');
+}
+.toolbarButton.pageDown::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-pageDown.png');
+}
+
+
+.toolbarButton {
+  &.zoomOut::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-zoomOut.png');
+  }
+  &.zoomIn::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-zoomIn.png');
+  }
+  /**&.presentationMode::before {
+    content: url(images/toolbarButton-presentationMode.png);
+  }**/
+}
+
+/**.secondaryToolbarButton.presentationMode::before {
+  content: url(images/toolbarButton-presentationMode.png);
+}**/
+
+.toolbarButton.print::before, .secondaryToolbarButton.print::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-print.png');
+}
+/**
+.toolbarButton.openFile::before, .secondaryToolbarButton.openFile::before {
+  content: url(images/toolbarButton-openFile.png);
+}**/
+
+.toolbarButton.download::before, .secondaryToolbarButton.download::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-download.png');
+}
+
+.toolbarButton.bookmark {
+  box-sizing: border-box;
+  outline: none;
+  padding-top: 4px;
+  text-decoration: none;
+}
+
+.secondaryToolbarButton.bookmark {
+  box-sizing: border-box;
+  outline: none;
+  padding-top: 4px;
+  text-decoration: none;
+  padding-top: 5px;
+}
+
+.bookmark[href='#'] {
+  opacity: .5;
+  pointer-events: none;
+}
+
+/**
+.toolbarButton.bookmark::before, .secondaryToolbarButton.bookmark::before {
+  content: url(images/toolbarButton-bookmark.png);
+}**/
+
+#viewThumbnail.toolbarButton::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-viewThumbnail.png');
+}
+
+
+#viewOutline.toolbarButton::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-viewOutline.png');
+}
+
+#viewAttachments.toolbarButton::before {
+  content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-viewAttachments.png');
+}
+/**
+#viewFind.toolbarButton::before {
+  content: url(images/toolbarButton-search.png);
+}**/
+
+.toolbarButton.pdfSidebarNotification::after {
+  position: absolute;
+  display: inline-block;
+  top: 1px;
+  /* Create a filled circle, with a diameter of 9 pixels, using only CSS: */
+  content: '';
+  background-color: #70DB55;
+  height: 9px;
+  width: 9px;
+  border-radius: 50%;
+}
+
+.toolbarButton.pdfSidebarNotification::after {
+  left: 17px;
+}
+
+.secondaryToolbarButton {
+  position: relative;
+  margin: 0 0 4px 0;
+  padding: 3px 0 1px 0;
+  height: auto;
+  min-height: 25px;
+  width: auto;
+  min-width: 100%;
+  white-space: normal;
+}
+
+.secondaryToolbarButton {
+  padding-left: 24px;
+  text-align: left;
+}
+.secondaryToolbarButton.bookmark {
+  padding-left: 27px;
+}
+.secondaryToolbarButton > span {
+  padding-right: 4px;
+}
+
+
+/**
+.secondaryToolbarButton {
+  &.firstPage::before {
+    content: url(images/secondaryToolbarButton-firstPage.png);
+  }
+  &.lastPage::before {
+    content: url(images/secondaryToolbarButton-lastPage.png);
+  }
+  &.rotateCcw::before {
+    content: url(images/secondaryToolbarButton-rotateCcw.png);
+  }
+  &.rotateCw::before {
+    content: url(images/secondaryToolbarButton-rotateCw.png);
+  }
+  &.selectTool::before {
+    content: url(images/secondaryToolbarButton-selectTool.png);
+  }
+  &.handTool::before {
+    content: url(images/secondaryToolbarButton-handTool.png);
+  }
+  &.scrollVertical::before {
+    content: url(images/secondaryToolbarButton-scrollVertical.png);
+  }
+  &.scrollHorizontal::before {
+    content: url(images/secondaryToolbarButton-scrollHorizontal.png);
+  }
+  &.scrollWrapped::before {
+    content: url(images/secondaryToolbarButton-scrollWrapped.png);
+  }
+  &.spreadNone::before {
+    content: url(images/secondaryToolbarButton-spreadNone.png);
+  }
+  &.spreadOdd::before {
+    content: url(images/secondaryToolbarButton-spreadOdd.png);
+  }
+  &.spreadEven::before {
+    content: url(images/secondaryToolbarButton-spreadEven.png);
+  }
+  &.documentProperties::before {
+    content: url(images/secondaryToolbarButton-documentProperties.png);
+  }
+}**/
+
+.verticalToolbarSeparator {
+  display: block;
+  padding: 8px 0;
+  margin: 8px 4px;
+  width: 1px;
+  background-color: hsla(0, 0%, 0%, 0.5);
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.08);
+}
+
+.verticalToolbarSeparator {
+  margin-left: 2px;
+}
+
+.horizontalToolbarSeparator {
+  display: block;
+  margin: 0 0 4px 0;
+  height: 1px;
+  width: 100%;
+  background-color: hsla(0, 0%, 0%, 0.5);
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.08);
+}
+
+.toolbarField {
+  padding: 3px 6px;
+  margin: 4px 0 4px 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background-color: hsla(0, 0%, 100%, 0.09);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  border: 1px solid hsla(0, 0%, 0%, 0.35);
+  border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+  box-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.05) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  color: hsl(0, 0%, 95%);
+  font-size: 12px;
+  line-height: 14px;
+  outline-style: none;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+  &[type=checkbox] {
+    display: inline-block;
+    margin: 8px 0px;
+  }
+  &.pageNumber {
+    -moz-appearance: textfield;
+    /* hides the spinner in moz */
+    min-width: 16px;
+    text-align: right;
+    width: 40px;
+    &.visiblePageIsLoading {
+   /**   background-image: url(images/loading-small.png);**/
+      background-repeat: no-repeat;
+      background-position: 1px;
+    }
+    &::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+  &:hover {
+    background-color: hsla(0, 0%, 100%, 0.11);
+    border-color: hsla(0, 0%, 0%, 0.4) hsla(0, 0%, 0%, 0.43) hsla(0, 0%, 0%, 0.45);
+  }
+  &:focus {
+    background-color: hsla(0, 0%, 100%, 0.15);
+    border-color: hsla(204, 100%, 65%, 0.8) hsla(204, 100%, 65%, 0.85) hsla(204, 100%, 65%, 0.9);
+  }
+}
+
+.toolbarLabel {
+  min-width: 16px;
+  padding: 3px 6px 3px 2px;
+  margin: 4px 2px 4px 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: hsl(0, 0%, 85%);
+  font-size: 12px;
+  line-height: 14px;
+  text-align: left;
+  user-select: none;
+  cursor: default;
+}
+
+#thumbnailView {
+  position: absolute;
+  width: calc(100% - 60px);
+  top: 0;
+  bottom: 0;
+  padding: 10px 30px 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.thumbnail {
+  margin: 0 10px 5px 10px;
+}
+
+.thumbnail {
+  float: left;
+}
+
+
+#thumbnailView > a:last-of-type > .thumbnail {
+  margin-bottom: 10px;
+  &:not([data-loaded]) {
+    margin-bottom: 9px;
+  }
+}
+
+.thumbnail:not([data-loaded]) {
+  border: 1px dashed rgba(255, 255, 255, 0.5);
+  margin: -1px 9px 4px 9px;
+}
+
+.thumbnailImage {
+  border: 1px solid transparent;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0.8;
+  z-index: 99;
+  background-color: white;
+  background-clip: content-box;
+}
+
+.thumbnailSelectionRing {
+  border-radius: 2px;
+  padding: 7px;
+}
+
+a:focus > .thumbnail > .thumbnailSelectionRing > .thumbnailImage, .thumbnail:hover > .thumbnailSelectionRing > .thumbnailImage {
+  opacity: .9;
+}
+
+a:focus > .thumbnail > .thumbnailSelectionRing {
+  background-color: hsla(0, 0%, 100%, 0.15);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.2) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+  color: hsla(0, 0%, 100%, 0.9);
+}
+
+.thumbnail {
+  &:hover > .thumbnailSelectionRing {
+    background-color: hsla(0, 0%, 100%, 0.15);
+    background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+    background-clip: padding-box;
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.2) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+    color: hsla(0, 0%, 100%, 0.9);
+  }
+  &.selected > .thumbnailSelectionRing {
+    > .thumbnailImage {
+      box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.5);
+      opacity: 1;
+    }
+    background-color: hsla(0, 0%, 100%, 0.3);
+    background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+    background-clip: padding-box;
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.1) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+    color: hsla(0, 0%, 100%, 1);
+  }
+}
+
+#outlineView, #attachmentsView {
+  position: absolute;
+  width: calc(100% - 8px);
+  top: 0;
+  bottom: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  user-select: none;
+}
+
+#outlineView {
+  padding: 4px 4px 0;
+}
+
+#attachmentsView {
+  padding: 3px 4px 0;
+}
+
+#download {
+  position: relative;
+}
+
+.outlineWithDeepNesting > .outlineItem, .outlineItem > .outlineItems {
+  margin-left: 20px;
+}
+
+.outlineItem > a {
+  text-decoration: none;
+  display: inline-block;
+  min-width: 95%;
+  min-width: calc(100% - 4px);
+  /* Subtract the right padding (left, in RTL mode)
+     of the container. */
+  height: auto;
+  margin-bottom: 1px;
+  border-radius: 2px;
+  color: hsla(0, 0%, 100%, 0.8);
+  font-size: 13px;
+  line-height: 15px;
+  user-select: none;
+  white-space: normal;
+}
+
+.attachmentsItem > button {
+  text-decoration: none;
+  display: inline-block;
+  min-width: 95%;
+  min-width: calc(100% - 4px);
+  /* Subtract the right padding (left, in RTL mode)
+     of the container. */
+  height: auto;
+  margin-bottom: 1px;
+  border-radius: 2px;
+  color: hsla(0, 0%, 100%, 0.8);
+  font-size: 13px;
+  line-height: 15px;
+  user-select: none;
+  white-space: normal;
+  border: 0 none;
+  background: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.outlineItem > a {
+  padding: 2px 0 5px 4px;
+}
+.attachmentsItem > button {
+  padding: 2px 0 3px 7px;
+  text-align: left;
+}
+
+.outlineItemToggler {
+  position: relative;
+  height: 0;
+  width: 0;
+  color: hsla(0, 0%, 100%, 0.5);
+  &::before {
+  /**  content: url(images/treeitem-expanded.png);**/
+    display: inline-block;
+    position: absolute;
+  }
+}
+/**
+html {
+  &[dir='ltr'] .outlineItemToggler.outlineItemsHidden::before {
+    content: url(images/treeitem-collapsed.png);
+  }
+  &[dir='rtl'] .outlineItemToggler.outlineItemsHidden::before {
+    content: url(images/treeitem-collapsed-rtl.png);
+  }
+}**/
+
+.outlineItemToggler.outlineItemsHidden ~ .outlineItems {
+  display: none;
+}
+
+.outlineItemToggler {
+  float: left;
+}
+.outlineItemToggler::before {
+  right: 4px;
+}
+
+.outlineItemToggler:hover {
+  background-color: hsla(0, 0%, 100%, 0.02);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.2) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+  border-radius: 2px;
+  color: hsla(0, 0%, 100%, 0.9);
+  + a, ~ .outlineItems {
+    background-color: hsla(0, 0%, 100%, 0.02);
+    background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+    background-clip: padding-box;
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.2) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+    border-radius: 2px;
+    color: hsla(0, 0%, 100%, 0.9);
+  }
+}
+
+.outlineItem > a:hover, .attachmentsItem > button:hover {
+  background-color: hsla(0, 0%, 100%, 0.02);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.2) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+  border-radius: 2px;
+  color: hsla(0, 0%, 100%, 0.9);
+}
+
+.outlineItem.selected {
+  background-color: hsla(0, 0%, 100%, 0.08);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  background-clip: padding-box;
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 0 1px hsla(0, 0%, 100%, 0.1) inset, 0 0 1px hsla(0, 0%, 0%, 0.2);
+  color: hsla(0, 0%, 100%, 1);
+}
+
+.noResults {
+  font-size: 12px;
+  color: hsla(0, 0%, 100%, 0.8);
+  font-style: italic;
+  cursor: default;
+}
+
+/* TODO: file FF bug to support ::-moz-selection:window-inactive
+   so we can override the opaque grey background when the window is inactive;
+   see https://bugzilla.mozilla.org/show_bug.cgi?id=706209 */
+
+::selection {
+  background: rgba(0, 0, 255, 0.3);
+}
+
+#errorWrapper {
+  background: none repeat scroll 0 0 #FF5555;
+  color: white;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 1000;
+  padding: 3px;
+  font-size: 0.8em;
+}
+
+.loadingInProgress #errorWrapper {
+  top: 37px;
+}
+
+#errorMessageLeft {
+  float: left;
+}
+
+#errorMessageRight {
+  float: right;
+}
+
+#errorMoreInfo {
+  background-color: #FFFFFF;
+  color: black;
+  padding: 3px;
+  margin: 3px;
+  width: 98%;
+}
+
+.overlayButton {
+  width: auto;
+  margin: 3px 4px 2px 4px !important;
+  padding: 2px 6px 3px 6px;
+}
+
+#overlayContainer {
+  display: table;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(0, 0%, 0%, 0.2);
+  z-index: 40000;
+  > {
+    * {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .container {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      > .dialog {
+        display: inline-block;
+        padding: 15px;
+        border-spacing: 4px;
+        color: hsl(0, 0%, 85%);
+        font-size: 12px;
+        line-height: 14px;
+        background-color: #474747;
+        /* fallback */
+        background-image: url('../../../../static/images/pdf-viewer-icons/texture.png') linear-gradient(hsla(0, 0%, 32%, 0.99), hsla(0, 0%, 27%, 0.95));
+        box-shadow: inset 1px 0 0 hsla(0, 0%, 100%, 0.08), inset 0 1px 1px hsla(0, 0%, 0%, 0.15), inset 0 -1px 0 hsla(0, 0%, 100%, 0.05), 0 1px 0 hsla(0, 0%, 0%, 0.15), 0 1px 1px hsla(0, 0%, 0%, 0.1);
+        border: 1px solid hsla(0, 0%, 0%, 0.5);
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+}
+
+.dialog {
+  > .row {
+    display: table-row;
+  }
+  .toolbarField {
+    margin: 5px 0;
+  }
+  .separator {
+    display: block;
+    margin: 4px 0 4px 0;
+    height: 1px;
+    width: 100%;
+    background-color: hsla(0, 0%, 0%, 0.5);
+    box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.08);
+  }
+  .buttonRow {
+    text-align: center;
+    vertical-align: middle;
+  }
+  :link {
+    color: white;
+  }
+}
+
+#passwordOverlay {
+  > .dialog {
+    text-align: center;
+  }
+  .toolbarField {
+    width: 200px;
+  }
+}
+
+#documentPropertiesOverlay {
+  > .dialog {
+    text-align: left;
+  }
+}
+
+#documentPropertiesOverlay .row {
+  text-align: left;
+}
+
+#documentPropertiesOverlay {
+  .row > {
+    span {
+      width: 125px;
+      word-wrap: break-word;
+    }
+    p {
+      max-width: 225px;
+      word-wrap: break-word;
+    }
+  }
+  .buttonRow {
+    margin-top: 10px;
+  }
+}
+
+.clearBoth {
+  clear: both;
+}
+
+.fileInput {
+  background: white;
+  color: black;
+  margin-top: 5px;
+  visibility: hidden;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+#PDFBug {
+  background: none repeat scroll 0 0 white;
+  border: 1px solid #666666;
+  position: fixed;
+  top: 32px;
+  right: 0;
+  bottom: 0;
+  font-size: 10px;
+  padding: 0;
+  width: 300px;
+  .controls {
+    background: #EEEEEE;
+    border-bottom: 1px solid #666666;
+    padding: 3px;
+  }
+  .panels {
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    position: absolute;
+    right: 0;
+    top: 27px;
+  }
+  button.active {
+    font-weight: bold;
+  }
+}
+
+.debuggerShowText {
+  background: none repeat scroll 0 0 yellow;
+  color: blue;
+}
+
+.debuggerHideText:hover {
+  background: none repeat scroll 0 0 yellow;
+}
+
+#PDFBug {
+  .stats {
+    font-family: courier;
+    font-size: 10px;
+    white-space: pre;
+    .title {
+      font-weight: bold;
+    }
+  }
+  table {
+    font-size: 10px;
+  }
+}
+
+#viewer {
+  &.textLayer-visible {
+    .textLayer {
+      opacity: 1.0;
+    }
+    .canvasWrapper {
+      background-color: rgb(128, 255, 128);
+      canvas {
+        mix-blend-mode: screen;
+      }
+    }
+    .textLayer > div {
+      background-color: rgba(255, 255, 0, 0.1);
+      color: black;
+      border: solid 1px rgba(255, 0, 0, 0.5);
+      box-sizing: border-box;
+    }
+  }
+  &.textLayer-hover .textLayer > div:hover {
+    background-color: white;
+    color: black;
+  }
+  &.textLayer-shadow .textLayer > div {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: black;
+  }
+}
+
+.grab-to-pan-grab {
+ /** cursor: url("images/grab.cur"), move !important;**/
+  cursor: grab !important;
+  &:active {
+   /** cursor: url("images/grabbing.cur"), move !important;**/
+    cursor: grabbing !important;
+    position: fixed;
+    background: transparent;
+    display: block;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 50000;
+    /* should be higher than anything else in PDF.js! */
+  }
+}
+
+.grab-to-pan-grabbing {
+ /** cursor: url("images/grabbing.cur"), move !important;**/
+  cursor: grabbing !important;
+  position: fixed;
+  background: transparent;
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 50000;
+  /* should be higher than anything else in PDF.js! */
+}
+
+@page {
+  margin: 0;
+}
+
+#printContainer, .visibleLargeView, .visibleMediumView, .visibleSmallView {
+  display: none;
+}
+
+@media screen and (min-resolution: 2dppx) {
+  /* Rules for Retina screens */
+  .toolbarButton::before {
+    transform: scale(0.5);
+    top: -5px;
+  }
+  .secondaryToolbarButton::before {
+    transform: scale(0.5);
+    top: -4px;
+  }
+  #toolbarViewerMiddle {
+    margin-left: 64px;
+  }
+  .splitToolbarButton.hiddenSmallView{
+     float: left;
+  }
+ .toolbarButton::before {
+    left: -1px;
+  }
+  .secondaryToolbarButton::before {
+    left: -2px;
+  }
+  .toolbarField.pageNumber.visiblePageIsLoading, #findInput[data-status="pending"] {
+  /**  background-image: url(images/loading-small@2x.png);**/
+    background-size: 16px 17px;
+  }
+  .dropdownToolbarButton {
+   /** background: url(images/toolbarButton-menuArrows@2x.png) no-repeat;**/
+    background-size: 7px 16px;
+  }
+  .toolbarButton#sidebarToggle::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-sidebarToggle@2x.png');
+  }
+   /**
+    &[dir='ltr'] .toolbarButton#secondaryToolbarToggle::before {
+      content: url(images/toolbarButton-secondaryToolbarToggle@2x.png);
+    }
+    &[dir='rtl'] .toolbarButton#secondaryToolbarToggle::before {
+      content: url(images/toolbarButton-secondaryToolbarToggle-rtl@2x.png);
+    }
+    &[dir='ltr'] .toolbarButton.findPrevious::before {
+      content: url(images/findbarButton-previous@2x.png);
+    }
+    &[dir='rtl'] .toolbarButton.findPrevious::before {
+      content: url(images/findbarButton-previous-rtl@2x.png);
+    }
+    &[dir='ltr'] .toolbarButton.findNext::before {
+      content: url(images/findbarButton-next@2x.png);
+    }
+    &[dir='rtl'] .toolbarButton.findNext::before {
+      content: url(images/findbarButton-next-rtl@2x.png);
+    }**/
+  .toolbarButton.pageUp::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-pageUp@2x.png');
+    left: -2px;
+  }
+  .toolbarButton.pageDown::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-pageDown@2x.png');
+    left: 0;
+  }
+
+  .pdf-paginator{
+    margin-left: -33px;
+  }
+
+  .toolbarButton {
+    &.zoomIn::before {
+      content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-zoomIn@2x.png');
+    }
+    &.zoomOut::before {
+      content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-zoomOut@2x.png');
+    }
+    /**
+    &.presentationMode::before {
+      content: url(images/toolbarButton-presentationMode@2x.png);
+    }**/
+  }/**
+  .secondaryToolbarButton.presentationMode::before {
+    content: url(images/toolbarButton-presentationMode@2x.png);
+  }**/
+  .toolbarButton.print::before, .secondaryToolbarButton.print::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-print@2x.png');
+  }/**
+  .toolbarButton.openFile::before, .secondaryToolbarButton.openFile::before {
+    content: url(images/toolbarButton-openFile@2x.png);
+  }**/
+  .toolbarButton.download::before, .secondaryToolbarButton.download::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-download@2x.png');
+  }/**
+  .toolbarButton.bookmark::before, .secondaryToolbarButton.bookmark::before {
+    content: url(images/toolbarButton-bookmark@2x.png);
+  }**/
+  #viewThumbnail.toolbarButton::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-viewThumbnail@2x.png');
+  }
+
+  #viewOutline.toolbarButton::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-viewOutline@2x.png');
+  }
+
+  #viewAttachments.toolbarButton::before {
+    content: url('../../../../static/images/pdf-viewer-icons/toolbarButton-viewAttachments@2x.png');
+  }
+  /**
+  #viewFind.toolbarButton::before {
+    content: url(images/toolbarButton-search@2x.png);
+  }**/
+  /**
+  .secondaryToolbarButton {
+    &.firstPage::before {
+      content: url(images/secondaryToolbarButton-firstPage@2x.png);
+    }
+    &.lastPage::before {
+      content: url(images/secondaryToolbarButton-lastPage@2x.png);
+    }
+    &.rotateCcw::before {
+      content: url(images/secondaryToolbarButton-rotateCcw@2x.png);
+    }
+    &.rotateCw::before {
+      content: url(images/secondaryToolbarButton-rotateCw@2x.png);
+    }
+    &.selectTool::before {
+      content: url(images/secondaryToolbarButton-selectTool@2x.png);
+    }
+    &.handTool::before {
+      content: url(images/secondaryToolbarButton-handTool@2x.png);
+    }
+    &.scrollVertical::before {
+      content: url(images/secondaryToolbarButton-scrollVertical@2x.png);
+    }
+    &.scrollHorizontal::before {
+      content: url(images/secondaryToolbarButton-scrollHorizontal@2x.png);
+    }
+    &.scrollWrapped::before {
+      content: url(images/secondaryToolbarButton-scrollWrapped@2x.png);
+    }
+    &.spreadNone::before {
+      content: url(images/secondaryToolbarButton-spreadNone@2x.png);
+    }
+    &.spreadOdd::before {
+      content: url(images/secondaryToolbarButton-spreadOdd@2x.png);
+    }
+    &.spreadEven::before {
+      content: url(images/secondaryToolbarButton-spreadEven@2x.png);
+    }
+    &.documentProperties::before {
+      content: url(images/secondaryToolbarButton-documentProperties@2x.png);
+    }
+  }**/
+  /**
+  .outlineItemToggler::before {
+    transform: scale(0.5);
+    top: -1px;
+    content: url(images/treeitem-expanded@2x.png);
+  }
+  html {
+    &[dir='ltr'] .outlineItemToggler.outlineItemsHidden::before {
+      content: url(images/treeitem-collapsed@2x.png);
+    }
+    &[dir='rtl'] .outlineItemToggler.outlineItemsHidden::before {
+      content: url(images/treeitem-collapsed-rtl@2x.png);
+    }
+    &[dir='ltr'] .outlineItemToggler::before {
+      right: 0;
+    }
+    &[dir='rtl'] .outlineItemToggler::before {
+      left: 0;
+    }
+  }**/
+}
+
+@media print {
+  /* General rules for printing. */
+  /* Rules for browsers that don't support mozPrintCallback. */
+  #sidebarContainer, #secondaryToolbar, .toolbar, #loadingBox, #errorWrapper, .textLayer {
+    display: none;
+  }
+  #viewerContainer {
+    overflow: visible;
+  }
+  #mainContainer, #viewerContainer {
+    position: static;
+    padding: 0;
+    margin: 0;
+  }
+  .page {
+    position: static;
+    padding: 0;
+    margin: 0;
+    canvas {
+      position: static;
+      padding: 0;
+      margin: 0;
+    }
+    float: left;
+    display: none;
+    border: none;
+    box-shadow: none;
+    background-clip: content-box;
+    background-color: white;
+    &[data-loaded] {
+      display: block;
+    }
+  }
+  .fileInput {
+    display: none;
+  }
+  /* Rules for browsers that support PDF.js printing */
+  #outerContainer {
+    display: none;
+  }
+  #printContainer {
+    display: block;
+  }
+
+  #printContainer {
+    height: 100%;
+    > div {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      overflow: visible;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+    canvas, img {
+      display: block;
+    }
+  }
+  /* wrapper around (scaled) print canvas elements */
+}
+
+@media all and (max-width: 900px) {
+  #toolbarViewerMiddle {
+    display: table;
+    margin: auto;
+    left: auto;
+    position: inherit;
+    transform: none;
+  }
+}
+
+@media all and (max-width: 840px) {
+  #sidebarContent {
+    background-color: hsla(0, 0%, 0%, 0.7);
+  }
+  #outerContainer.sidebarOpen #viewerContainer {
+    left: 0px !important;
+  }
+  #outerContainer {
+    .hiddenLargeView, .hiddenMediumView {
+      display: inherit;
+    }
+    .visibleLargeView, .visibleMediumView {
+      display: none;
+    }
+  }
+}
+
+@media all and (max-width: 770px) {
+  #outerContainer {
+    .hiddenLargeView {
+      display: none;
+    }
+    .visibleLargeView {
+      display: inherit;
+    }
+  }
+}
+
+@media all and (max-width: 700px) {
+  #outerContainer {
+    .hiddenMediumView {
+      display: none;
+    }
+    .visibleMediumView {
+      display: inherit;
+    }
+  }
+}
+
+@media all and (max-width: 640px) {
+  .hiddenSmallView {
+    display: none;
+  }
+  .visibleSmallView {
+    display: inherit;
+  }
+  .toolbarButtonSpacer {
+    width: 0;
+  }
+  .findbar {
+    left: 38px;
+  }
+}
+
+@media all and (max-width: 535px) {
+  #scaleSelectContainer {
+    display: none;
+  }
+}

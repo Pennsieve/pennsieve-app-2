@@ -1,0 +1,37 @@
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.FileTypeMapperBehavior = {
+    properties: {
+      typeMapper: {
+        type: Object,
+        value: {
+          Image: 'image',
+          MRI: 'mri',
+          PDF: 'pdf',
+          Slide: 'slide',
+          Tabular: 'tabular',
+          TimeSeries: 'timeseries',
+          Video: 'video',
+          Text: 'text'
+        }
+      }
+    },
+
+    viewerForType: function(type) {
+      const retValue = this.typeMapper[type];
+      return retValue ? retValue : 'default';
+    },
+
+    typeForViewer: function(viewerStr) {
+      for (let type in this.typeMapper) {
+        if (this.typeMapper[type] === viewerStr) {
+          return type;
+        }
+      }
+      return 'default';
+    }
+  }
+</script>

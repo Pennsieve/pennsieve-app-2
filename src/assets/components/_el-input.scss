@@ -1,0 +1,68 @@
+@import '../_variables.scss';
+
+.el-textarea__inner, .el-input__inner, .text-disabled {
+  border: 1px solid $light-gray;
+  border-radius: 3px;
+  color: $glial;
+  font-family: $system-font;
+  padding: 0 16px;
+  resize: none;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    display: none;
+  }
+  &::placeholder {
+    color: $glial;
+  }
+  &:focus, .el-form-item.is-success &:focus {
+    border-color: $app-primary-color;
+  }
+  .el-form-item.is-error &, .el-form-item.is-error &:focus {
+    border-color: $error-color;
+  }
+  .el-form-item.is-success & {
+    border-color: $light-gray;
+  }
+  .is-disabled &, &.text-disabled {
+    background: #F9F9F9;
+    border-color: $light-gray !important;
+  }
+  .simple & {
+    border: none;
+    height: auto;
+    padding: 0;
+  }
+}
+.el-textarea__inner {
+  line-height: 16px;
+  padding: 11px 16px;
+}
+.text-disabled {
+  min-height: 40px;
+  padding: 11px 16px;
+  line-height: 16px;
+  &.icon {
+    box-sizing: border-box;
+    padding-right: 48px;
+    position: relative;
+    .el-form-item & {
+      display: inline-block;
+      width: 100%
+    }
+    .svg-icon {
+      right: 20px;
+      position: absolute;
+      top: 8px;
+    }
+  }
+}
+.icon-prefix {
+  .el-input__prefix {
+    align-items: center;
+    display: flex;
+    left: 8px;
+  }
+  &.el-input--prefix .el-input__inner {
+    padding-left: 32px;
+  }
+}

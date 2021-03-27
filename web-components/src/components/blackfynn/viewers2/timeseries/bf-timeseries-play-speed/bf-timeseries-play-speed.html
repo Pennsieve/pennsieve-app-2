@@ -1,0 +1,207 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../../../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../../styles/blackfynn/icons.html">
+
+<!--
+`<bf-timeseries-play-speed>` is component to select the playback speed of a timeseries.
+
+    <bf-timeseries-play-speed></bf-timeseries-play-speed>
+
+@element bf-timeseries-play-speed
+@demo demo/index.html
+-->
+
+<dom-module id="bf-timeseries-play-speed">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+        margin: 0 20px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        --paper-menu-button: {
+          padding: 0;
+        }
+        --paper-menu-button-content: {
+          border-radius: 3px;
+          box-shadow: none;
+        }
+      }
+      :host(:hover){
+        cursor: pointer;
+      }
+      .icon-stopwatch {
+        color: var(--glial);
+        height: 32px;
+        margin-right: 2px;
+        padding: 8px 6px;
+        width: 27px;
+      }
+      .icon-stopwatch[opened], .icon-stopwatch:focus, .icon-stopwatch:hover {
+        color: #000;
+      }
+      .dropdown-content {
+        padding: 0;
+        width: 47px;
+      }
+      .dropdown-item {
+        border-right: 1px solid #BDBDBD;
+        border-left: 1px solid #BDBDBD;
+        cursor: pointer;
+        font-size: 12px;
+        line-height: 12px;
+        min-height: 0;
+        padding: 5px;
+      }
+      .dropdown-item:first-of-type {
+        border-top: 1px solid #BDBDBD;
+        border-radius: 3px 3px 0 0;
+      }
+      .dropdown-item:last-of-type {
+        border-bottom: 1px solid #BDBDBD;
+        border-radius: 0 0 3px 3px;
+      }
+      .dropdown-item:hover, .dropdown-item:focus, .dropdown-item.iron-selected {
+        background: var(--dopamine);
+        border-color: var(--dopamine);
+        color: var(--white-matter);
+        outline: none;
+      }
+      .dropdown-wrap {
+        background: var(--white-matter);
+        border: 1px solid #BDBDBD;
+        border-radius: 3px;
+        box-sizing: border-box;
+        padding: 1px 4px 2px;
+        width: 45px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .caret {
+        height: 5px;
+        margin-top: -2px;
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        width: 9px;
+      }
+      .value {
+        color: #000;
+        font-size: 12px;
+        @apply(--layout-flex-auto);
+      }
+    </style>
+
+    <paper-icon-button
+      class="icon-stopwatch"
+      icon="blackfynn:stopwatch"
+      opened$="[[isOpen]]"
+      on-tap="toggleMenu"></paper-icon-button>
+
+    <paper-menu-button
+      id="menu"
+      vertical-align="bottom"
+      horizontal-align="left"
+      opened="{{isOpen}}">
+
+      <div class="dropdown-wrap dropdown-trigger">
+
+        <span class="value dropdown-trigger">[[speed]]x</span>
+
+        <iron-icon
+          class="caret dropdown-trigger"
+          icon="[[icon]]"
+          noink></iron-icon>
+
+      </div>
+
+      <paper-listbox class="dropdown-content" selected="{{speed}}" attr-for-selected="value">
+        <paper-item class="dropdown-item" value="0.5">0.5x</paper-item>
+        <paper-item class="dropdown-item" value="1">1x</paper-item>
+        <paper-item class="dropdown-item" value="2">2x</paper-item>
+        <paper-item class="dropdown-item" value="5">5x</paper-item>
+        <paper-item class="dropdown-item" value="10">10x</paper-item>
+      </paper-listbox>
+
+    </paper-menu-button>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-timeseries-play-speed',
+
+      properties: {
+        /**
+        * Speed of playback
+        */
+        speed: {
+          type: Number,
+          value: 1,
+          notify: true
+        },
+        /**
+        * Allows the user to tap on the stopwatch icon to toggle the dropdown
+        */
+        _canToggle: {
+          type: Boolean,
+          value: true
+        },
+        /**
+        * Whether the dropdown is open or not
+        */
+        isOpen: {
+          type: Boolean,
+          value: false
+        },
+        /**
+        * Icon for the dropdown menu
+        */
+        icon: {
+          type: String,
+          computed: '_computeIcon(isOpen)'
+        }
+      },
+
+      listeners: {
+        'menu.paper-dropdown-open': 'onMenuToggle',
+        'menu.paper-dropdown-close': 'onMenuToggle'
+      },
+
+      /**
+      * Set a _canToggle flag to prevent the stopwatch icon from opening the menu too early
+      */
+      onMenuToggle: function() {
+        this.async(function() {
+          this.set('_canToggle', !this._canToggle);
+        }, 100);
+      },
+
+      /**
+      * Computes if the icon should be up or down based on if the dropdown is open
+      */
+      _computeIcon: function(isOpen) {
+        if(isOpen) {
+          return 'blackfynn:chevron-up-small';
+        } else{
+          return 'blackfynn:chevron-down-small';
+        }
+      },
+
+      /**
+      * Toggle the dropdown
+      */
+      toggleMenu: function() {
+        if(this._canToggle) {
+          this.$.menu.open();
+        }
+      }
+    });
+  </script>
+</dom-module>

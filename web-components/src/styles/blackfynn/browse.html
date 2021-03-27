@@ -1,0 +1,47 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<dom-module id="blackfynn-browse-styles">
+  <template>
+    <style>
+      #browseContent {
+        overflow-y: scroll;
+        overflow-x: hidden;
+        @apply(--layout-flex);
+      }
+      #browseFull {
+        height: 100%;
+        @apply(--layout-vertical);
+      }
+      #browseFull.is-dragging {
+        cursor: default !important;
+        user-select: none;
+      }
+      .browse-content {
+        overflow: hidden;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      .data-heading {
+        background: var(--dendrite);
+        padding: 20px;
+        @apply(--layout-vertical);
+        @apply(--layout-left);
+      }
+      .data-heading-attribute {
+        padding: 10px 0pt 0pt;
+      }
+      .attribute-key {
+        font-size: 12px;
+      }
+      .attribute-value {
+
+      }
+      .data-heading.side-panel {
+        padding: 0 10px;
+      }
+      .data-heading > paper-icon-button:first-child {
+        margin-left: -10px;
+        margin-right: 4px;
+      }
+    </style>
+  </template>
+</dom-module>

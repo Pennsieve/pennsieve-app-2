@@ -1,0 +1,182 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+<link rel="import" href="../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../shared/bf-input/bf-input.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="blackfynn-member-info-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      .buttons {
+        padding: 0 20px 20px 20px !important;
+      }
+      .buttons paper-button[dialog-dismiss] {
+        margin-right: 10px;
+      }
+    </style>
+
+    <bf-dialog id="dialog" on-iron-overlay-opened="patchOverlay">
+      <h2 slot="heading">[[memberDisplayName]]</h2>
+
+      <div slot="body">
+        <bf-input label="First name" value="{{_member.firstName}}"></bf-input>
+        <bf-input label="Last name" value="{{_member.lastName}}"></bf-input>
+        <bf-input label="Email" value="{{_member.email}}"></bf-input>
+        <bf-input label="Organization" value="{{_member.organization}}"></bf-input>
+        <bf-input label="Title" value="{{_member.credential}}"></bf-input>
+      </div>
+
+      <div slot="buttons">
+        <paper-button
+          class="save"
+          noink
+          on-tap="_doUpdateMember">Save</paper-button>
+      </div>
+    </bf-dialog>
+
+    <iron-ajax
+      id="updateMember"
+      method="PUT"
+      handle-as="json"
+      loading="{{_updatingMember}}"
+      content-type="application/json"
+      url="[[updateMemberUrl]]"
+      body="[[_member]]"
+      on-error="ajaxError"
+      on-response="_handleUpdateMember"></iron-ajax>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'blackfynn-member-info-window',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.PatchedOverlayBehavior,
+      ],
+
+      properties: {
+        /**
+         * Member's info
+         */
+        member: {
+          type: Object,
+          value: function() {
+            return {};
+          },
+          notify: true
+        },
+        /**
+         * Edited member's info, copied from `member` for canceling editing
+         */
+        _member: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * Flag used when ajax is in process
+         */
+        _updatingMember: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Compute save member URL
+         */
+        updateMemberUrl: {
+          type: String,
+          computed: '_computeUpdateMemberUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id, member.id)'
+        },
+        /**
+         * member display name
+         */
+        memberDisplayName: {
+          type: String,
+          computed: '_computeMemberDisplayName(member)'
+        },
+      },
+
+      listeners: {
+        'iron-overlay-opened': '_onOpened'
+      },
+
+      /**
+       * gets the member's fullname
+       * @param {Object} member Object
+       * @return {String} member's full name
+       */
+      _getFullName: R.compose(R.trim, R.join(' '), R.props(['firstName', 'lastName']), R.defaultTo({})),
+
+      /**
+       * computes the member's full name or email address
+       */
+      _computeMemberDisplayName: function(member) {
+        const fullName = this._getFullName(member);
+        return fullName.length > 0 ? fullName : R.prop('email', member);
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      _computeUpdateMemberUrl: function(api, user, activeOrganizationId, memberId) {
+        return `${api}/organizations/${activeOrganizationId}/members/${memberId}?api_key=${user}`;
+      },
+
+      _onOpened: function() {
+        const memberCopy = Object.assign({}, this.member);
+        this.set('_member', memberCopy);
+
+        // Focus on the first field
+        this.async(() => this.$$('bf-input').$.input.focus(), 100);
+      },
+
+      _doUpdateMember: function() {
+        this.$.updateMember.generateRequest();
+      },
+
+      _handleUpdateMember: function(e, detail) {
+        // Don't send request again if already processing
+        if(this._updatingMember) {
+          return;
+        }
+
+        // Set the new member details
+        this.set('member', detail.response);
+
+        // Notify the user
+        this.fire('toast', {
+          type: 'MESSAGE',
+          msg: `Profile for ${detail.response.firstName} ${detail.response.lastName} updated`
+        });
+
+        // Update user's profile the member is the logged in user
+        // Handled in blackfynn-app
+        if(detail.response.id === this.state.profile.id) {
+          this.fire('update-profile', { profile: detail.response });
+        }
+
+        // Close the dialog
+        this.$.dialog.close();
+      }
+    });
+
+  </script>
+
+</dom-module>

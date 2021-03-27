@@ -1,0 +1,309 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-input tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+  <script src="../../../../../../../bower_components/web-component-tester/browser.js"></script>
+  <script src="../../../../../../../bower_components/iron-test-helpers/test-helpers.js"></script>
+  <script src="../../../../../../../bower_components/iron-test-helpers/mock-interactions.js"></script>
+
+  <link rel="import" href="../bf-input.html">
+  <link rel="import" href="letters-only.html">
+
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <bf-input></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="has-tabindex">
+    <template>
+      <bf-input tabindex="0"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="label">
+    <template>
+      <bf-input label="foo"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="label-has-value">
+    <template>
+      <bf-input label="foo" value="bar"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="error">
+    <template>
+      <bf-input auto-validate pattern="[0-9]*" value="foobar" error-message="error"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="required">
+    <template>
+      <bf-input auto-validate required error-message="error"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="required-no-auto-validate">
+    <template>
+      <bf-input required error-message="error"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="required-char-counter">
+    <template>
+      <bf-input auto-validate char-counter required error-message="error"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="type-number-char-counter">
+    <template>
+      <bf-input type="number" char-counter value="1138"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="always-float-label">
+    <template>
+      <bf-input always-float-label label="foo"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="placeholder">
+    <template>
+      <bf-input label="foo" placeholder="bar"></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="date">
+    <template>
+      <bf-input label="foo" type="date"></bf-input>
+    </template>
+  </test-fixture>
+
+  <letters-only></letters-only>
+
+  <test-fixture id="validator">
+    <template>
+      <bf-input value="123123" validator="letters-only" auto-validate></bf-input>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="multiple-inputs">
+    <template>
+      <bf-input label="one"></bf-input>
+      <bf-input label="two"></bf-input>
+      <bf-input label="three"></bf-input>
+      <bf-input label="four"></bf-input>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    suite('basic', function() {
+
+      test('setting value sets the input value', function() {
+        const input = fixture('basic');
+        input.value = 'foobar';
+        assert.equal(input.inputElement.value, input.value, 'inputElement.value equals input.value');
+      });
+
+      test('label does not receive pointer events', function() {
+        const input = fixture('always-float-label');
+        const label = Polymer.dom(input.root).querySelector('label');
+        assert.equal(getComputedStyle(label).pointerEvents, 'none');
+      });
+
+      // test('error message is displayed', function() {
+      //   var input = fixture('error');
+      //   forceXIfStamp(input);
+      //   var error = Polymer.dom(input.root).querySelector('bf-input-error');
+      //   assert.ok(error, 'bf-input-error exists');
+      //   assert.notEqual(getComputedStyle(error).display, 'none', 'error is not display:none');
+      // });
+
+      // test('empty required input shows error', function() {
+      //   var input = fixture('required');
+      //   forceXIfStamp(input);
+      //   var error = Polymer.dom(input.root).querySelector('bf-input-error');
+      //   assert.ok(error, 'bf-input-error exists');
+      //   assert.notEqual(getComputedStyle(error).display, 'none', 'error is not display:none');
+      // });
+
+      test('validator is used', function() {
+        const input = fixture('validator');
+        assert.ok(input.inputElement.invalid, 'input is invalid');
+      });
+
+      test('caret position is preserved', function() {
+        const input = fixture('basic');
+        const ironInput = Polymer.dom(input.root).querySelector('input[is="iron-input"]');
+        input.value = 'nananana';
+        ironInput.selectionStart = 2;
+        ironInput.selectionEnd = 2;
+
+        input.updateValueAndPreserveCaret('nanananabatman');
+
+        assert.equal(ironInput.selectionStart, 2, 'selectionStart is preserved');
+        assert.equal(ironInput.selectionEnd, 2, 'selectionEnd is preserved');
+      });
+
+      test('setting autofocus to true implictly acquires focus', function(done) {
+        const input = fixture('basic');
+        const inputFocusSpy = sinon.spy(input.inputElement, 'focus');
+        window.setTimeout(function() {
+          assert(inputFocusSpy.called);
+          done();
+        }, 50);
+        input.autofocus = true;
+      });
+
+      test('autofocus doesn\'t grab focus if another element already has it', function(done) {
+        const inputs = fixture('multiple-inputs');
+        const inputFocusSpies = inputs.map(function(input) {
+          return sinon.spy(input.inputElement, 'focus');
+        });
+        window.setTimeout(function() {
+          assert(inputFocusSpies[0].called, 'first autofocus input with grabbed focus');
+          assert(!inputFocusSpies[1].called, 'second autofocus input const first input keep focus');
+          done();
+        }, 50);
+        inputs[0].autofocus = true;
+        inputs[1].autofocus = true; // Shouldn't cause focus to change
+      });
+
+    });
+
+    suite('focus/blur events', function() {
+      let input;
+
+      setup(function() {
+        input = fixture('basic');
+      });
+
+      // At the moment, it is very hard to correctly fire exactly
+      // one focus/blur events on a bf-input. This is because
+      // when a bf-input is focused, it needs to focus
+      // its underlying native input, which will also fire a `blur`
+      // event.
+      test('focus events fired on host element', function() {
+        input.addEventListener('focus', function(event) {
+          assert(input.focused, 'input is focused');
+        });
+        MockInteractions.focus(input);
+      });
+
+      test('focus events fired on host element if nested element is focused', function() {
+        input.addEventListener('focus', function(event) {
+          assert(input.focused, 'input is focused');
+        });
+        MockInteractions.focus(input.inputElement);
+      });
+
+      test('blur events fired on host element', function() {
+        MockInteractions.focus(input);
+        input.addEventListener('blur', function(event) {
+          assert(!input.focused, 'input is blurred');
+        });
+        MockInteractions.blur(input);
+      });
+
+      test('blur events fired on host element nested element is blurred', function() {
+        MockInteractions.focus(input);
+        input.addEventListener('blur', function(event) {
+          assert(!input.focused, 'input is blurred');
+        });
+        MockInteractions.blur(input.inputElement);
+      });
+
+      test('focusing then bluring sets the focused attribute correctly', function() {
+        MockInteractions.focus(input);
+        assert(input.focused, 'input is focused');
+        MockInteractions.blur(input);
+        assert(!input.focused, 'input is blurred');
+        MockInteractions.focus(input.inputElement);
+        assert(input.focused, 'input is focused');
+        MockInteractions.blur(input.inputElement);
+        assert(!input.focused, 'input is blurred');
+      });
+
+      test('focusing then bluring with shift-tab removes the focused attribute correctly', function() {
+        MockInteractions.focus(input);
+        assert(input.focused, 'input is focused');
+
+        // Fake a shift-tab induced blur by forcing the flag.
+        input._shiftTabPressed = true;
+        MockInteractions.blur(input.inputElement);
+        assert(!input.focused, 'input is blurred');
+      });
+    });
+
+    suite('validation', function() {
+
+      test('invalid attribute updated after calling validate()', function() {
+        const input = fixture('required-no-auto-validate');
+        forceXIfStamp(input);
+        input.validate();
+        assert.isTrue(input.invalid, 'invalid is true');
+      });
+
+    });
+
+    suite('a11y', function() {
+      test('has aria-labelledby, which is monotonically increasing', function() {
+        const inputs = fixture('multiple-inputs');
+
+        // Find the first index of the input in this fixture. Since the label
+        // ids monotonically increase every time a new input is created, and
+        // this fixture isn't the first one in the document, we're going to start
+        // at an ID > 1.
+        const firstLabel = Polymer.dom(inputs[0].root).querySelector('label').id;
+        let index = parseInt(firstLabel.substr(firstLabel.lastIndexOf('-') + 1));
+
+        for (let i = 0; i < inputs.length; i++ ) {
+          const input = inputs[i].inputElement;
+          const label = Polymer.dom(inputs[i].root).querySelector('label').id;
+
+          assert.isTrue(input.hasAttribute('aria-labelledby'));
+          assert.equal(label, 'paper-input-label-' + (index++));
+          assert.equal(input.getAttribute('aria-labelledby'), label);
+        }
+      });
+
+      test('focus an input with tabindex', function(done) {
+        const input = fixture('has-tabindex');
+        flush(function() {
+          MockInteractions.focus(input);
+          flush(function() {
+            assert.equal(input.shadowRoot ? input.shadowRoot.activeElement :
+                document.activeElement, input._focusableElement);
+            done();
+          });
+        });
+      });
+    });
+
+  </script>
+
+</body>
+</html>

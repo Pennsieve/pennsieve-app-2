@@ -1,0 +1,39 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+
+  Blackfynn.ActiveViewerBehavior = {
+
+    behaviors: [
+      Blackfynn.VuexBehavior
+    ],
+
+    properties: {
+      isActive: {
+        type: Boolean,
+        computed: '_computeIsActive(vuex.viewerActiveIndex, viewerIndex)'
+      }
+    },
+
+    listeners: {
+      'tap': 'onTap'
+    },
+
+    /**
+     * Compute if the viewer is active based on Vuex
+     * @param {Number} viewerActiveIndex
+     * @param {Number} viewerIndex
+     * @returns {Boolean}
+     */
+    _computeIsActive: function(viewerActiveIndex, viewerIndex) {
+      return viewerActiveIndex === viewerIndex
+    }
+  }
+
+</script>

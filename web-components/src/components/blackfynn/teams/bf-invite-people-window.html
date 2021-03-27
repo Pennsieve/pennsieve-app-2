@@ -1,0 +1,110 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-invite-people-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <paper-dialog id="dialog" with-backdrop on-iron-overlay-opened="patchOverlay">
+      <h2>Invite to [[activeOrganization.name]]</h2>
+
+      <div class="dialog-body">
+        <paper-input label="Email" value="{{email}}" required="true" autofocus="true"></paper-input>
+      </div>
+
+      <div class="buttons">
+        <paper-button hidden$="[[processing]]" dialog-dismiss>Cancel</paper-button>
+        <paper-button hidden$="[[processing]]" class="primary" on-tap="_doInviteToOrganization">Invite</paper-button>
+        <paper-spinner-lite hidden$="[[!processing]]" active$="[[processing]]"></paper-spinner-lite>
+      </div>
+    </paper-dialog>
+
+    <iron-ajax
+      id="putGroupUsers"
+      method="POST"
+      handle-as="json"
+      content-type="application/json"
+      loading="{{processing}}"
+      url="[[invitePeopleUrl]]"
+      on-error="ajaxError"
+      on-response="_handleInviteSent"
+      debounce-duration="300"></iron-ajax>
+
+    <iron-a11y-keys keys="enter" on-keys-pressed="_doInviteToOrganization"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-invite-people-window',
+
+      behaviors: [
+        Blackfynn.PatchedOverlayBehavior
+      ],
+
+      properties: {
+        activeOrganization: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        email: {
+          type: String
+        },
+        processing: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        invitePeopleUrl: {
+          type: String
+        }
+      },
+
+      ajaxError: function(e, detail) {
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      _doInviteToOrganization: function() {
+        if(this.email === null || this.email === '') {
+          return;
+        }
+        this.$.putGroupUsers.body = { emails: [this.email] };
+        this.$.putGroupUsers.generateRequest();
+      },
+
+      _handleInviteSent: function(e, detail) {
+        this.fire('people-invited', {
+          people: detail.response
+        });
+
+        this.fire('toast', {
+          type: 'MESSAGE',
+          msg: `${this.email} invited to ${this.activeOrganization.name}`
+        });
+
+        this.set('email', null);
+        this.$.dialog.toggle();
+      }
+    });
+
+  </script>
+
+</dom-module>

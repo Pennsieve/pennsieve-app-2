@@ -1,0 +1,105 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="../bf-icon-circle/bf-icon-circle.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<!--
+## bf-avatar
+
+`<bf-avatar>` is a component to display the user's initials and assigned color.
+
+@demo
+-->
+
+<dom-module id="bf-avatar">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        font-weight: 500;
+        line-height: 1;
+        text-transform: uppercase;
+        --bf-icon-circle-background: var(--app-primary-color);
+        --bf-icon-circle-color: var(--white-matter);
+      }
+      paper-tooltip {
+        text-transform: none
+      }
+    </style>
+
+    <bf-icon-circle id="iconCircle">
+      <span>[[firstInitial]][[lastInitial]]</span>
+    </bf-icon-circle>
+
+    <paper-tooltip
+      hidden="[[!tooltip]]"
+      for="iconCircle"
+      position="top"
+      offset="5">[[profile.firstName]] [[profile.lastName]]</paper-tooltip>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-avatar',
+      properties: {
+        /**
+        * User profile
+        */
+        profile: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+        * Computed first initial
+        */
+        firstInitial: {
+          type: String,
+          computed: '_getInitial(profile.firstName)'
+        },
+        /**
+        * Computed last initial
+        */
+        lastInitial: {
+          type: String,
+          computed: '_getInitial(profile.lastName)'
+        },
+        /**
+        * Show the tooltip
+        */
+        tooltip: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      observers: [
+        '_setColor(profile.color)'
+      ],
+
+      /**
+      * Set the background color
+      */
+      _setColor: function(color) {
+        this.$.iconCircle.style.backgroundColor = R.defaultTo('#2760FF', color);
+      },
+
+      /**
+      * Gets first initial of the name
+      */
+      _getInitial: R.compose(
+        R.head(),
+        R.defaultTo('')
+      )
+    });
+
+  </script>
+
+</dom-module>

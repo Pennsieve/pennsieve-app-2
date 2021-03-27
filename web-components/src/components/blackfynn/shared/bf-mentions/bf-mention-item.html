@@ -1,0 +1,60 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-behaviors/iron-control-state.html">
+<link rel="import" href="../../../../../bower_components/iron-behaviors/iron-button-state.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../bf-avatar/bf-avatar.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-mention-item">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        cursor: pointer;
+        color: #000;
+        padding: 5px 10px;
+        outline: none;
+        text-decoration: none;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      :host(:hover), :host(:focus), :host(.iron-selected) {
+        color: var(--app-primary-color);
+      }
+
+      bf-avatar {
+        margin-right: 10px;
+        --bf-icon-circle: {
+          height: 32px;
+          width: 32px;
+        }
+      }
+    </style>
+
+    <bf-avatar profile="[[profile]]"></bf-avatar>
+    <span id="name">[[profile.firstName]] [[profile.lastName]]</span>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'bf-mention-item',
+
+      behaviors: [
+        Polymer.IronControlState,
+        Polymer.IronButtonState
+      ],
+
+      properties: {
+      }
+
+    });
+
+  </script>
+
+</dom-module>

@@ -1,0 +1,104 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+
+<dom-module id="blackfynn-shared-value-control">
+    <template>
+      <style include="blackfynn-main-styles"></style>
+      <style type="text/css">
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: flex-end;
+            margin-right: 20px;
+        }
+        paper-input {
+            max-width: 120px;
+            color: #737373;
+        }
+      </style>
+
+      <div class="wrapper">
+        <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="_blurinput"></iron-a11y-keys>
+        <paper-input id="valueBox" label="[[label]]" always-float-label="true" value="{{value}}" on-focus="_focusControl" on-blur="_blurinput">
+            <div suffix>[[unit]]</div>
+        </paper-input>
+      </div>
+  </template>
+
+
+
+    <script>
+        Polymer({
+            is: 'blackfynn-shared-value-control',
+            properties: {
+                label: {
+                    type: String,
+                    value: 'Value'
+                },
+                unit: {
+                    type: String,
+                    value: 'Unit'
+                },
+                value: {
+                    type: Number,
+                    value: 0,
+                    observer: '_valueChanged'
+                },
+                parent: {
+                    type: Object,
+                    value: {}
+                },
+                parentfnc: {
+                    type: String,
+                    value: ''
+                },
+                precision: {
+                    type: Number,
+                    value: 3
+                },
+                noFormatting: {
+                    type: Boolean,
+                    value: false
+                },
+                target: {
+                    type: Object,
+                    value: function() {
+                        return this.$.valueBox;
+                    }
+                }
+            },
+            _focusControl: function(e, details) {
+                this.noFormatting = true;
+            },
+            _blurinput: function(e, details) {
+                this.noFormatting = false;
+                if (this.parent) {
+                    const fn = this.parent[this.parentfnc + '_blur'];
+                    if (typeof fn === 'function') {
+                        fn.apply(this, [this.value]);
+                    }
+                }
+            },
+            _valueChanged: function(newValue, oldValue) {
+
+                if (!this.noFormatting && ((newValue / ((0.1) ^ this.precision)) % 1 !== 0)) {
+                    this.value = parseFloat(newValue).toFixed(this.precision);
+                    return;
+                }
+
+                if (this.parent) {
+                    const fn = this.parent[this.parentfnc + '_change'];
+                    if (typeof fn === 'function') {
+                        fn.apply(this, [e]);
+                    }
+                }
+            },
+
+            ready: function() {},
+            attached: function() {}
+        });
+    </script>
+</dom-module>

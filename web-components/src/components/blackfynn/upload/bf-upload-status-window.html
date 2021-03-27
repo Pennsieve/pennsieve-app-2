@@ -1,0 +1,66 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
+
+<link rel="import" href="../shared/blackfynn-menu.html">>
+
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-upload-status-window">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        color: #000;
+        display: block;
+        width: 250px;
+        text-align: left;
+        --arrow-left: auto;
+        --arrow-right: 20px;
+        --arrow-border-left: auto;
+        --arrow-border-right: 19px;
+        --bf-menu-arrow: {
+          right: 22px;
+        }
+      }
+      blackfynn-menu {
+        padding: 20px;
+      }
+    </style>
+
+
+    <blackfynn-menu hidden$="[[!opened]]">
+      <content></content>
+    </blackfynn-menu>
+
+  </template>
+
+
+  <script>
+    Polymer({
+      is: 'bf-upload-status-window',
+
+      behaviors: [
+        Polymer.IronOverlayBehavior
+      ],
+
+      properties: {
+        horizontalAlign: {
+          type: String,
+          value: 'right'
+        },
+        verticalAlign: {
+          type: String,
+          value: 'top'
+        },
+        verticalOffset: {
+          type: Number,
+          value: 47
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>

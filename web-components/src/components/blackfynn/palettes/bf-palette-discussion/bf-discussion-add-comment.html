@@ -1,0 +1,474 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../../shared/bf-avatar/bf-avatar.html">
+<link rel="import" href="../../shared/bf-mentions/bf-mentions.html">
+
+<link rel="import" href="../../shared/bf-mentions/bf-mention-tag-behavior.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+
+<!--
+## bf-discussion-add-comment
+
+`<bf-discussion-add-comment>` is a component to add a comment to a discussion.
+
+@demo
+-->
+
+<dom-module id="bf-discussion-add-comment">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        border-top: 1px solid var(--cortex);
+        @apply(--layout-vertical);
+      }
+      :host([start-discussion]){
+        border: none;
+      }
+      #commentWrap {
+        background: var(--dendrite);
+        padding: 5px 10px;
+        position: relative;
+        z-index: 99;
+      }
+      :host([start-discussion]) #commentWrap {
+        border-bottom: 1px solid var(--cortex);
+      }
+      :host([mentions-active]) #commentWrap {
+        z-index: 100;
+      }
+      #commentFieldWrap {
+        @apply(--layout-horizontal);
+      }
+      #commentTextarea {
+        border: none;
+        color: #404554;
+        font-size: 13px;
+        margin-right: 10px;
+        min-height: 17px;
+        padding: 0;
+        @apply(--layout-flex);
+        @apply(--layout-self-center);
+        --iron-autogrow-textarea-placeholder: {
+          color: #bdbdbd;
+        }
+      }
+      bf-avatar {
+        margin-right: 10px;
+        --bf-icon-circle: {
+          height: 32px;
+          width: 32px;
+        }
+      }
+      #helper {
+        background: var(--cortex);
+        color: var(--glial);
+        font-size: 12px;
+        padding: 10px;
+      }
+      :host([start-discussion]) #helper {
+        background: none;
+      }
+      #controls {
+        margin-top: 15px;
+        padding: 0 15px 0 46px;
+        @apply(--layout-center);
+        @apply(--layout-horizontal);
+      }
+      #buttonWrap {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-flex);
+      }
+      #buttonWrap a {
+        font-size: 13px;
+        margin-left: 8px;
+      }
+      .icon-sharing {
+        color: var(--glial);
+        cursor: pointer;
+        height: 20px;
+        padding: 0;
+        width: 26px;
+        @apply(--layout-self-center);
+      }
+      .icon-sharing:hover {
+        color: var(--app-primary-color);
+      }
+      .icon-sharing[focused], .icon-sharing[active] {
+        color: var(--app-secondary-color);
+      }
+      #commentTextarea span {
+        color: var(--dopamine);
+      }
+    </style>
+
+    <div id="commentWrap">
+      <div id="commentFieldWrap">
+        <bf-avatar
+          profile="[[vuex.profile]]"></bf-avatar>
+
+        <div
+          id="commentTextarea"
+          contenteditable="true"
+          tabindex="1"
+          role="textbox"
+          aria-multiline="false"
+          aria-haspopup="false"
+          spellcheck="true"
+          autocorrect="off"
+          autocomplete="off"
+          aria-label=""
+          on-focus="onFocusBlur"
+          on-blur="onFocusBlur"
+          inner-h-t-m-l="{{comment::input}}"
+          value="[[comment]]"></div>
+
+        <paper-icon-button
+          class="icon-sharing"
+          hidden$="[[_hasComment]]"
+          icon="blackfynn:sharing-illustration"
+          noink
+          on-tap="_appendAtSymbol"></paper-icon-button>
+
+        <bf-mentions
+          id="mentions"
+          input-field="[[commentTextarea]]"
+          selected-mentions="{{mentions}}"
+        ></bf-mentions>
+
+      </div>
+
+      <div id="controls" hidden$="[[!_hasComment]]">
+        <div id="buttonWrap">
+          <paper-button
+            class="light small"
+            noink
+            on-tap="save">Save</paper-button>
+
+          <a href="#" class="plain" on-tap="reset">Discard</a>
+        </div>
+        <paper-icon-button
+          id="shareBtn"
+          class="icon-sharing"
+          icon="blackfynn:sharing-illustration"
+          noink
+          active$="[[mentionsActive]]"
+          on-tap="_appendAtSymbol"></paper-icon-button>
+      </div>
+
+    </div>
+
+    <div id="helper" hidden$="[[!_isActive]]">
+      @mention someone to invite them to discuss.
+    </div>
+
+    <iron-a11y-keys
+      target="[[commentTextarea]]"
+      keys="enter"
+      on-keys-pressed="onEnter"></iron-a11y-keys>
+
+    <iron-a11y-keys
+      target="[[commentTextarea]]"
+      keys="esc"
+      on-keys-pressed="onEsc"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-discussion-add-comment',
+
+      behaviors: [
+        Blackfynn.MentionTagBehavior,
+        Blackfynn.VuexBehavior
+      ],
+
+      properties: {
+        /**
+         * Comment for the discussion
+         */
+        comment: {
+          type: String,
+          value: '',
+          observer: '_watchComment'
+        },
+        /**
+        * list of mentions in the comment
+        */
+        mentions: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Has comment
+         */
+        _hasComment: {
+          type: Boolean,
+          computed: '_computeHasComment(comment)'
+        },
+        /**
+         * This component should start a discussion when saved
+         */
+        startDiscussion: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Comment textarea for key target
+         */
+        commentTextarea: {
+          type: Object,
+          value: function() {
+            return this.$.commentTextarea;
+          }
+        },
+        /**
+         * If the user is focused on the input
+         */
+        isFocused: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Compute if the user is focused on the input, or has started typing a comment
+         */
+        _isActive: {
+          type: Boolean,
+          computed: '_computeIsActive(isFocused, _hasComment)'
+        },
+        /**
+         * The mentions menu is open
+         */
+        mentionsActive: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * Annotation ID the discussion is about
+         */
+        annotationId: {
+          type: String,
+          value: ''
+        },
+        /**
+         * Discussion ID the discussion is about
+         */
+         discussionId: {
+          type: Number,
+          value: 0
+        }
+      },
+
+      listeners: {
+        'set-active': 'setActive',
+        'mention-attached': '_onMentionAttached',
+        'set-comment-value': 'setCommentValue'
+      },
+
+      /**
+       * Watch comment changes and detect any changes with existing mentions
+       * @param {String} newVal
+       */
+      _watchComment: function(newVal) {
+        if(newVal) {
+          const mentions = Polymer.dom(this.root).querySelectorAll('span');
+          const mentionsList = this.get('mentions');
+          mentions.forEach(function(mention) {
+            const item = R.find(R.propEq('id', mention.getAttribute('data-profile-id')), mentionsList);
+
+            if(item) {
+              const names = R.props(['firstName', 'lastName'], item);
+              const fullName = R.join(' ', names);
+
+              if(mention.textContent !== fullName) {
+                // Remove span from comment
+                mention.outerHTML = mention.textContent;
+
+                // Remove mention from list
+                const index = mentionsList.indexOf(item);
+                this.splice('mentions', index, 1);
+              }
+            }
+          }, this);
+        }
+      },
+
+      setCommentValue: function(e, detail) {
+        this.set('comment', detail.value);
+      },
+
+      /**
+       * sets host active attribute
+       * @param {Event} e
+       */
+      setActive: function(e) {
+        this.set('mentionsActive', e.detail.active);
+      },
+
+      /**
+       * checks user input and appends @ symbol to comments field
+       */
+      _appendAtSymbol: function(evt) {
+        this.$.shareBtn.setAttribute('active', true);
+
+        const comments = this.$.commentTextarea;
+        if (this.$.mentions.atIndex(comments.value) === -1) {
+          comments.value += '@';
+        }
+        this.setAttribute('active', true);
+        this.$.mentions.checkForMentions({
+          target: comments
+        });
+      },
+
+      /**
+        * Compute if the user has started typing a comment
+        * @param {String} comment
+        * @return {Boolean}
+        */
+      _computeHasComment: function(comment) {
+        return comment.length > 0;
+      },
+
+      /**
+        * Compute if the user is focused on the input, or has started typing a comment
+        * @param {Boolean} focusd
+        * @param {String} comment
+        * @return {Boolean}
+        */
+      _computeIsActive: function(focused, hasComment) {
+        return focused || hasComment;
+      },
+
+      attached: function() {
+        // Add observer on add comment node changes
+        this._observer =
+        Polymer.dom(this.$.commentTextarea).observeNodes((info) => {
+          this.updateCommentVal(info.addedNodes);
+          this.updateCommentVal(info.removedNodes);
+        });
+      },
+
+      /**
+       * Observer on add comment node changes
+       * This is required to update the Polymer property `value` when selecting a mention. Since child nodes are modified directly, the bound event, `coment::input` is not triggered.
+       */
+      updateCommentVal: function() {
+        const value = Polymer.dom(this.$.commentTextarea).innerHTML;
+        this.set('comment', value);
+      },
+
+      /**
+        * Sets isFocused based off event type (focus or blur)
+        * @param {Event} e
+        */
+      onFocusBlur: function(e) {
+        this.set('isFocused', e.type === 'focus');
+        // remove input if empty
+        if (!e.target.innerHTML && !this._isActive) {
+          this.reset()
+        }
+      },
+
+      /**
+       * Reset comment
+       */
+      reset: function() {
+        // Clear comment
+        this.set('comment', '');
+        this.removeAttribute('active');
+        this.set('annotationId', '');
+
+        // Blur textarea
+        this.$.commentTextarea.blur();
+
+        // Disable replying
+        this.fire('set-replying', { replying: false });
+
+        // Hide overlay
+        this.fire('hide-overlay', true);
+
+        // Hide mentions
+        this.$.mentions.set('hideMentions', true);
+
+      },
+
+      /**
+       * Enter key callback
+        * @param {Event} e
+       */
+      onEnter: function(e) {
+        // Select the matched mention item if the mentions menu is open
+        if(this.mentionsActive) {
+          e.detail.keyboardEvent.preventDefault();
+
+          this.$.mentions.$.suggestionsMenu.selectedItem.click();
+        } else {
+          this.save();
+        }
+      },
+
+      onEsc: function(e) {
+        if(!this.startDiscussion) {
+          this.reset();
+        }
+      },
+
+      /**
+       * Save comment
+       */
+      save: function(e) {
+        // Do nothing is there is no comment
+        if(this.comment === '') {
+          return;
+        }
+
+        const mentionsList = R.pluck('id', this.get('mentions'));
+
+        // Comment to be added
+        const newComment = {
+          message: this.comment,
+          discussionId: this.discussionId,
+          mentions: mentionsList,
+          annotationId: this.get('annotationId')
+        };
+
+        /**
+         * Event name to add comment
+         * Handled by bf-discussion
+         */
+        let eventName = 'add-comment';
+
+        if(this.startDiscussion) {
+          /**
+           * Event name to create discussion
+           * Handled by bf-palette-discussion
+           */
+          eventName = 'create-discussion';
+        }
+
+        // Fire the event
+        this.fire(eventName, newComment);
+
+        // Reset the comment
+        this.reset();
+      }
+    });
+
+  </script>
+
+</dom-module>

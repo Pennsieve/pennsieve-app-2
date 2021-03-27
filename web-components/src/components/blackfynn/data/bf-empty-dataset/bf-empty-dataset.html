@@ -1,0 +1,183 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../styles/blackfynn/browse.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+
+<!--
+## bf-empty-dataset
+
+`<bf-empty-dataset>` message displayed if there are no packages or datasets.
+
+@element bf-empty-dataset
+@demo test/empty-test.html
+-->
+
+<dom-module id="bf-empty-dataset">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style include="blackfynn-browse-styles"></style>
+    <style>
+      .emptySearch {
+        padding: 15px 0 0 60px;
+        text-align: left;
+      }
+      .emptyData {
+        margin: 0 auto;
+        padding: 15px 0 0 0;
+        text-align: center;
+        max-width: 560px;
+        width: 90%;
+      }
+      .emptyData h2 {
+        color: #000000;
+        font-family: 'SharpSansDisplayNo1', sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 31px;
+      }
+      .emptyData h2.fileBrowser {
+        font-size: 17px;
+      }
+      .emptyDataText {
+        color: var(--glial);
+        font-family: 'FiraSans', sans-serif;
+      }
+      #emptyIcon {
+        margin: 78px auto 20px auto;
+        height: 50px;
+        width: 50px;
+      }
+      h2 {
+        margin-bottom: 10px;
+      }
+    </style>
+
+    <div class="is-empty-wrap" hidden$="[[!isEmpty]]">
+      <div class="emptyData" hidden$="[[state.isSearching]]">
+        <iron-icon
+          id="emptyIcon"
+          icon="blackfynn:icon-neural"></iron-icon>
+
+        <h2 class$="[[fileBrowserClass]]">Add some data to your [[packageType]]</h2>
+
+        <div class="emptyDataText" hidden$="[[hideEmptyText]]">Add data to your [[packageType]] by dragging and dropping files and folders here,
+        or by clicking the "[[newButtonText]]" button. Only you can see this [[packageType]]. You can keep
+        it private or share it with your team by opening the share settings in the
+        information panel.</div>
+      </div>
+      <div class="emptySearch" hidden$="[[!state.isSearching]]">
+        No search results found.
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'bf-empty-dataset',
+
+      behaviors: [
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * Determines which css class should be active for h2
+         */
+        fileBrowserClass: {
+          type: String,
+          computed: '_computeFileBrowserClass(hideEmptyText)'
+        },
+        /**
+         * Current Package data
+         */
+        curPackage: {
+          type: Array,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * Current Packages data
+         */
+        packages: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Used when there are no children in curPackage to display
+         */
+        isEmpty: {
+          type: Boolean,
+          computed: '_computeIsEmpty(packages.length)',
+          value: false
+        },
+        /**
+         * Hide empty data text
+         */
+        hideEmptyText: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Determines new button text
+         */
+        newButtonText: {
+          type: String,
+          computed: '_computeNewButtonText(catalogRoute.path)'
+        },
+        /**
+         * Determines package type text
+         */
+        packageType: {
+          type: String,
+          computed: '_computePackageType(catalogRoute.path)'
+        },
+      },
+
+      /**
+       * Computes h2 css classlist
+       * @param {Boolean} hideEmptyText
+       * @return {String}
+       */
+      _computeFileBrowserClass: function(hideEmptyText) {
+        return hideEmptyText ? 'fileBrowser' : '';
+      },
+
+      /**
+       * Computes package type text
+       * @param {String} catalogRoute
+       * @return {String}
+       */
+      _computePackageType: function(catalogRoutePath) {
+        const path = R.defaultTo('', catalogRoutePath);
+        return path.indexOf('dataset') >= 0 ? 'Dataset' : 'Collection';
+      },
+
+      /**
+       * Computes new button text
+       * @param {String} catalogRoute
+       * @return {String}
+       */
+      _computeNewButtonText: function(catalogRoutePath) {
+        const path = R.defaultTo('', catalogRoutePath);
+        return path.indexOf('dataset') >= 0 ? 'New Dataset' : 'New...';
+      },
+
+      /**
+       * Computes whether or not packages array is empty
+       * @param {Number} packages length
+       * @return {Boolean}
+       */
+      _computeIsEmpty: function(packagesLength) {
+        return packagesLength === 0;
+      },
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,753 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../shared/isPlugin-behavior.html">
+<link rel="import" href="../../shared/color-behavior.html">
+<link rel="import" href="../../shared/vuex-behavior/vuex-behavior.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+
+<dom-module id="bf-timeseries-scrubber">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+        :host {
+          background: var(--white-matter);
+          /*border-bottom: 1px solid var(--cortex);*/
+          padding: 0px 8px 8px 8px;
+          @apply(--layout-vertical);
+        }
+        #dateWrap {
+          padding: 8px 0;
+          font-size: 12px;
+          text-transform: uppercase;
+          color: #71747C;
+          @apply(--layout-justified);
+        }
+        .row {
+          @apply(--layout-horizontal);
+          @apply(--layout-center);
+        }
+        #scrubber {
+          background: var(--white-matter);
+          box-shadow: 0 0 0px 1px #c5c5c5 inset;
+          box-sizing: border-box;
+          position: relative;
+          @apply(--layout-flex);
+        }
+        #canvasWrap {
+          height: 30px;
+          position: relative;
+        }
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Chrome/Safari/Opera */
+            -khtml-user-select: none;    /* Konqueror */
+            -moz-user-select: none;      /* Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Non-prefixed version, currently not supported by any browser */
+        }
+
+        .canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+        .canvas[dragme] {
+            cursor: move;
+        }
+        .canvas[resizeme] {
+            cursor: ew-resize;
+        }
+
+        paper-icon-button.small {
+            padding: 0 8px;
+            height: 28px;
+        }
+
+        #annotationCanvas {
+          margin-top: 1px;
+        }
+
+        #iCanvas {
+          margin-left: 0px
+        }
+
+    </style>
+
+    <div id="dateWrap" class="row">
+      <div>[[startDateStr]]</div>
+      <div>[[fullDateStr]]</div>
+      <div>[[endDateStr]]</div>
+    </div>
+    <div class="row noselect">
+      <div id="scrubber" noselect>
+        <div id="canvasWrap">
+          <canvas id="segmentsCanvas" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio)]]" height="[[_cpCanvasScaler(28, pixelRatio)]]"/></canvas>
+          <canvas id="annotationCanvas" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio)]]" height="[[_cpCanvasScaler(28, pixelRatio)]]"/></canvas>
+          <canvas id="iCanvas" class="canvas" width="[[_cpCanvasScaler(cWidth, pixelRatio)]]" height="[[_cpCanvasScaler(30, pixelRatio)]]" on-track="_onTrack" on-tap="_onTap" on-mousemove="_onHover" on-mousedown="_onMouseDown" on-mouseup="_onMouseUp" on-mouseenter="_onMouseEnter" on-mouseout="_onMouseOut"></canvas>
+        </div>
+      </div>
+    </div>
+
+<!--     <canvas id="handler" hidden height="[[_cpCanvasScaler(10, pixelRatio)]]" width="[[_cpCanvasScaler(10, pixelRatio)]]"></canvas>
+ -->
+    <iron-ajax
+      id="getAnnotations"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleGetAnnotations"
+      on-error="ajaxError"></iron-ajax>
+
+    <iron-ajax
+      id="updateLayer"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"></iron-ajax>
+  </template>
+
+  <script>
+      Polymer({
+
+        is: 'bf-timeseries-scrubber',
+
+        properties: {
+          parent: {
+              type: Object,
+              value: null
+          },
+          viewer: {
+              type: Object,
+              value: null
+          },
+          summary: {
+              type: Object,
+              value: function() {
+                return {};
+              }
+          },
+          cWidth: {
+              type: Number,
+              value: 0
+          },
+          extraCWidth: {
+            type: Number,
+            computed: '_computeExtraCWidth(cWidth)'
+          },
+          // Start of timeViewPort
+          cStart: {
+              type: Number,
+              value: 0
+          },
+          cDuration: {
+              type: Number,
+              value: 0
+          },
+          viewPortColor: {
+              type: String,
+              value: 'black'
+          },
+          startDragTime: {
+              type: Number,
+              value: null
+          },
+          activeLayer: {
+              type: Object,
+              value: null
+          },
+          layerStr: {
+              computed: '_cpLayerStr(activeLayer)'
+          },
+          startDateStr: {
+            type: String,
+            computed: 'getUTCTimeString(summary.span.start)'
+          },
+          endDateStr: {
+            type: String,
+            computed: 'getUTCTimeString(summary.span.end)'
+          },
+          fullDateStr: {
+            notify: true,
+            type: String,
+            computed: 'getUTCDateString(viewer.start, hoverTxt)'
+          },
+          hoverTxt: {
+            type: String,
+            value: ''
+          },
+          pointerMode: {
+              type: String,
+              value: 'point'
+          },
+          mouseDown:{
+              type: Boolean,
+              value: false
+          },
+          // Indicate that viewer is ready (summary available and open webSocket)
+          viewerIsReady:{
+              type: Boolean,
+          },
+            lockMode: {
+                type: Boolean,
+                value: false
+            },
+          /**
+          * Scrubber height
+          */
+          scrubberHeight: {
+            type: Number,
+            value: 28
+          },
+          /**
+          * Viewport height
+          */
+          viewportHeight: {
+            type: Number,
+            value: 30
+          },
+          /**
+          * Annotation layers for scrubber
+          */
+          annLayerInfo: {
+            type: Array,
+            value: function() {
+              return [];
+            }
+          },
+          /**
+          * All annlayers
+          */
+          annLayers: {
+            type: Array,
+            value: function() {
+              return [];
+            }
+          },
+          /**
+          * Annotations for scrubber
+          */
+          annotations: {
+            type: Object,
+            value: function() {
+              return {};
+            }
+          },
+          /**
+          * Location of red cursor in fraction of viewport [0-1]
+          */
+          cursorPos: {
+            type: Number,
+            value: 0
+          },
+          period: {
+            type: Number,
+            computed: '_computePeriod(summary.span.end, summary.span.start)',
+            notify: true
+          },
+          // Pixel Ratio of screen (1 for regular, >1 for high-res screens)
+          pixelRatio: {
+              notify:true,
+              type: Number,
+              value: 1
+          },
+          keyEventTarget: {
+            type: Object,
+            value: function() {
+              return this;
+            }
+          },
+          patternCnvs: {
+            type: Object,
+            value: {}
+          },
+          pkg: {
+            type: Object,
+            value: function() {
+              return {}
+            }
+          }
+        },
+
+        behaviors: [
+          Blackfynn.IsPluginBehavior,
+          Blackfynn.ColorBehavior,
+          Polymer.IronA11yKeysBehavior,
+          Blackfynn.VuexBehavior
+        ],
+        _cpLayerStr: function(layer) {
+            if (layer) {
+                return 'Active Layer: ' + layer.label;
+            }
+            return '';
+
+        },
+        _cpCanvasScaler: function(sz, pixelRatio) {
+            return pixelRatio * sz;
+        },
+
+        _computePeriod: function(end, start, cWidth) {
+          return Math.floor((end - start) / cWidth)
+        },
+
+        setActiveLayer: function(layer) {
+            this.activeLayer = layer;
+        },
+        createDateStr: function(option, spanStart, spanEnd) {
+            if (this.viewer && spanStart > 0 && spanEnd > 0) {
+                const dStart = spanStart;
+                const dEnd = spanEnd;
+
+                if ((dEnd - dStart) > (28 * 3600 * 1000000)) {
+                  if (option === 'start') {
+                    const d = new Date(dStart/1000);
+                    return d.toDateString();
+                  } else {
+                    const d = new Date(dEnd/1000);
+                    return d.toDateString();
+                  }
+
+                } else {
+                  if (option === 'start') {
+                    const d = new Date(dStart/1000);
+                    return d.toLocaleTimeString();
+                  } else {
+                    const d = new Date(dEnd/1000);
+                    return d.toLocaleTimeString();
+                  }
+                }
+            }
+        },
+
+        getUTCTimeString: function(d) {
+          if(d > 0) {
+            d = d / 1000;
+            d = new Date(d);
+            return ( ('0' + d.getUTCHours()).slice(-2) + ':' +
+                ('0' + d.getUTCMinutes()).slice(-2) + ':' + ('0' + d.getUTCSeconds()).slice(-2) );
+          }
+        },
+        getUTCDateString: function(d, s, c) {
+          if (s !== '') {
+            return s;
+          } else if(d > 0) {
+            d = new Date(d/1000);
+            return ( d.toDateString() );
+          }
+        },
+        _computeExtraCWidth: function(cWidth) {
+          return cWidth + 10;
+        },
+        _onHover: function(e) {
+
+            if (!this.mouseDown && !this.lockMode) {
+              const cCoord = this.$.iCanvas.getBoundingClientRect();
+              const cHoverOffset = e.clientX - cCoord.left;
+              const cEnd = this.cStart + this.cDuration;
+              const oldMode = this.pointerMode;
+              const inResizeArea = cHoverOffset > this.cStart - 10 && cHoverOffset < cEnd + 10;
+
+              if (inResizeArea) {
+                this.pointerMode = 'drag';
+                this.$.iCanvas.setAttribute('dragme', true);
+                this.$.iCanvas.removeAttribute('resizeme');
+              } else {
+                this.pointerMode = 'point';
+                this.$.iCanvas.removeAttribute('dragme');
+                this.$.iCanvas.removeAttribute('resizeme');
+              }
+
+              //update hoverTxt
+              const realStart = ( (cHoverOffset)/this.cWidth ) * (this.summary.span.end - this.summary.span.start ) + this.summary.span.start;
+              const d = new Date(realStart/1000);
+              this.hoverTxt = d.toUTCString();
+
+              if (oldMode !== this.pointerMode) {
+                  this.renderViewPort();
+              }
+
+            }
+        },
+        _onMouseUp: function() {
+            this.mouseDown = false;
+        },
+        _onMouseDown: function() {
+            this.mouseDown = true;
+
+        },
+        _onMouseEnter: function() {
+            this.mouseDown = false;
+        },
+        _onMouseOut: function() {
+          this.hoverTxt = '';
+        },
+        updateSize: function() {
+            const newCWidth = this.offsetWidth - 20;
+            const widthStr = newCWidth + 'px';
+            const heightStr = 28 + 'px';
+            this.$.annotationCanvas.setAttribute('style', `width:${widthStr}; height: ${heightStr};`);
+            const iCanvasHeightStr = 30 + 'px';
+            this.$.iCanvas.setAttribute('style', `width:${widthStr}; height: ${iCanvasHeightStr};`);
+            this.$.segmentsCanvas.setAttribute('style', `width:${widthStr}; height: ${iCanvasHeightStr};`);
+
+            this.set('cWidth', this.offsetWidth - 20);
+            if (this.viewerIsReady) {
+                this.render();
+            }
+
+        },
+
+        _onTap: function(e) {
+            document.activeElement = this
+            const cCoord = this.$.iCanvas.getBoundingClientRect();
+            const cClickOffset = e.detail.x - cCoord.left;
+            const realStart = ( (cClickOffset)/this.cWidth ) * (this.summary.span.end - this.summary.span.start );
+            this.viewer.setStart( realStart + this.summary.span.start);
+            this.viewer.renderAll(100);
+        },
+
+        // Handle tracking of canvas in this element
+        _onTrack: function(e) {
+            switch (e.detail.state) {
+                case 'start':
+                    this.startDragTime = this.viewer.start;
+                    this.startDuration = this.viewer.duration;
+                    this.startCDuration = this.cDuration;
+                    this.oldDx = 0;
+                    this.lockMode = true;
+
+                    break;
+                case 'track':
+                    this.trackDirection = e.detail.dx < this.oldDx;
+                    this.oldDx = e.detail.dx;
+
+                    let _dx;
+                    switch (this.pointerMode) {
+                        case 'drag':
+                            _dx = e.detail.dx;
+                            const realStart = ( (_dx)/this.cWidth ) * (this.summary.span.end - this.summary.span.start );
+
+                            const setStart = this.startDragTime + realStart;
+                            this.viewer.setStart(setStart);
+                            this.viewer.renderAll(50);
+                            const d = new Date((realStart+ this.summary.span.start)/1000);
+                            this.hoverTxt = d.toUTCString();
+
+                            break;
+                    }
+                    break;
+                case 'end':
+                    this.startDragTime = null;
+                    this.trackDirection = null;
+                    this.lockMode = false;
+                    this.hoverTxt = '';
+
+                    break;
+            }
+        },
+
+        // Handle tracking of plugin host (is called by host element)
+        onTrack: function(e, pointerMode) {
+
+            switch (e.detail.state) {
+                case 'start':
+                    break;
+                case 'track':
+                    switch (pointerMode) {
+                        case 'pan':
+                            if (!e.detail.sourceEvent.shiftKey) {
+                                this.render();
+                                break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'end':
+
+                    break;
+            }
+        },
+        // Set the Cursor position: cPos is a fraction of the viewport: 0 is left side, 1 is right side
+        setCursor: function(cPos) {
+          this.cursorPos = cPos;
+          this.renderViewPort();
+        },
+
+        // Render events
+        renderTimelimeLine: function() {
+          const ctx = this.$.annotationCanvas.getContext('2d');
+          ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+
+          ctx.clearRect(0, 0, this.cWidth, this.scrubberHeight);
+          const xStart = this.summary.span.start;
+          const xEnd = this.summary.span.end;
+
+          const annotationLayers = this.annotations;
+          let annotationIndex = 0;
+
+          const layerSpacing = 0;
+          const layerHeight = Math.floor(((this.scrubberHeight-2) / Object.keys(annotationLayers).length - layerSpacing));
+          const annPanelLayers = this.vuex.viewer.viewerAnnotations;
+
+          let color = 'rgb(0,0,0)';
+          for ( const annotation in annotationLayers ) {
+            if (annotationLayers.hasOwnProperty(annotation)) {
+              // find color
+              for (let i=0; i<annPanelLayers.length; i++) {
+                if (annPanelLayers[i].id === parseInt(annotation)) {
+                  annotationIndex = i;
+                  color = annPanelLayers[i].color;
+                  break;
+                }
+              }
+
+              this.plotAnnotations(ctx, xStart, xEnd, layerSpacing, layerHeight, annotationLayers[annotation], annotationIndex, color);
+            }
+          }
+        },
+
+        plotAnnotations: function(ctx, xStart, xEnd, layerSpacing, layerHeight, annotations, rank, color) {
+          ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+          ctx.fillStyle = color;
+          for (let i = 0; i < annotations.length; i++) {
+            if(annotations[i].value > 0) {
+              const xPosStart = ((annotations[i].start - xStart) /(xEnd - xStart)) * this.cWidth;
+              const xPosEnd = ((annotations[i].end - xStart) /(xEnd - xStart)) * this.cWidth;
+              let cw = xPosEnd - xPosStart;
+              if (cw < 1) {
+                cw = 1;
+              }
+              const yPos = 1 + rank * ((layerHeight-1) + layerSpacing) + rank;
+              ctx.fillRect(xPosStart, yPos, cw, layerHeight);
+            }
+          }
+        },
+
+        renderSegments: function() {
+          const ctx = this.$.segmentsCanvas.getContext('2d');
+          ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+          ctx.fillStyle = ctx.createPattern(this.patternCnvs, 'repeat');
+          ctx.clearRect(0, 0, this.cWidth, this.viewportHeight);
+
+          for (let i=1; i<this.segmentSpans.length; i+=2) {
+            const xStart = (this.cWidth*this.segmentSpans[i]) / 5000;
+            const xEnd = (this.cWidth*this.segmentSpans[i+1]) / 5000;
+            ctx.fillRect(xStart, 2, xEnd-xStart, this.viewportHeight-6 )
+          }
+
+        },
+        /** Creates a canvas filled with a 45-degree pinstripe.
+        * @returns the filled HTMLCanvasElement. */
+        createPinstripeCanvas: function() {
+            const patternCanvas = document.createElement('canvas');
+            const pctx = patternCanvas.getContext('2d', { antialias: true });
+            const colour = 'rgb(220,220,220)';
+
+            const CANVAS_SIDE_LENGTH = 5;
+            const WIDTH = CANVAS_SIDE_LENGTH;
+            const HEIGHT = CANVAS_SIDE_LENGTH;
+            const DIVISIONS = 10;
+
+            patternCanvas.width = WIDTH;
+            patternCanvas.height = HEIGHT;
+            pctx.fillStyle = colour;
+
+            // Top line
+            pctx.beginPath();
+            pctx.moveTo(0, HEIGHT * (1 / DIVISIONS));
+            pctx.lineTo(WIDTH * (1 / DIVISIONS), 0);
+            pctx.lineTo(0, 0);
+            pctx.lineTo(0, HEIGHT * (1 / DIVISIONS));
+            pctx.fill();
+
+            // Middle line
+            pctx.beginPath();
+            pctx.moveTo(WIDTH, HEIGHT * (1 / DIVISIONS));
+            pctx.lineTo(WIDTH * (1 / DIVISIONS), HEIGHT);
+            pctx.lineTo(0, HEIGHT);
+            pctx.lineTo(0, HEIGHT * ((DIVISIONS - 1) / DIVISIONS));
+            pctx.lineTo(WIDTH * ((DIVISIONS - 1) / DIVISIONS), 0);
+            pctx.lineTo(WIDTH, 0);
+            pctx.lineTo(WIDTH, HEIGHT * (1 / DIVISIONS));
+            pctx.fill();
+
+            // Bottom line
+            pctx.beginPath();
+            pctx.moveTo(WIDTH, HEIGHT * ((DIVISIONS - 1) / DIVISIONS));
+            pctx.lineTo(WIDTH * ((DIVISIONS - 1) / DIVISIONS), HEIGHT);
+            pctx.lineTo(WIDTH, HEIGHT);
+            pctx.lineTo(WIDTH, HEIGHT * ((DIVISIONS - 1) / DIVISIONS));
+            pctx.fill();
+
+            return patternCanvas;
+        },
+
+        // Renders the scrollable viewport indicator on interactive canvas
+        renderViewPort: function() {
+
+          const ctx = this.$.iCanvas.getContext('2d');
+          ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
+
+          ctx.clearRect(0, 0, this.cWidth, this.viewportHeight);
+
+          const start = this.viewer.start;
+          const duration = this.viewer.duration;
+
+          const gStart = this.summary.span.start;
+          const gEnd = this.summary.span.end;
+
+          this.cStart = ( (((start - gStart)/(gEnd-gStart)) * this.cWidth ) + 0.5) |0;
+          this.cDuration = ((((duration)/(gEnd-gStart)) * this.cWidth) +0.5) |0;
+
+          // Viewport
+          ctx.fillStyle = 'rgb(80,80,80)';
+          ctx.strokeStyle= 'rgb(80,80,80)';
+          ctx.strokeRect(this.cStart +0.5, 0.5, this.cDuration, this.viewportHeight-1);
+
+          ctx.fillRect(this.cStart - 2, (this.viewportHeight/2 - 5) | 0, 2, 10);
+          ctx.fillRect(this.cStart + this.cDuration + 1, (this.viewportHeight/2 - 5) | 0, 2, 10);
+
+          // // Cursor
+          const cursorCLoc = this.cStart + (this.cDuration * this.cursorPos);
+          if( cursorCLoc > (this.cStart +0.5) ) {
+            ctx.strokeStyle = 'red';
+            ctx.beginPath();
+            ctx.moveTo(cursorCLoc, 0);
+            ctx.lineTo(cursorCLoc, this.viewportHeight-1)
+            ctx.stroke();
+          }
+        },
+
+        render: function() {
+            if (!this.summary) {
+              return
+            }
+            this.renderViewPort();
+            this.renderTimelimeLine();
+            this.renderSegments();
+        },
+
+        ready: function() {
+          this.viewPortColor = this.hexToRgbA('#000', 0.3);
+        },
+
+        attached: function() {
+          this.pixelRatio = this.getScreenPixelRatio();
+          this.keyEventTarget = this;
+          this.patternCnvs = this.createPinstripeCanvas()
+        },
+
+        ajaxError: function(e, detail) {
+          this.fire('ajaxError', { status: detail.request.status });
+        },
+
+        getAnnotations: function() {
+          if (!this.summary && this.vuex.viewer.viewerAnnotations.length === 0) {
+            return
+          }
+
+          this.set('annotations', []);
+
+          const layerIds = R.map(obj => obj.id, this.vuex.viewer.viewerAnnotations);
+          const endTime = this.summary.span.end;
+          const params = {
+            api_key: this.vuex.userToken,
+            aggregation: 'count',
+            start: this.summary.span.start,
+            end: endTime,
+            period: this.period || 1,
+            mergePeriods: true,
+            layerIds
+          }
+          const baseUrl = `${this.vuex.config.apiUrl}/timeseries/${this.data.id}/annotations/window`;
+          const ajax = this.$.getAnnotations;
+          if (!ajax) {
+            return;
+          }
+          ajax.url = baseUrl;
+          ajax.params = params;
+          ajax.generateRequest();
+        },
+
+        /**
+        * Callback for getting annotations. Renders all annotations for that layer in the scrubber
+        */
+        _handleGetAnnotations: function(e, detail) {
+          this.set('annotations', detail.response);
+          this.render();
+        },
+
+        /**
+        * Handle a layer/annotation change
+        * @param String layerId
+        */
+        onLayerChange: function(layerId, type) {
+          if (type === 'UPDATE') {
+            this.updateLayer(layerId);
+          } else if (type === 'DELETE') {
+            this.deleteLayer(layerId)
+          }
+        },
+        getScreenPixelRatio: function() {
+            let ctx = this.$.annotationCanvas.getContext('2d');
+            let dpr = window.devicePixelRatio || 1
+            let bsr = ctx.webkitBackingStorePixelRatio ||
+            ctx.mozBackingStorePixelRatio ||
+            ctx.msBackingStorePixelRatio ||
+            ctx.oBackingStorePixelRatio ||
+            ctx.backingStorePixelRatio || 1;
+
+            return dpr / bsr;
+        },
+
+        /**
+        * Update a specific layer
+        * @param String layerId
+        */
+        updateLayer: function(layerId) {
+          const request = this.$.updateLayer;
+          const now = Date.now() * 1000;
+          const endTime = this.summary.span.end;
+          request.url = `${this.vuex.config.apiUrl}/timeseries/${this.data.id}/layers/${layerId}/annotations/window`;
+          request.params = {
+            aggregation: 'count',
+            start: this.summary.span.start,
+            end: endTime > now ? now : endTime,
+            period: this.period || 1,
+            api_key: this.vuex.userToken,
+            mergePeriods: true
+          }
+
+          const layerRequest = request.generateRequest();
+
+          layerRequest.completes.then((success) => {
+            this.set(`annotations.${layerId}`, success.response);
+            this.render();
+          }).catch(err => {
+            if (err.message.indexOf('400') < 0) {
+              return this.ajaxError();
+            }
+            request.params.end = Date.now() * 1000;
+            request.generateRequest();
+          });
+        },
+
+        /**
+        * Delete a specific layer
+        * @param String layerId
+        */
+        deleteLayer: function(layerId) {
+          delete this.annotations[layerId];
+          this.render();
+        }
+      });
+
+  </script>
+</dom-module>

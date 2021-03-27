@@ -1,0 +1,1223 @@
+<link rel="import" href="../../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../../bower_components/app-storage/app-storage-behavior.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.TsDataBehavior = {
+
+      proto: {
+       'nested': {
+         'Event': {
+           'fields': {
+             'source': {
+               'type': 'string',
+               'id': 1
+             },
+             'pageStart': {
+               'type': 'uint64',
+               'id': 2
+             },
+             'pageEnd': {
+               'type': 'uint64',
+               'id': 3
+             },
+             'samplePeriod': {
+               'type': 'double',
+               'id': 4
+             },
+             'pointsPerEvent': {
+               'type': 'uint64',
+               'id': 5
+             },
+             'isResampled': {
+               'type': 'bool',
+               'id': 6
+             },
+             'data': {
+               'rule': 'repeated',
+               'type': 'double',
+               'id': 7
+             },
+             'times': {
+               'rule': 'repeated',
+               'type': 'uint64',
+               'id': 8
+             },
+             'spikeGroup': {
+               'rule': 'repeated',
+               'type': 'uint32',
+               'id': 9
+             }
+           }
+         },
+         'Instruction': {
+           'fields': {
+             'command': {
+               'type': 'string',
+               'id': 1
+             },
+             'argument': {
+               'type': 'string',
+               'id': 2
+             }
+           }
+         },
+         'Segment': {
+           'fields': {
+             'startTs': {
+               'type': 'uint64',
+               'id': 1
+             },
+             'source': {
+               'type': 'string',
+               'id': 2
+             },
+             'lastUsed': {
+               'type': 'uint64',
+               'id': 3
+             },
+             'unit': {
+               'type': 'string',
+               'id': 4
+             },
+             'samplePeriod': {
+               'type': 'double',
+               'id': 5
+             },
+             'requestedSamplePeriod': {
+               'type': 'double',
+               'id': 6
+             },
+             'pageStart': {
+               'type': 'uint64',
+               'id': 7
+             },
+             'isMinMax': {
+               'type': 'bool',
+               'id': 8
+             },
+             'unitM': {
+               'type': 'uint64',
+               'id': 9
+             },
+             'segmentType': {
+               'type': 'string',
+               'id': 10
+             },
+             'nrPoints': {
+               'type': 'uint64',
+               'id': 11
+             },
+             'data': {
+               'rule': 'repeated',
+               'type': 'double',
+               'id': 12
+             },
+             'pageEnd': {
+               'type': 'uint64',
+               'id': 13
+             },
+             'channelName': {
+               'type': 'string',
+               'id': 14
+             }
+           }
+         },
+         'IngestSegment': {
+           'fields': {
+             'channelId': {
+               'type': 'string',
+               'id': 1
+             },
+             'startTime': {
+               'type': 'uint64',
+               'id': 2
+             },
+             'samplePeriod': {
+               'type': 'double',
+               'id': 3
+             },
+             'data': {
+               'rule': 'repeated',
+               'type': 'double',
+               'id': 4
+             }
+           }
+         },
+         'TimeSeriesMessage': {
+           'fields': {
+             'segment': {
+               'type': 'Segment',
+               'id': 3
+             },
+             'event': {
+               'rule': 'repeated',
+               'type': 'Event',
+               'id': 4
+             },
+             'instruction': {
+               'type': 'Instruction',
+               'id': 5
+             },
+             'ingestSegment': {
+               'type': 'IngestSegment',
+               'id': 6
+             },
+             'totalResponses': {
+               'type': 'uint64',
+               'id': 7
+             },
+             'responseSequenceId': {
+               'type': 'uint64',
+               'id': 8
+             }
+           }
+         }
+       }
+    },
+
+    properties:{
+        // Size of pages in the page-cache, request size from server
+        pageSize:{
+            type: Number,
+            value: 15000000
+        },
+
+        // Array of all requested pages
+        requestedPages:{
+            type: Array,
+            value: function() {return [];}
+        },
+
+        // Array of data returned from server requests.
+        chData: {
+            type: Array,
+            value: function() { return []; }
+        },
+
+        // Data that is ready to be rendered on the canvas
+        viewData: {
+            type: Object,
+            value: function() {
+                return {
+                    start: 0,
+                    duration: 0,
+                    channels: []
+                }
+            }
+        },
+
+        // Used to track updates on realtime stream
+        trackStream: {
+            type: Object,
+            value: {
+                chId : null,
+                time : [],
+                interval : [],
+                count : 0,
+                lengt : 0,
+                avInterval : 0,
+                avTime : 0,
+                prevTime: Date.now()*1000
+            }
+        },
+
+        // Defines the time-period between the datapoints in dataset. (diff of x-column in dataset)
+        resamplePeriod:{
+            type: Number,
+            value: 0
+        },
+
+        // Indicates that channels are initiated
+        channelsReady:{
+            notify: true,
+            type: Boolean,
+            value: false,
+        },
+
+        // Array of pages that are in viewport and should be requested from server
+        aSyncRequests:{
+            type: Array,
+            value: function() { return []; }
+        },
+
+        // Array of pages that are not in viewport which should be requested when idling
+        aSyncPreRequests:{
+            type: Array,
+            value: function() {return [];}
+        },
+
+        // Counts how many pages are returned by websocket --> used to time render updates
+        renderCounter: {
+            type: Number,
+            value:0
+        },
+
+        // Sets a timelimit on render updates while data is expected from websocket.
+        lastDataRender:{
+            type: Number,
+            value:null
+        },
+
+        // Time that last page in viewport was requested
+        lastViewPageRequest:{
+            type: Number,
+            value:null
+        },
+        prefetchTimer:{
+            type: Object,
+            value: null
+        },
+        prefetchDelay:{
+            type: Number,
+            value: 100
+        },
+        streamingFilter:{
+            type: Object,
+            value: null
+        }
+     },
+
+    /**
+     * Returns channel ID
+     * @param {Object}
+     * @returns {String}
+     */
+     getChannelId: function(channel) {
+      const isViewingMontage = this.vuex.viewer.viewerMontageScheme !== 'NOT_MONTAGED'
+      let id = R.propOr('', 'id', channel)
+      let list = []
+      if (isViewingMontage) {
+        list = id.split('_')
+        id = list.length ? R.head(list) : id // remove channel name from id
+      }
+      return id
+    },
+
+    // Initiate render of data --> check visible channels and create viewData object.
+    generatePoints: function() {
+
+        // If not initialized --> return
+        if (!this.vuex.viewer.viewerChannels) {
+            return
+        }
+
+        this.viewData.start = this.start;
+        this.viewData.duration = this.duration;
+
+        // Get hidden channels and view-ids
+        const hiddenChannels = [];
+        const showChannels = [];
+        const curChanViewIds = [];
+
+        // Get IDS from channelConfig
+        for (let i = 0; i < this.vuex.viewer.viewerChannels.length; i++) {
+            const curConfig = this.vuex.viewer.viewerChannels[i];
+            const id = this.getChannelId(curConfig.id)
+            if (!curConfig.visible) {
+                hiddenChannels.push(id);
+            }
+            curChanViewIds.push(id);
+        }
+
+        // Get IDS from viewData channels
+        const viewDataChIds = [];
+        for (let i = 0; i< this.viewData.channels.length; i++) {
+          const channel = this.viewData.channels[i]
+          const channelId = this.getChannelId(channel)
+            viewDataChIds.push(channelId);
+        }
+
+        // Iterate over all channels and populate channelConfig
+        const remViewChannels = [];
+        for (let iChan = 0; iChan < this.chData.length; iChan++) {
+            const curChan = this.chData[iChan];
+            const curChanId = this.getChannelId(curChan)
+            // Only return visible channels
+            if (hiddenChannels.indexOf(curChanId) >= 0) {
+                remViewChannels.push(curChanId);
+            } else {
+                showChannels.push(curChan);
+            }
+        }
+
+        // removing channels from viewData when not shown.
+        // Iterate backwards to prevent issues of indexing
+        remViewChannels.sort();
+        for (let i=(remViewChannels.length-1); i>=0; i--) {
+            this.splice('viewData.channels', remViewChannels[i], 1);
+            viewDataChIds.splice(remViewChannels[i], 1);
+        }
+
+        // Get viewDataChannels
+        for (let i=0; i< showChannels.length; i++) {
+            const curShowChannel = showChannels[i]
+            const showChannelId = this.getChannelId(curShowChannel);
+            const idx = viewDataChIds.indexOf(showChannelId);
+            if (idx < 0 ) {
+                this.viewData.channels.push({
+                    id: showChannelId,
+                    mean: null,
+                    firstRenderedIndex: 0,
+                    lastRenderedIndex: 0,
+                    blocks: []
+                });
+
+            }
+
+        }
+
+        // Request data on visible channels
+        // Only request when pageForward key is released
+        if (!this.spacePressed && this.selectedTab === 'timeseries') {
+            this.requestData(showChannels, this.start, this.duration);
+        }
+    },
+
+    // Get all pages that are partially returned and re-request
+    reRequestPages: function() {
+
+        const requestPages = [];
+        this.requestedPages.forEach(function(value, key) {
+         // Only rerequest pages where we already have partial return
+            if (!isNaN(value.subPageCount)) {
+
+                // only include channels with partial return
+                const channels = [];
+                value.counter.forEach(function(count, chId) {
+                    if (!isNaN(count) && count > 0) {
+                        channels.push(chId)
+                    }
+                })
+
+                if (channels.length > 0) {
+                    requestPages.push({
+                        channels: channels,
+                        start: key,
+                        duration: this.pageSize,
+                        isInViewport: true,
+                        pixelWidth: this.rsPeriod
+                    });
+                }
+            }
+        }, this);
+
+        // clear requestedPages
+        this.requestedPages.clear();
+
+        this.catchUpRequestPages = requestPages;
+    },
+
+    // Getting data from cache and queue new reqeusts from server
+    requestData: function(showChannels, start, duration ) {
+
+        // InvalidateCache if needed (when pixelSize)
+        if (this.invalidateCache) {
+            this.invalidate();
+            this.requestedPages.clear();
+        }
+
+        // If number of requestedpages is getting to big, reset websocket connection
+        if (this.requestedPages.size > 20 ) {
+            clearTimeout(this.preFetchTime);
+            this.aSyncPreRequests = [];
+            this.reRequestPages();
+            this.openWebsocket();
+            return;
+        }
+        // Init asnch requests for viewport pages
+        this.aSyncRequests = [];
+
+        // If we rerender the same viewport (as data comes in) --> don't change prefetch
+        let updatePrefetchPages = false;
+        if (this.prevStart !== start || this.prevDuration !== duration) {
+            this.aSyncPreRequests= [];
+            updatePrefetchPages = true;
+        }
+
+        this.prevStart = start;
+        this.prevDuration = duration;
+
+        // Timestamp of first value in viewport
+        const viewDataChIds = [];
+        for (let i=0; i<this.viewData.channels.length; i++) {
+            const cChannel = this.viewData.channels[i]
+            const cChannelId = this.getChannelId(cChannel)
+            viewDataChIds.push(cChannel);
+        }
+
+        // Iterate over channels and populate aSyncRequests and/or chanViewData
+        for (let iChan = 0; iChan < showChannels.length; iChan++) {
+            let continuationSegment = false;
+            const curChan = showChannels[iChan];
+            const chDataSegments = curChan.segments;
+            const curChanId = this.getChannelId(curChan)
+            // Get dataView
+            const idx = R.findIndex(R.propEq('id', curChanId), viewDataChIds)
+            const chanViewData = this.viewData.channels[idx];
+            chanViewData.blocks = [];
+
+            // Populate chanViewData until all data in scope is added, or requested from server.
+            // Independent of actual request, populate viewData by pageSegments.
+            let curTime = Math.floor(start/ this.pageSize) * this.pageSize;
+            if (curTime < 0) {
+                curTime = 0;
+            }
+
+            let firstSegment = 0;
+            let segmOffset = 0;
+            if (chDataSegments.length > 0) {
+                firstSegment = this.segmIndexOf(chDataSegments, curTime, true, 0);
+            }
+
+            // Iterate over blocks in viewport and add to chanView, or asyncRequests
+            let endRequestTime = start + duration + this.constants['PREFETCHPAGES']*this.pageSize;
+            if (endRequestTime > this.summary.span.end) {
+                endRequestTime = this.summary.span.end;
+            }
+
+            let curSegm;
+            if (chDataSegments.length > 0) {
+                curSegm = chDataSegments[firstSegment];
+            }
+            while ((curTime < endRequestTime) || continuationSegment) {
+                continuationSegment = false;
+
+                // If current time == start of current page in cache then page is correct.
+                let inRange = false;
+                if (curSegm) {
+                    inRange = curTime >= curSegm.pageStart && curTime <= curSegm.pageEnd;
+                }
+                if (inRange) {
+                    /*
+                    Data is already cached
+                    */
+                    let isViewPage = curSegm.startTs < start + duration;
+
+                    segmOffset += 1;
+                    //curTime = curSegm.startTs + curSegm.nrPoints*curSegm.samplePeriod;
+                    curTime = curSegm.pageEnd;
+
+                    // Only add to viewData if segment is not a prefetch page
+                    if (isViewPage) {
+                        chanViewData.blocks.push(curSegm);
+                    }
+
+                    const prevPageTime = curSegm.pageStart;
+                    curSegm = chDataSegments[firstSegment + segmOffset];
+                    if (!this.isStreaming && curSegm && prevPageTime === curSegm.pageStart) {
+                        continuationSegment = true;
+                    }
+
+                } else {
+                    /*
+                    Data is not present on client and needs to be requested from server
+                    */
+
+                    // Check if segment is already being requested
+                    if (this.requestedPages.get(curTime) || this.isStreaming) {
+                        curTime += this.pageSize;
+                        if (curSegm && curTime >= curSegm.pageEnd) {
+                            while (curSegm.pageEnd < curTime) {
+                                segmOffset += 1;
+                                curSegm = chDataSegments[firstSegment + segmOffset];
+                                if (!curSegm) {
+                                    break;
+                                }
+                            }
+                        }
+                        continue;
+                    }
+
+                    let isViewPage = curTime < start + duration;
+
+
+                    // Check if requested range is already requested by other channel --> update
+                    let isAdded = false;
+                    if (isViewPage) {
+
+                        //remove from pre-request
+                        for (let iA in this.aSyncPreRequests) {
+                            if (this.aSyncPreRequests[iA].start === curTime) {
+                                this.aSyncPreRequests.splice(iA, 1);
+                                break;
+                            }
+                        }
+
+
+                        for (let iA in this.aSyncRequests) {
+                            if (this.aSyncRequests[iA].start === curTime) {
+                                this.aSyncRequests[iA].channels.push(curChan);
+                                isAdded = true;
+                            }
+                        }
+                        if (!isAdded) {
+                            this.aSyncRequests.push({
+                                channels: [curChan],
+                                start: curTime,
+                                duration: this.pageSize,
+                                isInViewport: true,
+                                pixelWidth: Math.ceil(this.rsPeriod)});
+                        }
+
+
+                    } else {
+                        if (updatePrefetchPages) {
+                            for (let iA in this.aSyncPreRequests) {
+                                if (this.aSyncPreRequests[iA].start === curTime) {
+                                    this.aSyncPreRequests[iA].channels.push(curChan);
+                                    isAdded = true;
+                                }
+                            }
+                            if(!isAdded) {
+                                this.aSyncPreRequests.push({
+                                    channels: [curChan],
+                                    start: curTime,
+                                    duration: this.pageSize,
+                                    isInViewport: false,
+                                    pixelWidth: Math.ceil(this.rsPeriod)});
+                            }
+                        }
+                    }
+                    curTime += this.pageSize;
+                    if (curSegm && curTime >= curSegm.pageEnd) {
+                        while (curSegm.pageEnd < curTime) {
+                            segmOffset += 1;
+                            curSegm = chDataSegments[firstSegment + segmOffset];
+                            if (!curSegm) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Sort the ChannelView pages
+            chanViewData.blocks.sort(this.viewSegmComparator);
+        }
+
+        // Directly request all pages that are in the viewport
+        if (this.aSyncRequests.length > 0) {
+
+            // order requests to make sure request with start in viewport is first.
+            let firstRequest = 0;
+            for (let i=0; i<this.aSyncRequests.length; i++) {
+                if (this.aSyncRequests[i].start >= this.start && this.aSyncRequests[i].start < (this.start +this.duration)) {
+                    firstRequest = i;
+                }
+            }
+
+            this.requestDataFromServer(this.aSyncRequests, firstRequest);
+            this.lastViewPageRequest = Date.now();
+        }
+
+        // Requests Pre-fetch pages throttled, after viewport pages are available
+        if (this.aSyncPreRequests.length > 0 ) {
+            if (!this.isPrefetching) {
+                this.prefetchTimer = setInterval(this.preFetchRequestFnc, 150);
+                this.isPrefetching = true;
+            }
+        }
+    },
+
+    // Request pages from the Server
+    requestDataFromServer: function(requests, firstRequest = 0) {
+        // Do the actual Websocket requests.
+        if (requests.length > 0) {
+
+            const datasetEndTime = this.summary.span.end;
+                // check for last block
+            for(let i = 0; i < requests.length; i++) {
+                let curRequest;
+                if (i === 0 ) {
+                    curRequest = requests[firstRequest];
+                } else if (i === firstRequest) {
+                    curRequest = requests[0];
+                } else {
+                    curRequest = requests[i];
+                }
+
+                // check for last block
+                let requestEndTime = curRequest.start + curRequest.duration;
+                if (requestEndTime > datasetEndTime) {
+                    requestEndTime = datasetEndTime;
+                }
+
+                const ws = this._websocket;
+                if (ws && ws.readyState === 1) {
+                  const virtualChannels = curRequest.channels.map(channel => {
+                    return { id: channel.id, name: channel.label, }
+                  })
+
+                  const req = {
+                      session: this.vuex.userToken,
+                      minMax: true,
+                      startTime: curRequest.start,
+                      endTime: requestEndTime,
+                      packageId: this.parent.data.id,
+                      pixelWidth: curRequest.pixelWidth,
+                      virtualChannels
+                  };
+                  const reqJson = JSON.stringify(req);
+                  ws.send(reqJson);
+
+
+                  // ChannelCounter will capture number of expected packages for each channel
+                  // This number is set when first package arrives.
+                  const nrChannels = curRequest.channels.length;
+                  const channelCounter = new Map();
+                  for (let j=0; j < nrChannels; j++) {
+                      channelCounter.set(curRequest.channels[j], NaN);
+                  }
+
+                  this.requestedPages.set(curRequest.start,
+                      { count: nrChannels,
+                        counter: channelCounter,
+                        subPageCount: NaN,
+                        ts: (Date.now() + 550),
+                        inViewport: curRequest.isInViewport} );
+
+                } else {
+                    return false;
+                }
+            }
+            this.aSyncrequests = [];
+        }
+        return true;
+    },
+
+    // Callback method for async data fetch from server
+    dataCallback: function(obj) {
+
+      // Autoscale counter is set to number > 0 for first request, and autoscale is triggered when
+      // counter reaches 0.
+      if (this.autoScale > 0) {
+          this.autoScale--;
+      }
+
+      // Find channel for object in chData
+      let curChData = null;
+      for (let ch = 0; ch < this.chData.length; ch++) {
+          if (this.chData[ch].label === obj.data.label) {
+              curChData = this.chData[ch];
+              break;
+          }
+      }
+
+      // Based on Obj type, handle placement in cache differently
+      switch(obj.type) {
+
+        case 'gap':
+        case 'Neural':  //neural and continuous data get put in the cache the same way
+        case 'Continuous':
+
+          // Check if data already exists in chData (happens when zoom out, and back in before data is there)
+          let addData = false;
+          let curSegments = curChData && curChData.segments;
+          if (curSegments && obj.type !== 'gap') {
+              addData = true;
+              if (curSegments.length > 0) {
+                  let fIndex = this.segmIndexOf(curSegments, obj.data.startTs, true, 0);
+
+                  // Iterate over all segments in CHData with same pageStart to see if page is already present
+                  while( curSegments[fIndex] && curSegments[fIndex].pageStart === obj.data.pageStart) {
+                      if (curSegments[fIndex].startTs === obj.data.startTs) {
+                          addData = false;
+                          break;
+                      }
+                      fIndex++;
+                  }
+              }
+          }
+
+          // Remove returned page from the list of requested Pages.
+          let requestedPage = this.requestedPages.get(obj.data.pageStart);
+          // array or page IDs (timestamp, based on viewport)
+            // array of channel IDs
+          if (requestedPage) {
+
+              // Update time
+              requestedPage.ts = Date.now();
+
+              let countForChannel = requestedPage.counter.get(obj.data.chId);
+              if (isNaN(countForChannel)) {
+                  countForChannel = obj.nrResponses -1;
+                  requestedPage.counter.set(obj.data.chId, countForChannel);
+                  requestedPage.subPageCount = countForChannel;
+              } else {
+                  countForChannel = countForChannel - 1;
+                  requestedPage.counter.set(obj.data.chId, countForChannel);
+              }
+
+              if (countForChannel === 0) {
+                  let isComplete = true;
+                  for (let value2 of requestedPage.counter.values()) {
+                      if (value2 > 0 || isNaN(value2)) {
+                          isComplete = false;
+                          break;
+                      }
+                  }
+                  if (isComplete) {
+                      this.requestedPages.delete(obj.data.pageStart);
+                      // console.log('isComplete')
+                  }
+
+              }
+
+          }
+
+          // Add data to local cache
+          if (addData) {
+              curSegments.push(obj.data);
+
+              // Resort segments in each channel afer adding data
+              curSegments.sort(function Comparator(a, b) {
+                  if (a.startTs < b.startTs) return -1;
+                  if (a.startTs > b.startTs) return 1;
+                  return 0;
+              });
+
+              // Check if returned page falls in viewport
+              if (obj.pageStart < (this.start + this.duration)) {
+                  this.throttledDataRender();
+              }
+          }
+
+          break;
+
+        case 'realtime':
+
+          if (!this.isStreaming) {
+              return;
+          }
+
+          // track Streaming updates for timing rerender loop
+          let loopLength = 10;
+
+          // On first streaming packed, set trackStream property.
+          // TrackStream tracks single channel for updates etc.
+          if (!this.trackStream.chId) {
+              this.trackStream = {
+                  chId : obj.data.chId,
+                  time : new Array(loopLength).fill(0),
+                  interval : new Array(loopLength).fill(0),
+                  count : 0,
+                  lengt : 0,
+                  avInterval : 0,
+                  avTime : 0,
+                  prevTime: 1000 * Date.now() - (obj.data.nrPoints*obj.data.samplePeriod),
+                  latestTime: 0,
+                  latestEnd: 0
+              }
+              this.set('summary.span.end', obj.data.startTs + 3.5*this.pageSize);
+              this.setStart(obj.data.startTs - 3*this.pageSize);
+          }
+
+
+          // Update tracker object for realtime scrolling speed calculations
+          const track = this.trackStream;
+          if (obj.data.chId === track.chId) {
+              const received = 1000 * Date.now();
+              const loopIndex = track.count - (loopLength * Math.floor(track.count / loopLength));
+              track.time[loopIndex] = received - track.prevTime;
+              track.interval[loopIndex] = obj.data.nrPoints * obj.data.samplePeriod;
+              track.count++;
+              track.prevTime = received;
+
+              if (track.latestTime < obj.data.startTs) {
+                  track.latestTime = obj.data.startTs;
+                  track.latestEnd = obj.data.startTs + obj.data.nrPoints * obj.data.samplePeriod;
+                                      }
+
+              // Only update after initial X packets.
+              let sumDiff = 0;
+              let sumInt = 0;
+              const m = Math.min(loopLength, track.count);
+              for (let i = 0; i < m; i++) {
+                  sumDiff += track.time[i];
+                  sumInt += track.interval[i];
+              }
+              track.avTime = sumDiff / m;
+              track.avInterval = sumInt / m;
+
+          }
+
+          // Current pointer is index in obj.data that we should place in cache next
+          let curPointer = 0;
+
+          // PacketData is the data object in the websocket message
+          let packetData = obj.data;
+
+          // Current Timestamp is the UTC timstamp of the datapoint at current Pointer
+          let curTs = packetData.startTs;
+
+          // Which segment does the current packet belong to?
+          let index = this.segmIndexOf(curChData.segments, curTs, true, 0);
+
+          // Determine if obj.data belongs in returned segment or need new segment
+          let createNewSegment = false;
+
+          if (curChData.segments.length === 0 ||
+            curTs > (curChData.segments[index].pageEnd)) {
+            createNewSegment = true;
+          }
+
+          if (createNewSegment) {
+            // Index in current segment for the currenPointer
+
+            packetData.pageStart = packetData.startTs;
+            const defaultPageEnd = packetData.startTs + this.pageSize;
+
+            packetData.pageEnd = packetData.startTs + (packetData.nrPoints-1)*packetData.samplePeriod;
+            if (defaultPageEnd > packetData.pageEnd) {
+                packetData.pageEnd = defaultPageEnd;
+            }
+
+            // Add new page to cache
+            curChData.segments.push(packetData);
+
+            // Update end of Dataset.
+            let newEnd = packetData.startTs + this.pageSize*5;
+            if (packetData.chId === this.trackStream.chId && newEnd > this.summary.span.end) {
+                this.set('summary.span.end', newEnd);
+            }
+
+          } else {
+            // Find index in current page that corresponds with current pointer.
+
+            // Get Current Page
+            const curPage = curChData.segments[index];
+            const curData = curPage.data;
+
+            const firstIndex = Math.round((packetData.startTs - curPage.startTs) / curPage.samplePeriod);
+
+            //  Number of points from websocket message that should be included in this page
+            const updateWithNrPoints = packetData.nrPoints
+
+            // fill nans if necessary
+            const curLength = curData[0].length;
+            if (firstIndex > curLength) {
+                for (let i=0; i<(firstIndex-curLength); i++) {
+                    curData[0][curLength + i] = NaN;
+                    if (packetData.isMinMax) {
+                        curData[1][curLength + i] = NaN;
+                    }
+                }
+            }
+
+            // Iterate over the points that shouid be included in current page and populate
+            for (let ix = 0; ix < updateWithNrPoints; ix++) {
+
+                curData[0][firstIndex + ix] = obj.data.data[0][curPointer];
+                if (obj.data.isMinMax) {
+                    curData[1][firstIndex + ix] = obj.data.data[1][curPointer];
+                }
+                curPointer++;
+                curTs = packetData.startTs + ix*packetData.samplePeriod;
+                // curTs += packetData.samplePeriod;
+
+
+            }
+            curPage.nrPoints = curPage.data[0].length;
+
+            if (curTs > curPage.pageEnd) {
+                curPage.pageEnd = curTs;
+            }
+        }
+
+         // Resort segments in each channel afer adding data
+        curChData.segments.sort(function Comparator(a, b) {
+            if (a.startTs < b.startTs) return -1;
+            if (a.startTs > b.startTs) return 1;
+            return 0;
+        });
+      }
+    },
+
+    invalidate: function() {
+      if (!this.summary) {
+        return
+      }
+        this.invalidateCache = false;
+        clearTimeout(this.preFetchTime);
+        this.aSyncPreRequests = [];
+        this.summary.globalGaps = [];
+        for (let i=0; i<this.chData.length; i++) {
+            this.chData[i].segments = [];
+        }
+        for (let i=0; i<this.viewData.channels.length; i++) {
+            this.viewData.channels[i].blocks = [];
+        }
+    },
+
+    viewSegmComparator: function(a, b) {
+        if (a.startTs< b.startTs) return -1;
+        if (a.startTs > b.startTs) return 1;
+        return 0;
+    },
+
+    computeSummary: function(channels) {
+
+        if (channels.length === 0) {
+            this.summary.globalGaps = null
+            return
+        }
+
+        const gGaps = R.path(['gaps', 0], channels);
+        if (this.summary && this.summary.globalGaps) {
+          this.summary.globalGaps = gGaps;
+        }
+    },
+
+    initChannels: function(channels) {
+        const chObjects = [];
+        if (channels.length > 0) {
+            // Find Global start and end
+            this.set('summary.span.start', channels[0].content.start);
+            this.set('summary.span.end', channels[0].content.end);
+            for (let ic = 1; ic<channels.length; ic++) {
+                const spanStart = R.pathOr(0, ['span', 'start', this.summary])
+                const spanEnd = R.pathOr(0, ['span', 'end', this.summary])
+                if (channels[ic].content.start < spanStart) {
+                    this.set('summary.span.start', channels[ic].content.start);
+                }
+                if (channels[ic].content.end > spanEnd) {
+                    this.set('summary.span.end', channels[ic].content.end);
+                }
+            }
+
+            const channelConfig = []
+
+            for (let ic=0; ic<channels.length; ic++) {
+                const curC = channels[ic].content;
+                const curId = this.getChannelId(curC)
+                const curChannel = {
+                    id: curId,
+                    label: curC.name,
+                    type: curC.channelType,
+                    segments: [],
+                    start: curC.start,
+                    end: curC.end,
+                    sampleFreq: curC.rate,
+                    unit: curC.unit,
+                    gaps: [], //channels[ic].gaps
+                    virtualId: curC.virtualId
+                };
+
+                const label = curChannel.label.split(/[ _-]/, 3)
+                const label_prefix = label[0];
+                let label_value = ( (label.length > 1) ? parseFloat(label[1]) : 0);
+                label_value = ( (isNaN(label_value) ? label[1] : label_value));
+
+                channelConfig.push({
+                    id: curChannel.id,                          // id of channel
+                    type: curChannel.type,                      // Type of channel (CONTINUOUS, UNIT)
+                    label: curChannel.label,                    // Label of channel
+                    label_split: label,                         // array of label segments
+                    label_prefix: label_prefix,                 // prefix for label
+                    label_value: label_value,                   // value for label
+                    dataSegments: [],                           // vector of segments rnages (start end ...)
+                    rank: ic,                                   // rank for determining display order
+                    visible: true,                              // channel visible in viewer?
+                    plotAgainst: null,                          // for montaging
+                    rowBaseline: null,                          // offset for centering
+                    rowScale: 1,                                // for individual zoom
+                    rowAdjust: 0,                               // offset for centering
+                    selected: false,                            // Item is selected
+                    hover: false,                               // User is hovering over channel
+                    unit: curC.unit,                            // unit of data
+                    sf: curC.rate,                              // sampling rate
+                    filter: {},                                 // filter object (type, var0, var1, notch)
+                    hideFilter: true,
+                    isEditing: false,
+                    virtualId: curChannel.virtualId
+                });
+
+                chObjects.push(curChannel);
+            }
+
+            channelConfig.sort(function(a, b) {
+
+                // If split into more than 2 segments, just sort on entire string
+                if (a.label_split.length > 2 || b.label_split.length > 2) {
+                    return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+                }
+
+                // If prefix is similar, sort on value
+                if (a.label_prefix === b.label_prefix) {
+                    return (a.label_value > b.label_value) ? 1 : ((b.label_value > a.label_value) ? -1 : 0);
+                }
+
+                // Sort on prefix
+                return (a.label_prefix > b.label_prefix) ? 1 : ((b.label_prefix > a.label_prefix) ? -1 : 0);
+            } );
+
+            // Update rank on sorted channels
+            for (let i = 0; i < channelConfig.length; i++) {
+                channelConfig[i].rank = i;
+            }
+
+            this.$store.dispatch('viewer/setChannels', channelConfig)
+        }
+
+        this.start = R.pathOr(0, ['span', 'start'], this.summary);
+        this.computeSummary(chObjects);
+        this.chData = chObjects;
+        this.autoScale = channels.length;
+        this.channelsReady = true;
+        this.parent.$.annotatePanel.initAnnotations();
+        return Promise.resolve()
+    },
+
+    // Find segment that contains timepoint val --> search over startPage property
+    segmIndexOf: function(segmArray, val, first, startAtIndex) {
+
+        if (!startAtIndex) {
+            startAtIndex = 0;
+        }
+        let index;
+        index = this._indexOfStart(segmArray, val, startAtIndex, segmArray.length - 1, first);
+
+        if (index === -1) {
+            index = 0;
+        } else if (index < 0) {
+            index = -index - 2;
+        }
+        return index;
+    },
+
+    // Find segment offset in segment array
+    _indexOfStart: function(segmArray, val, min, max, firstIndex) {
+
+        /*
+         Return code status:
+         Positive number:  first index of the value
+         Negative 1 (-1):  belongs before the start of the dataset
+         Other negative value:  belongs after (-value - 2)
+         */
+        if (max < min) {
+            let pred;
+            if (max >= 0) {
+                //return -max - 2;
+                pred = max;
+            } else {
+                //return max;
+                pred = -max - 2;
+            }
+            if (pred === -1) {
+                return pred;
+            }
+            const predVal = segmArray[pred].pageStart;
+            while (pred >= 0 && segmArray[pred].pageStart === predVal) {
+                pred--;
+            }
+            pred++;
+            return -pred - 2;
+        }
+
+        const mid = parseInt((min + max) / 2);
+
+        if (segmArray[mid].pageStart > val) {
+            return this._indexOfStart(segmArray, val, min, mid - 1, firstIndex);
+        } else if (segmArray[mid].pageStart < val) {
+            return this._indexOfStart(segmArray, val, mid + 1, max, firstIndex);
+        } else {
+            let index = mid;
+            if (firstIndex) {
+                while (index >= 0 && segmArray[index].pageStart === val) {
+                    index--;
+                }
+                index++;
+            } else {
+                while (index < segmArray.length && segmArray[index].pageStart === val) {
+                    index++;
+                }
+                index--;
+            }
+            return index;
+        }
+    },
+
+    // Returns a function, that, when invoked, will only be triggered at most once
+    // during a given window of time. Normally, the throttled function will run
+    // as much as it can, without ever going more than once per `wait` duration;
+    // but if you'd like to disable the execution on the leading edge, pass
+    // `{leading: false}`. To disable execution on the trailing edge, ditto.
+    throttle: function(func, wait, options) {
+      let context;
+      let args;
+      let result;
+      let timeout = null;
+      let previous = 0;
+      if (!options) options = {};
+      const later = function() {
+        previous = options.leading === false ? 0 : Date.now();
+        timeout = null;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+      };
+      return function() {
+        const now = Date.now();
+        if (!previous && options.leading === false) previous = now;
+        const remaining = wait - (now - previous);
+        context = this;
+        args = arguments;
+        if (remaining <= 0 || remaining > wait) {
+          if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+          }
+          previous = now;
+          result = func.apply(context, args);
+          if (!timeout) context = args = null;
+        } else if (!timeout && options.trailing !== false) {
+          timeout = setTimeout(later, remaining);
+        }
+        return result;
+      };
+    },
+
+    // Function that is called with the throttledDataRenderer
+    renderDataOnMessage: function() {
+        this.generatePoints();
+        if (this.autoScale === 0) {
+            this.autoScale--;          // Set to -1 (no autoscale)
+            this.autoScaleViewData();
+        }
+        this._renderData();
+    },
+
+    attached: function() {
+        this.requestedPages = new Map();
+        this.chData = [];
+        this.aSyncrequests = [];
+
+        // Timer loop to prefetch pages --> initiated in requestData()
+        const that = this;
+
+        this.throttledDataRender = this.throttle(this.renderDataOnMessage, 250);
+
+        this.preFetchRequestFnc = function() {
+            const nrPending = that.aSyncPreRequests.length;
+            if (nrPending > 0) {
+                if (that.requestedPages.size < 3) {
+                    that.requestDataFromServer([that.aSyncPreRequests[0]]);
+                    that.aSyncPreRequests.splice(0, 1);
+                }
+            } else {
+                clearInterval(that.prefetchTimer);
+                that.isPrefetching = false;
+            }
+        }
+
+        const protobuf = self.protobuf.Root.fromJSON(this.proto)
+        this.segment = protobuf.Segment;
+        this.timeSeriesMessage = protobuf.TimeSeriesMessage
+        this.timeSeriesError = protobuf.TimeSeriesError
+        this.channelsList = protobuf.ChannelsList
+    }
+  }
+</script>

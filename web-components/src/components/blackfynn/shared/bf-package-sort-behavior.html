@@ -1,0 +1,235 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../vendor-scripts.html">
+
+<script>
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.PackageSortBehavior = {
+    properties: {
+      /**
+        * Property for sorting
+        */
+      sortBy: {
+        type: String,
+        value: 'name'
+      },
+      /**
+      * Direction for sorting
+      */
+      sortDirection: {
+        type: String,
+        value: 'ASC'
+      },
+      /**
+      * Icon showing sort direction
+      */
+      sortIcon: {
+        type: String,
+        computed: '_computeSortIcon(sortDirection)'
+      },
+    },
+
+    /**
+     * Compute the sort icon based on sort direction
+     */
+    _computeSortIcon: function(sortDirection) {
+      if(sortDirection === 'ASC') {
+        return 'blackfynn:number-input-down';
+      } else {
+        return 'blackfynn:number-input-up';
+      }
+    },
+
+    /**
+      * Sort the package list
+      */
+    setSort: function(e) {
+      const newSortBy = e.target.getAttribute('sort-method');
+      const sortParam = R.defaultTo('sortBy', e.target.getAttribute('sort-param'));
+      const sortDirParam = R.defaultTo('sortDirection', e.target.getAttribute('sort-dir-param'));
+      const sortBy = this.get(sortParam) || this.get('sortBy');
+      const sortDirection = this.get(sortDirParam) || this.get('sortDirection');
+
+      // Set sort direction
+      if(sortBy !== newSortBy || sortDirection === 'DESC') {
+        this.set(sortDirParam, 'ASC');
+      } else {
+        this.set(sortDirParam, 'DESC');
+      }
+
+      this.set(sortParam, newSortBy);
+    },
+
+    /**
+      * Compute if the package list is sorted by given column
+      */
+    _isSorting: function(sortBy, name) {
+      return sortBy === name;
+    },
+
+    getDefaultProp: function(propName, object) {
+      let prop = R.path(['content', propName], object);
+      if(!prop) {
+        prop = R.prop(propName, object);
+      }
+
+      return R.defaultTo('', prop);
+    },
+
+    /**
+     * @prop {Object}
+     * @returns {Number}
+     */
+    getStorage: R.propOr(0, 'storage'),
+
+    /**
+      * Compute sort method for list
+      */
+    _sort: function(sortBy, sortDirection) {
+      switch(sortBy) {
+        case 'name':
+          return (a, b) => {
+            const aName = this.getDefaultProp('name', a);
+            const bName = this.getDefaultProp('name', b);
+
+            if (aName === bName) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aName.toLowerCase() < bName.toLowerCase() ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aName.toLowerCase() > bName.toLowerCase() ? -1 : 1;
+            }
+
+            return 0;
+          };
+        case 'email':
+          return (a, b) => {
+            const aEmail = this.getDefaultProp('email', a);
+            const bEmail = this.getDefaultProp('email', b);
+
+            if (aEmail === bEmail) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aEmail < bEmail ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aEmail > bEmail ? -1 : 1;
+            }
+
+            return 0;
+          };
+        case 'type':
+          return (a, b) => {
+            let aPackageType = this.getDefaultProp('packageType', a);
+            if(!aPackageType) {
+              aPackageType = this.getDefaultProp('type', a);
+            }
+
+            let bPackageType = this.getDefaultProp('packageType', b);
+            if(!bPackageType) {
+              bPackageType = this.getDefaultProp('type', b);
+            }
+
+            if (aPackageType === bPackageType) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aPackageType < bPackageType ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aPackageType > bPackageType ? -1 : 1;
+            }
+
+            return 0;
+          };
+
+        case 'created':
+          return (a, b) => {
+            let aCreated = this.getCreatedDate(a.properties).value;
+            if(!aCreated) {
+              const aTimestamp = this.getDefaultProp('createdAt', a);
+              aCreated = moment(aTimestamp).format('X');
+            }
+
+            let bCreated = this.getCreatedDate(b.properties).value;
+            if(!bCreated) {
+              const bTimestamp = this.getDefaultProp('createdAt', b);
+              bCreated = moment(bTimestamp).format('X');
+            }
+
+
+            if (aCreated === bCreated) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aCreated < bCreated ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aCreated > bCreated ? -1 : 1;
+            }
+
+            return 0;
+          };
+
+        case 'size':
+          return (a, b) => {
+            const aStorage = R.defaultTo(0)(this.getStorage(a));
+            const bStorage = R.defaultTo(0)(this.getStorage(b));
+
+            if (aStorage === bStorage) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aStorage < bStorage ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aStorage > bStorage ? -1 : 1;
+            }
+
+            return 0;
+          };
+
+        case 'lastName':
+          return (a, b) => {
+            const aName = a.lastName;
+            const bName = b.lastName;
+
+            if (aName === bName) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aName < bName ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aName > bName ? -1 : 1;
+            }
+
+            return 0;
+          };
+
+        case 'role':
+          return (a, b) => {
+            const aRole = a.role;
+            const bRole = b.role;
+
+            if (aRole === bRole) return 0;
+
+            if(sortDirection === 'ASC') {
+              return aRole < bRole ? -1 : 1;
+            } else if(sortDirection === 'DESC') {
+              return aRole > bRole ? -1 : 1;
+            }
+
+            return 0;
+          };
+      }
+    },
+
+    /**
+    * Get object with created date from properties
+    * @param {Array}
+    * @returns {Object}
+    */
+    getCreatedDate: R.compose(
+      R.defaultTo({}),
+      R.find(R.propEq('key', 'created')),
+      R.propOr([], 'properties'),
+      R.find(R.propEq('category', 'Blackfynn')),
+      R.defaultTo([])
+    )
+
+  }
+</script>

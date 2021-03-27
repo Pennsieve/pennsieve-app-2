@@ -1,0 +1,263 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../styles/blackfynn/icons.html">
+
+<link rel="import" href="../shared/bf-ajax-behavior.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+<link rel="import" href="./team.html">
+<link rel="import" href="./team-create-window.html">
+<link rel="import" href="./team-delete-window.html">
+<link rel="import" href="./team-members-window.html">
+
+<dom-module id="blackfynn-team-list">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        padding: 0 30px 30px 30px;
+      }
+      .helper {
+        margin-bottom: 30px;
+      }
+      .no-teams {
+        margin-top: 30px;
+      }
+      .team-list {
+        margin-top: 30px;
+        max-width: 675px;
+        border-top: 1px solid var(--cortex);
+      }
+    </style>
+
+    <h2>Teams</h2>
+
+    <p class="helper">Teams make it easier for you to share datasets with your organization.</p>
+
+    <div class="actions">
+      <paper-button noink class="save" on-tap="createTeamWindow">Create a Team</paper-button>
+    </div>
+
+    <div class="section pad" hidden$="[[!_isLoading]]">
+      <paper-spinner-lite class="loading-team" active="[[_isLoading]]"></paper-spinner-lite>
+    </div>
+
+    <div class="team-list">
+      <template id="teams" is="dom-repeat" items="[[teams]]" sort="_sortByName">
+        <bf-team item="[[item]]"></bf-team>
+      </template>
+    </div>
+
+    <p class="no-teams" hidden$="[[!_shouldShowMessage]]">There are no teams for <strong>[[state.activeOrganization.organization.name]]</strong>.</p>
+
+    <iron-ajax
+      auto$="[[state.isOrganizationAdmin]]"
+      url="[[_getTeamsUrl]]"
+      id="getTeams"
+      handle-as="json"
+      loading="{{_isLoading}}"
+      on-error="ajaxError"
+      last-response="{{teams}}"
+      debounce-duration="300"></iron-ajax>
+
+    <bf-team-create-window
+      id="teamWindow"
+      team="[[team]]"
+      teams="[[teams]]"></bf-team-create-window>
+
+    <bf-team-delete-window
+      id="teamDeleteWindow"
+      team="[[team]]"></bf-team-delete-window>
+
+    <bf-team-members-window
+      id="teamMembersWindow"
+      team="[[team]]"></bf-team-members-window>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'blackfynn-team-list',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.AjaxBehavior,
+      ],
+
+      properties: {
+        /* list of teams within organization */
+        teams: {
+          type: Array,
+          value: []
+        },
+        /* url to retrieve teams per organization */
+        _getTeamsUrl: {
+          type: String,
+          computed: '_computeGetTeamsUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id)'
+        },
+        /* determines if ajax  */
+        _isLoading: {
+          type: Boolean,
+          value: false
+        },
+        /* computes whether or not to show users messages */
+        _shouldShowMessage: {
+          type: Boolean,
+          computed: '_computeShouldShowMessage(teams.length, _isLoading)'
+        },
+      },
+
+      listeners: {
+        'add-to-team-list': 'addToTeamList',
+        'update-team-list': 'updateTeamList',
+        'team-deleted': 'teamDeleted',
+        'open-rename-team': 'openRenameTeam',
+        'open-delete-team': 'openDeleteTeam',
+        'open-team-members': 'openTeamMembers',
+        'reload-teams': 'reloadTeams',
+        'reset-team': 'resetTeam',
+      },
+
+      /**
+       * reloads team list
+       */
+      resetTeam: function() {
+        this.set('team', {});
+      },
+
+      /**
+       * reloads team list
+       */
+      reloadTeams: function() {
+        this.$.getTeams.generateRequest();
+      },
+
+      /**
+       * opens team dialog with team info pre-filled
+       * @param {Object} Event Object
+       * @param {Object} team object
+       */
+      openRenameTeam: function(e, detail) {
+        const teamWindow = this.$.teamWindow;
+        teamWindow.set('team', detail);
+        this.openTeamWindow(teamWindow);
+      },
+
+      /**
+       * opens team members dialog
+       * @param {Object} Event Object
+       * @param {Object} team object
+       */
+      openTeamMembers: function(e, detail) {
+        const teamMembersWindow = this.$.teamMembersWindow;
+        teamMembersWindow.set('team', detail);
+        this.openTeamWindow(teamMembersWindow);
+      },
+
+      /**
+       * opens delete dialog
+       * @param {Object} Event Object
+       * @param {Object} team object
+       */
+      openDeleteTeam: function(e, detail) {
+        const deleteWindow = this.$.teamDeleteWindow;
+        deleteWindow.set('team', detail);
+        this.openTeamWindow(deleteWindow);
+      },
+
+      /**
+       * adds team to list
+       * @param {Object} Event Object
+       * @param {Object} response object
+       */
+      addToTeamList: function(e, detail) {
+        this.push('teams', detail);
+
+        const teamMembersWindow = this.$.teamMembersWindow;
+        teamMembersWindow.set('team', detail.team);
+        this.openTeamWindow(teamMembersWindow);
+      },
+
+      /**
+       * updates team list
+       * @param {Object} Event Object
+       * @param {Object} response object
+       */
+      updateTeamList: function(e, detail) {
+        const idx = R.findIndex(R.pathEq(['team', 'id'], detail.id))(this.teams);
+        const origData = this.get(`teams.${idx}`);
+        const updatedTeam = R.merge(origData, {team: detail});
+        this.set(`teams.${idx}`, updatedTeam);
+      },
+
+      /**
+       * removes deleted team from teams array
+       * @param {Object} Event Object
+       * @param {String} team id
+       */
+      teamDeleted: function(e, teamId) {
+        const updatedTeams = R.reject(R.pathEq(['team', 'id'], teamId))(this.teams);
+        this.set('teams', updatedTeams);
+      },
+
+      /**
+       * computes the api endpoint to get teams for organization
+       * @param {String} base api url
+       * @param {String} user token
+       * @param {String} organization id
+       */
+      _computeGetTeamsUrl: function(api, user, organizationId) {
+        return `${api}/organizations/${organizationId}/teams?api_key=${user}`;
+      },
+
+      /**
+       * computes whether or not there are teams
+       * @param {Array} array of team objects
+       * @return {Boolean}
+       */
+      _computeHasTeams: function(teamsLength) {
+        return teamsLength && teamsLength > 0;
+      },
+
+      /**
+       * computes when to show user message
+       * @param {Boolean} tracks if org has teams
+       * @param {Boolean} tracks if data is loading
+       * @return {Boolean}
+       */
+      _computeShouldShowMessage: function(teamsLength, isLoading) {
+        return (!teamsLength || teamsLength === 0) && !isLoading;
+      },
+
+      /**
+       * opens create team window
+       */
+      createTeamWindow: function() {
+        this.set('team', {});
+        this.openTeamWindow(this.$.teamWindow);
+      },
+
+      /**
+       * opens team window
+       */
+      openTeamWindow: function(window) {
+        window.$.dialog.open();
+      },
+
+      /**
+       * sort by last name
+       * @param {Object} first item to compare
+       * @param {Object} second item to compare
+       */
+      _sortByName: function(item1, item2) {
+        return item1.team.name.localeCompare(item2.team.name);
+      },
+
+    });
+  </script>
+
+</dom-module>

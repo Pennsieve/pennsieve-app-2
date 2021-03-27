@@ -1,0 +1,44 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<script>
+  window.Blackfynn = window.Blackfynn || {};
+  /**
+  * @polymerBehavior
+  */
+  Blackfynn.IsPluginBehavior = {
+
+    properties: {
+      constants: {
+          type: Object,
+          value: {}
+      },
+      parent: {
+          type: Object,
+          value: null
+      }
+    },
+
+    /*
+    * This behavior needs to be first in list of behaviors
+    * so that other behaviors can implement methods.
+    */
+
+    // Needs to be implemented by plugin.
+    render: function(options) {},
+
+    // Needs to be implemented by plugin.
+    unfocusElements: function() {},
+
+    // Needs to be implemented by plugin.
+    onTrack: function(e, pointerMode) {},
+
+    // Needs to be implemented by plugin.
+    onMouseMove: function(mX, mY, pointerMode, toolbarMode) {},
+
+    // Needs to be implemented by plugin.
+    onTap: function(e, pointerMode) {},
+
+    // Needs to be implemented by plugin.
+    updateSize: function() {}
+  }
+</script>

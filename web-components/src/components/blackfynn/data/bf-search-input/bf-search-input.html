@@ -1,0 +1,271 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../../bower_components/iron-input/iron-input.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../simple-input.html">
+<link rel="import" href="../../state/bf-state-behavior.html">
+
+<link rel="import" href="../../../../config/config.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+
+<!--
+## bf-search-input
+
+`<bf-search-input>` is the search component used within datasets and collections.
+
+@element bf-search-input
+@demo ./demo/index.html
+-->
+
+<dom-module id="bf-search-input">
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        overflow: hidden;
+        @apply(--layout-flex-auto);
+      }
+      .search {
+        height: 100%;
+        overflow: hidden;
+        transition: width .2s ease-in-out;
+        width: 77px;
+        @apply(--layout);
+        @apply(--layout-self-stretch);
+        @apply(--layout-center);
+        @apply(--layout-no-wrap);
+      }
+      .search.focused {
+        width: 50%;
+      }
+      input[type="search"]::-webkit-search-cancel-button {
+        cursor: pointer;
+      }
+      /* search icon */
+      .searchIconWrap {
+        cursor: pointer;
+        height: 100%;
+        text-align: center;
+        width: 74px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
+      .icon-search {
+        align-self: center;
+        color: var(--glial);
+        cursor: pointer;
+        display: flex;
+        height: 16px;
+        outline: none;
+        position: relative;
+        left: 3px;
+        width: 16px;
+      }
+      .searchIconWrap:hover .icon-search {
+        color: var(--app-primary-color);
+      }
+      /* search input field */
+      .searchInputWrap {
+        @apply(--layout);
+        @apply(--layout-flex);
+      }
+      #searchInput {
+        border: 0;
+        border-radius: 0;
+        color: var(--input-text);
+        font-size: 14px;
+        outline: 0;
+        width: 95%;
+        padding: 5px 10px;
+      }
+    </style>
+
+    <div id="searchWrapper" class$="[[_focusClass]]">
+      <div class="searchIconWrap" on-tap="toggleSearch">
+        <iron-icon id="searchIcon" class="icon-search" icon="blackfynn:magnifying_glass" tabindex="0"></iron-icon>
+      </div>
+      <div class="searchInputWrap" hidden$="[[!isFocused]]">
+        <input
+          id="searchInput"
+          type="search"
+          class="bf-input"
+          is="iron-input"
+          bind-value="{{query}}"
+          placeholder="Search your catalog">
+      </div>
+    </div>
+
+    <iron-a11y-keys target="[[searchIconTarget]]" keys="enter" on-keys-pressed="toggleSearch"></iron-a11y-keys>
+
+    <iron-a11y-keys target="[[searchTarget]]" keys="enter" on-keys-pressed="doSearch"></iron-a11y-keys>
+
+    <iron-ajax
+      id="ajSearch"
+      method="POST"
+      handle-as="json"
+      loading="{{isLoadingSearch}}"
+      content-type="application/json"
+      url="[[searchUrl]]"
+      on-error="ajaxError"
+      on-response="_handleSearch">
+    </iron-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bf-search-input',
+
+      behaviors: [
+        Blackfynn.Config,
+        Blackfynn.AjaxBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * query string to send to search
+         */
+        query: {
+          type: String,
+          value: undefined,
+          notify: true
+        },
+        /**
+         * search endpoint url
+         */
+        searchUrl: {
+          type: String,
+          computed: '_computeSearchUrl(state.apiUrl,state.userToken)'
+        },
+        /**
+         * search field
+         */
+        searchTarget: {
+          type: Object,
+          value: function() {
+            return this.$.searchInput;
+          }
+        },
+        /**
+         * search icon
+         */
+        searchIconTarget: {
+          type: Object,
+          value: function() {
+            return this.$.searchIcon;
+          }
+        },
+        /**
+         * boolean to track loading search results
+         */
+        isLoadingSearch: {
+          type: Boolean,
+          value: false,
+          observer: '_watchIsLoadingSearch'
+        },
+        /**
+         * boolean to toggle display of search field
+         */
+        isFocused: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * computes classname for search wrapper
+         */
+        _focusClass: {
+          type: String,
+          computed: '_getFocusClass(isFocused)'
+        },
+      },
+
+      /**
+       * Observer isLoadingSearch and set the state
+       * @param {Boolean} isLoadingSearch
+       */
+      _watchIsLoadingSearch: function(isLoadingSearch) {
+        this.fire('set-state-path', {
+          path: 'isLoadingSearch',
+          state: isLoadingSearch
+        })
+      },
+
+      /**
+       * Toggles view of search input field
+       * @param {Boolean}
+       */
+      _getFocusClass: function(isFocused) {
+        return isFocused ? 'search focused' : 'search';
+      },
+
+      /**
+       * Toggles focus of search input field
+       * @param {Boolean}
+       */
+      toggleFocus: function(toggleValue) {
+        const method = toggleValue ? 'focus' : 'blur';
+        this.searchTarget[method]();
+      },
+
+      /**
+       * Toggles view and focus of search input field
+       */
+      toggleSearch: function() {
+        const toggleValue = this.isFocused ? false : true;
+        this.set('isFocused', toggleValue);
+        this.toggleFocus(toggleValue);
+        this.set('query', '');
+      },
+
+      /**
+       * Generates search api url
+       * @param {String} api base url
+       * @param {Object} user object
+       */
+      _computeSearchUrl: function(api, user) {
+        return `${api}/search?api_key=${user}`;
+      },
+
+      /**
+       * Search success callback
+       * @param {Object} Event object
+       * @param {Object} response object
+       */
+      _handleSearch: function(e, details) {
+        const response = details && details.response ? details.response : [];
+        const data = response.map(record => {
+          return { content: record };
+        });
+        this.fire('set-search-results', {'data': data, 'searchString': this.query});
+      },
+
+      /**
+       * Perform asynchronous search
+       */
+      doSearch: function() {
+        const query = this.query;
+
+        // Don't send a empty search
+        if(!query || query.length === 0) {
+          return;
+        }
+
+        // this.set('isSearching', true);
+        this.fire('set-state-path', {
+          path: 'isSearching',
+          state: true
+        });
+
+        const searchRequest = this.$.ajSearch;
+        searchRequest.body = { query, maxResults: 25 };
+        searchRequest.generateRequest();
+      },
+
+    });
+  </script>
+</dom-module>

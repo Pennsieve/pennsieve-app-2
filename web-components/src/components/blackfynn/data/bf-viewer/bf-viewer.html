@@ -1,0 +1,689 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../shared/filetype-mapper-behavior.html">
+<link rel="import" href="../../shared/bf-ajax-behavior.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+<link rel="import" href="bf-tools-palettes-behavior.html">
+<link rel="import" href="bf-viewer-timeseries-behavior.html">
+<link rel="import" href="bf-viewer-drag-behavior.html">
+<link rel="import" href="bf-viewer-toolbar.html">
+<link rel="import" href="bf-viewer-side-panel.html">
+
+<link rel="import" href="../../../../styles/blackfynn/icons.html">
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-viewer">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style type="text/css">
+      :host {
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-flex-auto);
+      }
+      #viewerWrap {
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+      }
+      .viewer-pane {
+        position: relative;
+        background: #dedede;
+      }
+      .viewer-pane, #empty {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      #empty {
+        text-align: center;
+      }
+      #emptyIcon {
+        margin: 78px auto 20px auto;
+        height: 50px;
+        width: 50px;
+      }
+      #viewer1 {
+        width: 50%;
+        border-left: 1px solid rgb(200,200,200);
+      }
+    </style>
+
+    <div id="viewerWrap">
+
+      <bf-viewer-toolbar hidden$="[[hideToolbars]]" left>
+        <template is="dom-repeat" items="[[availableTools]]" filter="filterTools">
+          <paper-icon-button
+            id="viewer-btn-[[item.eventName]]"
+            icon="blackfynn:[[item.icon]]"
+            name="[[item.eventName]]"
+            selected$="[[_isActiveTool(item.eventName, activeTool)]]"
+            noink
+            on-tap="_setActiveTool"></paper-icon-button>
+          <paper-tooltip position="right" for="viewer-btn-[[item.eventName]]">[[item.tooltip]]</paper-tooltip>
+        </template>
+      </bf-viewer-toolbar>
+
+      <template is="dom-repeat" items="[[items]]">
+        <div id="[[_createId(index)]]" class="viewer-pane"></div>
+      </template>
+
+      <div id="empty" hidden$="[[hasItems]]">
+        <iron-icon
+          id="emptyIcon"
+          icon="blackfynn:icon-neural"></iron-icon>
+        <h2 class="sharp-sans">No package selected</h2>
+        <p>Select a package that you want to view from your <a href="/[[state.activeOrganization.organization.id]]/datasets">Datasets</a>.</p>
+      </div>
+
+      <bf-viewer-toolbar hidden$="[[hideToolbars]]" right>
+        <template is="dom-repeat" items="[[availablePalettes]]">
+          <paper-icon-button
+            id="viewer-btn-[[item.eventName]]"
+            icon="blackfynn:[[item.icon]]"
+            name="[[item.eventName]]"
+            selected$="[[_isActivePalette(item.eventName, state.viewer.sidePanel.view, state.viewer.sidePanel.open)]]"
+            noink
+            on-tap="togglePanel"></paper-icon-button>
+          <paper-tooltip position="left" for="viewer-btn-[[item.eventName]]">[[item.tooltip]]</paper-tooltip>
+        </template>
+      </bf-viewer-toolbar>
+
+      <bf-viewer-side-panel
+        id="sidePanel"
+        is-mpp-visible="[[isMppVisible]]"
+        hidden$="[[hideInfoPanel]]"
+        api-url="[[apiUrl]]"
+        user-token="[[userToken]]"
+        profile="[[profile]]"
+        data="[[data]]"
+        cur-package="[[curPackage]]"
+        dataset="[[dataset]]"
+        active-organization="[[activeOrganization]]"
+        active-viewer="[[activeViewer]]"
+        open$="[[state.viewer.sidePanel.open]]"
+        parent-id="[[parentId]]"></bf-viewer-side-panel>
+
+
+    </div><!--/#viewWrap -->
+  </template>
+
+  <script>
+
+
+    Polymer({
+      is: 'bf-viewer',
+
+      behaviors: [
+        Blackfynn.ViewerTimeseriesBehavior,
+        Blackfynn.FileTypeMapperBehavior,
+        Polymer.IronResizableBehavior,
+        Blackfynn.ToolsPalettesBehavior,
+        Blackfynn.ViewerDragBehavior,
+        Blackfynn.AjaxBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * current package
+         */
+        curPackage: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * current data item
+         */
+        data: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /**
+         * Has items to display
+         */
+        hasItems: {
+          type: Boolean,
+          computed: '_computeHasItems(items.length, isPackageLoading)'
+        },
+        /**
+        * Show or hide left and right toolbars
+        */
+        hideToolbars: {
+          type: Boolean,
+          computed: '_computeHideToolbars(items.length)'
+        },
+        /**
+         * data to be displayed within the viewer
+         */
+        items: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Active tool
+         */
+        activeTool: {
+          type: String,
+          value: 'pointer'
+        },
+        /**
+         * Compute active viewer from state
+         */
+        activeViewer: {
+          type: Element, // NOTE: why Element instead of Object? -dkh
+          computed: '_computeActiveViewer(state.viewer.active, state.viewer.viewers)'
+        },
+        /**
+         * tracks whether using is dragging an item from the file browser palette
+         */
+        isDragging: {
+          type: Boolean,
+          value: false
+        },
+        parentId: {
+          type: String,
+          value: ''
+        },
+        dataset: {
+          type: Object,
+          value: function() {
+            return {}
+          }
+        },
+        userToken: {
+          type: String
+        },
+        apiUrl: {
+          type: String
+        },
+        loadingViewer: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      observers: [
+        '_watchItems(items.*)'
+      ],
+
+      listeners: {
+        'toggle-is-dragging': '_toggleIsDragging',
+        'set-active-viewer': '_setActiveViewer',
+        'update-active-viewer': 'updateActiveViewer',
+        'view-discussion': 'viewDiscussion',
+        'start-discussion': 'startDiscussion',
+        'view-annotation': 'viewAnnotation',
+        'is-mpp-visible': 'updateMppIsVisible',
+        'update-layer-annotations': 'updateLayerAnnotations',
+        'render-side-panel-layers': 'renderSidePanelLayers',
+        'toggle-active-tool': 'updateActiveTool',
+        'render-side-panel-channels' : 'renderSidePanelChannels'
+      },
+
+      /**
+      * Polymer lifecycle method
+      */
+      ready: function() {
+        // if pkg id is set as a queryParam, retrieve package
+        const pkgId = R.propOr('', 'p')(this.queryParams).trim()
+        const isPkgIdValid = !pkgId.match(/[^\w|\d|:|-]/)
+
+        if (pkgId && isPkgIdValid) {
+          this.fire('get-package', { id: pkgId })
+        }
+      },
+
+      /**
+      * Update Layer Annotations
+      * @param {Object} e
+      * @param {Object} detail
+      */
+      updateLayerAnnotations: function(e, detail) {
+        const annList = this.$.sidePanel.$.annotationsList
+        const { path, data } = detail
+
+        annList.set(path, data)
+      },
+
+      /**
+      * Force render layers in side panel
+      * @param {Object} e
+      */
+      renderSidePanelLayers: function(e) {
+        this.$.sidePanel.$.annotationsList.renderLayers();
+      },
+
+      renderSidePanelChannels: function(e) {
+        this.$.sidePanel.$.channelList.rerenderList();
+      },
+
+      /**
+       * Compute if there are packages to display
+       * @param {int} itemsLength
+       */
+      _computeHasItems: function(itemsLength, isPackageLoading) {
+        return itemsLength > 0 || isPackageLoading || (this.queryParams && this.queryParams.p);
+      },
+
+      /**
+      * Compute if left and right toolbars should be visible
+      * @param {int} itemsLength
+      */
+      _computeHideToolbars: function(itemsLength, isPackageLoading) {
+        return !itemsLength || isPackageLoading;
+      },
+      /**
+       * Update the active tool in response to an event from viewer
+       */
+      updateActiveTool: function(e, detail) {
+        this.setActiveTool(detail, null);
+      },
+
+      /**
+       * Update active viewer state, and notify changes for local prop
+       * @param {Object} Event
+       * @param {Object} detail
+       */
+      updateActiveViewer: function(e, detail) {
+        if(this.state) {
+          const path = detail.path && detail.path.length > 0 ? `.${detail.path}` : '';
+          this.fire('set-state-path', {
+            path: `viewer.viewers.${this.state.viewer.active}${path}`,
+            state: detail.state
+          });
+
+          this.notifyPath(`activeViewer${path}`);
+        }
+      },
+
+      /**
+       * Compute active viewer from state
+       * @param {int} idx
+       * @param {Array} viewers
+       * @returns {Object}
+       */
+      _computeActiveViewer: function(idx, viewers) {
+        idx = R.defaultTo(0, idx);
+        viewers = R.defaultTo([], viewers);
+
+        if(viewers.length) {
+          this.linkPaths('activeViewer', viewers[idx]);
+          return viewers[idx];
+        } else {
+          return null;
+        }
+      },
+
+      /**
+       * sets activeViewer's is-dragging property
+       */
+      _toggleIsDragging: function() {
+        this.set('activeViewer.isDragging', !this.isDragging);
+      },
+
+      /**
+       * Creates unique id for viewer containers
+       * @param {int} index
+       * @returns {String}
+       */
+      _createId: function(index) {
+        return `viewer${index}`;
+      },
+
+      /**
+       * Creates unique id for viewer containers
+       * @param {Object} items
+       */
+      _watchItems: function(items = {}) {
+        const itemsList = R.prop('base', items);
+        if (!itemsList || itemsList.length === 0 || items.path === 'items.length') {
+          return;
+        }
+        const itemsPath = R.propOr('', 'path', items);
+        let defaultIndex = itemsPath.indexOf('#') > 0 ? Number(itemsPath.substr(itemsPath.length - 1)) : itemsList.length - 1;
+        if (defaultIndex >= itemsList.length) {
+          defaultIndex = 1;
+        }
+        const spliceIndex = R.pathOr(defaultIndex, ['value', 'indexSplices', 0, 'index'], items);
+        const dataItem = spliceIndex >= itemsList.length ? R.head(itemsList) : R.nth(spliceIndex, itemsList);
+        this.set('data', dataItem);
+
+        // load viewers
+        itemsList.forEach((item, idx) => {
+          if (spliceIndex === idx) {
+            this.loadViewer(item, idx);
+          } else if (itemsList.length === 1) {
+            this.loadViewer(item, idx);
+          }
+        });
+      },
+
+      /**
+       * sets the active viewer
+       * @param {Event} evt
+       */
+      // TODO: probably remove this, don't think its used anymore
+      _setActiveViewer: function(evt) {
+        const viewerPanes = Polymer.dom(this.root).querySelectorAll('.viewer-pane');
+        viewerPanes.forEach(pane => {
+          const viewer = pane.firstChild;
+          if (viewer) {
+            viewer.set('isActive', false);
+          }
+        });
+        let viewer = evt.detail && !evt.detail.x ? evt.detail : evt.target;
+        if (typeof viewer.set !== 'function') {
+          viewer = evt.currentTarget
+        }
+        viewer.set('isActive', true);
+
+        const viewers = R.pathOr([], ['viewer', 'viewers'], this.state);
+        const index = R.indexOf(viewer, viewers);
+
+        this.fire('set-state-path', {
+          path: 'viewer.active',
+          state: index
+        });
+
+        // Reset palette if new viewer doesn't have that palette
+        if (this.availablePalettes) {
+          const palette = R.pathOr('', ['viewer', 'sidePanel', 'view'], this.state)
+          const paletteExists = R.find(R.propEq('eventName', palette), this.availablePalettes)
+          if (!paletteExists) {
+            const sidePanelOpen = R.pathOr(false, ['viewer', 'sidePanel', 'open'], this.state)
+            this.fire('set-state-path', {
+              path: 'viewer.sidePanel',
+              state: {
+                open: sidePanelOpen,
+                view: 'infoPanel'
+              }
+            });
+          }
+        }
+      },
+
+      /**
+       * informs viewers if split view is enabled
+       */
+      _setSplitViewProp: function() {
+        const viewerPanes = Polymer.dom(this.root).querySelectorAll('.viewer-pane');
+        const hasSplitView = viewerPanes.length === 2;
+        viewerPanes.forEach(pane => {
+          const viewer = pane.firstChild;
+          if (viewer) {
+            viewer.set('hasSplitView', hasSplitView);
+          }
+        });
+        this.notifyResize()
+      },
+
+      _getMPPValue: R.compose(
+        R.propOr('', 'value'),
+        R.find(R.propEq('key', 'MPP')),
+        R.propOr([{}], 'properties'),
+        R.find(R.propEq('category', 'Blackfynn')),
+        R.propOr([{}], 'properties')
+      ),
+
+      /**
+       * loads appropriate viewer based on package type
+       * @param {Object} item
+       * @param {int} idx
+       */
+      loadViewer: function(item, idx) {
+        this.set('loadingViewer', true)
+
+        const packageState = R.path(['content', 'state'], item);
+        const packageType = R.pathOr('unknown', ['content', 'packageType'], item);
+        let component = packageType.toLowerCase();
+        if (R.isNil(Blackfynn.FileTypeMapperBehavior.properties.typeMapper.value[packageType]) || packageState === 'ERROR') {
+          component = 'unknown';
+        }
+
+        // NOTE: temporary logic to handle "Unsupported" packageType value for text files
+        const whitelist = [
+          'c#', 'c++', 'java', 'javascript', 'yaml', 'xml', 'sigmaplot', 'shell', 'bash', 'ansys', 'neuron', 'markdown', 'r',
+          'python', 'matlab', 'apache', 'php', 'css', 'json', 'ruby', 'html', 'dockerfile', 'ini', 'scala', 'tex', 'mathematica',
+          'stata', 'text'
+        ]
+        const properties = R.pathOr([], ['properties', 0, 'properties'], item)
+        const subtypeObj = R.find(R.propEq('key', 'subtype'), properties)
+        const subtypeValue = R.prop('value', subtypeObj)
+        const subtype = subtypeValue ? subtypeValue.toLowerCase() : null
+
+        if (whitelist.indexOf(subtype) >= 0) {
+          component = 'text'
+        }
+
+        // Set directory of viewers based on viewer version
+        let elName = `bf-viewer-${component}`;
+
+        this.importHref(
+          this.resolveUrl(`/web-components/src/components/blackfynn/viewers2/${component}/viewer.html`),
+          function(e) {
+            // post load, create the element based off new component
+            // note the order you assign parameters is super important
+            // be sure to pass in api, user, active organization, and
+            // data first. callbacks depend on them!!
+            const MPP = this._getMPPValue(item)
+
+            const viewer = this.create(elName, {
+              data: item.content,
+              props: item.properties,
+              activeTool: this.activeTool,
+              viewerIndex: idx,
+              bfDataset: this.dataset,
+              MPP,
+              subtype,
+            });
+
+            // set parentId
+            const parentId = R.pathOr(R.pathOr('', ['content', 'datasetId'], item), ['parent', 'content', 'id'])(item)
+            this.parentId = parentId
+
+            viewer.addEventListener('dragenter', this._onDragEnter.bind(this));
+            viewer.addEventListener('dragover', this._onDragOver.bind(this));
+            viewer.addEventListener('drop', this._onDrop.bind(this));
+            viewer.addEventListener('tap', this._setActiveViewer.bind(this));
+
+            // append new element to local DOM
+            this.async(() => {
+              const _viewerDom = Polymer.dom(this.root).querySelector(`#viewer${idx}`);
+              if (_viewerDom) {
+                _viewerDom.innerHTML = '';
+                _viewerDom.appendChild(viewer);
+                this._setSplitViewProp();
+                this._setActiveViewer({target: viewer, idx: idx});
+                this.setViewerState(viewer, idx);
+              }
+              this.set('loadingViewer', false)
+            }, 100);
+          },
+          // Error loading
+          function(e) {
+            this.set('loadingViewer', false)
+            this.fire('toast', {
+              type: 'ERROR_DETAIL',
+              msg: 'The viewer could not be opened'
+            });
+          }, true);
+      },
+
+      /**
+       * fires an event to remove an item from openData
+       * @param {int} index
+       */
+      remove: function(index) {
+        this.fire('remove-item', { itemId: this.data.id, index });
+      },
+
+      setViewerState: function(viewer, idx) {
+        const state = this.state.viewer;
+        if (state.viewers) {
+          state.viewers[idx] = viewer;
+        } else {
+          state.viewers = [viewer];
+        }
+
+        state.active = idx;
+
+        this.fire('set-state-path', {
+          path: 'viewer',
+          state: state
+        });
+      },
+
+      /**
+       * Toggle the palatte panel open/close and change palette
+       * @param {Event} e
+       */
+      setSidePanel: function(view, open) {
+        this.fire('set-state-path', {
+          path: 'viewer.sidePanel',
+          state: {
+            view,
+            open
+          }
+        });
+
+        this.notifyResize();
+      },
+
+      /**
+       * Toggle the palatte panel open/close and change palette
+       * @param {Event} e
+       */
+      togglePanel: function(e) {
+        const name = e.model.item.eventName;
+        let isOpen = true;
+
+        // If the side panel view is already set to the new view
+        if(this.state.viewer.sidePanel.open && this.state.viewer.sidePanel.view === name) {
+          isOpen = false;
+        }
+
+        this.setSidePanel(name, isOpen);
+      },
+
+      /**
+       * Check if palette is the active palette
+       * @param {String} name
+       * @param {String} sidePanelView
+       * @param {Boolean} sidePanelOpen
+       * @returns {Boolean}
+       */
+      _isActivePalette: function(name, sidePanelView, sidePanelOpen) {
+        return name === sidePanelView && sidePanelOpen;
+      },
+
+      /**
+       * Check if tool is the active tool
+       * @param {String} name
+       * @param {String} activeTool
+       * @returns {Boolean}
+       */
+      _isActiveTool: function(name, activeTool) {
+        return name === activeTool;
+      },
+
+      /**
+       * Call to set the new active tool
+       * @param {Object} e - Event object
+       */
+      _setActiveTool: function(e) {
+        this.setActiveTool(e.model.item.eventName, e.currentTarget);
+      },
+
+      /**
+       * Set new active tool
+       * @param {String} tool
+       * @param {Object} iconTarget
+       */
+      setActiveTool: function(tool, iconTarget) {
+        // Set the new active tool if it isn't already set
+        if(tool !== this.activeTool) {
+          // Set first character of tool to be capitalized to the method is camel case
+          const methodName = 'set' + tool.charAt(0).toUpperCase() + tool.slice(1);
+
+          // Get the method
+          const method = this.activeViewer[methodName];
+
+          // Check the method
+          if(typeof method === 'function') {
+            // Set the new active tool
+            this.set('activeTool', tool);
+
+            method.bind(this.activeViewer)();
+          } else{
+            // Blur the icon
+            if(iconTarget) {
+              iconTarget.blur();
+            }
+
+            // Show error message to user
+            this.fire('toast', { type: 'ERROR_DETAIL', msg: 'Tool could not be set' });
+          }
+        }
+      },
+
+      /**
+       * View discussion in discussion palette
+       * @param {Object} Event
+       * @param {Object} detail
+       */
+      viewDiscussion: function(e, detail) {
+        const id = R.propOr('', 'id')(detail);
+
+        this.setSidePanel('discussion', true);
+
+        this.$.sidePanel.$.discussions.viewDiscussion(id);
+      },
+
+      /**
+       * Start discussion
+       * @param {Object} Event
+       * @param {Object} detail
+       */
+       startDiscussion: function(e, detail) {
+        const id = R.propOr('', 'annotationId')(detail);
+
+        this.setSidePanel('discussion', true);
+
+        this.$.sidePanel.$.discussions.startDiscussion(id);
+      },
+
+      /**
+       * View annotation in annotation palette
+       * @param {Object} Event
+       * @param {Object} detail
+       */
+       viewAnnotation: function(e, detail) {
+        const id = R.propOr('', 'id')(detail);
+
+        this.setSidePanel('annotations', true);
+
+        this.$.sidePanel.$.annotationsList.viewAnnotation(id);
+      },
+      updateMppIsVisible: function(e) {
+        this.set('isMppVisible', e.detail.mpp)
+      },
+      filterTools: function(item) {
+        if (item.eventName === 'measure' && !this.isMppVisible) {
+          return false
+        }
+        return true
+      }
+    });
+
+  </script>
+
+</dom-module>

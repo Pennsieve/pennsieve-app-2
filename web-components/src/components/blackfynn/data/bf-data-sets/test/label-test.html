@@ -1,0 +1,86 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <title>bf-data-set-item-label tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../../../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../../../../bower_components/web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../bf-data-set-item-label.html">
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <bf-data-set-item-label></bf-data-set-item-label>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="named">
+    <template>
+      <bf-data-set-item-label name="My Custom Named Data Set"></bf-data-set-item-label>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      let basic;
+
+      setup(function() {
+        basic = fixture('basic');
+      });
+
+      test('Default text should be `Data Set`', function() {
+        const label = Polymer.dom(basic.root).querySelector('.data-set-title span');
+        assert.equal(label.textContent, 'Data Set');
+      });
+
+    });
+
+    suite('named', function() {
+      let named;
+      let _openItem;
+
+      setup(function() {
+        named = fixture('named');
+        _openItem = sinon.stub(named, '_openItem', () => {});
+      });
+
+      teardown(function() {
+        _openItem.restore();
+      });
+
+      test('Default text should be `My Custom Named Data Set`', function() {
+        const label = Polymer.dom(named.root).querySelector('.data-set-title span');
+        assert.equal(label.textContent, 'My Custom Named Data Set');
+      });
+
+      test('Has _openItem method', function() {
+        named._openItem();
+        expect(named._openItem).to.exist;
+        expect(_openItem).to.have.been.called;
+      });
+
+      test('Has 2 behaviors', function() {
+        expect(named.behaviors.length, 2).to.be.equal;
+      });
+
+    });
+  </script>
+
+</body>
+</html>

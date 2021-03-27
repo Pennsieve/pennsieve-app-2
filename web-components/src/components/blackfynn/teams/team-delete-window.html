@@ -1,0 +1,112 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../shared/patched-overlay-behavior.html">
+<link rel="import" href="../shared/bf-ajax-behavior.html">
+<link rel="import" href="../state/bf-state-aware-behavior.html">
+<link rel="import" href="../../../styles/blackfynn/main.html">
+
+<dom-module id="bf-team-delete-window">
+
+  <template>
+
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <bf-dialog id="dialog" on-iron-overlay-opened="patchOverlay" opened="{{opened}}" processing="[[processing]]">
+      <h2 slot="heading">Confirm Delete</h2>
+      <div slot="body">
+        <p>Are you sure you want to delete the following team: <strong>[[team.name]]</strong>?</p>
+        <p>If you're sure, please click the button below to proceed.</p>
+      </div>
+      <div slot="buttons">
+        <paper-button hidden$="[[processing]]" id="remove-button" class="delete" on-tap="deleteTeam">Delete</paper-button>
+      </div>
+    </bf-dialog>
+
+    <iron-ajax
+      id="deleteTeamAjax"
+      method="DELETE"
+      handle-as="json"
+      content-type="application/json"
+      url="[[deleteTeamUrl]]"
+      loading="{{processing}}"
+      on-error="ajaxError"
+      on-response="_handleTeamDeleted"
+      debounce-duration="300"></iron-ajax>
+
+    <iron-a11y-keys keys="enter" on-keys-pressed="deleteTeam"></iron-a11y-keys>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-team-delete-window',
+
+      behaviors: [
+        StateAwareBehavior,
+        Blackfynn.AjaxBehavior,
+        Blackfynn.PatchedOverlayBehavior,
+      ],
+
+      properties: {
+        /* tracks team object */
+        team: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        /* tracks whether form is processing or not */
+        processing: {
+          type: Boolean,
+          value: false
+        },
+        /* computes api endpoint for delete */
+        deleteTeamUrl: {
+          type: String,
+          computed: '_computeDeleteUrl(state.apiUrl, state.userToken, state.activeOrganization.organization.id, team.id)'
+        },
+      },
+
+      /**
+       * Builds endpoint for team DELETE
+       * @param {String} base endpoint
+       * @param {String} user token
+       * @param {String} organization id
+       * @param {String} team id
+       */
+      _computeDeleteUrl: function(api, user, organizationId, teamId) {
+        return `${api}/organizations/${organizationId}/teams/${teamId}?api_key=${user}`;
+      },
+
+      /**
+       * executes ajax call to delete team
+       */
+      deleteTeam: function() {
+        this.set('processing', true);
+        this.$.deleteTeamAjax.generateRequest();
+      },
+
+      /**
+       * handles successful deletion of team
+       */
+      _handleTeamDeleted: function() {
+        this.fire('team-deleted', this.team.id);
+        this.set('processing', false);
+        this.$.dialog.toggle();
+        this.fire('reset-team');
+      },
+    });
+
+  </script>
+
+</dom-module>

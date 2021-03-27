@@ -1,0 +1,42 @@
+@import '../_variables.scss';
+
+.el-message {
+  background: $dark-gray;
+  border: none;
+  box-shadow: 0 0 1px rgba(0,0,0,.2), 0 0 5px rgba(0,0,0,.2);
+  color: $white-matter;
+  top: 8px;
+  width: 480px;
+  padding: 8px 16px;
+  &.with-header {
+    top: 58px;
+  }
+  &.width-auto {
+    width: auto;
+  }
+  &.el-message--success {
+    background: $success-color
+  }
+  &.el-message--error {
+    background: $error-color
+  }
+  &.el-message--message {
+    background: $info-color
+  }
+  .icon-message, .el-message__icon {
+    display: none;
+  }
+}
+.el-message__content {
+  color: $white-matter !important;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+}
+.el-message__closeBtn {
+  color: $white-matter;
+  &:hover {
+    color: $white-matter;
+    opacity: .7
+  }
+}

@@ -1,0 +1,555 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../shared/bf-dialog/bf-dialog.html">
+<link rel="import" href="../../shared/bf-input/bf-textarea.html">
+<link rel="import" href="../../shared/bf-input/bf-input.html">
+<link rel="import" href="../../shared/patched-overlay-behavior.html">
+<link rel="import" href="../../../../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../shared/unique-name-behavior.html">
+<link rel="import" href="./bf-dataset-xhr.html">
+<link rel="import" href="../../state/bf-state-aware-behavior.html">
+
+<link rel="import" href="../../../../styles/blackfynn/main.html">
+<link rel="import" href="../../../../vendor-scripts.html">
+
+<!--
+## bf-dataset-dialog
+
+`<bf-dataset-dialog>` is the dialog that allows the user create a dataset.
+
+@element bf-dataset-dialog
+-->
+
+<dom-module id="bf-dataset-dialog">
+
+  <template>
+    <style include="blackfynn-main-styles"></style>
+    <style>
+      /* general */
+      ::content .buttons {
+        padding: 8px 8px 8px 20px !important;
+      }
+      #dialog {
+        max-width: 560px;
+        min-width: 560px;
+      }
+      .dialog-body {
+        margin: 30px 0;
+      }
+      .icon-close-panel {
+        color: var(--glial);
+        cursor: pointer;
+        height: 12px;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        width: 12px;
+        z-index: 2;
+      }
+      .controls {
+        margin: 0 0 30px;
+      }
+      h2.sans-serif {
+        font-size: 18px !important;
+        line-height: 22px !important;
+        margin: 20px 0 0 0 !important;
+      }
+      /* update */
+      .deleteWrapper {
+        box-shadow: inset 0 1px 0 0 var(--cortex);
+        font-size: 11px;
+        left: -31px;
+        padding: 0 30px 20px;
+        position: relative;
+        width: 500px;
+      }
+      .deleteWrapper a {
+        display: inline-block;
+        margin-top: 20px;
+        color: var(--synapse);
+      }
+      .deleteWrapper a:hover {
+        text-decoration: none;
+      }
+      /* delete */
+      .deleteTitle {
+        color: var(--synapse);
+        font-weight: 400 !important;
+      }
+      .dontDelete {
+        border-color: #BDBDBD;
+        color: var(--glial);
+        margin-left: 6px;
+      }
+      h4 {
+        font-weight: 500;
+        margin: 10px 0 0;
+      }
+      paper-checkbox.conditions {
+        --paper-checkbox-checked-color: var(--synapse);
+        --paper-checkbox-unchecked-color: var(--cortex);
+        --paper-checkbox-label-color: var(--glial);
+        --paper-checkbox-label-checked-color: #000;
+        --paper-checkbox-margin: 10px 0;
+      }
+      .deleteView .dialog-body {
+        margin: 30px 0;
+      }
+      .deleteView {
+        margin-bottom: 42px;
+      }
+    </style>
+
+    <bf-dialog id="dialog" opened="{{opened}}" on-iron-overlay-opened="patchOverlay">
+      <div slot="body">
+
+        <iron-pages role="main" selected="[[dialogPage]]" attr-for-selected="name">
+
+          <div class="createEditView" name="createEdit">
+            <h2 class="sans-serif">[[titleText]]</h2>
+
+            <div class="dialog-body">
+              <bf-input
+                id="inputName"
+                placeholder="A friendly name to identify your dataset."
+                label="Dataset Name"
+                value="[[_datasetName]]"
+                autofocus
+                invalid="{{invalid}}"
+                show-invalid>
+                  <div slot="helper">Dataset names must be unique</div>
+                </bf-input>
+
+              <bf-textarea
+                id="description"
+                placeholder="Add a description to help others understand what's in your dataset."
+                label="Description"
+                rows="4"
+                value="[[_datasetDescription]]"></bf-textarea>
+            </div>
+
+            <div class="controls">
+              <paper-button
+                id="submitBtn"
+                class="save"
+                noink
+                hidden$="[[processing]]"
+                on-tap="createUpdateDataset">[[buttonText]]</paper-button>
+
+              <paper-spinner-lite
+                hidden$="[[!processing]]"
+                active$="[[processing]]"></paper-spinner-lite>
+            </div>
+
+            <div class="deleteWrapper" hidden$="[[_hideDelete]]">
+              <a href="#" on-tap="promptDelete" id="deleteLink">Delete this dataset.</a> Dataset will be removed for all users within your organization.
+            </div>
+          </div>
+
+          <div class="deleteView" name="delete">
+            <h2 class="sans-serif deleteTitle">Delete [[_datasetName]] Dataset</h2>
+            <h4>Warning: This cannot be undone.</h4>
+
+            <div class="dialog-body">
+              <paper-checkbox class="conditions" on-change="_validateConditions" noink>
+                All data in this dataset will be removed from Blackfynn
+              </paper-checkbox>
+              <paper-checkbox class="conditions" on-change="_validateConditions" noink>
+                Shared data will become inaccessible for all users
+              </paper-checkbox>
+            </div>
+
+            <div slot="controls">
+              <paper-button
+                id="deleteBtn"
+                class="delete round"
+                noink
+                hidden$="[[processing]]"
+                on-tap="deleteDataset"
+                disabled$="[[isDeleteDisabled]]">Delete Dataset</paper-button>
+
+              <paper-button
+                dialog-dismiss
+                class="dontDelete"
+                noink
+                hidden$="[[processing]]">Don't delete</paper-button>
+
+              <paper-spinner-lite
+                hidden$="[[!processing]]"
+                active$="[[processing]]"></paper-spinner-lite>
+            </div>
+          </div>
+        </iron-pages>
+
+      </div>
+    </bf-dialog>
+
+    <bf-dataset-xhr
+      id="createUpdateDatasetAjax"
+      method="[[_setMethod]]"
+      headers="[[headers]]"
+      url="[[_createDatasetUrl]]"></bf-dataset-xhr>
+
+    <bf-dataset-xhr
+      id="deleteDatasetAjax"
+      method="DELETE"
+      headers="[[headers]]"
+      url="[[_createDatasetUrl]]"></bf-dataset-xhr>
+
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'bf-dataset-dialog',
+
+      behaviors: [
+        Blackfynn.PatchedOverlayBehavior,
+        Blackfynn.UniqueNameBehavior,
+        StateAwareBehavior
+      ],
+
+      properties: {
+        /**
+         * list of packages
+         */
+        packages: {
+          type: Object,
+          value: function() {
+            return [];
+          },
+          notify: true
+        },
+        /**
+         * key name is invalid
+         */
+        invalid: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Currently selected data package
+         */
+        curPackage: {
+          type: Object,
+          value: function() {
+            return {};
+          },
+          notify: true
+        },
+        /**
+         * Tracks dialog open/closed status
+         */
+        opened: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * Endpoint URL for creating or editing a dataset
+         */
+        _createDatasetUrl: {
+          type: String,
+          computed: '_computeDatasetUrl(state.apiUrl, state.userToken, curPackage)'
+        },
+        /**
+         * Method for creating or editing a dataset
+         */
+        _setMethod: {
+          type: String,
+          computed: '_computeMethod(curPackage)'
+        },
+        /**
+         * Boolean flag to indicate when XHR calls are being made
+         */
+        processing: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * Target for keyboard functionality
+         */
+        keyTarget: {
+          type: Object,
+          value: function() {
+            return this.$.inputName;
+          }
+        },
+        /**
+         * Title for modal
+         */
+        titleText: {
+          type: Object,
+          computed: '_computeTitleText(curPackage)'
+        },
+        /**
+         * Text for submit button
+         */
+        buttonText: {
+          type: Object,
+          computed: '_computeButtonText(curPackage)'
+        },
+        /**
+         * Name of dataset package
+         */
+        _datasetName: {
+          type: String,
+          computed: '_computeName(curPackage)',
+        },
+        /**
+         * Description of dataset package
+         */
+        _datasetDescription: {
+          type: String,
+          computed: '_computeDescription(curPackage)',
+        },
+        /**
+         * Track whether or not to display delete option
+         */
+        _hideDelete: {
+          type: Boolean,
+          computed: '_computeHideDelete(curPackage)'
+        },
+        /**
+         * Track dataset dialog view
+         */
+        dialogPage: {
+          type: String,
+          value: 'createEdit'
+        },
+        /**
+         * Tracks whether the delete button is disabled
+         */
+        isDeleteDisabled: {
+          type: Boolean,
+          value: true
+        },
+
+      },
+
+      listeners: {
+        'keydown': '_captureEnter',
+        'dialog.iron-overlay-closed': '_onClosed'
+      },
+
+      /**
+       * Captures keydown key code for Enter to save dataset description
+       * @param {Object} Event object
+       */
+      _captureEnter: function(e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          this.createUpdateDataset();
+          e.target.blur();
+        }
+      },
+
+      /**
+       * Computes the description of the dataset
+       * @param {Object} Current dataset package
+       * @returns {String}
+       */
+      _computeDescription: function(curPackage) {
+        return curPackage && curPackage.description ? curPackage.description : '';
+      },
+
+      /**
+       * Computes the name of the dataset
+       * @param {Object} Current dataset package
+       * @returns {String}
+       */
+      _computeName: function(curPackage) {
+        return curPackage && curPackage.name ? curPackage.name : '';
+      },
+
+      /**
+       * Computes whether or not to display delete option
+       * @param {Object} Current dataset package
+       * @returns {String}
+       */
+      _computeHideDelete: function(curPackage) {
+        return !curPackage || !curPackage.name;
+      },
+
+      /**
+       * Computes the submit button text based on the existence of a dataset id
+       * @param {Number} Dataset id
+       * @returns {String}
+       */
+      _computeTitleText: function(curPackage) {
+        return curPackage && curPackage.id ? 'Dataset Settings' : 'New Dataset';
+      },
+
+      /**
+       * Computes the submit button text based on the existence of a dataset id
+       * @param {Number} Dataset id
+       * @returns {String}
+       */
+      _computeButtonText: function(curPackage) {
+        return curPackage && curPackage.id ? 'Save Changes' : 'Create Dataset';
+      },
+
+      /**
+       * Computes the XHR url based on the existence of a dataset id
+       * @param {String} API base url
+       * @param {String} User token
+       * @param {Number} Dataset id
+       * @returns {String}
+       */
+      _computeDatasetUrl: function(api, user, curPackage) {
+        if (!user) {
+          return;
+        }
+        const id = curPackage && curPackage.id ? `/${curPackage.id}` : '';
+        return `${api}/datasets${id}?api_key=${user}`;
+      },
+
+      /**
+       * Computes the XHR method based on the existence of a dataset id
+       * @param {Number} Dataset id
+       * @returns {String}
+       */
+      _computeMethod: function(curPackage) {
+        return curPackage && curPackage.id ? 'PUT' : 'POST';
+      },
+
+      /**
+       * Handles XHR errors for creating and updating datasets
+       * @param {Object} Event object
+       * @param {Object} Promise response object
+       */
+      ajaxError: function(detail) {
+        // stop processing
+        this.set('processing', false);
+        // dispatch an event to handle error
+        this.fire('ajaxError', { status: detail.request.status });
+      },
+
+      /**
+       * Callback to reset the dataset name input field value
+       */
+      _onClosed: function() {
+        const name = R.propOr('', 'name')(this.curPackage);
+        const description = R.propOr('', 'description')(this.curPackage);
+        this.$.inputName.value = name;
+        this.$.description.value = description;
+        this.resetDialog();
+      },
+
+      /**
+       * Executes the XHR call to either update or create a dataset
+       */
+      createUpdateDataset: function() {
+        const name = this.keyTarget.value;
+        const ajax = this.$.createUpdateDatasetAjax;
+
+        // Don't do anything if the name is empty
+        if(!Boolean(name) || !ajax.url) {
+          return;
+        }
+
+        // Check for unique key name
+        const isUnique = this.checkUniqueName(this.packages, ['content', 'name'], name, '');
+        if (isUnique === false && ajax.method === 'POST') {
+          return this.set('invalid', true);
+        }
+
+        this.set('invalid', false);
+        this.set('processing', true);
+
+        // Set the request's body
+        ajax.body = {
+          name,
+          description: this.$.description.value
+        }
+
+        // Generate and handle XHR request
+        ajax
+          .generateRequest()
+          .completes
+          .then(this._handleCreateUpdateDataset.bind(this))
+          .catch(this.ajaxError.bind(this));
+      },
+
+      /**
+       * Displays data set content
+       * @param {Object} Promise response object
+       */
+      _handleCreateUpdateDataset: function(detail) {
+        this.set('processing', false);
+
+        // if curPackage has an id, we are editing
+        if (this.curPackage.id) {
+          this.fire('reload-dataset', detail.response);
+        } else {
+          this.fire('add-dataset', { item: detail.response });
+        }
+
+        this.fire('update-cur-package', detail.response);
+
+        this.set('opened', false);
+      },
+
+      /**
+       * Enables/Disables Delete button
+       */
+      _validateConditions: function() {
+        const checkboxes = Polymer.dom(this.root).querySelectorAll('paper-checkbox');
+        const countChecks = checkboxes.filter(box => box.checked);
+        const isDisabled = countChecks.length !== checkboxes.length;
+        this.set('isDeleteDisabled', isDisabled);
+      },
+
+      /**
+       * Switch iron-pages view
+       */
+      promptDelete: function() {
+        this.set('dialogPage', 'delete');
+      },
+
+      /**
+       * Call bf-dataset-xhr to delete dataset
+       */
+      deleteDataset: function() {
+        const deleteAjax = this.$.deleteDatasetAjax;
+        if (!deleteAjax.url) {
+          return;
+        }
+        deleteAjax
+          .generateRequest()
+          .completes
+          .then(this._handleDeleteDataset.bind(this))
+          .catch(this.ajaxError.bind(this));
+      },
+
+      /**
+       * Handle delete dataset success
+       */
+      _handleDeleteDataset: function() {
+        this.fire('hide-info-panel');
+        this.fire('remove-dataset', this.curPackage.id);
+
+        this.resetDialog();
+      },
+
+      /**
+       * Reset dialog
+       */
+      resetDialog: function() {
+        // reset windows to defaults
+        this.set('processing', false);
+        this.set('opened', false);
+        this.set('dialogPage', 'createEdit');
+        this.set('isDeleteDisabled', true);
+        // uncheck checkboxes
+        const checkboxes = Polymer.dom(this.root).querySelectorAll('paper-checkbox');
+        checkboxes.forEach(box => box.removeAttribute('checked'));
+      },
+
+    });
+
+  </script>
+</dom-module>

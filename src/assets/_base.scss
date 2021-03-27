@@ -1,0 +1,171 @@
+@import './_variables.scss';
+@import './_spacing';
+
+h1 {
+  color: #000;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  margin: 0 0 32px;
+}
+h2 {
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 16px;
+  margin: 0 0 16px
+}
+
+a {
+  color: $app-primary-color;
+  text-decoration: none;
+  &:hover, &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
+  &.disabled {
+    cursor: default;
+    opacity: .6;
+    &:hover, &:focus {
+      text-decoration: none;
+    }
+  }
+}
+a, button {
+  &.grey-link {
+    color: $glial;
+    &a {
+      text-decoration: underline;
+    }
+    &:hover, &:focus {
+      color: $app-primary-color;
+    }
+  }
+}
+hr {
+  border: none;
+  border-top: 1px solid $cortex;
+  margin: 24px 0;
+}
+p {
+  margin: 0 0 8px;
+}
+strong {
+  font-weight: 600;
+}
+.align-right {
+  text-align: right
+}
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: inherit;
+  outline: none;
+  padding: 0;
+  &[disabled] {
+    cursor: default;
+    opacity: .6;
+  }
+  &.linked {
+    color: $app-primary-color;
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
+}
+.button-icon {
+  align-items: center;
+  border-radius: 3px;
+  box-sizing: border-box;
+  display: inline-flex;
+  cursor: pointer;
+  height: 36px;
+  justify-content: center;
+  padding: 8px;
+  width: 36px;
+  &:hover, &:focus {
+    background: $cortex;
+    color: $app-primary-color;
+  }
+  &.small {
+    height: 32px;
+    padding: 2px;
+    width: 32px;
+  }
+}
+
+ul.unstyled {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.dot-list {
+  display: flex;
+  list-style: none;
+  margin: 5px 0 0 0;
+  padding: 0;
+  li {
+    display: inline;
+    &:not(:first-child) {
+      margin-left: 5px;
+    }
+    &:not(:first-child):before {
+      content: '\2022';
+      color: $myelin;
+      display: inline-block;
+      margin-right: 5px;
+    }
+  }
+}
+
+.icon-pencil .cls-1, .icon-center .cls-1 {
+  fill: none
+}
+
+.icon-orcid .logo {
+  fill: #fff
+}
+
+.vue-tooltip.tooltip-capitalize {
+  text-transform: capitalize;
+}
+
+.vue-tooltip.tooltip-uppercase {
+  text-transform: uppercase;
+}
+
+.vue-tooltip.tooltip-navigation {
+  background-color: rgba(7,21,64,0.85);
+  border-radius: 3px;
+  box-shadow: none;
+  font-size: 10px;
+
+  .tooltip-arrow {
+    display: none;
+  }
+}
+
+#atlwdg-trigger {
+  display: none;
+}
+
+.required {
+  color: $synapse;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+@font-face {
+  font-family: 'SharpSans';
+  src: url('../../static/fonts/SharpSansDispNo1-Bold.woff2') format('woff2'),
+       url('../../static/fonts/SharpSansDispNo1-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+.sharp-sans-font {
+  font-family: 'SharpSans', $system-font;
+  font-weight: 700;
+}
