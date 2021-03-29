@@ -89,7 +89,7 @@ export default {
       )(this.datasetSearchParams)
 
       return this.userToken
-        ? `${this.config.apiUrl}/datasets/paginated?api_key=${params}&includeBannerUrl=true`
+        ? `${this.config.apiUrl}/datasets/paginated?${params}&includeBannerUrl=true`
         : ''
     },
 
