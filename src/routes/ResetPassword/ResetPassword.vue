@@ -76,6 +76,14 @@
             :rules="passwordRules"
             @submit.native.prevent="onPasswordFormSubmit"
           >
+           <el-form-item class="code" prop="code">
+              <el-input
+                v-model="passwordForm.code"
+                type="number"
+                placeholder="Verification Code"
+                autofocus
+              />
+            </el-form-item>
             <el-form-item
               class="password"
               prop="password"
@@ -123,6 +131,8 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
+import Amplify from '@aws-amplify/core'
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import BfFooter from '@/components/shared/bf-footer/BfFooter.vue'
@@ -131,6 +141,7 @@ import AutoFocus from '@/mixins/auto-focus'
 import Request from '@/mixins/request'
 import PasswordValidator from '@/mixins/password-validator/index'
 import EventBus from '@/utils/event-bus'
+import AWSConfig from '@/utils/aws-exports.js'
 
 export default {
   name: 'ResetPassword',
@@ -178,7 +189,8 @@ export default {
         ]
       },
       passwordForm: {
-        password: ''
+        password: '',
+        code: ''
       },
       passwordRules: {
         password: [
@@ -187,7 +199,8 @@ export default {
       },
       isSendingEmail: false,
       isResettingPassword: false,
-      isPasswordFormValid: false
+      isPasswordFormValid: false,
+      tempEmail: ''
     }
   },
 
@@ -235,6 +248,7 @@ export default {
      * @param {Object} e
      */
     onEmailFormSubmit: function(e) {
+      Amplify.configure(AWSConfig)
       this.$refs.emailForm.validate(valid => {
         if (!valid) {
           return
@@ -242,11 +256,9 @@ export default {
 
         this.isSendingEmail = true
 
-        this.sendXhr(this.resetPasswordEmailUrl, {
-          method: 'POST'
-        })
-        .then(this.onEmailFormSuccess.bind(this))
-        .catch(this.handleXhrError.bind(this))
+       Auth.forgotPassword(this.emailForm.email)
+       .then(this.onEmailFormSuccess.bind(this))
+       .catch(this.handleXhrError.bind(this))
       })
     },
 
@@ -264,6 +276,7 @@ export default {
      * @param {Object} e
      */
     onPasswordFormSubmit: function(e) {
+      Amplify.configure(AWSConfig)
       this.$refs.passwordForm.validate(valid => {
         if (!valid) {
           return
@@ -272,22 +285,26 @@ export default {
         this.isResettingPassword = true
 
         const url = this.resetPasswordUrl
-        const token = this.resetToken
+        const token = this.passwordForm.code
         const password = this.passwordForm.password
 
         if (!url || !token) {
           return
         }
 
-        this.sendXhr(url, {
-          method: 'POST',
-          body: {
-            resetToken: token,
-            newPassword: password
-          }
-        })
-        .then(this.onPasswordFormSuccess.bind(this))
-        .catch(this.handleXhrError.bind(this))
+      // Collect confirmation code and new password, then
+      Auth.forgotPasswordSubmit(this.tempEmail, token, password)
+        .then(data => console.log('success ', data))
+        .catch(err => console.log(err));
+        // this.sendXhr(url, {
+        //   method: 'POST',
+        //   body: {
+        //     resetToken: token,
+        //     newPassword: password
+        //   }
+        // })
+        // .then(this.onPasswordFormSuccess.bind(this))
+        // .catch(this.handleXhrError.bind(this))
       })
     },
 

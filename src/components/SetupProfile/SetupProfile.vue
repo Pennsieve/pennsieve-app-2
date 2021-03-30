@@ -108,12 +108,16 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
+import Amplify from '@aws-amplify/core'
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import PasswordValidator from '@/mixins/password-validator'
 
 import EventBus from '@/utils/event-bus'
 import Request from '@/mixins/request'
+
+import AWSConfig from '@/utils/aws-exports.js'
 
 export default {
   name: 'SetupProfile',
@@ -234,18 +238,28 @@ export default {
      * API Request to create a new user
      */
     setupProfile: function() {
-      this.sendXhr(this.createUserUrl, {
-        method: 'POST',
-        body: {
-          lastName: this.profileForm.lastName,
-          firstName: this.profileForm.firstName,
-          token: this.setupProfileToken,
-          title: this.profileForm.jobTitle,
-          password: this.profileForm.password
+      Amplify.configure(AWSConfig)
+      Auth.completeNewPassword(
+        this.$route.params.user,
+        this.profileForm.password,
+        {
+          email: this.$route.params.email
         }
+        ).then(user => {
+          // at this time the user is logged in if no MFA required
+           this.sendXhr(this.createUserUrl, {
+           method: 'POST',
+           body: {
+              lastName: this.profileForm.lastName,
+              firstName: this.profileForm.firstName,
+              token: user.signInUserSession.accessToken.jwtToken,
+              title: this.profileForm.jobTitle,
+              password: this.profileForm.password
+           }
     })
     .then(this.handleCreateUserSuccess.bind(this))
     .catch(this.handleFailedUserCreation.bind(this))
+    }).catch(this.handleFailedUserCreation.bind(this));
     },
 
     /**
