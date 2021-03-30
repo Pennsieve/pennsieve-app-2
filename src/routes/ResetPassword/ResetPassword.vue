@@ -155,7 +155,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { propOr } from 'ramda'
+import { pathOr, propOr } from 'ramda'
 import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
@@ -348,11 +348,7 @@ export default {
       // Collect confirmation code and new password, then
       Auth.forgotPasswordSubmit(email, code, password)
         .then(() => {
-          EventBus.$emit('toast', {
-            type: 'success',
-            msg: 'Password successfully reset'
-          })
-          this.$router.push({name: 'home'})
+          this.loginUser()
         })
         .catch(error => {
           this.errorMsg = error.message
@@ -361,6 +357,26 @@ export default {
           this.isResettingPassword = false
         })
       })
+    },
+
+    /**
+     * Login the user after successfully resetting their password
+     * On failure, take the user back to the login page
+     */
+    loginUser: async function() {
+      try {
+        const { email, password } = this.passwordForm
+        const user = await Auth.signIn(email, password)
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+        const userAttributes = propOr({}, 'attributes', user)
+        EventBus.$emit('login', { token, userAttributes })
+      } catch (error) {
+        EventBus.$emit('toast', {
+          type: 'success',
+          msg: 'Password successfully reset'
+        })
+        this.$router.push({name: 'home'})
+      }
     }
   }
 }
