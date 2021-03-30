@@ -39,10 +39,9 @@
     "generate-files-json": "./src/supported-files/index.js"
   },
   "dependencies": {
-    "@aws-amplify/auth": "^3.4.29",
-    "@aws-amplify/core": "^3.8.21",
     "animejs": "^2.2.0",
     "async-validator": "^1.8.2",
+    "aws-amplify": "^3.3.26",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "billboard.js": "1.2.0",
     "blueimp-md5": "^2.10.0",
