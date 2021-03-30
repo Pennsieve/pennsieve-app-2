@@ -108,15 +108,13 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
-import Amplify, { Auth } from 'aws-amplify';
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import PasswordValidator from '@/mixins/password-validator'
 
 import EventBus from '@/utils/event-bus'
 import Request from '@/mixins/request'
-
-import AWSConfig from '@/utils/aws-exports.js'
 
 export default {
   name: 'SetupProfile',
@@ -237,7 +235,6 @@ export default {
      * API Request to create a new user
      */
     setupProfile: function() {
-      Amplify.configure(AWSConfig)
       Auth.completeNewPassword(
         this.$route.params.user,
         this.profileForm.password,
