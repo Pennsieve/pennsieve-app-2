@@ -221,7 +221,7 @@ export default Vue.component('bf-login', {
     /**
      * Makes XHR call to login
      */
-    async sendLoginRequest: function() {
+    async sendLoginRequest() {
       this.isLoggingIn = true
        try {
         Amplify.configure(AWSConfig)
