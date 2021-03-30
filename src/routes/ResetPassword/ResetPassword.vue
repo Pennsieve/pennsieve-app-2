@@ -156,7 +156,6 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
-import Amplify from '@aws-amplify/core'
 import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
@@ -166,7 +165,6 @@ import AutoFocus from '@/mixins/auto-focus'
 import Request from '@/mixins/request'
 import PasswordValidator from '@/mixins/password-validator/index'
 import EventBus from '@/utils/event-bus'
-import AWSConfig from '@/utils/aws-exports.js'
 
 export default {
   name: 'ResetPassword',
@@ -300,7 +298,6 @@ export default {
      * @param {Object} e
      */
     onEmailFormSubmit: function(e) {
-      Amplify.configure(AWSConfig)
       this.$refs.emailForm.validate(valid => {
         if (!valid) {
           return
@@ -340,7 +337,6 @@ export default {
      * @param {Object} e
      */
     onPasswordFormSubmit: function(e) {
-      Amplify.configure(AWSConfig)
       this.$refs.passwordForm.validate(valid => {
         if (!valid) {
           return
