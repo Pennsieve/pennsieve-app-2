@@ -1,4 +1,6 @@
 import { mapGetters, mapActions, mapState } from 'vuex'
+import Auth from '@aws-amplify/auth'
+
 import EventBus from '../../utils/event-bus'
 import Request from '../request'
 import UserRoles from '../user-roles'
@@ -383,13 +385,13 @@ export default {
      * Handles logout
      * @param {Object} payload
      */
-    onLogout: function(payload) {
-      const token = Cookies.get('user_token')
-      const url = `${this.config.apiUrl}/account/logout?api_key=${token}`
-
-      this.sendXhr(url, { method: 'POST' })
-        .then(this.handleLogout.bind(this, payload))
-        .catch(this.handleXhrError.bind(this))
+    onLogout: async function(payload) {
+      try {
+        await Auth.signOut()
+        this.handleLogout(payload)
+      } catch (error) {
+        this.handleXhrError()
+      }
     },
     /**
      * Handles switch-organization event
