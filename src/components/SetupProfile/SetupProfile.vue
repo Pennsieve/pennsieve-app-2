@@ -108,8 +108,7 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
-import Amplify from '@aws-amplify/core'
-import Auth from '@aws-amplify/auth'
+import Amplify, { Auth } from 'aws-amplify';
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import PasswordValidator from '@/mixins/password-validator'
