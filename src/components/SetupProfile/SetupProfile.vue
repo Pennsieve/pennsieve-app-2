@@ -249,6 +249,9 @@ export default {
           // at this time the user is logged in if no MFA required
            this.sendXhr(this.createUserUrl, {
            method: 'POST',
+           header: {
+            'Authorization': `bearer ${user.signInUserSession.accessToken.jwtToken}`
+          },
            body: {
               lastName: this.profileForm.lastName,
               firstName: this.profileForm.firstName,
