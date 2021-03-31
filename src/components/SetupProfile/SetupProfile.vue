@@ -108,6 +108,7 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import PasswordValidator from '@/mixins/password-validator'
@@ -234,18 +235,30 @@ export default {
      * API Request to create a new user
      */
     setupProfile: function() {
-      this.sendXhr(this.createUserUrl, {
-        method: 'POST',
-        body: {
-          lastName: this.profileForm.lastName,
-          firstName: this.profileForm.firstName,
-          token: this.setupProfileToken,
-          title: this.profileForm.jobTitle,
-          password: this.profileForm.password
+      Auth.completeNewPassword(
+        this.$route.params.user,
+        this.profileForm.password,
+        {
+          email: this.$route.params.email
         }
+        ).then(user => {
+          // at this time the user is logged in if no MFA required
+           this.sendXhr(this.createUserUrl, {
+           method: 'POST',
+           header: {
+            'Authorization': `bearer ${user.signInUserSession.accessToken.jwtToken}`
+          },
+           body: {
+              lastName: this.profileForm.lastName,
+              firstName: this.profileForm.firstName,
+              token: user.signInUserSession.accessToken.jwtToken,
+              title: this.profileForm.jobTitle,
+              password: this.profileForm.password
+           }
     })
     .then(this.handleCreateUserSuccess.bind(this))
     .catch(this.handleFailedUserCreation.bind(this))
+    }).catch(this.handleFailedUserCreation.bind(this));
     },
 
     /**

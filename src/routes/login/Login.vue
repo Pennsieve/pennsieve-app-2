@@ -71,7 +71,7 @@
             </a>.
           </p>
         </el-form>
-        <!-- two factor form -->
+        <!-- two factor form --->
         <el-form
           v-if="showToken"
           ref="twoFactorForm"
@@ -116,6 +116,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { propOr, pathOr } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '../../components/shared/bf-button/BfButton.vue'
 import A11yKeys from '../../components/shared/a11y-keys/A11yKeys.vue'
@@ -124,6 +125,7 @@ import BfFooter from '../../components/shared/bf-footer/BfFooter.vue'
 import EventBus from '../../utils/event-bus'
 import AutoFocus from '../../mixins/auto-focus'
 import Request from '../../mixins/request'
+
 
 export default Vue.component('bf-login', {
   components: {
@@ -217,44 +219,40 @@ export default Vue.component('bf-login', {
     /**
      * Makes XHR call to login
      */
-    sendLoginRequest: function() {
+    async sendLoginRequest() {
       this.isLoggingIn = true
-      this.sendXhr(this.loginUrl, {
-        method: 'POST',
-        body: {
-          email: this.loginForm.email,
-          password: this.loginForm.password
+       try {
+         const user = await Auth.signIn(this.loginForm.email, this.loginForm.password)
+         if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
+          this.$router.push({
+            name: 'setup-profile',
+            params: {
+              user: user,
+              email: this.loginForm.email
+            }
+        })
+        } else {
+          this.handleLoginSuccess(user)
         }
-      })
-      .then(this.handleLoginSuccess.bind(this))
-      .catch(_ => {
+        } catch (error) {
         this.isLoggingIn = false
         EventBus.$emit('toast', {
           detail: {
             msg: `There was an error with your login attempt. Please try again.`
           }
         })
-      })
+        }
     },
 
     /**
      * Handles successful login response
      * @param {Object} response
      */
-    handleLoginSuccess: function(response) {
-      const token = propOr('', 'sessionToken', response)
-      const profile = propOr({}, 'profile', response)
-
-      if (Object.keys(profile).length) {
-        EventBus.$emit('login', { token, profile })
-      } else {
-        this.showToken = true
-        this.tempSessionToken = token
-        this.twoFactorForm.token = ''
-
-        this.$nextTick(() => {
-          this.$refs.twoFactor.focus()
-        })
+     handleLoginSuccess: function(user) {
+      const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+      const userAttributes = propOr({}, 'attributes', user)
+      if (userAttributes) {
+        EventBus.$emit('login', {token, userAttributes})
       }
     },
 
