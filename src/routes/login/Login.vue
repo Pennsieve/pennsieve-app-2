@@ -71,7 +71,7 @@
             </a>.
           </p>
         </el-form>
-        <!-- two factor form -->
+        <!-- two factor form --->
         <el-form
           v-if="showToken"
           ref="twoFactorForm"
