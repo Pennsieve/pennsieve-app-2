@@ -71,7 +71,7 @@
             </a>.
           </p>
         </el-form>
-        <!-- two factor form -->
+        <!-- two factor form --->
         <el-form
           v-if="showToken"
           ref="twoFactorForm"
@@ -116,7 +116,6 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { propOr, pathOr } from 'ramda'
-import Amplify from '@aws-amplify/core'
 import Auth from '@aws-amplify/auth'
 
 import BfButton from '../../components/shared/bf-button/BfButton.vue'
@@ -127,7 +126,6 @@ import EventBus from '../../utils/event-bus'
 import AutoFocus from '../../mixins/auto-focus'
 import Request from '../../mixins/request'
 
-import AWSConfig from '../../utils/aws-exports.js'
 
 export default Vue.component('bf-login', {
   components: {
@@ -221,10 +219,9 @@ export default Vue.component('bf-login', {
     /**
      * Makes XHR call to login
      */
-    sendLoginRequest: async function() {
+    async sendLoginRequest() {
       this.isLoggingIn = true
        try {
-        Amplify.configure(AWSConfig)
          const user = await Auth.signIn(this.loginForm.email, this.loginForm.password)
          if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
           this.$router.push({
