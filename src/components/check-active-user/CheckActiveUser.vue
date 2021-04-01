@@ -12,7 +12,7 @@ export default {
   data() {
     return {
       // interval to poll user session 5 minutes
-      interval: 10000,
+      interval: 3e5,
       // async request reference
       pingUserHandle: null
     }
