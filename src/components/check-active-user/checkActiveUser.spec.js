@@ -57,4 +57,12 @@ describe('CheckActiveUser.vue', () => {
       done()
     }, 1000)
   })
+
+  it('handleActiveUser: handles inactive user', (done) => {
+
+    EventBus.$on('logout', _ => {
+      done()
+    })
+    cmp.vm.callLogout()
+  })
 })
