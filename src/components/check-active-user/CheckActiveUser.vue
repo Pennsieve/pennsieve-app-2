@@ -1,22 +1,18 @@
 <template />
 
 <script>
-import Vue from 'vue'
-
-import Request from '../../mixins/request/index'
-import EventBus from '../../utils/event-bus'
 import { mapGetters } from 'vuex'
+import Auth from '@aws-amplify/auth'
 
+import EventBus from '@/utils/event-bus'
 
-export default Vue.component('check-active-user', {
-  mixins: [
-    Request
-  ],
+export default {
+  name: 'CheckActiveUser',
 
   data() {
     return {
       // interval to poll user session 5 minutes
-      interval: 3e5,
+      interval: 10000,
       // async request reference
       pingUserHandle: null
     }
@@ -24,24 +20,14 @@ export default Vue.component('check-active-user', {
 
   computed: {
     ...mapGetters([
-      'userToken',
-      'config'
-    ]),
-
-    /**
-     * Compute active user url
-     * @returns {String}
-     */
-    computeCheckActiveUserUrl: function() {
-      if (this.config.apiUrl && this.userToken) {
-        return `${this.config.apiUrl}/security/ping?api_key=${this.userToken}`
-      }
-    }
+      'userToken'
+    ])
   },
 
   watch: {
     /**
      * Watch for when userToken is defined
+     * @param {String} userToken
      */
     userToken: function(userToken) {
       if (userToken !== '') {
@@ -67,23 +53,16 @@ export default Vue.component('check-active-user', {
     pingUserActive: function() {
       // Send the ajax call to check if user is active every 5 minutes
       this.pingUserHandle = setTimeout(() => {
-        this.sendXhr(this.computeCheckActiveUserUrl)
-        .then(this.handleActiveUser.bind(this))
-        .catch(this.handleActiveUser.bind(this))
+        Auth.currentSession()
+          .then(() => {
+            this.pingUserActive()
+          })
+          .catch(() => {
+            this.callLogout()
+            return clearTimeout(this.pingUserHandle)
+          })
       }, this.interval)
-    },
-
-    /**
-     * Handles user session
-     * @param {Object} response
-     */
-    handleActiveUser: function(response) {
-      if (response.status >= 401) {
-        this.callLogout()
-        return clearTimeout(this.pingUserHandle)
-      }
-      this.pingUserActive()
     }
   }
-})
+}
 </script>
