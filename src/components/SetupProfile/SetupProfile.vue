@@ -234,56 +234,71 @@ export default {
     /**
      * API Request to create a new user
      */
-    setupProfile: function() {
-      Auth.completeNewPassword(
-        this.$route.params.user,
-        this.profileForm.password,
-        {
-          email: this.$route.params.email
-        }
-        ).then(user => {
-          // at this time the user is logged in if no MFA required
-           this.sendXhr(this.createUserUrl, {
-           method: 'POST',
-           header: {
-            'Authorization': `bearer ${user.signInUserSession.accessToken.jwtToken}`
+    async setupProfile() {
+      try {
+        const user = await Auth.completeNewPassword(
+          this.$route.params.user,
+          this.profileForm.password,
+          {
+            email: this.$route.params.email
+          }
+        )
+
+        this.createUser(user.signInUserSession.accessToken.jwtToken)
+      } catch (error) {
+        this.handleFailedUserCreation()
+      }
+    },
+
+    /**
+     * Create the user on Blackfynn
+     * @param {String} jwt
+     */
+    async createUser(jwt) {
+      try {
+        const user = await this.sendXhr(this.createUserUrl, {
+          method: 'POST',
+          header: {
+            'Authorization': `bearer ${jwt}`
           },
-           body: {
-              lastName: this.profileForm.lastName,
-              firstName: this.profileForm.firstName,
-              token: user.signInUserSession.accessToken.jwtToken,
-              title: this.profileForm.jobTitle,
-              password: this.profileForm.password
-           }
-    })
-    .then(this.handleCreateUserSuccess.bind(this))
-    .catch(this.handleFailedUserCreation.bind(this))
-    }).catch(this.handleFailedUserCreation.bind(this));
+          body: {
+            lastName: this.profileForm.lastName,
+            firstName: this.profileForm.firstName,
+            token: jwt,
+            title: this.profileForm.jobTitle,
+            password: this.profileForm.password
+          }
+        })
+        this.handleCreateUserSuccess(user, jwt)
+      } catch (error) {
+        this.handleFailedUserCreation()
+      }
     },
 
     /**
      * Handle successful API response to createUser
      * @param {Object} response
+     * @param {String} jwt
      *
      */
-    handleCreateUserSuccess: function(response) {
+    handleCreateUserSuccess: function(response, jwt) {
       this.isSavingProfile = false
       let loginBody = {
-        token: response.sessionId,
+        token: jwt,
         profile: response.profile,
         firstTimeSignOn: true
       }
 
-      const apiUrl = propOr('', 'apiUrl', this.config)
-      const switchOrgUrl = `${apiUrl}/user/organization/${this.activeOrganizationId}/switch?api_key=${loginBody.token}`
+      const orgId = response.orgIds[0]
+      const switchOrgUrl = `${this.config.apiUrl}/session/switch-organization?organization_id=${orgId}`
 
       this.sendXhr(switchOrgUrl, {
         method: 'PUT',
         header: {
-          'Authorization': `Bearer ${loginBody.token}`
+          'Authorization': `Bearer ${jwt}`
         }
       })
-      .then(response => {
+      .then(() => {
         EventBus.$emit('login', loginBody)
       })
       .catch(this.handleFailedUserCreation.bind(this))
