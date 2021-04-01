@@ -264,9 +264,7 @@ export default {
           body: {
             lastName: this.profileForm.lastName,
             firstName: this.profileForm.firstName,
-            token: jwt,
             title: this.profileForm.jobTitle,
-            password: this.profileForm.password
           }
         })
         this.handleCreateUserSuccess(user, jwt)
