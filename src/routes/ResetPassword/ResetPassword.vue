@@ -88,6 +88,7 @@
               prop="email"
             >
               <el-input
+                ref="passwordFormEmail"
                 v-model="passwordForm.email"
                 placeholder="Email"
               />
@@ -97,8 +98,8 @@
               prop="code"
             >
               <el-input
+                ref="passwordFormCode"
                 v-model="passwordForm.code"
-                type="number"
                 placeholder="Verification Code"
               />
             </el-form-item>
@@ -270,10 +271,6 @@ export default {
         return `${apiUrl}/account/reset`
       }
       return ''
-    },
-
-    foo: function() {
-      return encodeURI(this.$route.query.email)
     }
   },
 
@@ -286,7 +283,7 @@ export default {
     },
     '$route.query.email': {
       handler(val) {
-        this.passwordForm.email = encodeURI(val)
+        this.passwordForm.email = decodeURIComponent(val)
       },
       immediate: true
     }
