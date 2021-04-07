@@ -87,7 +87,7 @@
         </el-form-item>
       </el-form>
       <p class="agreement">
-        By clicking “Save Profile” you are agreeing to the Blackfynn
+        By clicking “Save Profile” you are agreeing to the Pennsieve
         <a
           href="https://www.blackfynn.com/terms"
           target="_blank"
@@ -251,7 +251,7 @@ export default {
     },
 
     /**
-     * Create the user on Blackfynn
+     * Create the user on Pennsieve
      * @param {String} jwt
      */
     async createUser(jwt) {

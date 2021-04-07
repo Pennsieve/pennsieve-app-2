@@ -28,7 +28,7 @@
               v-if="publishStatus === 'PUBLISH_SUCCEEDED'"
               class="publish-info mb-8"
             >
-              <!-- Published to Blackfynn Discover -->
+              <!-- Published to Pennsieve Discover -->
               <template v-if="dataset.publication.type !== PublicationType.EMBARGO">
                 <svg-icon
                   class="mr-8"

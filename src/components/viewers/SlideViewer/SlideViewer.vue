@@ -378,7 +378,7 @@
                   _originalAngle: this.slideViewer.viewport.getRotation(),
                   _originalLeft: 0,
                   _originalTop: 0,
-                  type: 'BlackfynnMeasureTool',
+                  type: 'PennsieveMeasureTool',
                 })
                 this.overlayMeasure.fabricCanvas().add(this.measureTool)
 
@@ -406,7 +406,7 @@
                   _originalAngle: this.slideViewer.viewport.getRotation(),
                   _originalLeft: pos.x + 20,
                   _originalTop: pos.y,
-                  type: 'BlackfynnMeasureText'
+                  type: 'PennsieveMeasureText'
                  })
 
                 this.overlayMeasure.fabricCanvas().add(this.measureText)

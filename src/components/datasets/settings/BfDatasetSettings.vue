@@ -146,18 +146,18 @@
         <dataset-settings-associated-publications />
 
         <hr>
-        
+
         <template>
           <!-- delete dataset -->
           <el-row>
             <el-col>
               <h2 class="delete-title">Delete Dataset</h2>
               <p>
-                Deleting a dataset removes all data from Blackfynn.
+                Deleting a dataset removes all data from Pennsieve.
                 <strong>This cannot be undone.</strong>
               </p>
               <p class="mb-20">
-                Datasets that are published to Blackfynn Discover must be removed before they can be deleted.
+                Datasets that are published to Pennsieve Discover must be removed before they can be deleted.
               </p>
               <bf-button
                 class="red"

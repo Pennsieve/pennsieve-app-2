@@ -31,7 +31,7 @@
       >
         <h2>Embargoed Access</h2>
         <p>
-          Give individuals in your organization access to embargoed data on Blackfynn Discover.
+          Give individuals in your organization access to embargoed data on Pennsieve Discover.
         </p>
         <div
           v-if="embargoedRequests.length === 0"

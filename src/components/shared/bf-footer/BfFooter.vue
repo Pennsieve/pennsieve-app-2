@@ -20,7 +20,7 @@
         </a>
       </li>
       <li class="copyrightInfo">
-        &copy; {{ copyrightYear }} Blackfynn, Inc.
+        &copy; {{ copyrightYear }} Pennsieve, Inc.
       </li>
     </ul>
   </div>

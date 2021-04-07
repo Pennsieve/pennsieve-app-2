@@ -1,5 +1,5 @@
 /*
- * Blackfynn-scalebar is a slightly modified version of the openseadragon-scalebar.js.
+ * Pennsieve-scalebar is a slightly modified version of the openseadragon-scalebar.js.
  *
  * It requires the minWidth to be set in pixels (i.e. minWidth: 100px  in Options).
  * It fixes a broken scalebar when offsetWidth is not correctly returned during initialization.
