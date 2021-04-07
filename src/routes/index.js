@@ -493,6 +493,7 @@ const routes = [
     components: {
       page: Welcome
     },
+    // /invitation/accept?email={username}&tempPassword={####}
     children: [
       {
         name: 'setup-profile',
