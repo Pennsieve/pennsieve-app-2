@@ -503,6 +503,13 @@ const routes = [
         }
       },
       {
+        name: 'invitation',
+        path: 'invitation/accept',
+        components: {
+          stage: SetupProfile
+        }
+      },
+      {
         name: 'terms-of-service',
         path: 'terms-of-service',
         components: {
