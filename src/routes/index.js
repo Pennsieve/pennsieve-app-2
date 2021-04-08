@@ -488,6 +488,22 @@ const routes = [
     props: true
   },
   {
+    name: 'invitation',
+    path: '/invitation',
+    components: {
+      page: Welcome
+    },
+    children: [
+      {
+        name: 'setup-profile',
+        path: 'accept',
+        components: {
+          stage: SetupProfile
+        }
+      }
+    ]
+  },
+  {
     name: 'welcome',
     path: '/:orgId/welcome',
     components: {
@@ -495,13 +511,6 @@ const routes = [
     },
     // /invitation/accept?email={username}&tempPassword={####}
     children: [
-      {
-        name: 'setup-profile',
-        path: 'setup-profile',
-        components: {
-          stage: SetupProfile
-        }
-      },
       {
         name: 'terms-of-service',
         path: 'terms-of-service',
