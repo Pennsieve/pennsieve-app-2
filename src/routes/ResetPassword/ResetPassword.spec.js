@@ -9,8 +9,7 @@ localVue.use(ElementUI)
 const $route = {
   path: "/password",
   query: {
-    verificationCode: "$134322",
-    email: "cameron%2Bcognito%2Buser%40blackfynn.com"
+    verificationCode: "$134322"
   },
   params: {},
   fullPath: "/password?verificationCode=%24134322&email=cameron%2Bcognito%2Buser%40blackfynn.com",
@@ -28,11 +27,6 @@ describe('ResetPassword.vue', () => {
         $route
       }
     })
-  })
-
-  it('Email is decoded and displayed in the input', () => {
-    const inputEmail = cmp.vm.$refs.passwordFormEmail
-    expect(inputEmail.value).toBe('cameron+cognito+user@blackfynn.com')
   })
 
   it('Verification code is displayed in the input', () => {

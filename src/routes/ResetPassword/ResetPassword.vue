@@ -9,7 +9,10 @@
           >
         </div>
         <!-- submit email -->
-        <div v-if="!verificationCode && !linkSent">
+        <div
+          v-if="!verificationCode && !linkSent"
+          key="emailForm"
+        >
           <h2>Reset your password.</h2>
           <p
             v-if="!hideEmail"
@@ -60,19 +63,20 @@
             {{ errorMsg }}
           </p>
         </div>
-        <!-- link sent -->
-        <div v-if="linkSent">
-          <h2>Reset link sent.</h2>
-          <p class="link-sent-text">
-            We’ve sent an email that contains a link to reset your password. Contact support if you have any issues or don’t receive an email.
-          </p>
-          <router-link :to="{ name: 'home' }">
-            <bf-button>Back to sign in</bf-button>
-          </router-link>
-        </div>
         <!-- submit new password -->
-        <div v-if="verificationCode">
-          <h2>Reset your password.</h2>
+        <div
+          v-if="verificationCode || linkSent"
+          key="resetForm"
+        >
+          <h2 v-if="linkSent">
+            Reset code sent.
+          </h2>
+          <h2 v-else>
+            Reset your password.
+          </h2>
+          <p class="link-sent-text">
+            We’ve sent an email that contains a code to reset your password. Contact support if you have any issues or don’t receive an email.
+          </p>
           <p class="password-requirements">
             We recommend that you create a password that is more than 8 characters long and contains a combination of uppercase &amp; lowercase characters,
             numbers and symbols.
@@ -280,12 +284,6 @@ export default {
         this.passwordForm.code = val
       },
       immediate: true
-    },
-    '$route.query.email': {
-      handler(val) {
-        this.passwordForm.email = decodeURIComponent(val)
-      },
-      immediate: true
     }
   },
 
@@ -326,7 +324,10 @@ export default {
     onEmailFormSuccess: function() {
       this.linkSent = true
       this.hideEmail = true
-      this.isSendingEmail = false
+
+      this.$nextTick(() => {
+        this.$refs.passwordFormEmail.focus()
+      })
     },
 
     /**
