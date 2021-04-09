@@ -122,7 +122,7 @@
                   Creating Embargoed Dataset
                 </template>
                 <template v-else>
-                  Publishing to Blackfynn Discover
+                  Publishing to Pennsieve Discover
                 </template>
               </p>
             </div>

@@ -183,7 +183,7 @@ export default {
     contributorTypeLabel: function() {
       return this.isExternal
         ? 'External Contributor'
-        : 'Blackfynn'
+        : 'Pennsieve'
     },
 
     /**

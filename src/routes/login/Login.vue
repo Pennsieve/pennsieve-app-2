@@ -55,7 +55,7 @@
             </router-link>
           </el-form-item>
           <p class="terms">
-            By signing in to Blackfynn you accept our <a
+            By signing in to Pennsieve you accept our <a
               class="grey-link"
               href="https://www.blackfynn.com/terms"
               target="_blank"

@@ -5,7 +5,7 @@
         Invite people from your team.
       </h2>
       <p class="mb-24">
-        Science is more fun with a team. Enter email addresses for people you would like to invite to Blackfynn. We’ll generate them an email to join.
+        Science is more fun with a team. Enter email addresses for people you would like to invite to Pennsieve. We’ll generate them an email to join.
       </p>
 
       <div id="inviteWrap">

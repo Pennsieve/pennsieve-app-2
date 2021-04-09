@@ -185,10 +185,10 @@ export default {
         return activeOrgTermsVersion === profileTerms
       }
 
-      // get blackfynn terms on user profile object
+      // get Pennsieve terms on user profile object
       const profileTerms = pathOr('', ['pennsieveTermsOfService', 'version'], this.profile)
 
-      // short circuit if user has never accepted blackfynn terms
+      // short circuit if user has never accepted Pennsieve terms
       if (!profileTerms) {
         return false
       }

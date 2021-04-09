@@ -143,7 +143,7 @@ export default {
     },
 
     /**
-     * Renders custom Blackfynn header
+     * Renders custom Pennsieve header
      * @param {Object}
      * @param {Object}
      * @returns {Object}

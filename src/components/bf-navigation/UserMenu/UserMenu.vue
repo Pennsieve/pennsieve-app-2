@@ -100,7 +100,7 @@
                 href="https://www.blackfynn.com/about"
                 target="_blank"
               >
-                About Blackfynn
+                About Pennsieve
               </a>
             </li>
           </ul>
@@ -182,7 +182,7 @@
       v-else
       class="user-menu"
     >
-      <a href="https://app.blackfynn.io">
+      <a href="https://app.pennsieve.io">
         <div class="person-circle">
           <svg-icon
             icon="icon-person"

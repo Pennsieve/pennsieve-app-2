@@ -123,7 +123,7 @@ export default Vue.component('bf-analytics', {
     },
 
     /**
-     * Returns the last part of the Blackfynn user id for Heap Analytics tracking.
+     * Returns the last part of the Pennsieve user id for Heap Analytics tracking.
      * This function is point-free so you just need to pass it an id such as:
      * `N:user:4edcd1d9-1b25-4860-abdf-79140d069450`
      * @param {String}

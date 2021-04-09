@@ -2,7 +2,7 @@
   <div class="owner-orcid">
     <div v-if="!datasetOwnerHasOrcidId || !hasOrcidId">
       <p class="sharing-blurb">
-        Connect your ORCIDiD to your Blackfynn account to enable publishing.
+        Connect your ORCIDiD to your Pennsieve account to enable publishing.
         <a
           href="https://help.blackfynn.com/en/articles/2673436-orcid-ids-on-the-blackfynn-platform"
           target="_blank"
@@ -22,7 +22,7 @@
     <div v-else>
       <div>
         <p class="orcid-success-text blurb">
-          Below is the ORCID associated with your Blackfynn account. <a
+          Below is the ORCID associated with your Pennsieve account. <a
             href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn"
             target="_blank"
           >

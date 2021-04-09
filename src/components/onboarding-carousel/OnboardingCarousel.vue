@@ -74,7 +74,7 @@ export default {
         {
           id: 0,
           media: '/static/images/onboarding-welcome-slide.png',
-          title: 'Welcome to Blackfynn!',
+          title: 'Welcome to Pennsieve!',
           blurb: 'The following tips will help you not only get set up in the platform, but also make the most out of your account.'
         },
         {
@@ -82,7 +82,7 @@ export default {
           media: '/static/images/onboarding-graph.png',
           title: 'Set Up Your Graph.',
           blurb:
-            'The Blackfynn metadata graph gives you a visual overview of your data as well as determines your data template.'
+            'The Pennsieve metadata graph gives you a visual overview of your data as well as determines your data template.'
         },
         {
           id: 2,

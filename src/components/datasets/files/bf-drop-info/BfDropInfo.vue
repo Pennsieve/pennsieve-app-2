@@ -15,7 +15,7 @@
           width="339"
         >
         <h2>Drag and drop files here</h2>
-        <p>We don’t recommend uploading more than 10GB through the web UI, due to browser limitations. If you’re uploading large amounts of data, please use the Blackfynn API.</p>
+        <p>We don’t recommend uploading more than 10GB through the web UI, due to browser limitations. If you’re uploading large amounts of data, please use the Pennsieve API.</p>
         <span class="circle one" />
         <span class="circle two" />
         <span class="circle three" />

@@ -38,7 +38,7 @@ export default {
 
   methods: {
     /**
-     * Calls blackfynnApp._logout()
+     * Calls PennsieveApp._logout()
      */
     callLogout: function() {
       EventBus.$emit('logout', {

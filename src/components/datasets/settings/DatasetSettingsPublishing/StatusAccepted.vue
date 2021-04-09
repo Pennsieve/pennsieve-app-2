@@ -3,7 +3,7 @@
     <div class="sharing-status mb-8">
       <bf-waiting-icon class="icon-status" />
 
-      <strong>Publishing to Blackfynn Discover</strong>
+      <strong>Publishing to Pennsieve Discover</strong>
     </div>
 
     <p class="sharing-info publishing">
