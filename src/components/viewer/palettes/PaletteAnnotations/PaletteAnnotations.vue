@@ -2,25 +2,37 @@
   <div class="palette-annotations">
     <div class="annotations-heading">
       <div class="controls">
-        <div
-          v-if="getPermission('editor')"
-          class="inner"
-          @tap="createLayer"
+        <el-tooltip
+          placement="top"
+          content="Hide all channels"
+          :popper-options="{ boundariesElement: 'window' }"
+          :open-delay="300"
         >
-          <iron-icon
-            class="annotation-control create-new-layer"
-            icon="blackfynn:add"
-          />
-          New Layer
-        </div>
+          <button @click="createLayer">
+            <svg-icon
+              name="icon-plus"
+              height="20"
+              width="20"
+            />
+            New Layer
+          </button>
+        </el-tooltip>
       </div>
-      <div class="visibility">
-        <iron-icon
-          class="annotation-control toggle-visibility"
-          :class="[ allVisible ? 'all-hidden' : '' ]"
-          icon="blackfynn:remove-red-eye"
-          @click="toggleAllGroupsVisibility"
-        />
+        <div class="visibility">
+          <el-tooltip
+          placement="top"
+          content="Hide all annotations"
+          :popper-options="{ boundariesElement: 'window' }"
+          :open-delay="300"
+        >
+          <button @click="toggleAllGroupsVisibility">
+            <svg-icon
+              name="icon-eyeball"
+              height="20"
+              width="20"
+            />
+          </button>
+        </el-tooltip>
       </div>
     </div>
 
@@ -35,11 +47,11 @@
         :border-color="layer.hexColor"
         :layer-id="layer.id"
       >
-        <bf-annotation-group
+        <annotation-group
           slot="title"
           ref="annotationGroup"
-          :hide-title="true"
-          :layer="JSON.stringify(layer)"
+          :hide-title="false"
+          :layer="layer"
           :orig-label="layer.name"
           :can-crud-annotation="getPermission('editor')"
         />
@@ -89,17 +101,19 @@ import {
   head
 } from 'ramda'
 
-import EventBus from '../../../utils/event-bus'
-import Sorter from '../../../mixins/sorter'
-import ImportHref from '../../../mixins/import-href'
+import EventBus from '../../../../utils/event-bus'
+import Sorter from '../../../../mixins/sorter'
+import ImportHref from '../../../../mixins/import-href'
 
-import Accordion from '../../shared/Accordion/Accordion.vue'
+import Accordion from '../../../shared/Accordion/Accordion.vue'
+import AnnotationGroup from './AnnotationGroup.vue'
 
 export default {
   name: 'PaletteAnnotations',
 
   components: {
-    Accordion
+    Accordion,
+    AnnotationGroup
   },
 
   mixins: [
@@ -152,10 +166,10 @@ export default {
    */
   mounted: function() {
     // bf-accordion
-    this.importHref('/web-components/src/components/blackfynn/shared/bf-accordion/bf-accordion.html')
+    // this.importHref('/web-components/src/components/blackfynn/shared/bf-accordion/bf-accordion.html')
 
     // bf-annotation-group
-    this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation-group.html')
+    // this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation-group.html')
 
     // bf-ts-annotation
     this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-ts-annotation.html')
@@ -286,7 +300,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '../../../assets/_variables.scss';
+  @import '../../../../assets/_variables.scss';
 
   .palette-annotations {
     background: #fff;

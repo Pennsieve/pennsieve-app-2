@@ -141,10 +141,11 @@
                 'config',
                 'userToken'
             ]),
-             ...mapState('viewer', [
+            ...mapState('viewer', [
                 'activeViewer',
                 'viewerChannels',
-                'viewerSidePanelOpen'
+                'viewerSidePanelOpen',
+                'viewerAnnotations'
             ]),
 
             _cpStyleLabels: function(height, nrVisCh) {
@@ -381,6 +382,19 @@
 
                     this.start = this.ts_start
                 }
+            },
+            openLayerWindow: function(payload) {
+              const layerModal = this.$refs.layerModal
+              layerModal.isCreating = payload.isCreating
+
+              if (!payload.isCreating) {
+                layerModal.layer = payload.layer
+              } else {
+                layerModal.layer = {}
+                // layerModal.setColorByIndex(this.viewerAnnotations.length % layerModal.colorOptions.length)
+              }
+
+              this.annotationLayerWindowOpen = true
             },
             openFilterWindow: function(payload) {
 

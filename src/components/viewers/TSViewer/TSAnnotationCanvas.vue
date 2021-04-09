@@ -132,8 +132,8 @@
                         color: '#18BA62',
                         description: 'Default Annotation Layer'
                     };
-                    // TODO SOMETHING ABOUT CREATING DEFAULT LAYER
-                    // this.viewer.domHost.fire('create-layer', { layer: payload, firstLayer: true })
+
+                    this.createAnnotationLayer(payload)
                 } else {
                     // get the layers from the response
                     for (let i = 0; i< resp.results.length; i++) {
@@ -629,10 +629,7 @@
                 return defaultTo({}, find(propEq('id', layerId), this.viewerAnnotations))
             },
             createAnnotationLayer: function(newLayer) {
-
-                // TODO: This needs to be set dynamically
-                const firstLayer = false
-                
+            
                 const url = `${this.config.apiUrl}/timeseries/${this.activeViewer.content.id}/layers?api_key=${this.userToken}`;
                 this.sendXhr(url, {
                     method: "POST",
@@ -652,24 +649,16 @@
                     layer.selColor = this.hexToRgbA(hexColor, 0.9)
                     layer.visible = true
 
-                    if (firstLayer) {
-                        this.$store.dispatch('viewer/createLayer', layer).then(() => {
-                        // this.setSelectedLayer(layer.id, [layer])
-                        // this.annotationChange(layer.id)
+                    this.$store.dispatch('viewer/createLayer', layer).then(() => {
+                        this.$store.dispatch('viewer/setActiveAnnotationLayer', layer).then(() => {
+                            EventBus.$emit('toast', {
+                                detail: {
+                                msg: `'${layer.name}' Layer Created`
+                                }
+                            })
                         })
-                    } else {
-                        const updatedLayers = [layer].concat(this.viewerAnnotations)
-                        // this.setSelectedLayer(layer.id, updatedLayers)
-                        // this.annotationChange(layer.id);
-
-                        EventBus.$emit('toast', {
-                            detail: {
-                            msg: `'${layer.name}' Layer Created`
-                            }
-                        })
-
-                        this.$emit('closeAnnotationLayerWindow')
-                    }
+                    })  
+                    this.$emit('closeAnnotationLayerWindow')
                     
                 })
 
