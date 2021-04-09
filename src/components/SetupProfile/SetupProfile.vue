@@ -234,7 +234,7 @@ export default {
 
     async initialLogin() {
       try {
-         this.user = await Auth.signIn(encodeURI(this.$route.query.email), this.$route.query.tempPassword)
+         this.user = await Auth.signIn(decodeURIComponent(this.$route.query.email), this.$route.query.tempPassword)
          this.setupProfile()
         } catch (error) {
           console.log('error! ', error)
