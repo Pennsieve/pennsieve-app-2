@@ -496,7 +496,7 @@ const routes = [
     children: [
       {
         name: 'setup-profile',
-        path: 'accept',
+        path: 'accept/:username/:password',
         components: {
           stage: SetupProfile
         }
@@ -509,11 +509,10 @@ const routes = [
     components: {
       page: Welcome
     },
-    // /invitation/accept?email={username}&tempPassword={####}
     children: [
       {
-        name: 'invitation',
-        path: 'invitation/accept',
+        name: 'setup-profile',
+        path: 'setup-profile',
         components: {
           stage: SetupProfile
         }

@@ -52,6 +52,7 @@ import * as svgicon from 'vue-svgicon'
 import VueInputAutowidth from 'vue-input-autowidth'
 import './assets/icons'
 
+import qs from 'qs'
 import Amplify from '@aws-amplify/core'
 import AWSConfig from '@/utils/aws-exports.js'
 Amplify.configure(AWSConfig)

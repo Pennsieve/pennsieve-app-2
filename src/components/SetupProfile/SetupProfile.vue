@@ -232,12 +232,15 @@ export default {
       })
     },
 
+    /**
+     * Initial login
+     */
     async initialLogin() {
       try {
-         this.user = await Auth.signIn(decodeURIComponent(this.$route.query.email), this.$route.query.tempPassword)
+         this.user = await Auth.signIn(this.$route.params.username, this.$route.params.password)
          this.setupProfile()
         } catch (error) {
-          console.log('error! ', error)
+          this.handleFailedUserCreation()
         }
     },
 
