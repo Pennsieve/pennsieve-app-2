@@ -6,13 +6,13 @@
   // 3rd party libraries
   // import { propOr } from 'ramda'
 
-  // Blackfynn components
+  // Pennsieve components
   // import BfPage from 'path/to/file'
 
-  // Blackfynn mixins
+  // Pennsieve mixins
   // import Request from 'path/to/mixins/request'
 
-  // Blackfynn utils
+  // Pennsieve utils
   // import EventBus from 'path/to/utils/event-bus'
 
   export default {

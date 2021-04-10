@@ -40,7 +40,7 @@
 
         <div>
           <h3 class="attribute-key">
-            Blackfynn ID
+            Pennsieve ID
           </h3>
           <p class="attribute-value">
             {{ packageId }}

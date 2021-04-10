@@ -89,7 +89,7 @@ export default {
       )(this.datasetSearchParams)
 
       return this.userToken
-        ? `${this.config.apiUrl}/datasets/paginated?api_key=${params}&includeBannerUrl=true`
+        ? `${this.config.apiUrl}/datasets/paginated?${params}&includeBannerUrl=true`
         : ''
     },
 
@@ -295,7 +295,7 @@ export default {
      */
     setPageMeta: function(activeOrg) {
       const orgName = pathOr('', ['organization', 'name'], activeOrg)
-      let pageTitle = `${orgName} | Blackfynn`
+      let pageTitle = `${orgName} | Pennsieve`
       let pageDescription = ''
 
       if (!orgName) {
@@ -338,7 +338,7 @@ export default {
     },
 
     /**
-      * Get Blackfynn Terms of Service html
+      * Get Pennsieve Terms of Service html
       * @param {String} url
       * @returns {Promise}
       */
@@ -346,7 +346,7 @@ export default {
       return fetch('/static/files/tos.html')
         .then(response => response.text())
         .then(text => {
-          // set blackfynn terms of service version
+          // set Pennsieve terms of service version
           const bfTermsOfServiceVersion = this.getBfTermsVersion(text)
           return this.setBfTermsOfServiceVersion(bfTermsOfServiceVersion)
         })

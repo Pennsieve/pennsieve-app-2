@@ -330,7 +330,7 @@ export const DiscoverPublicationStatus = Object.freeze({
 
 export const DatasetLockedMessaging = Object.freeze({
   EMBARGO_LOCKED_MESSAGE: 'This dataset is under embargo review and is temporarily read only',
-  DEFAULT_LOCKED_MESSAGE: 'This dataset is being published to Blackfynn Discover and is temporarily read-only.'
+  DEFAULT_LOCKED_MESSAGE: 'This dataset is being published to Pennsieve Discover and is temporarily read-only.'
 })
 
 export const MAX_SORTABLE_RECORD_COUNT = 100000

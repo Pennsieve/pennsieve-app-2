@@ -60,7 +60,7 @@
             class="blinded-review-heading"
           >
             <h1 v-html="$sanitize(formattedConceptTitle)" />
-            
+
           </div>
         </template>
 
@@ -396,7 +396,7 @@
               {{ fileSize }}
             </concept-instance-static-property>
 
-            <concept-instance-static-property label="Blackfynn ID">
+            <concept-instance-static-property label="Pennsieve ID">
               {{ fileId }}
             </concept-instance-static-property>
           </el-collapse-item>
@@ -464,7 +464,7 @@
             />
 
             <concept-instance-static-property
-              label="Blackfynn Id"
+              label="Pennsieve Id"
               :value="instance.id"
             />
 
@@ -562,7 +562,7 @@
                       href="http://help.blackfynn.com/blackfynn-developer-tools"
                       target="_blank"
                     >
-                      Blackfynn API
+                      Pennsieve API
                     </a>
                     .
                   </p>

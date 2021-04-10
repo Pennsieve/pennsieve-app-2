@@ -87,7 +87,7 @@
         </el-form-item>
       </el-form>
       <p class="agreement">
-        By clicking “Save Profile” you are agreeing to the Blackfynn
+        By clicking “Save Profile” you are agreeing to the Pennsieve
         <a
           href="https://www.blackfynn.com/terms"
           target="_blank"
@@ -108,6 +108,7 @@
 <script>
 import { mapState } from 'vuex'
 import { propOr } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import PasswordValidator from '@/mixins/password-validator'
@@ -233,44 +234,69 @@ export default {
     /**
      * API Request to create a new user
      */
-    setupProfile: function() {
-      this.sendXhr(this.createUserUrl, {
-        method: 'POST',
-        body: {
-          lastName: this.profileForm.lastName,
-          firstName: this.profileForm.firstName,
-          token: this.setupProfileToken,
-          title: this.profileForm.jobTitle,
-          password: this.profileForm.password
-        }
-    })
-    .then(this.handleCreateUserSuccess.bind(this))
-    .catch(this.handleFailedUserCreation.bind(this))
+    async setupProfile() {
+      try {
+        const user = await Auth.completeNewPassword(
+          this.$route.params.user,
+          this.profileForm.password,
+          {
+            email: this.$route.params.email
+          }
+        )
+
+        this.createUser(user.signInUserSession.accessToken.jwtToken)
+      } catch (error) {
+        this.handleFailedUserCreation()
+      }
+    },
+
+    /**
+     * Create the user on Pennsieve
+     * @param {String} jwt
+     */
+    async createUser(jwt) {
+      try {
+        const user = await this.sendXhr(this.createUserUrl, {
+          method: 'POST',
+          header: {
+            'Authorization': `bearer ${jwt}`
+          },
+          body: {
+            lastName: this.profileForm.lastName,
+            firstName: this.profileForm.firstName,
+            title: this.profileForm.jobTitle,
+          }
+        })
+        this.handleCreateUserSuccess(user, jwt)
+      } catch (error) {
+        this.handleFailedUserCreation()
+      }
     },
 
     /**
      * Handle successful API response to createUser
      * @param {Object} response
+     * @param {String} jwt
      *
      */
-    handleCreateUserSuccess: function(response) {
+    handleCreateUserSuccess: function(response, jwt) {
       this.isSavingProfile = false
       let loginBody = {
-        token: response.sessionId,
+        token: jwt,
         profile: response.profile,
         firstTimeSignOn: true
       }
 
-      const apiUrl = propOr('', 'apiUrl', this.config)
-      const switchOrgUrl = `${apiUrl}/user/organization/${this.activeOrganizationId}/switch?api_key=${loginBody.token}`
+      const orgId = response.orgIds[0]
+      const switchOrgUrl = `${this.config.apiUrl}/session/switch-organization?organization_id=${orgId}`
 
       this.sendXhr(switchOrgUrl, {
         method: 'PUT',
         header: {
-          'Authorization': `Bearer ${loginBody.token}`
+          'Authorization': `Bearer ${jwt}`
         }
       })
-      .then(response => {
+      .then(() => {
         EventBus.$emit('login', loginBody)
       })
       .catch(this.handleFailedUserCreation.bind(this))

@@ -41,7 +41,7 @@ import { mapActions, mapState } from 'vuex'
  * Need to check for two dialogs because of legacy components
  * still being used in favor of Element UI's dialog
  * `.v-modal`: Element Dialogs
- * `.bf-dialog.open`: Blackfynn dialog
+ * `.bf-dialog.open`: Pennsieve dialog
  * @returns {Boolean}
  */
 const checkDialogs = () => {

@@ -108,7 +108,7 @@
               Good things take time.
             </h2>
 
-            <p>This dataset is currently being published to Blackfynn Discover. To make sure everything copies properly, we’ve locked this dataset temporarily until we’re sure everything is correct.</p>
+            <p>This dataset is currently being published to Pennsieve Discover. To make sure everything copies properly, we’ve locked this dataset temporarily until we’re sure everything is correct.</p>
 
             <div class="dialog-simple-buttons">
               <bf-button @click="dialogLockedVisible = false">

@@ -20,7 +20,7 @@
         </template>
         <template v-else-if="propertyDeletionState === PROPERTY_DELETION_STATES.FAILED">
           <h3>Delete failed</h3>
-          <p>Cannot delete {{ property.displayName }}.  Please contact Blackfynn for assistance.</p>
+          <p>Cannot delete {{ property.displayName }}.  Please contact Pennsieve for assistance.</p>
         </template>
         <template v-else>
           <h3>{{ property.displayName }} is used on {{ propertyRecordUsageCount }} record{{ propertyRecordUsageCount > 1 ? 's' : '' }}</h3>
@@ -38,7 +38,7 @@
                 MAX_RECORD_COUNT_FOR_PROPERTY_DELETION }}.
             </p>
             <p>
-              Please remove the property from records manually or contact Blackfynn for help.
+              Please remove the property from records manually or contact Pennsieve for help.
             </p>
           </template>
         </template>

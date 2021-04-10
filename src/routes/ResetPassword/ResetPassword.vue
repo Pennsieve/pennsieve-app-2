@@ -9,7 +9,10 @@
           >
         </div>
         <!-- submit email -->
-        <div v-if="!resetToken && !linkSent">
+        <div
+          v-if="!verificationCode && !linkSent"
+          key="emailForm"
+        >
           <h2>Reset your password.</h2>
           <p
             v-if="!hideEmail"
@@ -52,20 +55,28 @@
               </router-link>
             </el-form-item>
           </el-form>
-        </div>
-        <!-- link sent -->
-        <div v-if="linkSent">
-          <h2>Reset link sent.</h2>
-          <p class="link-sent-text">
-            We’ve sent an email that contains a link to reset your password. Contact support if you have any issues or don’t receive an email.
+
+          <p
+            v-if="errorMsg !== ''"
+            class="mt-8 error"
+          >
+            {{ errorMsg }}
           </p>
-          <router-link :to="{ name: 'home' }">
-            <bf-button>Back to sign in</bf-button>
-          </router-link>
         </div>
         <!-- submit new password -->
-        <div v-if="resetToken">
-          <h2>Reset your password.</h2>
+        <div
+          v-if="verificationCode || linkSent"
+          key="resetForm"
+        >
+          <h2 v-if="linkSent">
+            Reset code sent.
+          </h2>
+          <h2 v-else>
+            Reset your password.
+          </h2>
+          <p class="link-sent-text">
+            We’ve sent an email that contains a code to reset your password. Contact support if you have any issues or don’t receive an email.
+          </p>
           <p class="password-requirements">
             We recommend that you create a password that is more than 8 characters long and contains a combination of uppercase &amp; lowercase characters,
             numbers and symbols.
@@ -76,6 +87,26 @@
             :rules="passwordRules"
             @submit.native.prevent="onPasswordFormSubmit"
           >
+            <el-form-item
+              class="email"
+              prop="email"
+            >
+              <el-input
+                ref="passwordFormEmail"
+                v-model="passwordForm.email"
+                placeholder="Email"
+              />
+            </el-form-item>
+            <el-form-item
+              class="code"
+              prop="code"
+            >
+              <el-input
+                ref="passwordFormCode"
+                v-model="passwordForm.code"
+                placeholder="Verification Code"
+              />
+            </el-form-item>
             <el-form-item
               class="password"
               prop="password"
@@ -112,6 +143,13 @@
                 Back to sign in page.
               </router-link>
             </el-form-item>
+
+            <p
+              v-if="errorMsg !== ''"
+              class="mt-8 error"
+            >
+              {{ errorMsg }}
+            </p>
           </el-form>
         </div>
       </div>
@@ -122,7 +160,8 @@
 
 <script>
 import { mapState } from 'vuex'
-import { propOr } from 'ramda'
+import { pathOr, propOr } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import BfFooter from '@/components/shared/bf-footer/BfFooter.vue'
@@ -178,16 +217,26 @@ export default {
         ]
       },
       passwordForm: {
-        password: ''
+        email: '',
+        password: '',
+        code: ''
       },
       passwordRules: {
+        email: [
+          { required: true, message: 'Please add your Email' }
+        ],
+        code: [
+          { required: true, message: 'Please add your verification code' }
+        ],
         password: [
           { validator: validatePassword, trigger: 'change' }
         ]
       },
       isSendingEmail: false,
       isResettingPassword: false,
-      isPasswordFormValid: false
+      isPasswordFormValid: false,
+      tempEmail: '',
+      errorMsg: ''
     }
   },
 
@@ -197,10 +246,10 @@ export default {
     ]),
 
     /**
-     * Grab resetToken from query param in route
+     * Grab verificationCode from query param in route
      */
-    resetToken: function() {
-      return this.$route.query.resetToken
+    verificationCode: function() {
+      return this.$route.query.verificationCode
     },
 
     /**
@@ -229,6 +278,15 @@ export default {
     }
   },
 
+  watch: {
+    verificationCode: {
+      handler(val) {
+        this.passwordForm.code = val
+      },
+      immediate: true
+    }
+  },
+
   methods: {
     /**
      * Send XHR to send reset password email
@@ -240,14 +298,24 @@ export default {
           return
         }
 
-        this.isSendingEmail = true
-
-        this.sendXhr(this.resetPasswordEmailUrl, {
-          method: 'POST'
-        })
-        .then(this.onEmailFormSuccess.bind(this))
-        .catch(this.handleXhrError.bind(this))
+        this.submitResetRequest()
       })
+    },
+
+    /**
+     * Submit the password reset request
+     */
+    submitResetRequest: function() {
+      this.isSendingEmail = true
+
+      Auth.forgotPassword(this.emailForm.email)
+        .then(this.onEmailFormSuccess.bind(this))
+        .catch(error => {
+          this.errorMsg = error.message
+        })
+        .finally(() => {
+          this.isSendingEmail = false
+        })
     },
 
     /**
@@ -256,7 +324,10 @@ export default {
     onEmailFormSuccess: function() {
       this.linkSent = true
       this.hideEmail = true
-      this.isSendingEmail = false
+
+      this.$nextTick(() => {
+        this.$refs.passwordFormEmail.focus()
+      })
     },
 
     /**
@@ -269,37 +340,41 @@ export default {
           return
         }
 
-        this.isResettingPassword = true
+      this.isResettingPassword = true
 
-        const url = this.resetPasswordUrl
-        const token = this.resetToken
-        const password = this.passwordForm.password
-
-        if (!url || !token) {
-          return
-        }
-
-        this.sendXhr(url, {
-          method: 'POST',
-          body: {
-            resetToken: token,
-            newPassword: password
-          }
+      const { email, code, password } = this.passwordForm
+      // Collect confirmation code and new password, then
+      Auth.forgotPasswordSubmit(email, code, password)
+        .then(() => {
+          this.loginUser()
         })
-        .then(this.onPasswordFormSuccess.bind(this))
-        .catch(this.handleXhrError.bind(this))
+        .catch(error => {
+          this.errorMsg = error.message
+        })
+        .finally(() =>  {
+          this.isResettingPassword = false
+        })
       })
     },
 
     /**
-     * Set New Password callback
-     * @param {Object} response
+     * Login the user after successfully resetting their password
+     * On failure, take the user back to the login page
      */
-    onPasswordFormSuccess: function(response) {
-      const token = response.sessionToken
-      const profile = response.profile
-
-      EventBus.$emit('login', { token, profile })
+    loginUser: async function() {
+      try {
+        const { email, password } = this.passwordForm
+        const user = await Auth.signIn(email, password)
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+        const userAttributes = propOr({}, 'attributes', user)
+        EventBus.$emit('login', { token, userAttributes })
+      } catch (error) {
+        EventBus.$emit('toast', {
+          type: 'success',
+          msg: 'Password successfully reset'
+        })
+        this.$router.push({name: 'home'})
+      }
     }
   }
 }
@@ -419,6 +494,9 @@ export default {
     .el-form-item__content {
       display: flex;
     }
+  }
+  .error {
+    color: $error-color;
   }
 }
 </style>

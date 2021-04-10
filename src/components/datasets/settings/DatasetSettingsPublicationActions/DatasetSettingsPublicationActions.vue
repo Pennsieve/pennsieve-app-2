@@ -28,7 +28,7 @@
         Request Revision
       </bf-button>
       <h3>Request Removal</h3>
-      <p>Request to remove your published dataset from Blackfynn Discover.</p>
+      <p>Request to remove your published dataset from Pennsieve Discover.</p>
       <p class="publication-blurb">
         This requires approval by the Publishing team.
       </p>

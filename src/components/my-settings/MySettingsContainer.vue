@@ -217,7 +217,7 @@
           </h2>
           <el-row v-if="!hasOrcidId">
             <p>
-              Connect your Blackfynn Profile to your ORCID. <a href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn">
+              Connect your Pennsieve Profile to your ORCID. <a href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn">
                 Learn More
               </a>
             </p>
@@ -238,7 +238,7 @@
           <el-row v-else>
             <div>
               <p class="orcid-success-text">
-                Below is the ORCID associated with your Blackfynn account. <a
+                Below is the ORCID associated with your Pennsieve account. <a
                   href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn"
                   target="_blank"
                 >

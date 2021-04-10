@@ -94,11 +94,11 @@ There are three config files located at `/web-components/src/config/`. Use this 
 
 These files will serve as the basis for the app config which is built dynamically through gulp tasks.
 
-This config is a Polymer Behavior, and is loaded by the Polymer app-shell at `/web-components/src/blackfynn-app.html`. If a variable needs to be used by a component other than `blackfynn-app`, pass it down to that shell component.
+This config is a Polymer Behavior, and is loaded by the Polymer app-shell at `/web-components/src/pennsieve-app.html`. If a variable needs to be used by a component other than `pennsieve-app`, pass it down to that shell component.
 
-For example, `blackfynn-upload` needs the API and S3 Bucket properties, and these are passed down like this:
+For example, `pennsieve-upload` needs the API and S3 Bucket properties, and these are passed down like this:
 ```
-<blackfynn-upload id="blackfynnUpload" api="[[apiUrl]]" user="[[user]]" profile="[[profile]]" bucket="[[bucket]]"></blackfynn-upload>
+<pennsieve-upload id="pennsieveUpload" api="[[apiUrl]]" user="[[user]]" profile="[[profile]]" bucket="[[bucket]]"></pennsieve-upload>
 ```
 
 ## A Note About Content Headers
