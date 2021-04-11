@@ -9,8 +9,13 @@
   "conceptsUrl": "https://api.pennsieve.io/models",
   "bucket": "https://prod-uploads-pennsieve.s3.amazonaws.com",
   "bucketName": "prod-uploads-pennsieve",
-  "googleAnalytics": "UA-86081584-2",
+  "googleAnalytics": "G-Z28G260TGJ",
   "notificationUrl": "wss://api.pennsieve.io/notifications/notification/connect",
-  "googleMapApi": "AIzaSyCI752ML0Qs32n0PJ9B3aCpeP-kKCIItTA",
-  "mapTiler": "JmJ8fYzrAU3I6IYDHE9Q"
+  "googleMapApi": "xxxxxxxxxxxxxx",
+  "mapTiler": "xxxxx",
+  "awsConfig": {
+    "region": "us-east-1",
+    "userPoolId": "us-east-1_Dzx1zcVSn",
+    "userPoolWebClientId": "6ef05ls57egbottu17s8ul804"
+  }
 }
