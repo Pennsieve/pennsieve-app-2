@@ -10,7 +10,7 @@
   "timeSeriesApi": "https://api.pennsieve.net/streaming",
   "bucket": "https://dev-uploads-pennsieve.s3.amazonaws.com",
   "bucketName": "dev-uploads-pennsieve",
-  "googleAnalytics": "UA-86081584-1",
+  "googleAnalytics": "G-EL5G51EF0J",
   "notificationUrl": "wss://api.pennsieve.net/notifications/notification/connect",
   "googleMapApi": "xxxxxxxxxxxxxx",
   "mapTiler": "xxxxx",
