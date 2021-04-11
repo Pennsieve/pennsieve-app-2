@@ -14,19 +14,18 @@ export default Vue.component('bf-analytics', {
   mounted: function() {
     // Custom event handlers
     // @TODO enable when adding Heap and Google Analytics
-    // EventBus.$on('track-page', this.trackPage.bind(this))
+    EventBus.$on('track-page', this.trackPage.bind(this))
     // EventBus.$on('track-user', this.trackUser.bind(this))
     EventBus.$on('track-event', this.trackEvent.bind(this))
     // Google analytics
-    // @TODO enable when adding Heap and Google Analytics
-    // ga('create', site.googleAnalytics, 'auto')
+    ga('create', site.googleAnalytics, 'auto')
     // Intercom
     this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
   },
 
   beforeDestroy() {
     // @TODO enable when adding Heap and Google Analytics
-    // EventBus.$off('track-page', this.trackPage.bind(this))
+    EventBus.$off('track-page', this.trackPage.bind(this))
     // EventBus.$off('track-user', this.trackUser.bind(this))
     EventBus.$off('track-event', this.trackEvent.bind(this))
   },
