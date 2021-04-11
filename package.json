@@ -39,7 +39,6 @@
     "generate-files-json": "./src/supported-files/index.js"
   },
   "dependencies": {
-    "aws-amplify": "^3.3.23",
     "animejs": "^2.2.0",
     "async-validator": "^1.8.2",
     "aws-amplify": "^3.3.26",

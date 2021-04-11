@@ -488,6 +488,22 @@ const routes = [
     props: true
   },
   {
+    name: 'invitation',
+    path: '/invitation',
+    components: {
+      page: Welcome
+    },
+    children: [
+      {
+        name: 'setup-profile',
+        path: 'accept/:username/:password',
+        components: {
+          stage: SetupProfile
+        }
+      }
+    ]
+  },
+  {
     name: 'welcome',
     path: '/:orgId/welcome',
     components: {
