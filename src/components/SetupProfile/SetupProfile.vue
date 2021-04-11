@@ -172,7 +172,8 @@ export default {
         ]
       },
       isSavingProfile: false,
-      isPasswordFormValid: false
+      isPasswordFormValid: false,
+      user: {}
     }
   },
 
@@ -227,8 +228,20 @@ export default {
         }
 
         this.isSavingProfile = true
-        this.setupProfile()
+        this.initialLogin()
       })
+    },
+
+    /**
+     * Initial login
+     */
+    async initialLogin() {
+      try {
+         this.user = await Auth.signIn(this.$route.params.username, this.$route.params.password)
+         this.setupProfile()
+        } catch (error) {
+          this.handleFailedUserCreation()
+        }
     },
 
     /**
@@ -236,15 +249,15 @@ export default {
      */
     async setupProfile() {
       try {
-        const user = await Auth.completeNewPassword(
-          this.$route.params.user,
+        const newUser = await Auth.completeNewPassword(
+          this.user,
           this.profileForm.password,
           {
-            email: this.$route.params.email
+            email: this.$route.query.email
           }
         )
 
-        this.createUser(user.signInUserSession.accessToken.jwtToken)
+        this.createUser(newUser.signInUserSession.accessToken.jwtToken)
       } catch (error) {
         this.handleFailedUserCreation()
       }
