@@ -346,13 +346,13 @@ export default Vue.component('bf-login', {
 @import '../../assets/variables.scss';
 
 .not-logged-in {
-  background: $neuron;
+  background: $purple_1;
   display: block;
 
   .login-wrapper {
-    background: $white-matter;
+    background: $white;
     box-sizing: border-box;
-    color: $glial;
+    color: $gray_4;
     max-width: 720px;
     min-height: 100vh;
     padding-bottom: 20px;
@@ -363,9 +363,9 @@ export default Vue.component('bf-login', {
   }
 
   .login-inner {
-    background: $white-matter;
+    background: $white;
     box-sizing: border-box;
-    color: $glial;
+    color: $gray_4;
     max-width: 720px;
     flex: 1;
     width: 360px;

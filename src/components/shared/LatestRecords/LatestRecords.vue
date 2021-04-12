@@ -156,7 +156,7 @@
     min-height: 100px;
   }
   .slat-info {
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     display: flex;
     justify-content: space-between;
     padding: 8px 0;

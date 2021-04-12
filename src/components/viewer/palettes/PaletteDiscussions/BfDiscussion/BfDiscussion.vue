@@ -148,7 +148,7 @@
 <style scoped lang="scss">
   @import '../../../../../assets/_variables.scss';
   .bf-discussion {
-    border-bottom: 1px solid $cortex;
+    border-bottom: 1px solid $gray_2;
     padding-top: 32px;
     &.hovering {
       background: #fff;
@@ -156,7 +156,7 @@
   }
   .annotation {
     align-items: center;
-    color: $glial;
+    color: $gray_4;
     display: flex;
     font-size: 12px;
     margin-bottom: 20px;

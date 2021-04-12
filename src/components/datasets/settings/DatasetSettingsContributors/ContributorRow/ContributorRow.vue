@@ -212,7 +212,7 @@ export default {
 
 .slat-info.contributor-row {
   align-items: center;
-  color: $myelin;
+  color: $gray_6;
   padding: 16px 0;
 }
 .contributor-info-wrap {
@@ -235,7 +235,7 @@ h3 {
   }
 }
 .icon-orcid {
-  fill: $cortex;
+  fill: $gray_2;
   &.has-orcid {
     fill: #A6CE39
   }

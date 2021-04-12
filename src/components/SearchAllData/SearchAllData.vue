@@ -582,7 +582,7 @@ h2 {
   }
 
   .el-dialog__headerbtn .el-dialog__close {
-    color: $myelin;
+    color: $gray_6;
     height: 10px;
     width: 10px;
   }
@@ -600,13 +600,13 @@ p {
   font-weight: normal;
   line-height: 16px;
   letter-spacing: 0px;
-  color: $glial;
+  color: $gray_4;
 }
 
 /deep/ h3 {
   font-size: 14px;
   font-weight: bold;
-  color: $myelin;
+  color: $gray_6;
 }
 
 .filter-actions {

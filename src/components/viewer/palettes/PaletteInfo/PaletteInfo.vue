@@ -280,7 +280,7 @@ export default {
   }
 
   .attribute-key {
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
     font-weight: 400;
     margin-bottom: 5px;
@@ -296,8 +296,8 @@ export default {
   }
 
   .properties-label {
-    color: $glial;
-    background-color: $cortex;
+    color: $gray_4;
+    background-color: $gray_2;
     font-weight: 500;
     padding: 12px 20px;
     width: 400px;
@@ -310,13 +310,13 @@ export default {
     display: grid;
     grid-template-columns: 40% 60%;
     grid-gap: 5px;
-    border-bottom: solid 1px $cortex;
+    border-bottom: solid 1px $gray_2;
   }
 
   .icon-delete {
     height: 18px;
     width: 18px;
-    color: $glial;
+    color: $gray_4;
     right: 13px;
   }
 

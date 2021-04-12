@@ -199,7 +199,7 @@ export default {
     .dataset-activity-panel-dropdown-list {
       padding-bottom: 10px;
       padding-top: 10px;
-      border-bottom: solid 1px $cortex;
+      border-bottom: solid 1px $gray_2;
 
       &:last-child {
         border-bottom: none;

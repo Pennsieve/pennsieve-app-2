@@ -190,7 +190,7 @@ export default {
 }
 
 .svg-icon {
-  color: $synapse;
+  color: $red_1;
 }
 
 .warning-wrap {
@@ -199,7 +199,7 @@ export default {
 }
 
 .warning-message {
-  color: $synapse;
+  color: $red_1;
 }
 
 .el-form-item {

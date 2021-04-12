@@ -1,10 +1,10 @@
 @import '../_variables.scss';
 
 .el-message {
-  background: $dark-gray;
+  background: $gray_6;
   border: none;
   box-shadow: 0 0 1px rgba(0,0,0,.2), 0 0 5px rgba(0,0,0,.2);
-  color: $white-matter;
+  color: $white;
   top: 8px;
   width: 480px;
   padding: 8px 16px;
@@ -28,15 +28,15 @@
   }
 }
 .el-message__content {
-  color: $white-matter !important;
+  color: $white !important;
   font-size: 13px;
   font-weight: 500;
   line-height: 16px;
 }
 .el-message__closeBtn {
-  color: $white-matter;
+  color: $white;
   &:hover {
-    color: $white-matter;
+    color: $white;
     opacity: .7
   }
 }

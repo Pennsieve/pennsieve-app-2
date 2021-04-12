@@ -750,7 +750,7 @@ p {
 }
 
 .divider {
-  background: $cortex;
+  background: $gray_2;
   height: 1px;
   margin: 19px 1px 20px 1px;
 }
@@ -791,11 +791,11 @@ p {
   flex: 1;
 
   button {
-    color: $glial;
+    color: $gray_4;
     &:hover,
     &:focus {
       cursor: pointer;
-      color: $dopamine;
+      color: $purple_1;
     }
   }
 }
@@ -877,12 +877,12 @@ p {
     flex-direction: row-reverse;
 
     button {
-      color: $glial;
+      color: $gray_4;
       margin-top: 7px;
       &:hover,
       &:focus {
         cursor: pointer;
-        color: $dopamine;
+        color: $purple_1;
       }
     }
   }

@@ -41,7 +41,7 @@
 @import '../../../assets/variables.scss';
 
 .person-icon {
-  color: $dopamine;
+  color: $purple_1;
 }
 </style>
 

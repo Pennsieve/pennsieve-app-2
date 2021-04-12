@@ -384,7 +384,7 @@ export default {
 @import '../../assets/variables.scss';
 
 .reset-password {
-  background: $neuron;
+  background: $purple_1;
   display: block;
 
   h2 {
@@ -395,9 +395,9 @@ export default {
 
 
   .reset-password-wrapper {
-    background: $white-matter;
+    background: $white;
     box-sizing: border-box;
-    color: $glial;
+    color: $gray_4;
     max-width: 720px;
     min-height: 100vh;
     padding-bottom: 20px;
@@ -408,9 +408,9 @@ export default {
   }
 
   .reset-password-inner {
-    background: $white-matter;
+    background: $white;
     box-sizing: border-box;
-    color: $glial;
+    color: $gray_4;
     max-width: 720px;
     flex: 1;
     width: 360px;

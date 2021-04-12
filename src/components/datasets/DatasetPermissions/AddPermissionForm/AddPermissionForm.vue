@@ -396,15 +396,15 @@
       padding: 8px 16px;
       &.hover, &.selected {
         cursor: pointer;
-        color: $white-matter;
-        background: $dopamine;
+        color: $white;
+        background: $purple_1;
 
         .email {
-          color: $white-matter;
+          color: $white;
         }
       }
       .email {
-        color: $myelin
+        color: $gray_6
       }
     }
   }

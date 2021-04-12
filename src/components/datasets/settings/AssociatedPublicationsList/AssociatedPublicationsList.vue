@@ -128,9 +128,9 @@ import { referenceTypeOptions } from '@/utils/constants'
         display: flex;
         flex-direction: row;
         &--error-message {
-          color: $synapse;
+          color: $red_1;
           a {
-            color: $synapse;
+            color: $red_1;
             text-decoration: underline;
           }
           .svg-icon {

@@ -305,9 +305,9 @@ import {
 }
 .search-filter-criteria-select {
   align-items: center;
-  background: rgba($dopamine, .1);
+  background: rgba($purple_1, .1);
   border-radius: 12px;
-  color: $myelin;
+  color: $gray_6;
   cursor: pointer;
   display: flex;
   letter-spacing: 0.25px;
@@ -328,7 +328,7 @@ import {
 input {
   background: none;
   border: none;
-  color: $myelin;
+  color: $gray_6;
   flex: 1;
   font-size: inherit;
   line-height: inherit;
@@ -339,7 +339,7 @@ input {
 }
 .bf-menu-item .prefix {
   :not(:active) & {
-    color: $glial;
+    color: $gray_4;
     strong {
       color: $app-primary-color;
     }

@@ -33,7 +33,7 @@ export default {
 
 .bf-tag {
   align-items: center;
-  background: $cortex;
+  background: $gray_2;
   border-radius: 4px;
   display: flex;
   justify-content: space-between;

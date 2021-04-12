@@ -192,7 +192,7 @@ export default {
 
     .axis path, .axis line {
       fill: none;
-      stroke: $cortex;
+      stroke: $gray_2;
       stroke-width: 1px;
       shape-rendering: crispEdges;
     }
@@ -208,7 +208,7 @@ export default {
 
   .horizontal-bar-chart-tooltip {
     background: #fff;
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
     border-radius: 3px;
     box-shadow: 0 2px 10px 0 rgba(0,0,0,0.15);
     display: none;

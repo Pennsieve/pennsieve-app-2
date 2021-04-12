@@ -1880,7 +1880,7 @@ export default {
 
   .empty-state-text {
     margin: 16px 0;
-    color: $glial;
+    color: $gray_4;
   }
 }
 
@@ -1901,15 +1901,15 @@ export default {
 }
 
 .source-file-table-results-count {
-  border-left: solid 1px $cortex;
-  border-right: solid 1px $cortex;
-  border-bottom: solid 1px $cortex;
+  border-left: solid 1px $gray_2;
+  border-right: solid 1px $gray_2;
+  border-bottom: solid 1px $gray_2;
   border-top: none;
   padding: 13px 0;
   padding-left: 17px;
-  background: $dendrite;
+  background: $gray_1;
   font-weight: 500;
-  color: $myelin;
+  color: $gray_6;
   font-size: 13px;
   line-height: 23px;
   margin-top: -3px;
@@ -1917,7 +1917,7 @@ export default {
 }
 
 .source-file-table-skeleton-loader {
-  border-top: solid 1px $cortex;
+  border-top: solid 1px $gray_2;
   height: 45px;
 }
 
@@ -1928,7 +1928,7 @@ export default {
 
 .source-file-table-load-more {
   cursor: pointer;
-  border-top: solid 1px $cortex;
+  border-top: solid 1px $gray_2;
   width: -webkit-fill-available;
   padding-top: 11px;
   padding-bottom: 18px;

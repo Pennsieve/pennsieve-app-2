@@ -605,7 +605,7 @@ export default {
 .drawer {
 
   .el-table {
-    border: solid 1px $cortex;
+    border: solid 1px $gray_2;
 
     tr.el-table__row {
       background: #fff !important;
@@ -648,7 +648,7 @@ export default {
   .file-row {
     color: #000;
     height: 48px;
-    border-top: solid 1px $cortex;
+    border-top: solid 1px $gray_2;
 
     &.first {
       border-top: none;

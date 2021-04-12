@@ -76,7 +76,7 @@
   }
 
   .dialog-body-content {
-    color: $glial;
+    color: $gray_4;
 	  line-height: 18px;
 	  width: 100%;
   }

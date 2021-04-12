@@ -331,13 +331,13 @@ export default {
       left: 8px;
     }
     &.el-input--prefix .el-input__inner {
-      border: 1px solid $cortex;
+      border: 1px solid $gray_2;
       padding-left: 40px;
     }
   }
   .dataset-filter-dropdown {
     align-items: center;
-    color: $dark-gray;
+    color: $gray_6;
     display: inline-flex;
     margin-left: 24px;
     font-size: inherit;
@@ -350,7 +350,7 @@ export default {
     }
   }
   .icon-sort {
-    color: $glial;
+    color: $gray_4;
     margin-left: 8px;
   }
 }
@@ -384,7 +384,7 @@ export default {
 
 .wip-item {
   .dot {
-    background-color: $dopamine;
+    background-color: $purple_1;
   }
 }
 

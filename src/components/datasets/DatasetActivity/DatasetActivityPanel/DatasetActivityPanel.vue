@@ -301,11 +301,11 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
 @import '../../../../assets/_variables.scss';
 .dataset-activity-panel {
   p {
-    color: $myelin;
+    color: $gray_6;
   }
 
   .dataset-activity-panel-item {
-    border: solid 1px $cortex;
+    border: solid 1px $gray_2;
     padding: 16px 12px;
     @media (min-width: 1025px) {
       padding: 16px 24px;
@@ -328,7 +328,7 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
           margin-left: 10px;
         }
         .disabled {
-          color: $pale-blue;
+          color: $purple_tint;
           opacity: 0.5;
           text-decoration: none;
         }
@@ -352,7 +352,7 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
         }
 
         p {
-          color: $myelin;
+          color: $gray_6;
           margin: 0 0 8px 0;
           width: 160px;
           display: flex;
@@ -364,7 +364,7 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
         }
 
         .truncate-user-tooltip {
-          color: $myelin;
+          color: $gray_6;
           font-size: 14px;
           font-weight: normal;
           line-height: 16px;
@@ -432,9 +432,9 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
   }
 }
 .label-publishing {
-  border: solid 1px $dopamine;
+  border: solid 1px $purple_1;
   border-radius: 15px;
-  background-color: $dopamine;
+  background-color: $purple_1;
   padding: 5px 13px;
   margin: 0 0 13px;
   font-size: 14px;

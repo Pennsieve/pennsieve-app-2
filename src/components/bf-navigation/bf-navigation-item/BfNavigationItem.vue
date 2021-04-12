@@ -76,7 +76,7 @@
     align-items: center;
     background: transparent;
     box-sizing: border-box;
-    color: $myelin;
+    color: $gray_6;
     display: flex;
     font-weight: 500;
     overflow: hidden;
@@ -87,49 +87,57 @@
       margin-top: 0;
     }
     &:hover, &:focus {
-      background: $axon;
+      background: $gray_1;
       outline: none;
       text-decoration: none;
-      color: $myelin;
+      color: $gray_6;
 
       .svg-icon {
-        color: $dendrite-dark;
+        color: $gray_2;
       }
     }
     &.router-link-active {
       background: transparent;
-      color: $dopamine;
+      color: $purple_1;
 
       .svg-icon {
-        color: $dopamine;
+        color: $purple_1;
       }
       &.secondary {
-      background: $pale-blue;
+      background: $purple_tint;
       border-right: 4px solid;
     }
     }
     .svg-icon {
-      color: $dendrite-dark;
+      color: $gray_2;
+    }
+    &.secondary {
+      .svg-icon {
+        color: inherit;
+      } 
+      &:hover, &:focus, &.active {
+          color: $purple_1;
+      }
     }
     .primary & {
-      color: $white-matter;
+      color: $white;
       &:hover, &:focus, &.active {
-        background: $dark-blue;
-        color: $white-matter;
+        background: $purple_3;
+        color: $white;
         .svg-icon {
-          color: $white-matter;
+          color: $white;
         }
       }
       &.router-link-active {
-        background: #FBFBFD;
-        color: $dopamine;
+        background: $gray_1;
+        color: $purple_1;
 
         .svg-icon {
-          color: $dopamine;
+          color: $purple_1;
         }
       }
       .svg-icon {
-        color: $dendrite-dark;
+        color: $gray_2;
       }
     }
     .icon-main {

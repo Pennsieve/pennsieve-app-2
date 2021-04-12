@@ -1033,14 +1033,14 @@ export default {
 
 .tooltip {
   opacity: 0;
-  color: $dopamine;
+  color: $purple_1;
   padding: 8px;
   position: absolute;
   z-index: 10;
   width: auto;
   border: 1px solid #DADADA;
   border-radius: 3px;
-  background-color: $white-matter;
+  background-color: $white;
   box-shadow: 0 2px 10px 0 rgba(0,0,0,0.15);
 }
 
@@ -1094,13 +1094,13 @@ export default {
 
 .enable-chart-message-wrapper {
 	border-radius: 12px;
-	background-color: $dopamine;
+	background-color: $purple_1;
   cursor: pointer;
   padding: 10px 18px;
 	width: auto;
 
   .enable-chart-message {
-    color: $white-matter;
+    color: $white;
     line-height: 14px;
     text-align: center;
   }

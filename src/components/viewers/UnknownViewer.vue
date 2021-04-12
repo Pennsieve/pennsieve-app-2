@@ -89,7 +89,7 @@ export default  {
   }
 
   .copy {
-    color: $glial;
+    color: $gray_4;
     margin: 0 0 20px 0;
   }
 

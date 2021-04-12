@@ -94,7 +94,7 @@
   }
 
   p {
-    color: $glial;
+    color: $gray_4;
     font-size: 14px;
     font-weight: normal;
     line-height: 18px;

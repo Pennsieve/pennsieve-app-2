@@ -205,12 +205,12 @@ export default {
     flex-direction: row-reverse;
 
     button {
-      color: $glial;
+      color: $gray_4;
       margin-top: 7px;
       &:hover,
       &:focus {
         cursor: pointer;
-        color: $dopamine;
+        color: $purple_1;
       }
     }
   }

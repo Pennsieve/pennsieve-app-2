@@ -535,7 +535,7 @@ export default {
 
 
   #create-button-icon {
-    color: $myelin;
+    color: $gray_6;
     flex-shrink: 0;
     height: 28px;
     margin: -2px;
@@ -546,7 +546,7 @@ export default {
   }
 
   #create-button {
-    color: $myelin;
+    color: $gray_6;
     display: flex;
     width: 100%;
     display: flex;

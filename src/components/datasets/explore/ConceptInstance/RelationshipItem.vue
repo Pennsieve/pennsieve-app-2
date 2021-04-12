@@ -133,7 +133,7 @@ export default {
 .relationship-item {
   display: flex;
   align-items: center;
-  border-bottom: solid 1px $cortex;
+  border-bottom: solid 1px $gray_2;
   height: 88px;
 
   .select {
