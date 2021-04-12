@@ -1,7 +1,7 @@
 @import '../_variables.scss';
 
 .el-textarea__inner, .el-input__inner, .text-disabled {
-  border: 1px solid $gray_2;
+  border: 1px solid $gray_3;
   border-radius: 3px;
   color: $gray_4;
   font-family: $system-font;
@@ -24,7 +24,7 @@
     border-color: $gray_2;
   }
   .is-disabled &, &.text-disabled {
-    background: #F9F9F9;
+    background: $gray_1;
     border-color: $gray_2 !important;
   }
   .simple & {
