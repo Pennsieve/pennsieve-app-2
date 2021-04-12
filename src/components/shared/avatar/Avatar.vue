@@ -143,7 +143,7 @@
     background: $app-primary-color;
     border-radius: 50%;
     box-sizing: border-box;
-    color: $white-matter;
+    color: $white;
     display: inline-flex;
     font-weight: 600;
     height: 32px;

@@ -104,7 +104,7 @@
     text-align: center;
     p {
       font-weight: normal;
-      color: $dark-gray;
+      color: $gray_6;
       padding: 8px 0;
     }
   }

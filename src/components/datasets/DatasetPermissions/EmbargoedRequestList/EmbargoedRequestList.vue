@@ -127,7 +127,7 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
 @import '../../../../assets/_variables.scss';
 .embargoed-request-list {
   .embargoed-request-list-item {
-    border-top: solid 1px $cortex;
+    border-top: solid 1px $gray_2;
     display: flex;
     justify-content: space-between;
     &__info {
@@ -139,7 +139,7 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
         margin-bottom: 0;
       }
       &--email {
-        color: $glial;
+        color: $gray_4;
         margin-bottom: 17px;
       }
     }
@@ -157,11 +157,11 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
       margin-right: 25px;
     }
     &:last-child {
-      border-bottom: solid 1px $cortex;
+      border-bottom: solid 1px $gray_2;
     }
   }
   .svg-icon {
-    color: $glial;
+    color: $gray_4;
   }
 }
 </style>

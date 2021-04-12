@@ -446,7 +446,7 @@ export default {
 @import '../../../../assets/_variables.scss';
 .add-contributor-dropdown {
   .el-select-group__title {
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
     font-weight: 600;
     line-height: 1;

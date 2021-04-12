@@ -390,7 +390,7 @@
 
   .bf-channel {
     background: #F7F7F7;
-    border-bottom: 1px solid $cortex;
+    border-bottom: 1px solid $gray_2;
     box-sizing: border-box;
     display: flex;
     padding: 3px 8px 3px 16px;
@@ -408,7 +408,7 @@
   }
 
   .channel-info {
-    color: $glial;
+    color: $gray_4;
     flex: 1;
   }
   .channel-controls {

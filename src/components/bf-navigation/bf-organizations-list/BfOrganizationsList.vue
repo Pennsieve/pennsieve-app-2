@@ -108,7 +108,7 @@
   @import '../../../assets/_variables.scss';
 
   .bf-organizations-list {
-    background: $dopamine;
+    background: $purple_1;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -142,7 +142,7 @@
       background: #1F53E4;
       border: none;
       border-radius: 2px;
-      color: $white-matter;
+      color: $white;
       height: 32px !important;
       padding: 0 8px;
       &::placeholder {
@@ -150,7 +150,7 @@
       }
     }
     .svg-icon {
-      color: $white-matter;
+      color: $white;
       height: 16px;
       width: 16px;
     }

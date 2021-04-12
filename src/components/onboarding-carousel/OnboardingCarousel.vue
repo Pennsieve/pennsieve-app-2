@@ -296,7 +296,7 @@ h3 {
 }
 
 .bf-carousel-divider {
-  background-color: $dopamine;
+  background-color: $purple_1;
   border-radius: 4px;
   height: 4px;
   margin: 0 auto;

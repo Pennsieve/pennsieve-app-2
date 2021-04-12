@@ -6,7 +6,7 @@
   font-family: $system-font;
   line-height: 18px;
   .icon-upload {
-    color: $dopamine;
+    color: $purple_1;
     display: inline-block;
     height: 32px;
     width: 32px;
@@ -14,13 +14,13 @@
 }
 .upload-content {
   p {
-    color: $glial;
+    color: $gray_4;
     margin: 0;
   }
   a {
-    color: $glial;
+    color: $gray_4;
     &:hover, &:focus {
-      color: $dopamine;
+      color: $purple_1;
     }
     &.contact-us {
       color: $primary-color;
@@ -59,7 +59,7 @@
   }
 }
 .uploading-info-copy {
-  background: $dopamine;
+  background: $purple_1;
   color: #fff;
   display: flex;
   flex: 1;
@@ -70,7 +70,7 @@
     color: #fff
   }
   .bf-button {
-    color: $dopamine;
+    color: $purple_1;
     margin-bottom: 24px;
     width: 100%;
   }
@@ -101,21 +101,21 @@
   overflow: hidden;
   overflow-y: scroll;
   &.overflow {
-    border-bottom: 1px solid $cortex;
-    border-top: 1px solid $cortex;
+    border-bottom: 1px solid $gray_2;
+    border-top: 1px solid $gray_2;
     &.has-warnings {
       .warning-packages-wrap {
-        border-bottom: 1px solid $cortex;
+        border-bottom: 1px solid $gray_2;
       }
       .good-packages-wrap {
-        border-top: 1px solid $cortex;
+        border-top: 1px solid $gray_2;
       }
     }
   }
 }
 .package {
   align-items: center;
-  border-top: 1px solid $cortex;
+  border-top: 1px solid $gray_2;
   display: flex;
   flex-direction: row;
   padding: 13px 10px 13px 20px;
@@ -150,7 +150,7 @@
 }
 .bf-upload-warning-wrap {
   align-items: center;
-  background: $warning;
+  background: $status_yellow;
   box-sizing: border-box;
   color: #654e0a;
   display: flex;

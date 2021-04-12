@@ -312,11 +312,11 @@ export default {
     display: flex;
     flex-direction: row;
     &--error-message {
-      color: $synapse;
+      color: $red_1;
       margin-top: -10px;
       margin-bottom: -12px;
       a {
-        color: $synapse;
+        color: $red_1;
         text-decoration: underline;
       }
       .svg-icon {

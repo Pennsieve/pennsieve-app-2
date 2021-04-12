@@ -57,7 +57,7 @@
   }
 
   body {
-    background-color: $noradrenaline;
+    background-color: $gray_1;
     color: $text-color;
     margin: 0;
     min-height: 100vh;

@@ -223,7 +223,7 @@ export default {
 @import '../../../../assets/_variables.scss';
 
 .graph-management {
-  background: $white-matter;
+  background: $white;
 
   h2 {
     font-size: 20px;

@@ -1,9 +1,9 @@
 @import '../_variables.scss';
 
 .el-textarea__inner, .el-input__inner, .text-disabled {
-  border: 1px solid $light-gray;
+  border: 1px solid $gray_2;
   border-radius: 3px;
-  color: $glial;
+  color: $gray_4;
   font-family: $system-font;
   padding: 0 16px;
   resize: none;
@@ -12,7 +12,7 @@
     display: none;
   }
   &::placeholder {
-    color: $glial;
+    color: $gray_4;
   }
   &:focus, .el-form-item.is-success &:focus {
     border-color: $app-primary-color;
@@ -21,11 +21,11 @@
     border-color: $error-color;
   }
   .el-form-item.is-success & {
-    border-color: $light-gray;
+    border-color: $gray_2;
   }
   .is-disabled &, &.text-disabled {
     background: #F9F9F9;
-    border-color: $light-gray !important;
+    border-color: $gray_2 !important;
   }
   .simple & {
     border: none;

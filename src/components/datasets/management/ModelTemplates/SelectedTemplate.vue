@@ -141,14 +141,14 @@
 
   .selected-template {
     background: #fff;
-    border: solid 1px $cortex;
+    border: solid 1px $gray_2;
     display: flex;
     margin-bottom: 16px;
     overflow: hidden;
     padding: 16px;
 
     &:hover {
-      background: $noradrenaline;
+      background: $gray_1;
       cursor: pointer;
     }
   }
@@ -184,7 +184,7 @@
   }
 
   .selected-template-copy {
-    color: $glial;
+    color: $gray_4;
     font-size: 13px;
     line-height: 16px;
     position: relative;

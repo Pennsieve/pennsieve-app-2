@@ -19,7 +19,7 @@ import SetupProfile from '../../components/SetupProfile/SetupProfile.vue'
   @import '../../assets/_variables.scss';
 
   .welcome-wrapper {
-     background: $neuron;
+     background: $purple_1;
 
      .welcome-logo {
       height: 20px;

@@ -350,7 +350,7 @@ export default {
 @import '../../../assets/variables';
 
 .member-col {
-  color: $glial;
+  color: $gray_4;
 
   &.menu {
     display: flex;

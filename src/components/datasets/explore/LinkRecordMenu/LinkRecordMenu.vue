@@ -224,7 +224,7 @@ export default {
     }
   }
   .existing-file-menu {
-    border-bottom: 1px solid $cortex;
+    border-bottom: 1px solid $gray_2;
   }
   .empty-state {
     padding: 64px 24px;

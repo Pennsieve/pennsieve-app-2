@@ -24,7 +24,7 @@
     padding: 0 16px;
   }
   .bf-menu-item, .el-dropdown-menu__item, .el-select-dropdown__item {
-    color: $myelin;
+    color: $gray_6;
     display: block;
     outline: none;
     line-height: 16px;
@@ -32,7 +32,7 @@
     text-decoration: none;
     &:not(.disabled) {
       &:hover, &:focus {
-        background: $dendrite-dark;
+        background: $gray_2;
         color: #000;
       }
       &.active, &:active, &.selected {
@@ -41,7 +41,7 @@
       }
     }
     &.disabled {
-      color: $glial;
+      color: $gray_4;
       cursor: not-allowed;
     }
     &.icon-item {
@@ -60,7 +60,7 @@
     }
   }
   hr {
-    background: $cortex;
+    background: $gray_2;
     border: none;
     height: 1px;
     margin: 0 0 8px;

@@ -65,7 +65,7 @@
           width: 24px !important;
         }
         .secondary & {
-          color: $myelin;
+          color: $gray_6;
         }
       }
     }

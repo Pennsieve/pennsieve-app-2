@@ -786,7 +786,7 @@ h3 {
   font-size: 16px;
   font-weight: normal;
   letter-spacing: 0.5px;
-  color: $myelin;
+  color: $gray_6;
 }
 
 .no-results-container {
@@ -795,7 +795,7 @@ h3 {
     font-weight: normal;
     letter-spacing: 0.44px;
     line-height: 32px;
-    color: $glial;
+    color: $gray_4;
     margin-top: -14px;
   }
 }
@@ -809,7 +809,7 @@ h3 {
     font-weight: normal;
     letter-spacing: 0px;
     line-height: 0px;
-    color: $glial;
+    color: $gray_4;
     margin-right: 11px;
     margin-top: 7px;
   }
@@ -830,7 +830,7 @@ h3 {
   align-items: center;
 
   /deep/ .el-dropdown-text-link:not(:hover, :active) {
-    color: $myelin;
+    color: $gray_6;
   }
 }
 
@@ -848,13 +848,13 @@ h3 {
   height: 32px;
   padding-top: 8px;
   font-size: 14px;
-  color: $glial;
+  color: $gray_4;
   font-weight: 500;
 }
 
 /deep/ .el-radio-button__orig-radio:checked + .el-radio-button__inner {
-  background-color: $midnight-blue;
-  border-color: $midnight-blue;
+  background-color: $purple_3;
+  border-color: $purple_3;
   color: white;
 }
 

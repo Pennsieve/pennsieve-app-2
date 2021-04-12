@@ -490,7 +490,7 @@ input,
   border: 1px solid $app-primary-color;
   border-radius: 0;
   box-sizing: border-box;
-  color: $myelin;
+  color: $gray_6;
   font-size: inherit;
   height: auto;
   line-height: inherit;

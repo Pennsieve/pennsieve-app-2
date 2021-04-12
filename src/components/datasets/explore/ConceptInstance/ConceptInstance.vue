@@ -3409,7 +3409,7 @@ export default {
     padding: 0;
   }
   &.editing {
-    background: $dendrite;
+    background: $gray_1;
 
     h2 {
       margin-bottom: 4px;
@@ -3449,7 +3449,7 @@ export default {
     .table-info,
     .table-actions {
       align-items: center;
-      color: $dopamine;
+      color: $purple_1;
       display: flex;
       line-height: initial;
       font-size: 12px;
@@ -3457,12 +3457,12 @@ export default {
     }
     .table-info {
       .selected-files {
-        color: $dark-gray;
+        color: $gray_6;
         margin-right: 16px;
       }
 
       .selected-source-files {
-        color: $dark-gray;
+        color: $gray_6;
       }
     }
     &.row-is-selected {
@@ -3572,7 +3572,7 @@ export default {
     max-width: 500px;
 
     a {
-      color: $dopamine;
+      color: $purple_1;
     }
 
     p {
@@ -3580,7 +3580,7 @@ export default {
       padding: 0 16px;
 
       a {
-        color: $glial;
+        color: $gray_4;
       }
     }
 
@@ -3601,7 +3601,7 @@ export default {
     text-align: center;
 
     .relationship-inner-text {
-      color: $glial;
+      color: $gray_4;
       margin-bottom: 16px;
     }
 
@@ -3625,7 +3625,7 @@ export default {
     }
   }
   button {
-    color: $glial;
+    color: $gray_4;
     display: none;
     margin-left: 8px;
     &:hover {
@@ -3644,7 +3644,7 @@ export default {
   }
 
   .instance-type {
-  color: $glial;
+  color: $gray_4;
   font-weight: 600;
   text-transform: capitalize;
 }

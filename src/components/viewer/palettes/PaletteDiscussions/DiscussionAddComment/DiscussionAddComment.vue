@@ -430,12 +430,12 @@
   @import '../../../../../assets/_variables.scss';
 
   .discussion-add-comment {
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     position: relative;
     &.start-discussion {
       border-top: none;
       .discussion-add-comment-top {
-        border-bottom: 1px solid $cortex;
+        border-bottom: 1px solid $gray_2;
       }
     }
   }
@@ -465,8 +465,8 @@
     flex: 1;
   }
   .discussion-add-comment-helper {
-    background: $cortex;
-    color: $glial;
+    background: $gray_2;
+    color: $gray_4;
     font-size: 12px;
     margin: 0;
     padding: 8px;
@@ -523,7 +523,7 @@
     background: $app-primary-color;
     border-radius: 50%;
     box-sizing: border-box;
-    color: $white-matter;
+    color: $white;
     display: inline-flex;
     font-weight: 600;
     height: 32px;

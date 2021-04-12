@@ -124,7 +124,7 @@
     border-radius: 5px;
     box-shadow: 0 2px 15px 0 rgba(0,0,0,0.25), 0 28px 41px 0 rgba(33,43,54,0.2);
     box-sizing: border-box;
-    color: $white-matter;
+    color: $white;
     height: 440px;
     margin: 15vh auto 50px;
     overflow: hidden;

@@ -48,7 +48,7 @@
     display: flex;
     position: relative;
     .icon-close {
-      color: $glial;
+      color: $gray_4;
       cursor: pointer;
     }
   }

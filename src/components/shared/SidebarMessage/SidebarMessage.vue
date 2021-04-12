@@ -45,7 +45,7 @@
     padding: 24px 32px;
 
     &.border-bottom {
-      border-bottom: solid 1px $cortex;
+      border-bottom: solid 1px $gray_2;
     }
 
     &.green {

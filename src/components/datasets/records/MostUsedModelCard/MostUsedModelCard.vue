@@ -39,7 +39,7 @@
   @import '../../../../assets/_variables.scss';
 
   .most-used-model-card {
-    border: 1px solid $dendrite-dark;
+    border: 1px solid $gray_2;
     border-radius: 3px;
     font-size: 10px;
     font-weight: 500;

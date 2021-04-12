@@ -40,7 +40,7 @@
 
 li {
   padding: 16px 8px;
-  border-top: solid 1px $cortex;
+  border-top: solid 1px $gray_2;
 
   &:first-child {
     border-top: none;
@@ -48,8 +48,8 @@ li {
 }
 .bf-menu-item {
   &.sharing:hover {
-    color: $white-matter;
-    background: $dopamine;
+    color: $white;
+    background: $purple_1;
   }
 }
 </style>

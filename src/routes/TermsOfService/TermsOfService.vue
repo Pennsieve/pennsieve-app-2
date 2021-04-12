@@ -268,9 +268,9 @@ export default {
 @import '../../assets/_variables.scss';
 
 .terms-of-service {
-  background: $white-matter;
+  background: $white;
   display: block;
-  color: $glial;
+  color: $gray_4;
   min-height: 100vh;
 
   .container {
@@ -282,7 +282,7 @@ export default {
   }
 
    .agreement-wrap {
-      border: 1px solid $cortex;
+      border: 1px solid $gray_2;
       color: #000;
       font-size: 14px;
       line-height: 21px;

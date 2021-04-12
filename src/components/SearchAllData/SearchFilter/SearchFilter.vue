@@ -691,7 +691,7 @@ export default {
   }
 }
 .btn-delete {
-  color: $glial;
+  color: $gray_4;
   &:hover, &:focus {
     color: $app-primary-color;
   }
@@ -717,7 +717,7 @@ export default {
   color: $error-color
 }
 .placeholder {
-  color: $glial;
+  color: $gray_4;
   font-style: italic;
   pointer-events: none;
   position: absolute;

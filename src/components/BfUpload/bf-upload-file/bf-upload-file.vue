@@ -80,7 +80,7 @@
 
   .bf-upload-file {
     align-items: center;
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     display: flex;
     flex-direction: row;
     padding: 10px 10px 10px 18px;
@@ -89,7 +89,7 @@
       border-top: none;
     }
     &:before {
-      background: $glial;
+      background: $gray_4;
       content: '';
       display: block;
       height: calc(100% + 1px);
@@ -113,7 +113,7 @@
     flex-direction: row;
   }
   .icon-complete {
-    color: $nucleus;
+    color: $green_1;
   }
   .icon-waiting {
     color: $app-primary-color;
@@ -128,7 +128,7 @@
     overflow: hidden;
     width: 70px;
     .bar {
-      background: $nucleus;
+      background: $green_1;
       display: block;
       height: 100%;
       width: 20%;

@@ -360,7 +360,7 @@ export default {
 @import '../../../assets/_list-item.scss';
 
 .list-item-status-wrapper {
-  color: $glial;
+  color: $gray_4;
   font-size: 12px;
   line-height: 18px;
   font-weight: normal;

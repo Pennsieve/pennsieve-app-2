@@ -23,10 +23,10 @@
     padding: 10px;
     width: 20px;
     &.left {
-      border-right: 2px solid $light-gray;
+      border-right: 2px solid $gray_2;
     }
     &.right {
-      border-left: 2px solid $light-gray;
+      border-left: 2px solid $gray_2;
     }
   }
 </style>

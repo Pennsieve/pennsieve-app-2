@@ -340,9 +340,9 @@ export default {
 @import '../../assets/_variables.scss';
 
 .wrapper {
-  background: $white-matter;
+  background: $white;
   box-sizing: border-box;
-  color: $glial;
+  color: $gray_4;
   max-width: 720px;
   min-height: 100vh;
   padding-bottom: 20px;

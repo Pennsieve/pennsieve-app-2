@@ -1,57 +1,59 @@
-$neuron: #3828AD;
-$dopamine: #5039F7;
-$dopamine-dark: #3828AD;
+$purple_1: #5039F7;
+$purple_2: #3A26CB;
+$purple_3: #34259F;
+$purple_tint: #EEEBFE;
 
-$cortex: #DADADA;
-$white-matter: #FFFFFF;
-$dendrite: #F9F9F8;
-$dendrite-dark: #E7E5E1;
-$glial: #928D85;
-$synapse: #e94b4b;
-$synapse-dark: #d24343;
-$nucleus: #17bb62;
-$nucleus-dark: #14a758;
-$noradrenaline: #F9F9F8;
-$warning: #ffe393;
-$orange: #FFB000;
-$serotonin: #3828AD;
-$myelin: #404554;
-$axon: #F1F1F3;
-$midnight-blue: #11369C;
-$pale-blue: #EEEBFE;
-$red-tint: #FEE9E7;
+$red_1: #F25641;
+$red_2: #d24343;
+$red_tint: #FEEEEC;
+$orange_1: #F9A23A;
+$orange_tint: #FEF6EB;
+$green_1: #17bb62;
+$green_2: #14a758;
 
-$dark-blue: #3828AD;
-$blackfynn-green: #358855;
-$blackfynn-blue-bright: #4870b1;
-$blackfynn-data: #BA5767;
-$default-primary-color: $dopamine;
+$black: #000000;
+$white: #ffffff;
+$gray_1: #F9F9F8;
+$gray_2: #E7E5E1;
+$gray_3: #CAC5BF;
+$gray_4: #928D85;
+$gray_5: #5B5955;
+$gray_6: #383734;
+
+$notification_green: #357940;
+$notification_yellow: #FAD749;
+
+$status_purple: #6D48CE;
+$status_teal: #08B3AF;
+$status_green: #17BB62;
+$status_yellow: #FFB000;
+$status_orange: #F67325;
+$status_red: #E94B4B;
+$status_pink: #DE38B3;
+$status_brown: #835800;
+
+// Aliases
+$default-primary-color: $purple_1;
 $primary-color: $default-primary-color;
-$app-primary-color: $dopamine;
-$app-secondary-color: black;
-$success-color: $nucleus;
-$info-color: #3167FF;
-$error-color: $synapse;
-$input-placeholder-text: #9f9f9f;
+$app-primary-color: $purple_1;
+$app-secondary-color: $black;
+$success-color: $green_1;
+
+$info-color: $purple_1;
+$error-color: $orange_1;
+$input-placeholder-text: $gray_1;
 $link-color: $app-primary-color;
-$link-color-hover: $glial;
-$settings-nav-background: #f9f9f9;
-$delete-button-background: $synapse;
-$light-gray: #BDBDBD;
-$dark-gray: $myelin;
-$table-background-color: #E2E3E8;
-$disabled-radio-button-text-color: #8A8E96;
-$disabled-radio-button-border-color: #E9E9E9;
-$disabled-radio-button-background-color: #FCFCFC;
-$table-border-dark: solid 1px $light-gray;
-$table-border-light: solid 1px $cortex;
-
-
-$text-color: $dark-gray;
-$input-text: #000;
-
-$nav-link-color: #565D70;
-$nav-link-color-hover: $dark-gray;
+$link-color-hover: $gray_4;
+$settings-nav-background: $gray_1;
+$delete-button-background: $red_1;
+$disabled-radio-button-text-color: $gray_4;
+$disabled-radio-button-border-color: $gray_3;
+$disabled-radio-button-background-color: $gray_1;
+$table-border-dark: solid 1px $gray_2;
+$table-border-light: solid 1px $gray_2;
+$text-color: $gray_6;
+$nav-link-color: $gray_5;
+$nav-link-color-hover: $gray_6;
 
 $system-font:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
 

@@ -150,7 +150,7 @@ export default {
 
 .bf-viewer-side-panel{
   background: #f7f7f7;
-  border-left: 1px solid $cortex;
+  border-left: 1px solid $gray_2;
   display: flex;
   height: 100%;
   flex-direction: column;

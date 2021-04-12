@@ -36,9 +36,9 @@
   @import '../../../assets/_variables.scss';
 
   .pill-link {
-    background-color: $dendrite-dark;
+    background-color: $gray_2;
     border-radius: 3px;
-    color: $dark-gray;
+    color: $gray_6;
     display: block;
     font-size: 12px;
     padding: 8px 16px;

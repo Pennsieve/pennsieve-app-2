@@ -189,7 +189,7 @@ export default {
 .invite-people {
   background: #fff;
   display: block;
-  color: $glial;
+  color: $gray_4;
   min-height: 100vh;
 }
 .container {

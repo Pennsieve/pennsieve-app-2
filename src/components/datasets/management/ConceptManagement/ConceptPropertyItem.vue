@@ -372,9 +372,9 @@ import EventBus from '../../../../utils/event-bus'
 
 .concept-property-item {
   box-sizing: border-box;
-  color: $glial;
+  color: $gray_4;
   cursor: grab;
-  border-top: 1px solid $cortex;
+  border-top: 1px solid $gray_2;
   min-height: 49px;
   padding: 24px 16px;
 
@@ -394,7 +394,7 @@ import EventBus from '../../../../utils/event-bus'
     }
 
     .icon-reorder {
-      color: $dopamine;
+      color: $purple_1;
     }
   }
 
@@ -412,7 +412,7 @@ import EventBus from '../../../../utils/event-bus'
 
   &.changed {
     .icon-reorder {
-      color: $nucleus
+      color: $green_1
     }
   }
 
@@ -421,7 +421,7 @@ import EventBus from '../../../../utils/event-bus'
   }
 
   &.drag-over {
-    border-bottom: 4px solid $dopamine;
+    border-bottom: 4px solid $purple_1;
     cursor: grabbing;
   }
 
@@ -444,7 +444,7 @@ import EventBus from '../../../../utils/event-bus'
   display: block;
   font-weight: 500;
   .svg-icon {
-    color: $glial;
+    color: $gray_4;
     margin-left: 8px;
   }
   .locked-model & {

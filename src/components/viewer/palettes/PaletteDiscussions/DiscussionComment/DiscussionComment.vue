@@ -241,7 +241,7 @@
     position: relative;
     &:not(:last-child) {
       .comment-body:before {
-        background: $cortex;
+        background: $gray_2;
         content: '';
         display: block;
         height: calc(100% + 20px);
@@ -269,7 +269,7 @@
     margin-right: 5px;
   }
   .timestamp {
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
   }
   ul.dot-list {
