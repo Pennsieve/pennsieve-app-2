@@ -111,6 +111,14 @@
     .svg-icon {
       color: $gray_2;
     }
+    &.secondary {
+      .svg-icon {
+        color: inherit;
+      } 
+      &:hover, &:focus, &.active {
+          color: $purple_1;
+      }
+    }
     .primary & {
       color: $white;
       &:hover, &:focus, &.active {
@@ -121,7 +129,7 @@
         }
       }
       &.router-link-active {
-        background: #FBFBFD;
+        background: $gray_1;
         color: $purple_1;
 
         .svg-icon {

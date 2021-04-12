@@ -139,7 +139,7 @@
       padding-left: 32px;
     }
     .el-input__inner {
-      background: #1F53E4;
+      background: $purple_1;
       border: none;
       border-radius: 2px;
       color: $white;

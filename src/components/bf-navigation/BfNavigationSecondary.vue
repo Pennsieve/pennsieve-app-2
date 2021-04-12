@@ -156,6 +156,7 @@
           :link="{ name: 'dataset-activity' }"
           icon="icon-activity"
           label="Activity"
+          class="secondary"
           :condensed="secondaryNavCondensed"
         />
 
@@ -434,7 +435,7 @@ hr {
 }
 .heading-wrap {
   box-sizing: border-box;
-  color: #404554;
+  color: $gray_6;
   padding: 14px 24px 8px;
   display: flex;
   justify-content: space-between;
@@ -497,27 +498,9 @@ hr {
   }
 }
 
-.no-status-item {
-  .dot {
-    background-color: #d2d2d2;
-  }
-}
-
 .wip-item {
   .dot {
     background-color: $purple_1;
-  }
-}
-
-.in-review-item {
-  .dot {
-    background-color: #ffb000;
-  }
-}
-
-.completed-item {
-  .dot {
-    background-color: #17bb62;
   }
 }
 

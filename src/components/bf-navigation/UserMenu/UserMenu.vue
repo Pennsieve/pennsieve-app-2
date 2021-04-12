@@ -79,7 +79,7 @@
             <li>
               <a
                 class="bf-menu-item"
-                href="https://www.blackfynn.com/terms/"
+                href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
                 target="_blank"
               >
                 Terms of Use
@@ -88,19 +88,10 @@
             <li>
               <a
                 class="bf-menu-item"
-                href="https://www.blackfynn.com/privacy"
+                href="https://docs.pennsieve.io/page/privacy-policy"
                 target="_blank"
               >
                 Privacy Policy
-              </a>
-            </li>
-            <li>
-              <a
-                class="bf-menu-item"
-                href="https://www.blackfynn.com/about"
-                target="_blank"
-              >
-                About Pennsieve
               </a>
             </li>
           </ul>
