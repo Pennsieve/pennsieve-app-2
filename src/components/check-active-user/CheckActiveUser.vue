@@ -3,6 +3,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import Auth from '@aws-amplify/auth'
+import Cookies from 'js-cookie'
 
 import EventBus from '@/utils/event-bus'
 
@@ -11,8 +12,8 @@ export default {
 
   data() {
     return {
-      // interval to poll user session 5 minutes
-      interval: 3e5,
+      // interval to poll user session 4 minutes
+      interval: 240000,
       // async request reference
       pingUserHandle: null
     }
@@ -59,7 +60,9 @@ export default {
       this.pingUserHandle = setTimeout(() => {
         Auth.currentSession()
           .then((data) => {
-            this.updateUserToken(data.accessToken.jwtToken).then(() => this.pingUserActive())
+            const token = data.accessToken.jwtToken
+            Cookies.set('user_token', token)
+            this.updateUserToken(token).then(() => this.pingUserActive())
           })
           .catch(() => {
             this.callLogout()
