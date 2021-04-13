@@ -1,6 +1,9 @@
 <template>
   <div class="wrapper">
-    <div class="login-wrap">
+    <div
+      v-if="!isUserAlreadyCreated"
+      class="login-wrap"
+    >
       <h2 class="sharp-sans">
         Let's set up your profile.
       </h2>
@@ -102,6 +105,32 @@
         </a>.
       </p>
     </div>
+    <div
+      v-if="isUserAlreadyCreated"
+      class="login-wrap"
+    >
+      <h2 class="sharp-sans">
+        Let's set up your profile.
+      </h2>
+      <p>It looks like you already set up your profile. If you forgot your password, please select “I forgot my password” to receive an email to reset your password.</p>
+      <div class="user-already-created-wrap">
+        <router-link
+          class="btn-back-to-sign-in"
+          :to="{name: 'home' }"
+        >
+          <bf-button>
+            Back to Sign In
+          </bf-button>
+        </router-link>
+        <a
+          class="forgot-password"
+          href="#"
+          @click="onForgotPasswordClick"
+        >
+          I forgot my password
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -173,7 +202,8 @@ export default {
       },
       isSavingProfile: false,
       isPasswordFormValid: false,
-      user: {}
+      user: {},
+      isUserAlreadyCreated: false
     }
   },
 
@@ -322,16 +352,16 @@ export default {
      */
     handleFailedSignIn: function(error) {
       this.isSavingProfile = false
-      const msg = error.code === 'NotAuthorizedException'
-        ? 'This user has already been registered'
-        : error.message
-
-      EventBus.$emit('toast', {
-        detail: {
-          type: 'error',
-          msg: msg
-        }
-      })
+      if (error.code === 'NotAuthorizedException') {
+        this.isUserAlreadyCreated = true
+      } else {
+        EventBus.$emit('toast', {
+          detail: {
+            type: 'error',
+            msg: error.message
+          }
+        })
+      }
     },
 
     /**
@@ -350,6 +380,29 @@ export default {
           }
         })
 
+    },
+
+    /**
+     * Submit forgot password request and take user to the forgot password page
+     */
+    onForgotPasswordClick: function() {
+      Auth.forgotPassword(this.$route.params.username)
+        .then(() => {
+          EventBus.$emit('toast', {
+          detail: {
+            type: 'message',
+            msg: 'Reset password email sent'
+          }
+        })
+        })
+        .catch(error => {
+          EventBus.$emit('toast', {
+          detail: {
+            type: 'error',
+            msg: error.message
+          }
+        })
+        })
     }
   }
 }
@@ -490,5 +543,22 @@ a {
   font-size: 13px;
   margin: 0;
 }
-
+.btn-back-to-sign-in {
+  text-decoration: none;
+  .bf-button {
+    margin-top: 0;
+    text-decoration: none;;
+  }
+}
+.user-already-created-wrap {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  .forgot-password {
+    color: $app-primary-color;
+    flex: 1;
+    margin-left: 16px;
+    text-align: center;
+  }
+}
 </style>
