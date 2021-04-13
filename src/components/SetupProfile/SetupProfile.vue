@@ -137,6 +137,7 @@ export default {
     }
 
     const { isValid, feedback } = this.validatePassword(value)
+  
 
     if (!isValid) {
       this.isPasswordFormValid = false
