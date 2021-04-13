@@ -1,7 +1,7 @@
 <template />
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import Auth from '@aws-amplify/auth'
 
 import EventBus from '@/utils/event-bus'
@@ -37,6 +37,10 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'updateUserToken'
+    ]),
+
     /**
      * Calls PennsieveApp._logout()
      */
@@ -54,8 +58,8 @@ export default {
       // Send the ajax call to check if user is active every 5 minutes
       this.pingUserHandle = setTimeout(() => {
         Auth.currentSession()
-          .then(() => {
-            this.pingUserActive()
+          .then((data) => {
+            this.updateUserToken(data.accessToken.jwtToken).then(() => this.pingUserActive())
           })
           .catch(() => {
             this.callLogout()
