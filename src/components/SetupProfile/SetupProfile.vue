@@ -240,7 +240,7 @@ export default {
          this.user = await Auth.signIn(this.$route.params.username, this.$route.params.password)
          this.setupProfile()
         } catch (error) {
-          this.handleFailedUserCreation()
+          this.handleFailedSignIn(error)
         }
     },
 
@@ -313,6 +313,25 @@ export default {
         EventBus.$emit('login', loginBody)
       })
       .catch(this.handleFailedUserCreation.bind(this))
+    },
+
+    /**
+     * Handle failed responsed to sign the user in before
+     * account creation
+     * @param {Object} error
+     */
+    handleFailedSignIn: function(error) {
+      this.isSavingProfile = false
+      const msg = error.code === 'NotAuthorizedException'
+        ? 'This user has already been registered'
+        : error.message
+
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'error',
+          msg: msg
+        }
+      })
     },
 
     /**
