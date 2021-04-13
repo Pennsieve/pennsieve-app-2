@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div
-      v-if="!isUserAlreadyCreated"
+      v-if="!isUserSignInFailed"
       class="login-wrap"
     >
       <h2 class="sharp-sans">
@@ -106,7 +106,7 @@
       </p>
     </div>
     <div
-      v-if="isUserAlreadyCreated"
+      v-if="isUserSignInFailed"
       class="login-wrap"
     >
       <h2 class="sharp-sans">
@@ -203,7 +203,7 @@ export default {
       isSavingProfile: false,
       isPasswordFormValid: false,
       user: {},
-      isUserAlreadyCreated: false
+      isUserSignInFailed: false
     }
   },
 
@@ -270,7 +270,8 @@ export default {
          this.user = await Auth.signIn(this.$route.params.username, this.$route.params.password)
          this.setupProfile()
         } catch (error) {
-          this.handleFailedSignIn(error)
+          this.isSavingProfile = false
+          this.isUserSignInFailed = true
         }
     },
 
@@ -343,25 +344,6 @@ export default {
         EventBus.$emit('login', loginBody)
       })
       .catch(this.handleFailedUserCreation.bind(this))
-    },
-
-    /**
-     * Handle failed responsed to sign the user in before
-     * account creation
-     * @param {Object} error
-     */
-    handleFailedSignIn: function(error) {
-      this.isSavingProfile = false
-      if (error.code === 'NotAuthorizedException') {
-        this.isUserAlreadyCreated = true
-      } else {
-        EventBus.$emit('toast', {
-          detail: {
-            type: 'error',
-            msg: error.message
-          }
-        })
-      }
     },
 
     /**
