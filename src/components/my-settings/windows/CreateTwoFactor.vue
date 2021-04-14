@@ -64,6 +64,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { pathOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import A11yKeys from '../../shared/a11y-keys/A11yKeys.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
@@ -180,6 +181,15 @@ export default {
           msg: 'Two-factor Authentication successfully added'
         }
       })
+
+      // get current auth user
+      Auth.currentAuthenticatedUser().then(user => {
+        // set preferred MFA
+        Auth.setPreferredMFA(user, 'SOFTWARE_TOKEN_MFA').then((data) => {
+          console.log('mfa value now', data);
+        }).catch(e => {});
+      })
+      .catch(err => console.log(err));
 
       this.updateProfile({
         ...this.profile,
