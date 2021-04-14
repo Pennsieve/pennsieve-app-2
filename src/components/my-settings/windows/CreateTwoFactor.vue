@@ -7,7 +7,7 @@
   >
     <bf-dialog-header
       slot="title"
-      title="Enable Two-Factor Authentication"
+      title="Choose Two-Factor Authentication"
     />
 
     <dialog-body>
@@ -17,16 +17,18 @@
         :rules="rules"
         @submit.native.prevent="onTwoFactorFormSubmit"
       >
+
         <el-form-item
-          label="Country Code"
-          prop="countryCode"
+          prop="twoFactorValue"
         >
-          <el-input
-            v-model="ruleForm.countryCode"
-            autofocus
-          />
+          <el-radio-group v-model="twoFactorValue">
+            <el-radio label="TOTP">TOTP</el-radio>
+            <el-radio label="SMS">SMS</el-radio>
+          </el-radio-group>
+
         </el-form-item>
-        <el-form-item
+
+        <!-- <el-form-item
           label="Phone Number"
           prop="phoneNumber"
         >
@@ -38,7 +40,7 @@
             </el-input>
           </a11y-keys>
         </el-form-item>
-        <div>Please provide numbers only.</div>
+        <div>Please provide numbers only.</div> -->
       </el-form>
     </dialog-body>
 
@@ -91,6 +93,7 @@ export default {
     return {
       dialogVisible: false,
       labelPosition: 'right',
+      twoFactorValue: false,
       ruleForm: {
         countryCode: '1',
         phoneNumber: '',
@@ -138,13 +141,15 @@ export default {
      * Handles submit event
      */
     onTwoFactorFormSubmit: function() {
-      this.$refs.twoFactorForm
-        .validate((valid) => {
-          if (!valid) {
-            return
-          }
-          this.sendTwoFactorAuthRequest()
-        })
+      // this.$refs.twoFactorForm
+      //   .validate((valid) => {
+      //     if (!valid) {
+      //       return
+      //     }
+      //     this.sendTwoFactorAuthRequest()
+      //   })
+
+     this.handleTwoFactorXhrSucces()
     },
     /**
      * Makes XHR call to update two factor auth status
@@ -178,7 +183,7 @@ export default {
 
       this.updateProfile({
         ...this.profile,
-        authyId: response.authyId
+        authyId: this.twoFactorValue
       })
     },
     /**

@@ -394,7 +394,7 @@ export default {
   computed: {
     ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
     hasAuthyId: function() {
-      return this.profile && this.profile.authyId > 0
+      return this.profile && this.profile.authyId
     },
     hasApiKeys: function() {
       return this.apiKeys.length > 0

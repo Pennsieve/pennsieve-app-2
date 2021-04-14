@@ -88,11 +88,12 @@ export default {
     sendDisableTwoFactorRequest: function() {
       this.closeDialog()
 
-      this.sendXhr(this.twoFactorUrl, {
-        method: 'DELETE',
-      })
-      .then(this.handleTwoFactorXhrSuccess.bind(this))
-      .catch(this.handleXhrError.bind(this))
+      // this.sendXhr(this.twoFactorUrl, {
+      //   method: 'DELETE',
+      // })
+      // .then(this.handleTwoFactorXhrSuccess.bind(this))
+      // .catch(this.handleXhrError.bind(this))
+      this.handleTwoFactorXhrSuccess()
     },
     /**
      * Handles successful two factor xhr response
@@ -108,7 +109,7 @@ export default {
 
       this.updateProfile({
         ...this.profile,
-        authyId: 0
+        authyId: false
       })
     },
     /**
