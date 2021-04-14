@@ -266,7 +266,7 @@
                   </el-col>
                 </el-row>
                 <el-col class="orcid-delete-button">
-                  <button @click="openORCIDWindow">
+                  <button @click="isDeleteOrcidDialogVisible = true">
                     <svg-icon
                       icon="icon-remove"
                       height="10"
@@ -315,6 +315,7 @@
 
       <delete-orcid
         ref="deleteOrcidDialog"
+        :visible.sync="isDeleteOrcidDialogVisible"
         @orcid-deleted="updateORCID"
       />
     </bf-stage>
@@ -387,7 +388,8 @@ export default {
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
-      loading: false
+      loading: false,
+      isDeleteOrcidDialogVisible: false
     }
   },
 
@@ -650,10 +652,11 @@ export default {
      * Function that's called after ORCID is deleted
      */
     updateORCID: function() {
+      this.isDeleteOrcidDialogVisible = false
       this.updateProfile({
         ...this.profile,
         orcid: {}
-        })
+      })
     },
 
     /**
@@ -720,16 +723,7 @@ export default {
 
         }
       })
-    },
-
-    /**
-     * Opens deleteORCID modal
-     * @param {String} refName
-     */
-    openORCIDWindow: function() {
-      this.$refs.deleteOrcidDialog.dialogVisible = true
     }
-
   }
 }
 </script>
