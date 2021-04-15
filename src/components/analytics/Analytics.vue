@@ -8,28 +8,6 @@ import EventBus from '../../utils/event-bus'
 import { path, pathOr, compose, last, split, prop, propOr, has, defaultTo, find, pathEq } from 'ramda'
 
 export default Vue.component('bf-analytics', {
-  /**
-   * Life cycle method
-   */
-  mounted: function() {
-    // Custom event handlers
-    // @TODO enable when adding Heap and Google Analytics
-    EventBus.$on('track-page', this.trackPage.bind(this))
-    // EventBus.$on('track-user', this.trackUser.bind(this))
-    EventBus.$on('track-event', this.trackEvent.bind(this))
-    // Google analytics
-    ga('create', site.googleAnalytics, 'auto')
-    // Intercom
-    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
-  },
-
-  beforeDestroy() {
-    // @TODO enable when adding Heap and Google Analytics
-    EventBus.$off('track-page', this.trackPage.bind(this))
-    // EventBus.$off('track-user', this.trackUser.bind(this))
-    EventBus.$off('track-event', this.trackEvent.bind(this))
-  },
-
   computed: {
     ...mapGetters([
       'getActiveOrganization',
@@ -54,6 +32,27 @@ export default Vue.component('bf-analytics', {
       return pathOr('', ['organization', 'id'], this.activeOrganization)
     }
   },
+  /**
+   * Life cycle method
+   */
+  mounted: function() {
+    // Custom event handlers
+    // @TODO enable when adding Heap and Google Analytics
+    EventBus.$on('track-page', this.trackPage.bind(this))
+    // EventBus.$on('track-user', this.trackUser.bind(this))
+    EventBus.$on('track-event', this.trackEvent.bind(this))
+    // Google analytics
+    ga('create', site.googleAnalytics, 'auto')
+    // Intercom
+    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
+  },
+
+  beforeDestroy() {
+    // @TODO enable when adding Heap and Google Analytics
+    EventBus.$off('track-page', this.trackPage.bind(this))
+    // EventBus.$off('track-user', this.trackUser.bind(this))
+    EventBus.$off('track-event', this.trackEvent.bind(this))
+  },
 
   methods: {
     /**
@@ -74,7 +73,8 @@ export default Vue.component('bf-analytics', {
           'id': this.activeOrgId,
           'name': this.activeOrgName,
           'subscriptionState': pathOr('', ['organization', 'subscriptionState', 'type'], this.activeOrganization),
-          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', ')
+          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', '),
+          'environment': site.environment
         }
       });
     },
