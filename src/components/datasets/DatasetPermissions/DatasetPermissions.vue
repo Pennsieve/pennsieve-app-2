@@ -31,7 +31,7 @@
       <p>
         Give teams, individuals, or your entire organization access to your dataset within the Pennsieve platform.
         <a
-          href="http://help.blackfynn.com/blackfynn-web-application/interacting-with-other-users-on-the-platform/dataset-permissions"
+          href="https://docs.pennsieve.io/docs/dataset-permissions"
           target="_blank"
         >
           Learn More
