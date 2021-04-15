@@ -142,31 +142,40 @@ export default {
      * Handles submit event
      */
     onTwoFactorFormSubmit: function() {
-      // this.$refs.twoFactorForm
-      //   .validate((valid) => {
-      //     if (!valid) {
-      //       return
-      //     }
-      //     this.sendTwoFactorAuthRequest()
-      //   })
-
-     this.handleTwoFactorXhrSucces()
+       // get current auth user
+      Auth.currentAuthenticatedUser().then(user => {
+        this.sendTwoFactorAuthRequest(user)
+      })
+      .catch(err => console.log(err));
     },
     /**
      * Makes XHR call to update two factor auth status
      */
-    sendTwoFactorAuthRequest: function() {
-      const phoneNumber = this.ruleForm.phoneNumber.replace(/\D/g, '')
+    sendTwoFactorAuthRequest: function(user) {
+      // const phoneNumber = this.ruleForm.phoneNumber.replace(/\D/g, '')
 
-      this.sendXhr(this.twoFactorUrl, {
-        method: 'POST',
-        body: {
-          countryCode: this.ruleForm.countryCode,
-          phoneNumber
-        }
-      })
-      .then(this.handleTwoFactorXhrSucces.bind(this))
-      .catch(this.handleXhrError.bind(this))
+      // this.sendXhr(this.twoFactorUrl, {
+      //   method: 'POST',
+      //   body: {
+      //     countryCode: this.ruleForm.countryCode,
+      //     phoneNumber
+      //   }
+      // })
+      // .then(this.handleTwoFactorXhrSucces.bind(this))
+      // .catch(this.handleXhrError.bind(this))
+
+      if (this.twoFactorValue === 'TOTP') {
+        Auth.setupTOTP(user).then((code) => {
+        // You can directly display the `code` to the user or convert it to a QR code to be scanned.
+        // E.g., use following code sample to render a QR code with `qrcode.react` component:
+        //      import QRCode from 'qrcode.react';
+        //      const str = "otpauth://totp/AWSCognito:"+ username + "?secret=" + code + "&issuer=" + issuer;
+        //      <QRCode value={str}/>
+        console.log('what do we do with code ', code)
+      });
+      }
+
+      this.handleTwoFactorXhrSucces()
     },
     /**
      * Handles successful two factor xhr response
@@ -182,14 +191,7 @@ export default {
         }
       })
 
-      // get current auth user
-      Auth.currentAuthenticatedUser().then(user => {
-        // set preferred MFA
-        Auth.setPreferredMFA(user, 'SOFTWARE_TOKEN_MFA').then((data) => {
-          console.log('mfa value now', data);
-        }).catch(e => {});
-      })
-      .catch(err => console.log(err));
+
 
       this.updateProfile({
         ...this.profile,
