@@ -27,7 +27,7 @@
             class="primary"
             @click="openORCID"
           >
-            Relink ORCID
+            Link ORCID
           </bf-button>
         </div>
       </dialog-body>
