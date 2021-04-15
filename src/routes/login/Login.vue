@@ -255,6 +255,7 @@ export default Vue.component('bf-login', {
       console.log('what is user now ', user)
       if (user.preferredMFA === 'SOFTWARE_TOKEN_MFA') {
         this.showToken = true
+        this.tempSessionToken = token
         this.cognitoUser = user
       } else {
         EventBus.$emit('login', {token, userAttributes})
@@ -292,9 +293,10 @@ export default Vue.component('bf-login', {
       this.isLoadingTwoFactor = true
 
       this.twoFactorForm.token
+      console.log('we have cognito user ', this.cognitoUser)
       const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
       EventBus.$emit('login', {token, userAttributes})
-     
+
 
       // this.sendXhr(this.twoFactorUrl, {
       //   method: 'POST',
