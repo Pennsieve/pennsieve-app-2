@@ -109,7 +109,7 @@ export default {
 }
 
 .copy-text {
-  color: $nucleus;
+  color: $green_1;
   height: 24px;
 }
 </style>

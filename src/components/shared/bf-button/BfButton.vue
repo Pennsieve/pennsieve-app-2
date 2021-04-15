@@ -94,7 +94,7 @@
     background: $app-primary-color;
     border: 1px solid transparent;
     border-radius: 3px;
-    color: $white-matter;
+    color: $white;
     cursor: pointer;
     display: inline-flex;
     flex-direction: row;
@@ -112,7 +112,7 @@
     }
     &:not([disabled]) {
       &:hover, &:focus {
-        background: $dopamine-dark
+        background: $purple_3
       }
       &:hover {
         box-shadow: 2px 2px 4px rgba(0,0,0,.25);
@@ -138,16 +138,16 @@
       min-width: 0
     }
     &.secondary {
-      background: $dendrite;
+      background: $gray_1;
       border-color: #D3D5DA;
       color: $text-color;
       &:not([disabled]) {
         &:hover, &:focus {
-          background: $dendrite-dark
+          background: $gray_2
         }
       }
       &.ghost {
-        border-color: $cortex;
+        border-color: $gray_2;
         color: $text-color;
         &:not([disabled]) {
           &:active, &:focus {
@@ -158,36 +158,36 @@
       }
     }
     &.green {
-      background: $nucleus;
+      background: $green_1;
       &:not([disabled]) {
         &:hover, &:focus {
-          background: $nucleus-dark
+          background: $green_2
         }
       }
       &.ghost {
-        border-color: $nucleus;
-        color: $nucleus;
+        border-color: $green_1;
+        color: $green_1;
         &:not([disabled]) {
           &:active, &:focus {
-            background: $nucleus;
+            background: $green_1;
             color: white;
           }
         }
       }
     }
     &.red {
-      background: $synapse;
+      background: $red_1;
       &:not([disabled]) {
         &:hover, &:focus {
-          background: $synapse-dark
+          background: $red_2
         }
       }
       &.ghost {
-        border-color: $synapse;
-        color: $synapse;
+        border-color: $red_1;
+        color: $red_1;
         &:not([disabled]) {
           &:active, &:focus {
-            background: $synapse;
+            background: $red_1;
             color: white;
           }
         }
@@ -210,12 +210,12 @@
     }
     &.dashed {
       background: #f9f9f9;
-      border: 1px dashed $light-gray;
-      color: $dark-gray;
+      border: 1px dashed $gray_2;
+      color: $gray_6;
       &:not([disabled]) {
         &:hover, &:active, &:focus {
           background: #f9f9f9;
-          color: $dark-gray;
+          color: $gray_6;
         }
       }
     }

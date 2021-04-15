@@ -7,7 +7,7 @@
     justify-content: center;
 
     .search-icon {
-      color: $glial;
+      color: $gray_4;
     }
   }
 
@@ -15,7 +15,7 @@
     box-sizing: border-box;
     margin-top: 8px;
     padding: 8px;
-    border: 1px solid $light-gray;
+    border: 1px solid $gray_2;
     border-radius: 3px;
     height: 200px;
     overflow-x: hidden;
@@ -35,11 +35,11 @@
   }
 
   .team-icon {
-    color: $dopamine;
+    color: $purple_1;
   }
 
   .collaborators-icon {
-    color: $dopamine;
+    color: $purple_1;
   }
 
   .el-dialog__body {
@@ -67,16 +67,16 @@
         padding: 8px;
 
         .email {
-          color: $dark-gray;
+          color: $gray_6;
         }
 
         &:hover {
           cursor: pointer;
-          color: $white-matter;
-          background: $dopamine;
+          color: $white;
+          background: $purple_1;
 
           .email {
-            color: $white-matter;
+            color: $white;
           }
         }
       }

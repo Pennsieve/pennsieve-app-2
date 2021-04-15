@@ -41,7 +41,7 @@ export default {
 @import '../../../assets/_variables.scss';
 
 .bf-footer {
-  background: $white-matter;
+  background: $white;
   display: block;
   font-size: 13px;
   padding: 0 0 20px 0;
@@ -71,7 +71,7 @@ li:first-child:after {
 }
 
 a {
-  color: $glial;
+  color: $gray_4;
 }
 
 a:hover {

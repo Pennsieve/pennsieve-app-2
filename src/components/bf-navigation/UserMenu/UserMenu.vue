@@ -79,7 +79,7 @@
             <li>
               <a
                 class="bf-menu-item"
-                href="https://www.blackfynn.com/terms/"
+                href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
                 target="_blank"
               >
                 Terms of Use
@@ -88,19 +88,10 @@
             <li>
               <a
                 class="bf-menu-item"
-                href="https://www.blackfynn.com/privacy"
+                href="https://docs.pennsieve.io/page/privacy-policy"
                 target="_blank"
               >
                 Privacy Policy
-              </a>
-            </li>
-            <li>
-              <a
-                class="bf-menu-item"
-                href="https://www.blackfynn.com/about"
-                target="_blank"
-              >
-                About Pennsieve
               </a>
             </li>
           </ul>
@@ -423,7 +414,7 @@ export default {
     border: solid 2px #fff;
     border-radius: 50%;
     box-sizing: border-box;
-    color: $white-matter;
+    color: $white;
     display: inline-flex;
     font-weight: 600;
     height: 32px;
@@ -431,9 +422,9 @@ export default {
     width: 32px;
   }
   .user-menu-wrap {
-    background: $dopamine-dark;
+    background: $purple_3;
     .secondary & {
-      background: $cortex;
+      background: $gray_2;
     }
   }
   .user-menu {
@@ -478,7 +469,7 @@ export default {
   }
   .filter-input {
     border-bottom: none;
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
   }
 </style>
 <style lang="scss">
@@ -493,6 +484,6 @@ export default {
   .icon-check {
     margin-top: -4px;
     float: right;
-    color: $glial;
+    color: $gray_4;
   }
 </style>

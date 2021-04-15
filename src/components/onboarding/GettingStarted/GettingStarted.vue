@@ -132,7 +132,7 @@ export default {
 @import '../../bf-navigation/bf-navigation.scss';
 
 .btn-close {
-  color: $glial;
+  color: $gray_4;
   position: absolute;
   right: 16px;
   top: 8px;
@@ -143,7 +143,7 @@ h2 {
 }
 
 p {
-  color: $glial;
+  color: $gray_4;
   font-size: 12px;
   line-height: 16px;
   margin: 0;

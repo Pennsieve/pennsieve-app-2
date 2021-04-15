@@ -93,7 +93,7 @@ export default {
 
 .montage-error-dialog {
   .svg-icon {
-    color: $synapse;
+    color: $red_1;
     display: block;
     margin: 0 auto 8px;
   }

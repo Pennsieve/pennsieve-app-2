@@ -252,7 +252,7 @@
   }
 
   .models-list-wrap {
-    background: $dendrite;
+    background: $gray_1;
     padding: 16px;
   }
   .model-group {
@@ -288,7 +288,7 @@
 
   .models-list {
     .el-input__inner {
-      background: $dendrite;
+      background: $gray_1;
       border: none;
       border-radius: 0;
       padding-left: 32px;

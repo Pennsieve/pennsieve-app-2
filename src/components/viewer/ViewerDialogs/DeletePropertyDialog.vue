@@ -145,7 +145,7 @@ export default {
     background-color: #fff;
     border: solid 1px #bdbdbd;
     border-radius: 5px;
-    color: $glial;
+    color: $gray_4;
     font-size: 14px;
     font-weight: 500;
     padding: 9px 35px;

@@ -146,7 +146,7 @@
   .concept-instance-linked-property {
     .button-edit,
     .button-unlink {
-      color: $glial;
+      color: $gray_4;
       &:hover {
         color: $app-primary-color
       }

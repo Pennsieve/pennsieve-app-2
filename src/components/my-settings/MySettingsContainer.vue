@@ -266,7 +266,7 @@
                   </el-col>
                 </el-row>
                 <el-col class="orcid-delete-button">
-                  <button @click="openORCIDWindow">
+                  <button @click="isDeleteOrcidDialogVisible = true">
                     <svg-icon
                       icon="icon-remove"
                       height="10"
@@ -315,6 +315,7 @@
 
       <delete-orcid
         ref="deleteOrcidDialog"
+        :visible.sync="isDeleteOrcidDialogVisible"
         @orcid-deleted="updateORCID"
       />
     </bf-stage>
@@ -387,7 +388,8 @@ export default {
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
-      loading: false
+      loading: false,
+      isDeleteOrcidDialogVisible: false
     }
   },
 
@@ -650,10 +652,11 @@ export default {
      * Function that's called after ORCID is deleted
      */
     updateORCID: function() {
+      this.isDeleteOrcidDialogVisible = false
       this.updateProfile({
         ...this.profile,
         orcid: {}
-        })
+      })
     },
 
     /**
@@ -720,16 +723,7 @@ export default {
 
         }
       })
-    },
-
-    /**
-     * Opens deleteORCID modal
-     * @param {String} refName
-     */
-    openORCIDWindow: function() {
-      this.$refs.deleteOrcidDialog.dialogVisible = true
     }
-
   }
 }
 </script>
@@ -750,7 +744,7 @@ p {
 }
 
 .divider {
-  background: $cortex;
+  background: $gray_2;
   height: 1px;
   margin: 19px 1px 20px 1px;
 }
@@ -791,11 +785,11 @@ p {
   flex: 1;
 
   button {
-    color: $glial;
+    color: $gray_4;
     &:hover,
     &:focus {
       cursor: pointer;
-      color: $dopamine;
+      color: $purple_1;
     }
   }
 }
@@ -877,12 +871,12 @@ p {
     flex-direction: row-reverse;
 
     button {
-      color: $glial;
+      color: $gray_4;
       margin-top: 7px;
       &:hover,
       &:focus {
         cursor: pointer;
-        color: $dopamine;
+        color: $purple_1;
       }
     }
   }

@@ -402,7 +402,7 @@ export default {
     }
   }
   .btn-icon {
-    color: $glial;
+    color: $gray_4;
     margin-top: 20px;
     &:first-child {
       margin: 0;
@@ -411,7 +411,7 @@ export default {
       color: $app-primary-color;
     }
     &[disabled] {
-      color: $light-gray;
+      color: $gray_2;
     }
   }
 </style>

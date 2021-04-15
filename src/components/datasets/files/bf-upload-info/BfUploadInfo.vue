@@ -130,7 +130,7 @@ export default {
 @import '../../../../assets/_variables.scss';
 
 .bf-upload-info {
-  background: $dendrite;
+  background: $gray_1;
   border-radius: 4px;
   box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.21), 0 0 5px 0 rgba(0, 0, 0, 0.18);
   box-sizing: border-box;

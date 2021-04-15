@@ -262,7 +262,7 @@ export default {
       const publishedDatasetId =  propOr(1, 'publishedDatasetId', this.publishedData)
 
       return this.config.environment === 'prod'
-        ? `https://discover.pennsieve.com/datasets/${publishedDatasetId}`
+        ? `https://discover.pennsieve.io/datasets/${publishedDatasetId}`
         : `https://discover.pennsieve.net/datasets/${publishedDatasetId}`
     },
   },
@@ -356,7 +356,7 @@ export default {
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
-  color: $myelin;
+  color: $gray_6;
   &.publication {
     margin-top: 33px;
   }

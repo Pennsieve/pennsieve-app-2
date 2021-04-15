@@ -334,7 +334,7 @@
 
   .add-image-wrap {
     align-items: center;
-    color: $glial;
+    color: $gray_4;
     cursor: pointer;
     display: flex;
     font-size: 12px;
@@ -350,7 +350,7 @@
   }
 
   .cropper-wrap {
-    background: $dendrite;
+    background: $gray_1;
     height: 476px;
     width: 476px;
   }

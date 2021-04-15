@@ -108,8 +108,8 @@
   @import '../../../assets/_variables';
 
   .button-group .bf-button {
-    background-color: $cortex;
-    border: 1px solid $light-gray;
+    background-color: $gray_2;
+    border: 1px solid $gray_2;
     border-left: none;
     height: 28px;
     padding: 4px;
@@ -119,7 +119,7 @@
       background: #f9f9f9;
     }
     &:first-child {
-      border-left: 1px solid $light-gray;
+      border-left: 1px solid $gray_2;
       border-radius: 3px 0 0 3px;
     }
     &:last-child {
@@ -133,7 +133,7 @@
   }
 
   .icon {
-    color: $myelin;
+    color: $gray_6;
   }
 </style>
 

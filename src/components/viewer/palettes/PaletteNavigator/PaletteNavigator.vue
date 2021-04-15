@@ -264,7 +264,7 @@
   }
 
   .palette-section {
-    border-bottom: 1px solid $light-gray;
+    border-bottom: 1px solid $gray_2;
     padding: 10px 5px;
     width: 100%;
   }
@@ -278,7 +278,7 @@
   @import '../../../../assets/_variables.scss';
   .palette-navigator {
     #navigator-displayregion {
-      border: 2px solid $synapse !important;
+      border: 2px solid $red_1 !important;
     }
     .navigator {
       background: #dedede;

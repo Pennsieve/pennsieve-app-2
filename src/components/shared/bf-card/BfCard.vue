@@ -136,7 +136,7 @@ export default {
 .bf-card {
   align-items: center;
   background: #fff;
-  border: solid 1px $cortex;
+  border: solid 1px $gray_2;
   border-radius: 3px;
   box-sizing: border-box;
   display: flex;
@@ -151,7 +151,7 @@ export default {
   width: 276px;
 
   &:not(.disabled):hover {
-    background: $noradrenaline;
+    background: $gray_1;
     cursor: pointer;
   }
 
@@ -214,7 +214,7 @@ export default {
     }
 
     &.active {
-      border: solid 1px $dopamine;
+      border: solid 1px $purple_1;
 
       .bf-card--checkbox {
         display: block;
@@ -222,12 +222,12 @@ export default {
     }
 
     &.is-disabled {
-      background: $noradrenaline;
-      color: $glial;
+      background: $gray_1;
+      color: $gray_4;
       cursor: default;
 
       .bf-card--title {
-        color: $glial;
+        color: $gray_4;
       }
 
       &:hover {

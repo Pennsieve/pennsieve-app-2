@@ -460,7 +460,7 @@ export default {
 }
 .selection-menu-wrap {
   background: #e9edf6;
-  border: 1px solid $cortex;
+  border: 1px solid $gray_2;
   box-sizing: border-box;
   border-radius: 3px 3px 0 0;
   display: flex;
@@ -491,7 +491,7 @@ export default {
     display: none;
   }
   .highlight {
-    background-color: $warning;
+    background-color: $status_yellow;
   }
 }
 .file-actions-wrap {

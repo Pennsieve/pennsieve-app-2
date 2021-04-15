@@ -18,13 +18,6 @@ export default {
         }
       }
 
-      // Return if user hits threshold
-      if (entropy > threshold) {
-        return {
-          feedback: 'Strong password!',
-          isValid: true
-        }
-      }
 
       // Check for lower case characters
       if (!hasLower(value)) {
@@ -63,6 +56,14 @@ export default {
         return {
           feedback: 'Please add more characters',
           isValid: false
+        }
+      }
+
+      // Return if user hits threshold
+      if (entropy > threshold) {
+        return {
+          feedback: 'Strong password!',
+          isValid: true
         }
       }
     }

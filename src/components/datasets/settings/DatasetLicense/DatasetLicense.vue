@@ -82,7 +82,7 @@ import licenses from '../dataset-licenses'
   }
 
   .label-flex {
-    color: $myelin;
+    color: $gray_6;
     size: 14px;
     font-weight: 700;
     margin-bottom: 8px;

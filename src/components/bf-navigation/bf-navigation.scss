@@ -3,7 +3,7 @@
 .bf-navigation {
   background: $app-primary-color;
   box-sizing: border-box;
-  color: $white-matter;
+  color: $white;
   display: flex;
   flex-direction: column;
   height: calc(100vh-16px);
@@ -32,7 +32,7 @@
     border-color: $app-primary-color;
   }
   .primary &:hover {
-    border-color: $dark-blue
+    border-color: $purple_3
   }
 }
 .logo {

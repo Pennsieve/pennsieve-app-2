@@ -58,13 +58,13 @@
   @import '../../../assets/_variables.scss';
 
   .row-block {
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
     border-radius: 2px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     &.open {
-      background: $noradrenaline;
+      background: $gray_1;
     }
   }
   .row-block-header {
@@ -73,7 +73,7 @@
     display: flex;
     padding: 24px;
     .collapsable &:hover {
-      background: $noradrenaline;
+      background: $gray_1;
       cursor: pointer;
     }
 
@@ -98,13 +98,13 @@
   }
   .row-block-subtext {
     align-items: center;
-    color: $glial;
+    color: $gray_4;
     display: flex;
     font-size: 13px;
     line-height: 1.1;
   }
   .row-block-collapse-content {
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     padding: 24px;
   }
   .row-block-cta {

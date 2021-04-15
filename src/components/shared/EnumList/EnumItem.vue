@@ -72,10 +72,10 @@
   }
 
   .enum-item--name {
-    color: $dark-gray;
+    color: $gray_6;
   }
 
   .remove {
-    color: $light-gray;
+    color: $gray_2;
   }
 </style>

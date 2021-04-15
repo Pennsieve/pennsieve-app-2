@@ -156,6 +156,7 @@
           :link="{ name: 'dataset-activity' }"
           icon="icon-activity"
           label="Activity"
+          class="secondary"
           :condensed="secondaryNavCondensed"
         />
 
@@ -413,14 +414,14 @@ export default {
 @import '../../assets/components/_dataset-status.scss';
 
 .bf-navigation {
-  background: $dendrite;
+  background: $gray_1;
   box-shadow: -1px 0 0 rgba(64, 69, 84, 0.2) inset;
   padding-right: 1px;
   z-index: 99;
 }
 
 hr {
-  background-color: $cortex;
+  background-color: $gray_2;
   height: 1px;
   border: 0;
   margin: 0 24px;
@@ -434,7 +435,7 @@ hr {
 }
 .heading-wrap {
   box-sizing: border-box;
-  color: #404554;
+  color: $gray_6;
   padding: 14px 24px 8px;
   display: flex;
   justify-content: space-between;
@@ -442,7 +443,7 @@ hr {
   font-size: 12px;
 
   .condensed & {
-    background: $dopamine;
+    background: $purple_1;
     height: 56px;
     padding: 14px 20px 12px;
   }
@@ -462,12 +463,12 @@ hr {
   display: flex;
   align-items: center;
   .dataset {
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
   }
 
   .dataset-status {
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
     font-weight: normal;
     overflow: hidden;
@@ -480,7 +481,7 @@ hr {
   .dataset-name {
     font-weight: bold;
     font-size: 12px;
-    color: $myelin;
+    color: $gray_6;
     margin-left: 4px;
   }
 }
@@ -497,27 +498,9 @@ hr {
   }
 }
 
-.no-status-item {
-  .dot {
-    background-color: #d2d2d2;
-  }
-}
-
 .wip-item {
   .dot {
-    background-color: $dopamine;
-  }
-}
-
-.in-review-item {
-  .dot {
-    background-color: #ffb000;
-  }
-}
-
-.completed-item {
-  .dot {
-    background-color: #17bb62;
+    background-color: $purple_1;
   }
 }
 

@@ -473,10 +473,10 @@ export default {
 @import '../../../assets/_icon-item-colors.scss';
 
 .bf-upload-package {
-  border: 1px solid $cortex;
+  border: 1px solid $gray_2;
   border-top: none;
   &:first-child {
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
   }
   .overflow &:last-child {
     border-bottom: none;
@@ -522,17 +522,17 @@ export default {
   margin-right: 7px;
 }
 .icon-remove {
-  color: $light-gray;
+  color: $gray_2;
   cursor: pointer;
   height: 18px;
   margin: -5px -5px -5px 1px;
   width: 18px;
   &:hover {
-    color: $synapse
+    color: $red_1
   }
 }
 .package-info {
-  color: $glial;
+  color: $gray_4;
   text-align: right;
   width: 110px;
 }
@@ -563,7 +563,7 @@ export default {
   }
 }
 .bf-upload-file-wrap {
-  border-top: 1px solid $cortex;
+  border-top: 1px solid $gray_2;
 }
 .icon-expand {
   cursor: pointer;
@@ -589,7 +589,7 @@ export default {
   padding: 10px 10px 10px 18px;
   position: relative;
   &:before {
-    background: $glial;
+    background: $gray_4;
     content: '';
     display: block;
     height: calc(100% + 1px);

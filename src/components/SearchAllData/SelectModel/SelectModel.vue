@@ -89,7 +89,7 @@ export default {
 .files-icon {
   width: 20px;
   height: 20px;
-  color: $glial;
+  color: $gray_4;
 }
 
 .add-model {
@@ -120,7 +120,7 @@ export default {
 .parent-menu-group {
   h3 {
     font-size: 14px;
-    color: $dark-blue;
+    color: $purple_3;
     margin: 0;
     padding-bottom: 5px;
     margin-left: 9px;

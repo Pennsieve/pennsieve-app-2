@@ -7,7 +7,7 @@
     }
   }
   a {
-    color: #9B9B9B;
+    color: $gray_4;
     display: inline-flex;
     padding: 0 0 16px;
     position: relative;
@@ -30,7 +30,7 @@
     }
     &.disabled {
       cursor: default;
-      color: #9B9B9B;
+      color: $gray_4;
     }
   }
 }

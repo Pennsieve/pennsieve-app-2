@@ -417,7 +417,7 @@
 
   .markdown-editor-toolbar {
     align-items: center;
-    background: $noradrenaline;
+    background: $gray_1;
     border-bottom: 1px solid #e9eef9;
     display: flex;
     flex-wrap: wrap;
@@ -438,14 +438,14 @@
   .markdown-controls-button {
     border-radius: 4px 4px 0 0;
     border: 1px solid #e9eef9;
-    color: $glial;
+    color: $gray_4;
     cursor: pointer;
     padding: 13px 22px;
     transform: translateY(1px);
     &.active {
       background: #fff;
       border-bottom-color: #fff;
-      color: $myelin
+      color: $gray_6
     }
   }
 

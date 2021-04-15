@@ -114,7 +114,7 @@
 
   .data-card {
     background: #fff;
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
     &.dark {
       border: none;
     }
@@ -133,7 +133,7 @@
       border-radius: 0 0 2px 2px;
     }
     .dark & {
-      border: 1px solid $cortex;
+      border: 1px solid $gray_2;
       border-top: none;
     }
     .scrollable & {
@@ -144,12 +144,12 @@
   }
   .title {
     align-items: center;
-    border-bottom: 1px solid $cortex;
+    border-bottom: 1px solid $gray_2;
     display: flex;
     justify-content: space-between;
     padding: 16px;
     .dark & {
-      background: $dark-gray;
+      background: $gray_6;
       border-radius: 2px 2px 0 0;
       color: #fff;
     }
@@ -168,13 +168,13 @@
   .expand-arrow {
     align-items: center;
     background: #f9f9f9;
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     display: flex;
     justify-content: center;
     padding: 12px 0;
     width: 100%;
     &:hover, &:focus {
-      background: $dendrite-dark;
+      background: $gray_2;
     }
   }
 </style>

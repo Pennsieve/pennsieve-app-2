@@ -1149,7 +1149,7 @@ export default {
   }
 
   .back-to-concepts {
-    color: $dopamine;
+    color: $purple_1;
 
     svg {
       margin: -2px 8px 0 0;

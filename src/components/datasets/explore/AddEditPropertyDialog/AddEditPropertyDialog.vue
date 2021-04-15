@@ -941,7 +941,7 @@
       }
     }
     .el-checkbox__label, .el-form-item__label {
-      color: $dark-gray;
+      color: $gray_6;
       font-weight: 400;
     }
 
@@ -978,11 +978,11 @@
     }
     .info {
       font-size: 12px;
-      color: $glial;
+      color: $gray_4;
     }
     .info {
       font-size: 12px;
-      color: $glial;
+      color: $gray_4;
       &.scientific-label {
         margin-top: -18px;
         height: 26px;
@@ -1009,7 +1009,7 @@
       width: 100%;
     }
     .configure-property-btn {
-      color: $dopamine;
+      color: $purple_1;
       font-size: 14px;
       margin-left: 24px;
       &:not([disabled]) {

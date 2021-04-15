@@ -16,7 +16,7 @@ export default {
 .bf-pill {
   background: #f1f1f3;
   border-radius: 6px;
-  color: $myelin;
+  color: $gray_6;
   display: inline-block;
   font-size: 12px;
   font-weight: 600;
@@ -26,10 +26,10 @@ export default {
     background: #9fe2be;
   }
   &.yellow {
-    background: $warning;
+    background: $status_yellow;
   }
   &.red {
-    background: $synapse;
+    background: $red_1;
     color: #fff;
   }
   &.blue {

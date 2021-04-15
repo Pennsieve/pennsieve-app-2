@@ -834,14 +834,14 @@
     .data-model-graph {
       margin-bottom: 24px;
       .chart {
-        border: 1px solid $cortex;
+        border: 1px solid $gray_2;
       }
     }
 
     .add-relationship-type-btn {
       align-items: center;
-      border: 1px solid $cortex;
-      color: $dopamine;
+      border: 1px solid $gray_2;
+      color: $purple_1;
       display: flex;
       cursor: pointer;
       font-size: 14px;
@@ -874,7 +874,7 @@
     }
 
     .icon-procedure {
-      color: $dopamine;
+      color: $purple_1;
     }
   }
 </style>
