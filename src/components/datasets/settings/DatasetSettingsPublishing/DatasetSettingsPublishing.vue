@@ -137,7 +137,8 @@ export default {
       'datasetContributors',
       'datasetDescription',
       'getPermission',
-      'orgMembers'
+      'orgMembers',
+      'onboardingEvents'
     ]),
     ...mapGetters([
       'getPermission',
@@ -315,6 +316,7 @@ export default {
                 orcid: self.oauthInfo
               })
 
+              self.setOrcidOnboardingEvent()
             })
             .catch(self.handleXhrError.bind(this))
         }
@@ -336,6 +338,24 @@ export default {
       const updatedDataset = merge(this.dataset, { locked: true })
       return this.updateDataset(updatedDataset)
     },
+
+    /**
+     * Set onboarding event for ORCID
+     */
+    setOrcidOnboardingEvent: function() {
+      this.sendXhr(`${this.config.apiUrl}/onboarding/events?api_key=${this.userToken}`, {
+        method: 'POST',
+        body: 'AddedOrcid',
+        header: {
+          Authorization: `bearer ${this.userToken}`
+        }
+      })
+        .then(() => {
+          const onboardingEvents = [...this.onboardingEvents, 'AddedOrcid']
+          this.updateOnboardingEvents(onboardingEvents)
+        })
+        .catch(this.handleXhrError.bind(this))
+    }
   }
 }
 </script>

@@ -119,7 +119,7 @@ export default {
      */
     onOrcidAdded: function(orcid) {
       // Set onboarded event
-      this.sendXhr(this.onboardingEventsUrl, {
+      this.sendXhr(`${this.config.apiUrl}/onboarding/events?api_key=${this.userToken}`, {
         method: 'POST',
         body: 'AddedOrcid',
         header: {

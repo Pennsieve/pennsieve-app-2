@@ -323,7 +323,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
 
@@ -392,7 +392,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
+    ...mapState([
+      'profile',
+      'activeOrganization',
+      'userToken',
+      'config',
+      'onboardingEvents'
+    ]),
+
+    ...mapGetters(['hasOrcidId']),
+
     hasAuthyId: function() {
       return this.profile && this.profile.authyId > 0
     },
@@ -709,6 +718,8 @@ export default {
                 orcid: self.oauthInfo
               })
 
+              self.setOrcidOnboardingEvent()
+
               EventBus.$emit('toast', {
                 detail: {
                   type: 'success',
@@ -728,6 +739,24 @@ export default {
      */
     openORCIDWindow: function() {
       this.$refs.deleteOrcidDialog.dialogVisible = true
+    },
+
+    /**
+     * Set onboarding event for ORCID
+     */
+    setOrcidOnboardingEvent: function() {
+      this.sendXhr(`${this.config.apiUrl}/onboarding/events?api_key=${this.userToken}`, {
+        method: 'POST',
+        body: 'AddedOrcid',
+        header: {
+          Authorization: `bearer ${this.userToken}`
+        }
+      })
+        .then(() => {
+          const onboardingEvents = [...this.onboardingEvents, 'AddedOrcid']
+          this.updateOnboardingEvents(onboardingEvents)
+        })
+        .catch(this.handleXhrError.bind(this))
     }
 
   }
