@@ -7,7 +7,7 @@
   >
     <bf-dialog-header
       slot="title"
-      title="Choose Two-Factor Authentication"
+      title="Enable Two-Factor Authentication"
     />
 
     <dialog-body>
@@ -17,18 +17,16 @@
         :rules="rules"
         @submit.native.prevent="onTwoFactorFormSubmit"
       >
-
         <el-form-item
-          prop="twoFactorValue"
+          label="Country Code"
+          prop="countryCode"
         >
-          <el-radio-group v-model="twoFactorValue">
-            <el-radio label="TOTP">TOTP</el-radio>
-            <el-radio label="SMS">SMS</el-radio>
-          </el-radio-group>
-
+          <el-input
+            v-model="ruleForm.countryCode"
+            autofocus
+          />
         </el-form-item>
-
-        <!-- <el-form-item
+        <el-form-item
           label="Phone Number"
           prop="phoneNumber"
         >
@@ -40,7 +38,7 @@
             </el-input>
           </a11y-keys>
         </el-form-item>
-        <div>Please provide numbers only.</div> -->
+        <div>Please provide numbers only.</div>
       </el-form>
     </dialog-body>
 
@@ -64,7 +62,6 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { pathOr, prop } from 'ramda'
-import Auth from '@aws-amplify/auth'
 
 import A11yKeys from '../../shared/a11y-keys/A11yKeys.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
@@ -94,7 +91,6 @@ export default {
     return {
       dialogVisible: false,
       labelPosition: 'right',
-      twoFactorValue: false,
       ruleForm: {
         countryCode: '1',
         phoneNumber: '',
@@ -142,40 +138,29 @@ export default {
      * Handles submit event
      */
     onTwoFactorFormSubmit: function() {
-       // get current auth user
-      Auth.currentAuthenticatedUser().then(user => {
-        this.sendTwoFactorAuthRequest(user)
-      })
-      .catch(err => console.log(err));
+      this.$refs.twoFactorForm
+        .validate((valid) => {
+          if (!valid) {
+            return
+          }
+          this.sendTwoFactorAuthRequest()
+        })
     },
     /**
      * Makes XHR call to update two factor auth status
      */
-    sendTwoFactorAuthRequest: function(user) {
-      // const phoneNumber = this.ruleForm.phoneNumber.replace(/\D/g, '')
+    sendTwoFactorAuthRequest: function() {
+      const phoneNumber = this.ruleForm.phoneNumber.replace(/\D/g, '')
 
-      // this.sendXhr(this.twoFactorUrl, {
-      //   method: 'POST',
-      //   body: {
-      //     countryCode: this.ruleForm.countryCode,
-      //     phoneNumber
-      //   }
-      // })
-      // .then(this.handleTwoFactorXhrSucces.bind(this))
-      // .catch(this.handleXhrError.bind(this))
-
-      if (this.twoFactorValue === 'TOTP') {
-        Auth.setupTOTP(user).then((code) => {
-        // You can directly display the `code` to the user or convert it to a QR code to be scanned.
-        // E.g., use following code sample to render a QR code with `qrcode.react` component:
-        //      import QRCode from 'qrcode.react';
-        //      const str = "otpauth://totp/AWSCognito:"+ username + "?secret=" + code + "&issuer=" + issuer;
-        //      <QRCode value={str}/>
-        console.log('what do we do with code ', code)
-      });
-      }
-
-      this.handleTwoFactorXhrSucces()
+      this.sendXhr(this.twoFactorUrl, {
+        method: 'POST',
+        body: {
+          countryCode: this.ruleForm.countryCode,
+          phoneNumber
+        }
+      })
+      .then(this.handleTwoFactorXhrSucces.bind(this))
+      .catch(this.handleXhrError.bind(this))
     },
     /**
      * Handles successful two factor xhr response
@@ -191,11 +176,9 @@ export default {
         }
       })
 
-
-
       this.updateProfile({
         ...this.profile,
-        authyId: this.twoFactorValue
+        authyId: response.authyId
       })
     },
     /**
