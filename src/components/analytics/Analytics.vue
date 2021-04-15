@@ -13,19 +13,13 @@ export default Vue.component('bf-analytics', {
    */
   mounted: function() {
     // Custom event handlers
-    // @TODO enable when adding Heap and Google Analytics
-    EventBus.$on('track-page', this.trackPage.bind(this))
     // EventBus.$on('track-user', this.trackUser.bind(this))
     EventBus.$on('track-event', this.trackEvent.bind(this))
-    // Google analytics
-    ga('create', site.googleAnalytics, 'auto')
     // Intercom
     this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
   },
 
   beforeDestroy() {
-    // @TODO enable when adding Heap and Google Analytics
-    EventBus.$off('track-page', this.trackPage.bind(this))
     // EventBus.$off('track-user', this.trackUser.bind(this))
     EventBus.$off('track-event', this.trackEvent.bind(this))
   },
@@ -89,23 +83,6 @@ export default Vue.component('bf-analytics', {
       if (eventName) {
         Intercom('trackEvent', eventName, meta)
       }
-    },
-
-    /**
-     * Handles `track-page` custom event. Sets page data for Google Analytics and calls a `pageview` tag.
-     * @param {Object} evt
-     */
-    trackPage: function(evt) {
-      /**
-       * Use set param, this way if we then send a subsequent event on the page it will be correctly
-       * associated with the same page
-       */
-      const page = path(['detail', 'path'], evt)
-      const title = pathOr('', ['detail', 'title'], evt)
-      if (page) {
-        ga('set', {page, title})
-      }
-      ga('send', 'pageview')
     },
 
     /**

@@ -68,9 +68,6 @@ import striptags from 'striptags';
 Vue.prototype.$sanitize = (html, allowedTags=['br']) => striptags(html, allowedTags)
 
 import VueGtag from 'vue-gtag'
-Vue.use(VueGtag, {
-  config: { id: siteConfig.googleAnalytics }
-})
 
 // configure language
 locale.use(lang)
@@ -212,14 +209,6 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from) => {
   window.Intercom('update')
 
-  // track page changes
-  EventBus.$emit('track-page', {
-    detail: {
-      path: to.path,
-      title: document.title
-    }
-  })
-
   // Set nav state based on route
   if (topLevelRoutes.indexOf(to.name) >= 0) {
     store.dispatch('togglePrimaryNav', true)
@@ -227,6 +216,10 @@ router.afterEach((to, from) => {
     store.dispatch('condenseSecondaryNav', false)
   }
 })
+
+Vue.use(VueGtag, {
+  config: { id: siteConfig.googleAnalytics }
+}, router)
 
 new Vue({
   el: '#app',
