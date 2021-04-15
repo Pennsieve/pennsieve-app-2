@@ -51,6 +51,7 @@ import CheckOverflow from './mixins/check-overflow'
 import * as svgicon from 'vue-svgicon'
 import VueInputAutowidth from 'vue-input-autowidth'
 import './assets/icons'
+import * as siteConfig from '@/site-config/site.json'
 
 import qs from 'qs'
 import Amplify from '@aws-amplify/core'
@@ -65,6 +66,11 @@ import locale from 'element-ui/lib/locale'
 
 import striptags from 'striptags';
 Vue.prototype.$sanitize = (html, allowedTags=['br']) => striptags(html, allowedTags)
+
+import VueGtag from 'vue-gtag'
+Vue.use(VueGtag, {
+  config: { id: siteConfig.googleAnalytics }
+})
 
 // configure language
 locale.use(lang)
