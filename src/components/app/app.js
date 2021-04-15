@@ -78,7 +78,8 @@ export default {
       'getActiveOrganization',
       'config',
       'userToken',
-      'hasFeature'
+      'hasFeature',
+      'hasOrcidOnboardingEvent'
     ]),
 
     /**
@@ -319,6 +320,7 @@ export default {
       return this.getBfTermsOfService()
         .then(() => this.getProfileAndOrg(userToken))
         .then(() => this.getOnboardingEventStates(userToken))
+        .then(() => this.setLinkOrcidDialog())
     },
 
     /**
@@ -368,5 +370,12 @@ export default {
       .then(this.updateOnboardingEvents.bind(this))
       .catch(this.handleXhrError.bind(this))
     },
+
+    /**
+     * Compute if the link orcid dialog should be visible
+     */
+     setLinkOrcidDialog: function() {
+      this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+    }
   }
 }

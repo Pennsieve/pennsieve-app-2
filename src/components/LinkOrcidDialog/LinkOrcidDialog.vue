@@ -5,14 +5,17 @@
       :visible="visible"
       :append-to-body="true"
       :show-close="false"
+      @close="closeDialog"
     >
       <bf-dialog-header slot="title" />
       <dialog-body>
-        <img
-          src="/static/images/orcid.png"
-          alt="Logo of ORCID"
+        <svg-icon
+          icon="icon-link"
           class="mb-8"
-        >
+          height="32"
+          width="32"
+          color="#2760FF"
+        />
         <h2>Link your ORCID</h2>
         <p>
           Connect your Pennsieve Profile to your ORCID. <a href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn">
@@ -40,6 +43,7 @@ import BfDialogHeader from '@/components/shared/bf-dialog-header/BfDialogHeader.
 import DialogBody from '@/components/shared/dialog-body/DialogBody.vue'
 
 import Request from '@/mixins/request'
+import EventBus from '@/utils/event-bus'
 
 export default {
   name: 'LinkOrcidDialog',
@@ -57,14 +61,15 @@ export default {
   props: {
     visible: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
 
   computed: {
     ...mapState([
       'config',
-      'userToken'
+      'userToken',
+      'profile'
     ]),
 
     /**
@@ -77,7 +82,8 @@ export default {
 
   methods: {
     ...mapActions([
-      'updateProfile'
+      'updateProfile',
+      'updateOnboardingEvents'
     ]),
 
     openORCID: function() {
@@ -99,16 +105,55 @@ export default {
             }
           })
             .then((response) => {
-              self.updateProfile({
-                ...self.profile,
-                orcid: response
-              })
-
-              self.$emit('orcid-added')
+              self.onOrcidAdded(response)
             })
             .catch(self.handleXhrError.bind(this))
         }
       })
+    },
+
+    /**
+     * After ORCID has been added, update
+     * the profile, set the onboarding event and
+     * close the dialog
+     */
+    onOrcidAdded: function(orcid) {
+      // Set onboarded event
+      this.sendXhr(this.onboardingEventsUrl, {
+        method: 'POST',
+        body: 'AddedOrcid',
+        header: {
+          Authorization: `bearer ${this.userToken}`
+        }
+      })
+        .then(() => {
+          const onboardingEvents = [...this.onboardingEvents, 'AddedOrcid']
+          this.updateOnboardingEvents(onboardingEvents)
+        })
+        .catch(this.handleXhrError.bind(this))
+
+      // Update user profile
+      this.updateProfile({
+        ...this.profile,
+        orcid
+      })
+
+      // Dismiss dialog
+      this.closeDialog()
+
+      // Display success toast
+      EventBus.$emit('toast', {
+        detail: {
+          msg: 'Your ORCID has been successfully added'
+        }
+      })
+    },
+
+    /**
+     * Close dialog by emitting sync event
+     */
+    closeDialog: function() {
+      this.$emit('update:visible', false)
     }
   }
 }
