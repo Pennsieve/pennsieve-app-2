@@ -252,10 +252,8 @@ export default Vue.component('bf-login', {
      handleLoginSuccess: function(user) {
       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
       const userAttributes = propOr({}, 'attributes', user)
-      console.log('what is user now ', user)
-      if (user.preferredMFA === 'SOFTWARE_TOKEN_MFA') {
+      if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
         this.showToken = true
-        this.tempSessionToken = token
         this.cognitoUser = user
       } else {
         EventBus.$emit('login', {token, userAttributes})
@@ -293,8 +291,9 @@ export default Vue.component('bf-login', {
       this.isLoadingTwoFactor = true
 
       this.twoFactorForm.token
-      console.log('we have cognito user ', this.cognitoUser)
       const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
+      const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+      const userAttributes = propOr({}, 'attributes', user)
       EventBus.$emit('login', {token, userAttributes})
 
 
