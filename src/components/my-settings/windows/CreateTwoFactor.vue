@@ -7,11 +7,22 @@
   >
     <bf-dialog-header
       slot="title"
-      title="Enable Two-Factor Authentication"
+      title="Setup Two-Factor Authentication"
     />
 
     <dialog-body>
-      <el-form
+      <p> Follow these steps to enable two-factor authentication for your account.</p>
+
+      <p>Please use a TOTP-compatible authenticator app, such as Google Authenticator or Authy. <a href="#" target="blank">Read More.</a></p>
+
+      <p class="strong">1. Enter the code into your authenticator app</p>
+      <el-input v-model="totpCode"></el-input>
+
+      <p class="strong">
+        2. Enter validation code:
+      </p>
+      <el-input v-model="totpValidation"></el-input>
+      <!-- <el-form
         ref="twoFactorForm"
         :model="ruleForm"
         :rules="rules"
@@ -39,7 +50,7 @@
           </a11y-keys>
         </el-form-item>
         <div>Please provide numbers only.</div>
-      </el-form>
+      </el-form> -->
     </dialog-body>
 
     <span
@@ -62,6 +73,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { pathOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import A11yKeys from '../../shared/a11y-keys/A11yKeys.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
@@ -90,6 +102,9 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      totpCode: '',
+      totpValidation: '',
+      cognitoUser: {},
       labelPosition: 'right',
       ruleForm: {
         countryCode: '1',
@@ -128,6 +143,22 @@ export default {
     ...mapActions([
       'updateProfile'
     ]),
+
+    /**
+     * Generates Two Factor code
+     */
+    generateTwoFactorCode: function() {
+      // retrieve current authenticated user
+      Auth.currentAuthenticatedUser().then(user => {
+        this.cognitoUser = user
+        // setup TOTP
+        Auth.setupTOTP(user).then((code) => {
+          this.totpCode = code
+        })
+      })
+      .catch(err => console.log(err));
+    },
+
     /**
      * Handles key-pressed event for last input in form
      */
@@ -138,13 +169,21 @@ export default {
      * Handles submit event
      */
     onTwoFactorFormSubmit: function() {
-      this.$refs.twoFactorForm
-        .validate((valid) => {
-          if (!valid) {
-            return
-          }
-          this.sendTwoFactorAuthRequest()
-        })
+      // TODO - keep code until SMS two factor validation is completed on backend
+      // this.$refs.twoFactorForm
+      //   .validate((valid) => {
+      //     if (!valid) {
+      //       return
+      //     }
+      //     this.sendTwoFactorAuthRequest()
+      //   })
+
+      Auth.verifyTotpToken(this.cognitoUser, this.totpValidation).then(() => {
+      // don't forget to set TOTP as the preferred MFA method
+      Auth.setPreferredMFA(this.cognitoUser, 'TOTP');
+      this.handleTwoFactorXhrSucces()
+
+      }).catch(this.handleXhrError.bind(this))
     },
     /**
      * Makes XHR call to update two factor auth status
@@ -178,7 +217,7 @@ export default {
 
       this.updateProfile({
         ...this.profile,
-        authyId: response.authyId
+        authyId: true
       })
     },
     /**
@@ -194,8 +233,25 @@ export default {
      */
     closeDialog: function() {
       this.dialogVisible = false
-      this.$refs.twoFactorForm.resetFields()
+      // this.$refs.twoFactorForm.resetFields()
     }
-  }
+  },
+
+  mounted () {
+    this.generateTwoFactorCode()
+  },
 }
 </script>
+
+<style scoped lang="scss">
+p {
+  color: black;
+}
+
+.strong {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 30px;
+}
+
+</style>

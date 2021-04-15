@@ -164,7 +164,8 @@ export default Vue.component('bf-login', {
       tempSessionToken: '',
       showToken: false,
       isLoggingIn: false,
-      isLoadingTwoFactor: false
+      isLoadingTwoFactor: false,
+      cognitoUser: {}
     }
   },
 
@@ -251,7 +252,11 @@ export default Vue.component('bf-login', {
      handleLoginSuccess: function(user) {
       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
       const userAttributes = propOr({}, 'attributes', user)
-      if (userAttributes) {
+      console.log('what is user now ', user)
+      if (user.preferredMFA === 'SOFTWARE_TOKEN_MFA') {
+        this.showToken = true
+        this.cognitoUser = user
+      } else {
         EventBus.$emit('login', {token, userAttributes})
       }
     },
@@ -283,17 +288,22 @@ export default Vue.component('bf-login', {
     /**
      * Makes XHR call to login
      */
-    sendTwoFactorRequest: function() {
+    async sendTwoFactorRequest() {
       this.isLoadingTwoFactor = true
 
-      this.sendXhr(this.twoFactorUrl, {
-        method: 'POST',
-        body: {
-          token: this.twoFactorForm.token,
-        }
-      })
-      .then(this.handleTwoFactorSuccess.bind(this))
-      .catch(this.handleTwoFactorError.bind(this))
+      this.twoFactorForm.token
+      const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
+      EventBus.$emit('login', {token, userAttributes})
+     
+
+      // this.sendXhr(this.twoFactorUrl, {
+      //   method: 'POST',
+      //   body: {
+      //     token: this.twoFactorForm.token,
+      //   }
+      // })
+      // .then(this.handleTwoFactorSuccess.bind(this))
+      // .catch(this.handleTwoFactorError.bind(this))
     },
 
     /**
