@@ -1,11 +1,22 @@
 <template>
-  <div class="reset-password">
+  <div
+    class="reset-password"
+    :class="{ 'welcome-to-pennsieve': $route.name === 'welcome-to-pennsieve' }"
+  >
     <div class="reset-password-wrapper">
       <div class="reset-password-inner">
         <div class="login-header">
           <img
+            v-if="$route.name === 'welcome-to-pennsieve'"
+            src="../../../static/images/blackfynn-logo-full.svg"
+            class="logo mb-24"
+            alt="Logo for Blackfynn"
+          >
+
+          <img
             src="../../../static/images/pennsieve-logo-full.svg"
             class="logo"
+            alt="Logo for Pennsieve"
           >
         </div>
         <!-- submit email -->
@@ -13,13 +24,27 @@
           v-if="!verificationCode && !linkSent"
           key="emailForm"
         >
-          <h2>Reset your password.</h2>
-          <p
-            v-if="!hideEmail"
-            class="email-description"
-          >
-            Enter the email address associated with your account, and we’ll email you a link to reset your password.
-          </p>
+          <template v-if="$route.name === 'welcome-to-pennsieve'">
+            <h2>Welcome to Pennsieve.</h2>
+            <p class="mb-16">
+              Paragraph about what Pennsieve is Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores possimus accusamus neque?
+            </p>
+            <p class="mb-16">
+              Paragraph "For security reasons you need to reset password" Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores possimus accusamus neque?
+            </p>
+            <p class="mb-16">
+              Paragraph "Relink ORCID" Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores possimus accusamus neque?
+            </p>
+          </template>
+          <template v-else>
+            <h2>Reset your password.</h2>
+            <p
+              v-if="!hideEmail"
+              class="email-description"
+            >
+              Enter the email address associated with your account, and we’ll email you a link to reset your password.
+            </p>
+          </template>
           <el-form
             ref="emailForm"
             :model="emailForm"
@@ -497,6 +522,13 @@ export default {
   }
   .error {
     color: $error-color;
+  }
+}
+
+.welcome-to-pennsieve {
+  .login-header {
+    align-items: center;
+    flex-direction: column;
   }
 }
 </style>
