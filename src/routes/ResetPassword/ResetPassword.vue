@@ -88,6 +88,7 @@
             @submit.native.prevent="onPasswordFormSubmit"
           >
             <el-form-item
+              v-show="!$route.query.username"
               class="email"
               prop="email"
             >
@@ -114,7 +115,7 @@
               <el-input
                 v-model="passwordForm.password"
                 type="password"
-                placeholder="Password"
+                placeholder="New Password"
                 autofocus
                 @click="onPasswordFormSubmit"
               />
@@ -283,6 +284,12 @@ export default {
     verificationCode: {
       handler(val) {
         this.passwordForm.code = val
+      },
+      immediate: true
+    },
+    '$route.query.username': {
+      handler(val) {
+        this.passwordForm.email = val
       },
       immediate: true
     }
