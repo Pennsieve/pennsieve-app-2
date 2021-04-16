@@ -69,7 +69,8 @@ export default {
     ...mapState([
       'config',
       'userToken',
-      'profile'
+      'profile',
+      'onboardingEvents'
     ]),
 
     /**
@@ -118,20 +119,6 @@ export default {
      * close the dialog
      */
     onOrcidAdded: function(orcid) {
-      // Set onboarded event
-      this.sendXhr(`${this.config.apiUrl}/onboarding/events?api_key=${this.userToken}`, {
-        method: 'POST',
-        body: 'AddedOrcid',
-        header: {
-          Authorization: `bearer ${this.userToken}`
-        }
-      })
-        .then(() => {
-          const onboardingEvents = [...this.onboardingEvents, 'AddedOrcid']
-          this.updateOnboardingEvents(onboardingEvents)
-        })
-        .catch(this.handleXhrError.bind(this))
-
       // Update user profile
       this.updateProfile({
         ...this.profile,
@@ -153,6 +140,20 @@ export default {
      * Close dialog by emitting sync event
      */
     closeDialog: function() {
+      // Set onboarded event
+      this.sendXhr(`${this.config.apiUrl}/onboarding/events?api_key=${this.userToken}`, {
+        method: 'POST',
+        body: 'AddedOrcid',
+        header: {
+          Authorization: `bearer ${this.userToken}`
+        }
+      })
+        .then(() => {
+          const onboardingEvents = [...this.onboardingEvents, 'AddedOrcid']
+          this.updateOnboardingEvents(onboardingEvents)
+        })
+        .catch(this.handleXhrError.bind(this))
+
       this.$emit('update:visible', false)
     }
   }
