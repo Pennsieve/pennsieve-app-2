@@ -51,6 +51,7 @@ import CheckOverflow from './mixins/check-overflow'
 import * as svgicon from 'vue-svgicon'
 import VueInputAutowidth from 'vue-input-autowidth'
 import './assets/icons'
+import * as siteConfig from '@/site-config/site.json'
 
 import qs from 'qs'
 import Amplify from '@aws-amplify/core'
@@ -65,6 +66,8 @@ import locale from 'element-ui/lib/locale'
 
 import striptags from 'striptags';
 Vue.prototype.$sanitize = (html, allowedTags=['br']) => striptags(html, allowedTags)
+
+import VueGtag from 'vue-gtag'
 
 // configure language
 locale.use(lang)
@@ -206,14 +209,6 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from) => {
   window.Intercom('update')
 
-  // track page changes
-  EventBus.$emit('track-page', {
-    detail: {
-      path: to.path,
-      title: document.title
-    }
-  })
-
   // Set nav state based on route
   if (topLevelRoutes.indexOf(to.name) >= 0) {
     store.dispatch('togglePrimaryNav', true)
@@ -221,6 +216,10 @@ router.afterEach((to, from) => {
     store.dispatch('condenseSecondaryNav', false)
   }
 })
+
+Vue.use(VueGtag, {
+  config: { id: siteConfig.googleAnalytics }
+}, router)
 
 new Vue({
   el: '#app',
