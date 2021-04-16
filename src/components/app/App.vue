@@ -41,6 +41,8 @@
     />
 
     <office-365-dialog />
+
+    <link-orcid-dialog :visible.sync="isLinkOrcidDialogVisible" />
   </div>
 </template>
 

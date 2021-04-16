@@ -107,7 +107,8 @@ export const state = {
   scientificUnits: [],
   profile: {},
   pageNotFound: false,
-  dataUseAgreements: []
+  dataUseAgreements: [],
+  onboardingEvents: []
 }
 
 const initialFilterState = state.datasetFilters
@@ -877,6 +878,9 @@ export const getters = {
     return state.dataset.content
       ? state.dataset.content.intId
       : null
+  },
+  hasOrcidOnboardingEvent: state => {
+    return state.onboardingEvents.includes('AddedOrcid') || false
   }
 }
 

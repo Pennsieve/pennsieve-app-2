@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     class="simple"
-    :visible.sync="visible"
+    :visible="visible"
     :show-close="false"
     @close="closeDialog"
   >
@@ -62,7 +62,6 @@ export default {
 
   data() {
     return {
-      dialogVisible: false,
       labelPosition: 'right'
     }
   },
@@ -131,7 +130,7 @@ export default {
      * Closes the dialog
      */
     closeDialog: function() {
-      this.$emit('close-orcid-dialog')
+      this.$emit('update:dialogVisible', false)
     }
   }
 }
