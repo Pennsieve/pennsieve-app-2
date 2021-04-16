@@ -83,7 +83,7 @@
         class="divider"
       />
       <!-- two-factor auth -->
-      <el-row>
+      <el-row v-if="isTwoFactorEnabled">
         <el-col :span="12">
           <h2>Two-Factor Authentication</h2>
           <el-row class="mb-20">
@@ -130,9 +130,9 @@
           </el-row>
         </el-col>
       </el-row>
-      <div
+      <!-- <div
         class="divider"
-      />
+      /> -->
       <!-- api keys -->
       <el-row>
         <el-col :span="12">
@@ -362,6 +362,7 @@ export default {
     return {
       apiKeys: [],
       isApiKeysLoading: true,
+      isTwoFactorEnabled: false,
       ruleForm: {
         firstName: '',
         middleInitial: '',
