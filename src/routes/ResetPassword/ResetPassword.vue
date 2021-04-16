@@ -349,6 +349,7 @@ export default {
     onEmailFormSuccess: function() {
       this.linkSent = true
       this.hideEmail = true
+      this.passwordForm.email = this.emailForm.email
 
       this.$nextTick(() => {
         this.$refs.passwordFormEmail.focus()
