@@ -69,7 +69,8 @@ export default {
     ...mapState([
       'config',
       'userToken',
-      'profile'
+      'profile',
+      'onboardingEvents'
     ]),
 
     /**
