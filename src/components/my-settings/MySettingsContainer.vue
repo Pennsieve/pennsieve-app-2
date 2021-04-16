@@ -722,8 +722,6 @@ export default {
                 orcid: self.oauthInfo
               })
 
-              self.setOrcidOnboardingEvent()
-
               EventBus.$emit('toast', {
                 detail: {
                   type: 'success',
