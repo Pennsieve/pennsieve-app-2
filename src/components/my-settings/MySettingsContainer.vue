@@ -83,7 +83,7 @@
         class="divider"
       />
       <!-- two-factor auth -->
-      <el-row>
+      <el-row v-if="twoFactorDisabled">
         <el-col :span="12">
           <h2>Two-Factor Authentication</h2>
           <el-row class="mb-20">
@@ -130,9 +130,9 @@
           </el-row>
         </el-col>
       </el-row>
-      <div
+      <!-- <div
         class="divider"
-      />
+      /> -->
       <!-- api keys -->
       <el-row>
         <el-col :span="12">
@@ -266,7 +266,7 @@
                   </el-col>
                 </el-row>
                 <el-col class="orcid-delete-button">
-                  <button @click="openORCIDWindow">
+                  <button @click="isDeleteOrcidDialogVisible = true">
                     <svg-icon
                       icon="icon-remove"
                       height="10"
@@ -315,6 +315,7 @@
 
       <delete-orcid
         ref="deleteOrcidDialog"
+        :visible.sync="isDeleteOrcidDialogVisible"
         @orcid-deleted="updateORCID"
       />
     </bf-stage>
@@ -323,7 +324,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
 
@@ -361,6 +362,7 @@ export default {
     return {
       apiKeys: [],
       isApiKeysLoading: true,
+      twoFactorDisabled: false,
       ruleForm: {
         firstName: '',
         middleInitial: '',
@@ -387,12 +389,22 @@ export default {
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
-      loading: false
+      loading: false,
+      isDeleteOrcidDialogVisible: false
     }
   },
 
   computed: {
-    ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
+    ...mapState([
+      'profile',
+      'activeOrganization',
+      'userToken',
+      'config',
+      'onboardingEvents'
+    ]),
+
+    ...mapGetters(['hasOrcidId']),
+
     hasAuthyId: function() {
       return this.profile && this.profile.authyId > 0
     },
@@ -650,10 +662,11 @@ export default {
      * Function that's called after ORCID is deleted
      */
     updateORCID: function() {
+      this.isDeleteOrcidDialogVisible = false
       this.updateProfile({
         ...this.profile,
         orcid: {}
-        })
+      })
     },
 
     /**
@@ -709,6 +722,8 @@ export default {
                 orcid: self.oauthInfo
               })
 
+              self.setOrcidOnboardingEvent()
+
               EventBus.$emit('toast', {
                 detail: {
                   type: 'success',
@@ -728,8 +743,25 @@ export default {
      */
     openORCIDWindow: function() {
       this.$refs.deleteOrcidDialog.dialogVisible = true
-    }
+    },
 
+    /**
+     * Set onboarding event for ORCID
+     */
+    setOrcidOnboardingEvent: function() {
+      this.sendXhr(`${this.config.apiUrl}/onboarding/events?api_key=${this.userToken}`, {
+        method: 'POST',
+        body: 'AddedOrcid',
+        header: {
+          Authorization: `bearer ${this.userToken}`
+        }
+      })
+        .then(() => {
+          const onboardingEvents = [...this.onboardingEvents, 'AddedOrcid']
+          this.updateOnboardingEvents(onboardingEvents)
+        })
+        .catch(this.handleXhrError.bind(this))
+    }
   }
 }
 </script>

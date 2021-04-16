@@ -131,7 +131,7 @@
               <bf-button
                 class="reset-pw-btn"
                 :processing="isResettingPassword"
-                processing-text="Saving"
+                :processing-text="resettingPasswordText"
                 @click="onPasswordFormSubmit"
               >
                 Reset Password
@@ -236,7 +236,8 @@ export default {
       isResettingPassword: false,
       isPasswordFormValid: false,
       tempEmail: '',
-      errorMsg: ''
+      errorMsg: '',
+      resettingPasswordText: 'Saving'
     }
   },
 
@@ -335,6 +336,8 @@ export default {
      * @param {Object} e
      */
     onPasswordFormSubmit: function(e) {
+      this.resettingPasswordText = 'Saving'
+
       this.$refs.passwordForm.validate(valid => {
         if (!valid) {
           return
@@ -347,11 +350,10 @@ export default {
       Auth.forgotPasswordSubmit(email, code, password)
         .then(() => {
           this.loginUser()
+          this.resettingPasswordText = 'Logging In'
         })
         .catch(error => {
           this.errorMsg = error.message
-        })
-        .finally(() =>  {
           this.isResettingPassword = false
         })
       })
