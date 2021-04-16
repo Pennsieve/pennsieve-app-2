@@ -114,9 +114,10 @@
 
 <script>
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import { propOr, pathOr } from 'ramda'
 import Auth from '@aws-amplify/auth'
+
 
 import BfButton from '../../components/shared/bf-button/BfButton.vue'
 import A11yKeys from '../../components/shared/a11y-keys/A11yKeys.vue'
@@ -164,14 +165,17 @@ export default Vue.component('bf-login', {
       tempSessionToken: '',
       showToken: false,
       isLoggingIn: false,
-      isLoadingTwoFactor: false,
-      cognitoUser: {}
+      isLoadingTwoFactor: false
     }
   },
 
   computed: {
     ...mapGetters([
       'config'
+    ]),
+
+    ...mapState([
+      'cognitoUser'
     ]),
 
     loginUrl: function() {
@@ -194,6 +198,7 @@ export default Vue.component('bf-login', {
   },
 
   methods: {
+    ...mapActions(['updateCognitoUser']),
     /**
      * Handles submit event
      * @param {Object} e
@@ -252,10 +257,12 @@ export default Vue.component('bf-login', {
      handleLoginSuccess: function(user) {
       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
       const userAttributes = propOr({}, 'attributes', user)
-      if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
+      if (user.challengeName === 'SOFTWARE_TOKEN_MFA' || user.preferredMFA === 'SOFTWARE_TOKEN_MFA') {
+        this.updateCognitoUser(user)
         this.showToken = true
-        this.cognitoUser = user
+        this.tempSessionToken = token
       } else {
+        this.updateCognitoUser(user)
         EventBus.$emit('login', {token, userAttributes})
       }
     },
@@ -289,22 +296,10 @@ export default Vue.component('bf-login', {
      */
     async sendTwoFactorRequest() {
       this.isLoadingTwoFactor = true
-
-      this.twoFactorForm.token
       const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
       const userAttributes = propOr({}, 'attributes', user)
       EventBus.$emit('login', {token, userAttributes})
-
-
-      // this.sendXhr(this.twoFactorUrl, {
-      //   method: 'POST',
-      //   body: {
-      //     token: this.twoFactorForm.token,
-      //   }
-      // })
-      // .then(this.handleTwoFactorSuccess.bind(this))
-      // .catch(this.handleTwoFactorError.bind(this))
     },
 
     /**

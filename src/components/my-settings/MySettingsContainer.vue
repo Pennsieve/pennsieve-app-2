@@ -106,14 +106,14 @@
             <el-col>
               <div class="two-factor-status-wrap">
                 <span class="status-text">
-                  Status: {{ hasAuthyId ? 'On' : 'Off' }}
+                  Status: {{ authEnabled ? 'On' : 'Off' }}
                 </span>
                 <span
                   class="status-icon"
-                  :class="{ enabled: hasAuthyId }"
+                  :class="{ enabled: authEnabled }"
                 >
                   <svg-icon
-                    :name="hasAuthyId ? 'icon-lock' : 'icon-unlocked'"
+                    :name="authEnabled ? 'icon-lock' : 'icon-unlocked'"
                     height="20"
                     width="20"
                   />
@@ -122,9 +122,9 @@
             </el-col>
             <el-col class="two-factor-col-btn">
               <bf-button
-                @click="handleTwoFactorBtnClick(hasAuthyId)"
+                @click="handleTwoFactorBtnClick(authEnabled)"
               >
-                {{ hasAuthyId ? 'Disable' : 'Enable' }}
+                {{ authEnabled ? 'Disable' : 'Enable' }}
               </bf-button>
             </el-col>
           </el-row>
@@ -326,6 +326,7 @@ import Vue from 'vue'
 import { mapActions, mapGetters } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfRafter from '../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../shared/bf-button/BfButton.vue'
@@ -361,6 +362,7 @@ export default {
     return {
       apiKeys: [],
       isApiKeysLoading: true,
+      cognitoUser: {},
       ruleForm: {
         firstName: '',
         middleInitial: '',
@@ -393,12 +395,15 @@ export default {
 
   computed: {
     ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
-    hasAuthyId: function() {
-      return this.profile && this.profile.authyId
+
+    authEnabled: function() {
+      return this.cognitoUser.preferredMFA === 'SOFTWARE_TOKEN_MFA' || this.cognitoUser.challengeName === 'SOFTWARE_TOKEN_MFA'
     },
+
     hasApiKeys: function() {
       return this.apiKeys.length > 0
     },
+
     getApiKeysUrl: function() {
       const url = pathOr('', ['config', 'apiUrl'])(this)
       const userToken = prop('userToken', this)
@@ -483,10 +488,23 @@ export default {
     this.setRuleFormData(this.profile)
     this.getApiKeys()
     this.scrollToElement()
+    this.getCognitoUser()
   },
 
   methods: {
     ...mapActions(['updateProfile']),
+
+    /**
+     * Get current authenticated Cognito user
+     */
+    getCognitoUser: function() {
+      Auth.currentAuthenticatedUser().then(user => {
+        this.cognitoUser = user
+        console.log('what is cognito user ', user)
+      })
+      .catch(err => console.log(err));
+    },
+
     /**
      * Scroll to element
      */
@@ -514,8 +532,8 @@ export default {
      * Opens proper two factor dialog
      * @param {Boolean} hasAuthyId
      */
-    handleTwoFactorBtnClick: function(hasAuthyId) {
-      if (!hasAuthyId) {
+    handleTwoFactorBtnClick: function(authEnabled) {
+      if (!authEnabled) {
         this.$refs.addTwoFactorDialog.dialogVisible = true
       } else {
         this.$refs.deleteTwoFactorDialog.dialogVisible = true

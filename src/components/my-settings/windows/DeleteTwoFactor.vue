@@ -30,8 +30,9 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { pathOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfDialogHeader from '../../shared/bf-dialog-header/BfDialogHeader.vue'
 import DialogBody from '../../shared/dialog-body/DialogBody.vue'
@@ -64,36 +65,23 @@ export default {
     ...mapGetters([
       'profile',
       'activeOrganization',
-      'userToken',
-      'config'
     ]),
-    twoFactorUrl: function() {
-      const url = pathOr('', ['config', 'apiUrl'])(this)
-      const userToken = prop('userToken', this)
 
-      if (!url || !userToken) {
-        return ''
-      }
-      return `${url}/user/twofactor?api_key=${userToken}`
-    }
+    ...mapState([
+      'cognitoUser'
+    ])
   },
 
   methods: {
-    ...mapActions([
-      'updateProfile'
-    ]),
     /**
      * Makes XHR call to update two factor auth status
      */
     sendDisableTwoFactorRequest: function() {
       this.closeDialog()
+      Auth.setPreferredMFA(this.cognitoUser, 'NOMFA').then(resp => {
+        this.handleTwoFactorXhrSuccess()
+      })
 
-      // this.sendXhr(this.twoFactorUrl, {
-      //   method: 'DELETE',
-      // })
-      // .then(this.handleTwoFactorXhrSuccess.bind(this))
-      // .catch(this.handleXhrError.bind(this))
-      this.handleTwoFactorXhrSuccess()
     },
     /**
      * Handles successful two factor xhr response
@@ -107,10 +95,6 @@ export default {
         }
       })
 
-      this.updateProfile({
-        ...this.profile,
-        authyId: false
-      })
     },
     /**
      * Closes the dialog

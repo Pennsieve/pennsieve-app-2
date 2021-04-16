@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import { pathOr, prop } from 'ramda'
 import Auth from '@aws-amplify/auth'
 
@@ -104,7 +104,6 @@ export default {
       dialogVisible: false,
       totpCode: '',
       totpValidation: '',
-      cognitoUser: {},
       labelPosition: 'right',
       ruleForm: {
         countryCode: '1',
@@ -128,6 +127,10 @@ export default {
       'userToken',
       'config'
     ]),
+    ...mapState([
+      'cognitoUser'
+    ]),
+
     twoFactorUrl: function() {
       const url = pathOr('', ['config', 'apiUrl'])(this)
       const userToken = prop('userToken', this)
@@ -141,7 +144,7 @@ export default {
 
   methods: {
     ...mapActions([
-      'updateProfile'
+      'updateCognitoUser'
     ]),
 
     /**
@@ -149,13 +152,9 @@ export default {
      */
     generateTwoFactorCode: function() {
       // retrieve current authenticated user
-      Auth.currentAuthenticatedUser().then(user => {
-        this.cognitoUser = user
-        // setup TOTP
-        Auth.setupTOTP(user).then((code) => {
+       Auth.setupTOTP(this.cognitoUser).then((code) => {
           this.totpCode = code
         })
-      })
       .catch(err => console.log(err));
     },
 
@@ -180,7 +179,7 @@ export default {
 
       Auth.verifyTotpToken(this.cognitoUser, this.totpValidation).then(() => {
       // don't forget to set TOTP as the preferred MFA method
-      Auth.setPreferredMFA(this.cognitoUser, 'TOTP');
+      Auth.setPreferredMFA(this.cognitoUser, 'TOTP')
       this.handleTwoFactorXhrSucces()
 
       }).catch(this.handleXhrError.bind(this))
@@ -215,10 +214,10 @@ export default {
         }
       })
 
-      this.updateProfile({
-        ...this.profile,
-        authyId: true
-      })
+      // this.updateProfile({
+      //   ...this.profile,
+      //   authyId: true
+      // })
     },
     /**
      * Resets form fields and validations

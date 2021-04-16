@@ -107,13 +107,18 @@ export const state = {
   scientificUnits: [],
   profile: {},
   pageNotFound: false,
-  dataUseAgreements: []
+  dataUseAgreements: [],
+  cognitoUser: {}
 }
 
 const initialFilterState = state.datasetFilters
 
 // mutations
 export const mutations = {
+  UPDATE_COGNITO_USER (state, data) {
+    Vue.set(state, 'cognitoUser', data)
+  },
+
   SET_PAGE_NOT_FOUND (state, data) {
     Vue.set(state, 'pageNotFound', data)
   },
@@ -583,7 +588,7 @@ export const mutations = {
 
 // actions
 export const actions = {
-
+  updateCognitoUser: ({commit}, evt) => commit('UPDATE_COGNITO_USER', evt),
   updatePageNotFound: ({ commit }, evt) => commit('SET_PAGE_NOT_FOUND', evt),
   updateScientificUnits: ({ commit }, evt) => commit('UPDATE_SCIENTIFIC_UNITS', evt),
   updateSearchModalSearch: ({ commit }, search) => {
