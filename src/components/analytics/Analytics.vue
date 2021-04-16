@@ -8,22 +8,6 @@ import EventBus from '../../utils/event-bus'
 import { path, pathOr, compose, last, split, prop, propOr, has, defaultTo, find, pathEq } from 'ramda'
 
 export default Vue.component('bf-analytics', {
-  /**
-   * Life cycle method
-   */
-  mounted: function() {
-    // Custom event handlers
-    // EventBus.$on('track-user', this.trackUser.bind(this))
-    EventBus.$on('track-event', this.trackEvent.bind(this))
-    // Intercom
-    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
-  },
-
-  beforeDestroy() {
-    // EventBus.$off('track-user', this.trackUser.bind(this))
-    EventBus.$off('track-event', this.trackEvent.bind(this))
-  },
-
   computed: {
     ...mapGetters([
       'getActiveOrganization',
@@ -49,6 +33,22 @@ export default Vue.component('bf-analytics', {
     }
   },
 
+  /**
+   * Life cycle method
+   */
+  mounted: function() {
+    // Custom event handlers
+    // EventBus.$on('track-user', this.trackUser.bind(this))
+    EventBus.$on('track-event', this.trackEvent.bind(this))
+    // Intercom
+    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
+  },
+
+  beforeDestroy() {
+    // EventBus.$off('track-user', this.trackUser.bind(this))
+    EventBus.$off('track-event', this.trackEvent.bind(this))
+  },
+
   methods: {
     /**
      * Registers the user with Intercom when an active organization is set or changes.
@@ -68,7 +68,8 @@ export default Vue.component('bf-analytics', {
           'id': this.activeOrgId,
           'name': this.activeOrgName,
           'subscriptionState': pathOr('', ['organization', 'subscriptionState', 'type'], this.activeOrganization),
-          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', ')
+          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', '),
+          'environment': site.environment
         }
       });
     },
