@@ -16,6 +16,7 @@ import BfUploadExternalFile from '../bf-upload-external-file/BfUploadExternalFil
 import BfUpload from '../BfUpload/BfUpload.vue'
 import SearchAllData from '@/components/SearchAllData/SearchAllData.vue'
 import Office365Dialog from '@/components/datasets/files/Office365Dialog/Office365Dialog.vue'
+import LinkOrcidDialog from '@/components/LinkOrcidDialog/LinkOrcidDialog.vue'
 
 import globalMessageHandler from '../../mixins/global-message-handler'
 import Request from '../../mixins/request'
@@ -37,7 +38,8 @@ export default {
     BfDownloadFile,
     BfUploadExternalFile,
     SearchAllData,
-    Office365Dialog
+    Office365Dialog,
+    LinkOrcidDialog
   },
 
   mixins: [
@@ -53,7 +55,8 @@ export default {
       // default meta description
       defaultPageDescription: 'Pennsieve secure Sign In page. Sign in to your Pennsieve customer account.',
       isUploadExternalFileModalOpen: false,
-      externalFile: {}
+      externalFile: {},
+      isLinkOrcidDialogVisible: false
     }
   },
 
@@ -75,7 +78,8 @@ export default {
       'getActiveOrganization',
       'config',
       'userToken',
-      'hasFeature'
+      'hasFeature',
+      'hasOrcidOnboardingEvent'
     ]),
 
     /**
@@ -316,6 +320,7 @@ export default {
       return this.getBfTermsOfService()
         .then(() => this.getProfileAndOrg(userToken))
         .then(() => this.getOnboardingEventStates(userToken))
+        .then(() => this.setLinkOrcidDialog())
     },
 
     /**
@@ -365,5 +370,12 @@ export default {
       .then(this.updateOnboardingEvents.bind(this))
       .catch(this.handleXhrError.bind(this))
     },
+
+    /**
+     * Compute if the link orcid dialog should be visible
+     */
+     setLinkOrcidDialog: function() {
+      this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+    }
   }
 }
