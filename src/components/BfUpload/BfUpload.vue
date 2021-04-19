@@ -66,7 +66,7 @@
               <p v-if="!hasItems(fileList)">
                 If you're uploading large amounts of data, please use the
                 <a
-                  href="http://help.blackfynn.com/blackfynn-developer-tools"
+                  href="https://docs.pennsieve.io/"
                   target="_blank"
                 >
                   Pennsieve API

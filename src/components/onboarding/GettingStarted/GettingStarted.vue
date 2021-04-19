@@ -108,7 +108,7 @@ export default {
         },
         {
           id: 4,
-          link: 'http://help.blackfynn.com/developers',
+          link: 'https://docs.pennsieve.io/',
           name: 'Tools',
           heading: 'Install Developer Tools',
           blurb: 'Integrate our client libraries into your workflow.',

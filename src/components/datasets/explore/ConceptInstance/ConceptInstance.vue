@@ -558,7 +558,7 @@
                     We don’t recommend uploading more than 10GB through the web UI, due to browser
                     limitations. If you’re uploading large amounts of data, please use the
                     <a
-                      href="http://help.blackfynn.com/blackfynn-developer-tools"
+                      href="https://docs.pennsieve.io/"
                       target="_blank"
                     >
                       Pennsieve API
