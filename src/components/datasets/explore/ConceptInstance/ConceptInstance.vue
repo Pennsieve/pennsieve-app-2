@@ -60,7 +60,6 @@
             class="blinded-review-heading"
           >
             <h1 v-html="$sanitize(formattedConceptTitle)" />
-
           </div>
         </template>
 
@@ -650,7 +649,7 @@
                 Relationships button above.
               </p>
               <a
-                href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/linking-records-in-the-knowledge-graph"
+                href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"
                 target="_blank"
               >
                 <bf-button class="primary learn-more">

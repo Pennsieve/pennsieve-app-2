@@ -158,7 +158,7 @@
                 </bf-button>
                 <p>
                   <a
-                    href="http://help.blackfynn.com/general-information/supported-file-formats"
+                    href="https://docs.pennsieve.io/docs/supported-file-formats"
                     target="_blank"
                   >
                     Learn More About Packages

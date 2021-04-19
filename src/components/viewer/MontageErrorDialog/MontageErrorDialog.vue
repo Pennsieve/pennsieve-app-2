@@ -21,7 +21,7 @@
         <p>
           We were unable to apply that montage.  Make sure your channel names match standard schemes.
           <a
-            href="https://help.blackfynn.com/blackfynn-web-application/interactive-data-viewers/time-series-viewer"
+            href="https://docs.pennsieve.io/docs/time-series-viewer"
             target="_blank"
           >
             Learn More
