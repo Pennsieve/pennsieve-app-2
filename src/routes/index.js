@@ -548,6 +548,13 @@ const routes = [
     }
   },
   {
+    name: 'welcome-to-pennsieve',
+    path: '/welcome-to-pennsieve',
+    components: {
+      page: ResetPassword
+    }
+  },
+  {
     path: '/orcid-redirect',
     components: {
       page: ORCID
