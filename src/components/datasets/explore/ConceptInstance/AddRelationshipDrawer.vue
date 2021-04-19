@@ -15,7 +15,7 @@
 
       <template v-else>
         Link records in your graph as determined by your model manager. <a
-          href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/creating-relationships-between-data-models"
+          href="https://docs.pennsieve.io/docs/creating-relationships-between-metadata-models"
           target="_blank"
         >
           Help me with this

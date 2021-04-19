@@ -6,7 +6,7 @@
           Data Use Agreements
         </h3>
         <a
-          href="http://help.blackfynn.com/en/articles/4622668"
+          href="https://docs.pennsieve.io/docs/data-use-agreements"
           class="ml-8"
           target="_blank"
         >

@@ -5,7 +5,7 @@
     <div class="label-flex">
       License Type
       <a
-        href="https://help.blackfynn.com/en/articles/3044442"
+        href="https://docs.pennsieve.io/docs/common-dataset-licenses"
         target="_blank"
       >
         License Help
