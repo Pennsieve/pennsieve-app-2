@@ -27,13 +27,13 @@
           <template v-if="$route.name === 'welcome-to-pennsieve'">
             <h2>Welcome to Pennsieve.</h2>
             <p class="mb-16">
-              Paragraph about what Pennsieve is Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores possimus accusamus neque?
+              Welcome to Pennsieve! We are thrilled to have you back on the platform. A lot of work has gone into migrating the platform from Blackfynn to Pennsieve at the University of Pennsylvania!
             </p>
             <p class="mb-16">
-              Paragraph "For security reasons you need to reset password" Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores possimus accusamus neque?
+              For security reasons, you need to reset your password and follow the instructions in the email that follows. 
             </p>
             <p class="mb-16">
-              Paragraph "Relink ORCID" Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores possimus accusamus neque?
+              In addition, after you login the platform, you will need to re-associate your user with an ORCID account if you have one. This is required in order to publish datasets.
             </p>
           </template>
           <template v-else>
