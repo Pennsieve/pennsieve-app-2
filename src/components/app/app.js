@@ -199,7 +199,8 @@ export default {
       'setDatasetPublishedData',
       'setIsLoadingDatasetPublishedData',
       'setIsLoadingDatasetsError',
-      'updateOrgDatasetStatuses'
+      'updateOrgDatasetStatuses',
+      'updateShouldShowLinkOrcidDialog'
     ]),
 
     ...mapActions('datasetModule', [
@@ -375,7 +376,10 @@ export default {
      * Compute if the link orcid dialog should be visible
      */
      setLinkOrcidDialog: function() {
-      this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+      this.updateShouldShowLinkOrcidDialog(true)
+      if (this.$route.name !== 'terms-of-service') {
+        this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+      }
     }
   }
 }
