@@ -336,7 +336,7 @@ export default {
       const frag = document.createDocumentFragment()
       frag.appendChild(div)
 
-      const metaTag = frag.querySelector(`meta[name="BF.version"]`)
+      const metaTag = frag.querySelector(`meta[name="PS.version"]`)
       const content = metaTag.content
       // replace unnecessary characters if content is available
       return content ? content.replace(/\W|T/g, '') : ''
