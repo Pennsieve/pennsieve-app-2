@@ -153,7 +153,7 @@
               :disabled="disableConceptTitle"
               label="Use this property as the Model Title"
             /> <a
-              href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/creating-blackfynn-data-models"
+              href="https://docs.pennsieve.io/docs/creating-metadata-models"
               class="label-helper"
               target="_blank"
             >

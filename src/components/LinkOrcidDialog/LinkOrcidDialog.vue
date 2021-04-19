@@ -18,7 +18,7 @@
         />
         <h2>Link your ORCID</h2>
         <p>
-          Connect your Pennsieve Profile to your ORCID. <a href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn">
+          Connect your Pennsieve Profile to your ORCID. <a href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform">
             Learn More
           </a>
         </p>
