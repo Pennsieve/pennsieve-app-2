@@ -83,7 +83,7 @@
         class="divider"
       />
       <!-- two-factor auth -->
-      <el-row>
+      <el-row v-if="isTwoFactorEnabled">
         <el-col :span="12">
           <h2>Two-Factor Authentication</h2>
           <el-row class="mb-20">
@@ -130,9 +130,9 @@
           </el-row>
         </el-col>
       </el-row>
-      <div
+      <!-- <div
         class="divider"
-      />
+      /> -->
       <!-- api keys -->
       <el-row>
         <el-col :span="12">
@@ -324,7 +324,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
 
@@ -362,6 +362,7 @@ export default {
     return {
       apiKeys: [],
       isApiKeysLoading: true,
+      isTwoFactorEnabled: false,
       ruleForm: {
         firstName: '',
         middleInitial: '',
@@ -394,7 +395,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
+    ...mapState([
+      'profile',
+      'activeOrganization',
+      'userToken',
+      'config',
+      'onboardingEvents'
+    ]),
+
+    ...mapGetters(['hasOrcidId']),
+
     hasAuthyId: function() {
       return this.profile && this.profile.authyId > 0
     },
@@ -723,6 +733,14 @@ export default {
 
         }
       })
+    },
+
+    /**
+     * Opens deleteORCID modal
+     * @param {String} refName
+     */
+    openORCIDWindow: function() {
+      this.$refs.deleteOrcidDialog.dialogVisible = true
     }
   }
 }

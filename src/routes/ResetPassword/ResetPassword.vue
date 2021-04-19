@@ -88,6 +88,7 @@
             @submit.native.prevent="onPasswordFormSubmit"
           >
             <el-form-item
+              v-show="!$route.query.username"
               class="email"
               prop="email"
             >
@@ -114,7 +115,7 @@
               <el-input
                 v-model="passwordForm.password"
                 type="password"
-                placeholder="Password"
+                placeholder="New Password"
                 autofocus
                 @click="onPasswordFormSubmit"
               />
@@ -131,7 +132,7 @@
               <bf-button
                 class="reset-pw-btn"
                 :processing="isResettingPassword"
-                processing-text="Saving"
+                :processing-text="resettingPasswordText"
                 @click="onPasswordFormSubmit"
               >
                 Reset Password
@@ -236,7 +237,8 @@ export default {
       isResettingPassword: false,
       isPasswordFormValid: false,
       tempEmail: '',
-      errorMsg: ''
+      errorMsg: '',
+      resettingPasswordText: 'Saving'
     }
   },
 
@@ -282,6 +284,12 @@ export default {
     verificationCode: {
       handler(val) {
         this.passwordForm.code = val
+      },
+      immediate: true
+    },
+    '$route.query.username': {
+      handler(val) {
+        this.passwordForm.email = val
       },
       immediate: true
     }
@@ -335,6 +343,8 @@ export default {
      * @param {Object} e
      */
     onPasswordFormSubmit: function(e) {
+      this.resettingPasswordText = 'Saving'
+
       this.$refs.passwordForm.validate(valid => {
         if (!valid) {
           return
@@ -347,11 +357,10 @@ export default {
       Auth.forgotPasswordSubmit(email, code, password)
         .then(() => {
           this.loginUser()
+          this.resettingPasswordText = 'Logging In'
         })
         .catch(error => {
           this.errorMsg = error.message
-        })
-        .finally(() =>  {
           this.isResettingPassword = false
         })
       })

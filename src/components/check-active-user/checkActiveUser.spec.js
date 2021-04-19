@@ -16,12 +16,21 @@ describe('CheckActiveUser.vue', () => {
   beforeEach(() => {
     store = new Vuex.Store({
       state: {
-        userToken: '123'
+        userToken: '123',
+        config: {
+          environment: 'dev'
+        }
       },
       getters
     })
-    cmp = shallow(CheckActiveUser, { store })
-    cmp.vm.interval = 100
+    cmp = shallow(CheckActiveUser, {
+      store,
+      computed: {
+        interval() {
+          return 100
+        }
+      }
+    })
   })
 
   afterEach(() => {
@@ -46,10 +55,8 @@ describe('CheckActiveUser.vue', () => {
   })
 
   it('handleActiveUser: handles active user', (done) => {
-    const spy = jest.spyOn(Auth, 'currentSession').mockReturnValue({
-      getAccessToken: () => ({
-        getJwtToken: () => ("Secret-Token")
-      })
+    const spy = jest.spyOn(Auth, 'currentAuthenticatedUser').mockReturnValue({
+      mockUser: {}
     });
     cmp.vm.pingUserActive()
     setTimeout(() => {
