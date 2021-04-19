@@ -108,7 +108,8 @@ export const state = {
   profile: {},
   pageNotFound: false,
   dataUseAgreements: [],
-  onboardingEvents: []
+  onboardingEvents: [],
+  shouldShowLinkOrcidDialog: false
 }
 
 const initialFilterState = state.datasetFilters
@@ -579,7 +580,11 @@ export const mutations = {
       }
     })
     state.dataUseAgreements = dataUseAgreements
-  }
+  },
+
+  UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG(state, shouldShowLinkOrcidDialog) {
+    state.shouldShowLinkOrcidDialog = shouldShowLinkOrcidDialog
+  },
 }
 
 // actions
@@ -720,6 +725,7 @@ export const actions = {
   removeDataUseAgreement: ({ commit }, evt) => commit('REMOVE_DATA_USE_AGREEMENT', evt),
   updateDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DATA_USE_AGREEMENT', evt),
   updateDefaultDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DEFAULT_DATA_USE_AGREEMENT', evt),
+  updateShouldShowLinkOrcidDialog: ({ commit }, evt) => commit('UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG', evt),
 }
 
 // getters
