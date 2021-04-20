@@ -11,6 +11,7 @@ const BfNavigationSecondary = () => import('../components/bf-navigation/BfNaviga
 const Login = () => import('./login/Login.vue')
 const Viewer = () => import('../components/viewer/BfViewer/BfViewer.vue')
 const ResetPassword = () => import('./ResetPassword/ResetPassword.vue')
+const DocsLogin = () => import('./DocsLogin/DocsLogin.vue')
 
 /**
  * User Onboarding Components
@@ -576,6 +577,13 @@ const routes = [
       page: Login
     },
     props: true
+  },
+  {
+    name: 'docs-login',
+    path: '/docs-login',
+    components: {
+      page: DocsLogin
+    }
   },
   /**
    * Redirects from old URLs
