@@ -1,6 +1,6 @@
-#### 33.1.1 (2021-04-19)
+### 33.2.0 (2021-04-20)
 
-##### Bug Fixes
+##### New Features
 
-* **ORCID:**  FIx race condition with link ORCID dialog (2e0fc648)
+* **Documentation:**  Login redirect for Docs (#43) (179877c2)
 
