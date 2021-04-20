@@ -296,13 +296,6 @@ export default {
       return `${this.config.apiUrl}/user?api_key=${token}`
     },
     /**
-     * Get Readme JWT for user url
-     * @param {String} token
-     */
-    getReadmeJWTUrl: function(token) {
-      return `${this.config.apiUrl}/session/readme-credentials?api_key=${token}`
-    },
-    /**
      * Get active org data
      */
     getActiveOrg: function() {
@@ -382,17 +375,7 @@ export default {
     setDefaultRoute: function(orgId) {
       const redirect = pathOr('', ['query', 'redirectTo'], this.$route)
       if (redirect) {
-
-        if (redirect == 'https://docs.pennsieve.io') {
-          console.log("Redirecting to Documentation Hub")
-
-          this.sendXhr(this.getReadmeJWTUrl(this.userToken), { method: 'GET' })
-            .then(response => window.location.replace(redirect +"?auth_token=" + response))
-            .catch(this.handleXhrError.bind(this))
-        } else {
-          window.location.replace(redirect)
-        }
-
+        window.location.replace(redirect)
       } else {
         this.$router.push(`/${orgId}/datasets`)
         this.launchOnboarding()
