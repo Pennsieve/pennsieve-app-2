@@ -380,7 +380,6 @@ export default {
         this.$router.push(`/${orgId}/datasets`)
         this.launchOnboarding()
         if (this.shouldShowLinkOrcidDialog) {
-          console.log('yo')
           this.setLinkOrcidDialog()
         }
       }
