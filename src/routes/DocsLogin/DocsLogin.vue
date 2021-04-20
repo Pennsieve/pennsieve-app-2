@@ -70,7 +70,7 @@ export default {
       this.isLoadingReadmeCredentials = true
 
       this.sendXhr(`${this.config.apiUrl}/session/readme-credentials?api_key=${token}`, { method: 'GET' })
-        .then(response => window.location.replace(`https://docs.pennsieve.io?auth_token=${response}`))
+        .then(response => window.location.replace(`${this.config.docsUrl}?auth_token=${response}`))
         .catch(this.handleXhrError.bind(this))
     }
   }
