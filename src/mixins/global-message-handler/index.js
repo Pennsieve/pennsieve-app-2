@@ -101,7 +101,8 @@ export default {
     ...mapState([
       'onboardingEvents',
       'bfTermsOfServiceVersion',
-      'orgDatasetStatuses'
+      'orgDatasetStatuses',
+      'shouldShowLinkOrcidDialog'
     ]),
 
     /**
@@ -381,6 +382,9 @@ export default {
       } else {
         this.$router.push(`/${orgId}/datasets`)
         this.launchOnboarding()
+        if (this.shouldShowLinkOrcidDialog) {
+          this.setLinkOrcidDialog()
+        }
       }
     },
 

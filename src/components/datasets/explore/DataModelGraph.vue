@@ -42,7 +42,7 @@
     >
       <p class="no-chart-data--copy">
         <a
-          href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/overview-of-the-blackfynn-knowledge-graph"
+          href="https://docs.pennsieve.io/docs/introduction-to-metadata-on-pennsieve"
           target="_blank"
         >
           Learn More

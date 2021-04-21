@@ -21,7 +21,7 @@
           <li v-if="isDatasetOwner">
             Dataset owner
             <a
-              href="https://help.blackfynn.com/en/articles/3276100-transfer-ownership-of-a-dataset"
+              href="https://docs.pennsieve.io/docs/transfer-ownership-of-a-dataset"
               target="_blank"
             >
               What's this?

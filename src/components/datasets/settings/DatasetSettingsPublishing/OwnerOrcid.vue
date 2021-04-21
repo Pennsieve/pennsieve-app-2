@@ -4,7 +4,7 @@
       <p class="sharing-blurb">
         Connect your ORCIDiD to your Pennsieve account to enable publishing.
         <a
-          href="https://help.blackfynn.com/en/articles/2673436-orcid-ids-on-the-blackfynn-platform"
+          href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform"
           target="_blank"
           alt="ORCID learn more link"
         >
@@ -23,7 +23,7 @@
       <div>
         <p class="orcid-success-text blurb">
           Below is the ORCID associated with your Pennsieve account. <a
-            href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn"
+            href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform"
             target="_blank"
           >
             Learn More

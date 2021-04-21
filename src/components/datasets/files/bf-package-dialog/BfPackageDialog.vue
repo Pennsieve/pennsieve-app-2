@@ -303,7 +303,7 @@
         if (value === '') {
           callback(new Error('Please provide name'))
         } else if (!isValidName) {
-          callback(new Error('This is not a valid filename. Find out more <a href="https://help.blackfynn.com/en/articles/4333261" target="_blank">here</a>.'))
+          callback(new Error('This is not a valid filename. Find out more <a href="https://docs.pennsieve.io/" target="_blank">here</a>.'))
         } else if (!isUnique || this.isDuplicate) {
           callback(new Error('Name must be unique'))
         } else {

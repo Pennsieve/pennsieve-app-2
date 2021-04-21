@@ -137,7 +137,8 @@ export default {
       'datasetContributors',
       'datasetDescription',
       'getPermission',
-      'orgMembers'
+      'orgMembers',
+      'onboardingEvents'
     ]),
     ...mapGetters([
       'getPermission',
@@ -314,7 +315,6 @@ export default {
                 ...self.profile,
                 orcid: self.oauthInfo
               })
-
             })
             .catch(self.handleXhrError.bind(this))
         }
@@ -335,7 +335,7 @@ export default {
       // Set locked property on dataset
       const updatedDataset = merge(this.dataset, { locked: true })
       return this.updateDataset(updatedDataset)
-    },
+    }
   }
 }
 </script>
