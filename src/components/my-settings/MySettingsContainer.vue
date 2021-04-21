@@ -83,7 +83,7 @@
         class="divider"
       />
       <!-- two-factor auth -->
-      <el-row v-if="isTwoFactorEnabled">
+      <el-row>
         <el-col :span="12">
           <h2>Two-Factor Authentication</h2>
           <el-row class="mb-20">
@@ -106,14 +106,14 @@
             <el-col>
               <div class="two-factor-status-wrap">
                 <span class="status-text">
-                  Status: {{ hasAuthyId ? 'On' : 'Off' }}
+                  Status: {{ authEnabled ? 'On' : 'Off' }}
                 </span>
                 <span
                   class="status-icon"
-                  :class="{ enabled: hasAuthyId }"
+                  :class="{ enabled: authEnabled }"
                 >
                   <svg-icon
-                    :name="hasAuthyId ? 'icon-lock' : 'icon-unlocked'"
+                    :name="authEnabled ? 'icon-lock' : 'icon-unlocked'"
                     height="20"
                     width="20"
                   />
@@ -122,17 +122,17 @@
             </el-col>
             <el-col class="two-factor-col-btn">
               <bf-button
-                @click="handleTwoFactorBtnClick(hasAuthyId)"
+                @click="handleTwoFactorBtnClick(authEnabled)"
               >
-                {{ hasAuthyId ? 'Disable' : 'Enable' }}
+                {{ authEnabled ? 'Disable' : 'Enable' }}
               </bf-button>
             </el-col>
           </el-row>
         </el-col>
       </el-row>
-      <!-- <div
+      <div
         class="divider"
-      /> -->
+      />
       <!-- api keys -->
       <el-row>
         <el-col :span="12">
@@ -293,10 +293,12 @@
 
       <create-two-factor
         ref="addTwoFactorDialog"
+        @change-status="changeStatus"
       />
 
       <delete-two-factor
         ref="deleteTwoFactorDialog"
+        @change-status="changeStatus"
       />
 
       <create-api-key
@@ -327,6 +329,7 @@ import Vue from 'vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfRafter from '../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../shared/bf-button/BfButton.vue'
@@ -361,8 +364,8 @@ export default {
   data() {
     return {
       apiKeys: [],
+      mfaStatus: false,
       isApiKeysLoading: true,
-      isTwoFactorEnabled: false,
       ruleForm: {
         firstName: '',
         middleInitial: '',
@@ -395,22 +398,29 @@ export default {
   },
 
   computed: {
-    ...mapState([
+     ...mapState([
       'profile',
       'activeOrganization',
       'userToken',
       'config',
-      'onboardingEvents'
+      'onboardingEvents',
+      'cognitoUser'
     ]),
 
     ...mapGetters(['hasOrcidId']),
 
-    hasAuthyId: function() {
-      return this.profile && this.profile.authyId > 0
+    /**
+     * Checks whether or not auth is enabled
+     * @returns {Boolean}
+     */
+    authEnabled: function() {
+      return this.cognitoUser.preferredMFA === 'SOFTWARE_TOKEN_MFA' || this.cognitoUser.challengeName === 'SOFTWARE_TOKEN_MFA' || this.mfaStatus
     },
+
     hasApiKeys: function() {
       return this.apiKeys.length > 0
     },
+
     getApiKeysUrl: function() {
       const url = pathOr('', ['config', 'apiUrl'])(this)
       const userToken = prop('userToken', this)
@@ -495,10 +505,26 @@ export default {
     this.setRuleFormData(this.profile)
     this.getApiKeys()
     this.scrollToElement()
+    this.getCognitoUser()
   },
 
   methods: {
-    ...mapActions(['updateProfile']),
+    ...mapActions(['updateProfile', 'updateCognitoUser']),
+
+    changeStatus: function(val) {
+      this.mfaStatus = val
+    },
+
+    /**
+     * Get current authenticated Cognito user
+     */
+    getCognitoUser: function() {
+      Auth.currentAuthenticatedUser().then(user => {
+        this.updateCognitoUser(user)
+      })
+      .catch(this.handleXhrError.bind(this));
+    },
+
     /**
      * Scroll to element
      */
@@ -526,8 +552,8 @@ export default {
      * Opens proper two factor dialog
      * @param {Boolean} hasAuthyId
      */
-    handleTwoFactorBtnClick: function(hasAuthyId) {
-      if (!hasAuthyId) {
+    handleTwoFactorBtnClick: function(authEnabled) {
+      if (!authEnabled) {
         this.$refs.addTwoFactorDialog.dialogVisible = true
       } else {
         this.$refs.deleteTwoFactorDialog.dialogVisible = true
