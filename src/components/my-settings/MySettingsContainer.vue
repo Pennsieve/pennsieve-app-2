@@ -293,10 +293,12 @@
 
       <create-two-factor
         ref="addTwoFactorDialog"
+        @change-status="changeStatus"
       />
 
       <delete-two-factor
         ref="deleteTwoFactorDialog"
+        @change-status="changeStatus"
       />
 
       <create-api-key
@@ -323,7 +325,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
 import Auth from '@aws-amplify/auth'
@@ -361,8 +363,8 @@ export default {
   data() {
     return {
       apiKeys: [],
+      mfaStatus: false,
       isApiKeysLoading: true,
-      cognitoUser: {},
       ruleForm: {
         firstName: '',
         middleInitial: '',
@@ -395,9 +397,14 @@ export default {
 
   computed: {
     ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
+    ...mapState(['cognitoUser']),
 
+    /**
+     * Checks whether or not auth is enabled
+     * @returns {Boolean}
+     */
     authEnabled: function() {
-      return this.cognitoUser.preferredMFA === 'SOFTWARE_TOKEN_MFA' || this.cognitoUser.challengeName === 'SOFTWARE_TOKEN_MFA'
+      return this.cognitoUser.preferredMFA === 'SOFTWARE_TOKEN_MFA' || this.cognitoUser.challengeName === 'SOFTWARE_TOKEN_MFA' || this.mfaStatus
     },
 
     hasApiKeys: function() {
@@ -492,7 +499,11 @@ export default {
   },
 
   methods: {
-    ...mapActions(['updateProfile']),
+    ...mapActions(['updateProfile', 'updateCognitoUser']),
+
+    changeStatus: function(val) {
+      this.mfaStatus = val
+    },
 
     getPreferredMFA: function() {
       Auth.getPreferredMFA(this.cognitoUser).then(resp => {
@@ -507,8 +518,7 @@ export default {
      */
     getCognitoUser: function() {
       Auth.currentAuthenticatedUser().then(user => {
-        this.cognitoUser = user
-        console.log('what is cognito user ', user)
+        this.updateCognitoUser(user)
       })
       .catch(err => console.log(err));
     },

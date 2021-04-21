@@ -176,7 +176,7 @@ export default {
       //     }
       //     this.sendTwoFactorAuthRequest()
       //   })
-
+      this.totpValidation = this.totpValidation.replace(/\s/g, '')
       Auth.verifyTotpToken(this.cognitoUser, this.totpValidation).then(() => {
       // don't forget to set TOTP as the preferred MFA method
       Auth.setPreferredMFA(this.cognitoUser, 'TOTP')
@@ -213,6 +213,8 @@ export default {
           msg: 'Two-factor Authentication successfully added'
         }
       })
+
+      this.$emit('change-status', true)
 
       // this.updateProfile({
       //   ...this.profile,

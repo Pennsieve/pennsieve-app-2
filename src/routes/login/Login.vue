@@ -229,17 +229,7 @@ export default Vue.component('bf-login', {
       this.isLoggingIn = true
        try {
          const user = await Auth.signIn(this.loginForm.email, this.loginForm.password)
-         if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
-          this.$router.push({
-            name: 'setup-profile',
-            params: {
-              user: user,
-              email: this.loginForm.email
-            }
-        })
-        } else {
-          this.handleLoginSuccess(user)
-        }
+         this.handleLoginSuccess(user)
         } catch (error) {
         this.isLoggingIn = false
         EventBus.$emit('toast', {
@@ -294,6 +284,7 @@ export default Vue.component('bf-login', {
      */
     async sendTwoFactorRequest() {
       this.isLoadingTwoFactor = true
+      this.twoFactorForm.token = this.twoFactorForm.token.replace(/\s/g, '')
       const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
       const userAttributes = propOr({}, 'attributes', user)

@@ -79,7 +79,7 @@ export default {
     sendDisableTwoFactorRequest: function() {
       this.closeDialog()
       Auth.setPreferredMFA(this.cognitoUser, 'NOMFA').then(resp => {
-        this.handleTwoFactorXhrSuccess()
+      this.handleTwoFactorXhrSuccess()
       })
 
     },
@@ -87,13 +87,14 @@ export default {
      * Handles successful two factor xhr response
      * @param {Object} response
      */
-    handleTwoFactorXhrSuccess: function(response) {
+    handleTwoFactorXhrSuccess: function() {
       EventBus.$emit('toast', {
         detail: {
           type: 'MESSAGE',
           msg: 'Two-factor Authentication successfully deleted'
         }
       })
+      this.$emit('change-status', false)
 
     },
     /**
