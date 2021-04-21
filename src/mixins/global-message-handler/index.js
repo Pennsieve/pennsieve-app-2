@@ -155,7 +155,8 @@ export default {
       'setDatasetTemplates',
       'setOrgContributors',
       'clearDatasetFilters',
-      'updateDataUseAgreements'
+      'updateDataUseAgreements',
+      'updateCognitoUser'
     ]),
 
     ...mapActions('datasetModule', [
@@ -343,6 +344,8 @@ export default {
             detail: this.profile
           })
 
+          const user = pathOr('', ['user'], evt)
+          this.updateCognitoUser(user)
           const activeOrg = this.activeOrganization
           const orgId = this.activeOrgId
           const isSubscribed = this.checkIsSubscribed(activeOrg)

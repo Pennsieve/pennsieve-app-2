@@ -236,8 +236,15 @@ export default {
     }
   },
 
-  mounted () {
-    this.generateTwoFactorCode()
+  watch: {
+    dialogVisible: {
+      handler: function(val) {
+        if (val) {
+          this.generateTwoFactorCode()
+        }
+      },
+      immediate: true
+    }
   },
 }
 </script>
