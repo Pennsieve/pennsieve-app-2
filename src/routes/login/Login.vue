@@ -296,7 +296,7 @@ export default Vue.component('bf-login', {
      */
     async sendTwoFactorRequest() {
       this.isLoadingTwoFactor = true
-      const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
+      const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token)
       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
       const userAttributes = propOr({}, 'attributes', user)
       EventBus.$emit('login', {token, userAttributes})
