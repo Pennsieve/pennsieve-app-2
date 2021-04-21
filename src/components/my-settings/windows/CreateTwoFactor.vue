@@ -216,10 +216,6 @@ export default {
 
       this.$emit('change-status', true)
 
-      // this.updateProfile({
-      //   ...this.profile,
-      //   authyId: true
-      // })
     },
     /**
      * Resets form fields and validations
