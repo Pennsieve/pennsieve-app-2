@@ -108,7 +108,7 @@ export const state = {
   profile: {},
   pageNotFound: false,
   dataUseAgreements: [],
-  cognitoUser: {}
+  cognitoUser: {},
   onboardingEvents: [],
   shouldShowLinkOrcidDialog: false
 }

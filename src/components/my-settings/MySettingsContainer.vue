@@ -130,9 +130,9 @@
           </el-row>
         </el-col>
       </el-row>
-      <!-- <div
+      <div
         class="divider"
-      /> -->
+      />
       <!-- api keys -->
       <el-row>
         <el-col :span="12">
@@ -522,7 +522,7 @@ export default {
       Auth.currentAuthenticatedUser().then(user => {
         this.updateCognitoUser(user)
       })
-      .catch(err => console.log(err));
+      .catch(this.handleXhrError.bind(this));
     },
 
     /**
