@@ -13,7 +13,7 @@
     <dialog-body>
       <p> Follow these steps to enable two-factor authentication for your account.</p>
 
-      <p>Please use a TOTP-compatible authenticator app, such as Google Authenticator or Authy. <a href="#" target="blank">Read More</a></p>
+      <p>Please use a TOTP-compatible authenticator app, such as Google Authenticator or Authy. <a href="https://docs.pennsieve.io" target="blank">Read More</a></p>
 
       <p class="strong">1. Enter the code into your authenticator app</p>
       <el-input v-model="totpCode"></el-input>
