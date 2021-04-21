@@ -494,6 +494,14 @@ export default {
   methods: {
     ...mapActions(['updateProfile']),
 
+    getPreferredMFA: function() {
+      Auth.getPreferredMFA(this.cognitoUser).then(resp => {
+        console.log('This is the get preferred MFA ', resp)
+      }).catch(err => {
+        console.log('err! ', err)
+      })
+    },
+
     /**
      * Get current authenticated Cognito user
      */
