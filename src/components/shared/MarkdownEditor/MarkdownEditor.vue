@@ -21,7 +21,7 @@
             Preview
           </button>
           <a
-            href="https://help.blackfynn.com/en/articles/3031207"
+            href="https://docs.pennsieve.io/docs/markdown-guide"
             target="_blank"
           >
             Markdown Help

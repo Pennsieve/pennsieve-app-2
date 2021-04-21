@@ -4,7 +4,7 @@
       <li>
         <a
           class="termsLink"
-          href="https://www.blackfynn.com/terms"
+          href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
           target="_blank"
         >
           Terms
@@ -13,14 +13,14 @@
       <li>
         <a
           class="privacyLink"
-          href="https://www.blackfynn.com/privacy"
+          href="https://docs.pennsieve.io/page/privacy-policy"
           target="_blank"
         >
           Privacy
         </a>
       </li>
       <li class="copyrightInfo">
-        &copy; {{ copyrightYear }} Pennsieve, Inc.
+        &copy; {{ copyrightYear }} The University of Pennsylvania
       </li>
     </ul>
   </div>

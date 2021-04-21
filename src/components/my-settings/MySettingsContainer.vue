@@ -83,7 +83,7 @@
         class="divider"
       />
       <!-- two-factor auth -->
-      <el-row>
+      <el-row v-if="isTwoFactorEnabled">
         <el-col :span="12">
           <h2>Two-Factor Authentication</h2>
           <el-row class="mb-20">
@@ -130,9 +130,9 @@
           </el-row>
         </el-col>
       </el-row>
-      <div
+      <!-- <div
         class="divider"
-      />
+      /> -->
       <!-- api keys -->
       <el-row>
         <el-col :span="12">
@@ -217,7 +217,7 @@
           </h2>
           <el-row v-if="!hasOrcidId">
             <p>
-              Connect your Pennsieve Profile to your ORCID. <a href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn">
+              Connect your Pennsieve Profile to your ORCID. <a href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform">
                 Learn More
               </a>
             </p>
@@ -239,7 +239,7 @@
             <div>
               <p class="orcid-success-text">
                 Below is the ORCID associated with your Pennsieve account. <a
-                  href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn"
+                  href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform"
                   target="_blank"
                 >
                   Learn More
@@ -266,7 +266,7 @@
                   </el-col>
                 </el-row>
                 <el-col class="orcid-delete-button">
-                  <button @click="openORCIDWindow">
+                  <button @click="isDeleteOrcidDialogVisible = true">
                     <svg-icon
                       icon="icon-remove"
                       height="10"
@@ -317,6 +317,7 @@
 
       <delete-orcid
         ref="deleteOrcidDialog"
+        :visible.sync="isDeleteOrcidDialogVisible"
         @orcid-deleted="updateORCID"
       />
     </bf-stage>
@@ -365,6 +366,7 @@ export default {
       apiKeys: [],
       mfaStatus: false,
       isApiKeysLoading: true,
+      isTwoFactorEnabled: false,
       ruleForm: {
         firstName: '',
         middleInitial: '',
@@ -391,13 +393,22 @@ export default {
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
-      loading: false
+      loading: false,
+      isDeleteOrcidDialogVisible: false
     }
   },
 
   computed: {
-    ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
-    ...mapState(['cognitoUser']),
+     ...mapState([
+      'profile',
+      'activeOrganization',
+      'userToken',
+      'config',
+      'onboardingEvents',
+      'cognitoUser'
+    ]),
+
+    ...mapGetters(['hasOrcidId']),
 
     /**
      * Checks whether or not auth is enabled
@@ -678,10 +689,11 @@ export default {
      * Function that's called after ORCID is deleted
      */
     updateORCID: function() {
+      this.isDeleteOrcidDialogVisible = false
       this.updateProfile({
         ...this.profile,
         orcid: {}
-        })
+      })
     },
 
     /**
@@ -757,7 +769,6 @@ export default {
     openORCIDWindow: function() {
       this.$refs.deleteOrcidDialog.dialogVisible = true
     }
-
   }
 }
 </script>

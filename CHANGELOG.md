@@ -1,8 +1,5 @@
-## 33.0.0 (2021-04-12)
+### 33.2.0 (2021-04-20)
 
-##### Other Changes
+##### New Features
 
-* Pennsieve/pennsieve-app into accept-invitation-route-CU-r38y9t (1896c44f)
-* //github.com/Pennsieve/pennsieve-app into login-cognito-CU-p30yzz (85259c1b)
-* Pennsieve/pennsieve-app into main (1d8cae4a)
-
+* **Documentation:**  Login redirect for Docs (#43) (179877c2)

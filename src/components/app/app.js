@@ -16,6 +16,7 @@ import BfUploadExternalFile from '../bf-upload-external-file/BfUploadExternalFil
 import BfUpload from '../BfUpload/BfUpload.vue'
 import SearchAllData from '@/components/SearchAllData/SearchAllData.vue'
 import Office365Dialog from '@/components/datasets/files/Office365Dialog/Office365Dialog.vue'
+import LinkOrcidDialog from '@/components/LinkOrcidDialog/LinkOrcidDialog.vue'
 
 import globalMessageHandler from '../../mixins/global-message-handler'
 import Request from '../../mixins/request'
@@ -37,7 +38,8 @@ export default {
     BfDownloadFile,
     BfUploadExternalFile,
     SearchAllData,
-    Office365Dialog
+    Office365Dialog,
+    LinkOrcidDialog
   },
 
   mixins: [
@@ -53,7 +55,8 @@ export default {
       // default meta description
       defaultPageDescription: 'Pennsieve secure Sign In page. Sign in to your Pennsieve customer account.',
       isUploadExternalFileModalOpen: false,
-      externalFile: {}
+      externalFile: {},
+      isLinkOrcidDialogVisible: false
     }
   },
 
@@ -75,7 +78,8 @@ export default {
       'getActiveOrganization',
       'config',
       'userToken',
-      'hasFeature'
+      'hasFeature',
+      'hasOrcidOnboardingEvent'
     ]),
 
     /**
@@ -195,7 +199,8 @@ export default {
       'setDatasetPublishedData',
       'setIsLoadingDatasetPublishedData',
       'setIsLoadingDatasetsError',
-      'updateOrgDatasetStatuses'
+      'updateOrgDatasetStatuses',
+      'updateShouldShowLinkOrcidDialog'
     ]),
 
     ...mapActions('datasetModule', [
@@ -316,6 +321,7 @@ export default {
       return this.getBfTermsOfService()
         .then(() => this.getProfileAndOrg(userToken))
         .then(() => this.getOnboardingEventStates(userToken))
+        .then(() => this.setLinkOrcidDialog())
     },
 
     /**
@@ -331,7 +337,7 @@ export default {
       const frag = document.createDocumentFragment()
       frag.appendChild(div)
 
-      const metaTag = frag.querySelector(`meta[name="BF.version"]`)
+      const metaTag = frag.querySelector(`meta[name="PS.version"]`)
       const content = metaTag.content
       // replace unnecessary characters if content is available
       return content ? content.replace(/\W|T/g, '') : ''
@@ -365,5 +371,15 @@ export default {
       .then(this.updateOnboardingEvents.bind(this))
       .catch(this.handleXhrError.bind(this))
     },
+
+    /**
+     * Compute if the link orcid dialog should be visible
+     */
+     setLinkOrcidDialog: function() {
+      this.updateShouldShowLinkOrcidDialog(true)
+      if (this.$route.name !== 'terms-of-service') {
+        this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+      }
+    }
   }
 }

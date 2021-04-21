@@ -4,7 +4,7 @@
     <p class="mb-16">
       The files listed below will be ignored during publication. Please use the entire source file name and extension. List one filename per line.
       <a
-        href="https://help.blackfynn.com/en/articles/4284231"
+        href="https://docs.pennsieve.io/docs/preventing-files-from-being-included-during-publishing"
         target="_blank"
       >
         What's this?

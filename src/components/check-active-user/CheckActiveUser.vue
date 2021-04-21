@@ -1,8 +1,9 @@
 <template />
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import Auth from '@aws-amplify/auth'
+import Cookies from 'js-cookie'
 
 import EventBus from '@/utils/event-bus'
 
@@ -11,17 +12,25 @@ export default {
 
   data() {
     return {
-      // interval to poll user session 5 minutes
-      interval: 3e5,
       // async request reference
       pingUserHandle: null
     }
   },
 
   computed: {
-    ...mapGetters([
+    ...mapState([
+      'config',
       'userToken'
-    ])
+    ]),
+
+    /**
+     * Compute interval based on environment
+     */
+    interval: function() {
+      return this.config.environment === 'prod'
+        ? 600000 // 10 minutes
+        : 240000 // 4 minutes
+    }
   },
 
   watch: {
@@ -37,6 +46,10 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'updateUserToken'
+    ]),
+
     /**
      * Calls PennsieveApp._logout()
      */
@@ -51,16 +64,19 @@ export default {
      * sets pingUserHandle reference
      */
     pingUserActive: function() {
-      // Send the ajax call to check if user is active every 5 minutes
-      this.pingUserHandle = setTimeout(() => {
-        Auth.currentSession()
-          .then(() => {
-            this.pingUserActive()
+      this.pingUserHandle = setTimeout(async () => {
+        try {
+          const cognitoUser = await Auth.currentAuthenticatedUser()
+          const currentSession = cognitoUser.signInUserSession
+          cognitoUser.refreshSession(currentSession.refreshToken, (err, session) => {
+            const token = session.accessToken.jwtToken
+            Cookies.set('user_token', token)
+            this.updateUserToken(token)
           })
-          .catch(() => {
-            this.callLogout()
-            return clearTimeout(this.pingUserHandle)
-          })
+        } catch (err) {
+          this.callLogout()
+          return clearTimeout(this.pingUserHandle)
+        }
       }, this.interval)
     }
   }
