@@ -1,11 +1,22 @@
 <template>
-  <div class="reset-password">
+  <div
+    class="reset-password"
+    :class="{ 'welcome-to-pennsieve': $route.name === 'welcome-to-pennsieve' }"
+  >
     <div class="reset-password-wrapper">
       <div class="reset-password-inner">
         <div class="login-header">
           <img
+            v-if="$route.name === 'welcome-to-pennsieve'"
+            src="../../../static/images/blackfynn-logo-full.svg"
+            class="logo mb-24"
+            alt="Logo for Blackfynn"
+          >
+
+          <img
             src="../../../static/images/pennsieve-logo-full.svg"
             class="logo"
+            alt="Logo for Pennsieve"
           >
         </div>
         <!-- submit email -->
@@ -13,13 +24,27 @@
           v-if="!verificationCode && !linkSent"
           key="emailForm"
         >
-          <h2>Reset your password.</h2>
-          <p
-            v-if="!hideEmail"
-            class="email-description"
-          >
-            Enter the email address associated with your account, and we’ll email you a link to reset your password.
-          </p>
+          <template v-if="$route.name === 'welcome-to-pennsieve'">
+            <h2>Welcome to Pennsieve.</h2>
+            <p class="mb-16">
+              Welcome to Pennsieve! We are thrilled to have you back on the platform. A lot of work has gone into migrating the platform from Blackfynn to Pennsieve at the University of Pennsylvania!
+            </p>
+            <p class="mb-16">
+              For security reasons, you need to reset your password and follow the instructions in the email that follows. 
+            </p>
+            <p class="mb-16">
+              In addition, after you login the platform, you will need to re-associate your user with an ORCID account if you have one. This is required in order to publish datasets.
+            </p>
+          </template>
+          <template v-else>
+            <h2>Reset your password.</h2>
+            <p
+              v-if="!hideEmail"
+              class="email-description"
+            >
+              Enter the email address associated with your account, and we’ll email you a link to reset your password.
+            </p>
+          </template>
           <el-form
             ref="emailForm"
             :model="emailForm"
@@ -332,6 +357,7 @@ export default {
     onEmailFormSuccess: function() {
       this.linkSent = true
       this.hideEmail = true
+      this.passwordForm.email = this.emailForm.email
 
       this.$nextTick(() => {
         this.$refs.passwordFormEmail.focus()
@@ -506,6 +532,13 @@ export default {
   }
   .error {
     color: $error-color;
+  }
+}
+
+.welcome-to-pennsieve {
+  .login-header {
+    align-items: center;
+    flex-direction: column;
   }
 }
 </style>

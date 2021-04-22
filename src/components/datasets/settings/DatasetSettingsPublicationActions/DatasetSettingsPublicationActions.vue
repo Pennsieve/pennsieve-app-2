@@ -13,7 +13,7 @@
       </bf-button>
       <h3>Request Revision</h3>
       <p>
-        Request to publish a revision of your published dataset (only updates information). <a href="https://help.blackfynn.com/en/articles/3730853">
+        Request to publish a revision of your published dataset (only updates information). <a href="https://docs.pennsieve.io/docs/submitting-a-revised-dataset-for-publication">
           Learn More
         </a>
       </p>

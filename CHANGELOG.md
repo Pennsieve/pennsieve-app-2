@@ -1,12 +1,5 @@
-### 32.5.0 (2021-04-22)
+### 33.2.0 (2021-04-20)
 
 ##### New Features
 
-* **Reset Password:**  Use username from email link (e30ff7eb)
-* **Analytics:**  Update to Google Analytics 4 (710229a5)
-* **ORCID:**  Show dialog notifying user to link ORCID (5d0ce085)
-
-##### Bug Fixes
-
-* **Reset Password:**  Loading state and timing (49469e96)
-
+* **Documentation:**  Login redirect for Docs (#43) (179877c2)

@@ -199,7 +199,8 @@ export default {
       'setDatasetPublishedData',
       'setIsLoadingDatasetPublishedData',
       'setIsLoadingDatasetsError',
-      'updateOrgDatasetStatuses'
+      'updateOrgDatasetStatuses',
+      'updateShouldShowLinkOrcidDialog'
     ]),
 
     ...mapActions('datasetModule', [
@@ -336,7 +337,7 @@ export default {
       const frag = document.createDocumentFragment()
       frag.appendChild(div)
 
-      const metaTag = frag.querySelector(`meta[name="BF.version"]`)
+      const metaTag = frag.querySelector(`meta[name="PS.version"]`)
       const content = metaTag.content
       // replace unnecessary characters if content is available
       return content ? content.replace(/\W|T/g, '') : ''
@@ -375,7 +376,10 @@ export default {
      * Compute if the link orcid dialog should be visible
      */
      setLinkOrcidDialog: function() {
-      this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+      this.updateShouldShowLinkOrcidDialog(true)
+      if (this.$route.name !== 'terms-of-service') {
+        this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+      }
     }
   }
 }

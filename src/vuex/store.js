@@ -108,13 +108,19 @@ export const state = {
   profile: {},
   pageNotFound: false,
   dataUseAgreements: [],
-  onboardingEvents: []
+  cognitoUser: {},
+  onboardingEvents: [],
+  shouldShowLinkOrcidDialog: false
 }
 
 const initialFilterState = state.datasetFilters
 
 // mutations
 export const mutations = {
+  UPDATE_COGNITO_USER (state, data) {
+    Vue.set(state, 'cognitoUser', data)
+  },
+
   SET_PAGE_NOT_FOUND (state, data) {
     Vue.set(state, 'pageNotFound', data)
   },
@@ -579,12 +585,16 @@ export const mutations = {
       }
     })
     state.dataUseAgreements = dataUseAgreements
-  }
+  },
+
+  UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG(state, shouldShowLinkOrcidDialog) {
+    state.shouldShowLinkOrcidDialog = shouldShowLinkOrcidDialog
+  },
 }
 
 // actions
 export const actions = {
-
+  updateCognitoUser: ({commit}, evt) => commit('UPDATE_COGNITO_USER', evt),
   updatePageNotFound: ({ commit }, evt) => commit('SET_PAGE_NOT_FOUND', evt),
   updateScientificUnits: ({ commit }, evt) => commit('UPDATE_SCIENTIFIC_UNITS', evt),
   updateSearchModalSearch: ({ commit }, search) => {
@@ -720,6 +730,7 @@ export const actions = {
   removeDataUseAgreement: ({ commit }, evt) => commit('REMOVE_DATA_USE_AGREEMENT', evt),
   updateDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DATA_USE_AGREEMENT', evt),
   updateDefaultDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DEFAULT_DATA_USE_AGREEMENT', evt),
+  updateShouldShowLinkOrcidDialog: ({ commit }, evt) => commit('UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG', evt),
 }
 
 // getters

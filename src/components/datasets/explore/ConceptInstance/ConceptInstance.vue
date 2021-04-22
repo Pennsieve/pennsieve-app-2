@@ -60,7 +60,6 @@
             class="blinded-review-heading"
           >
             <h1 v-html="$sanitize(formattedConceptTitle)" />
-
           </div>
         </template>
 
@@ -559,7 +558,7 @@
                     We don’t recommend uploading more than 10GB through the web UI, due to browser
                     limitations. If you’re uploading large amounts of data, please use the
                     <a
-                      href="http://help.blackfynn.com/blackfynn-developer-tools"
+                      href="https://docs.pennsieve.io/"
                       target="_blank"
                     >
                       Pennsieve API
@@ -650,7 +649,7 @@
                 Relationships button above.
               </p>
               <a
-                href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/linking-records-in-the-knowledge-graph"
+                href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"
                 target="_blank"
               >
                 <bf-button class="primary learn-more">

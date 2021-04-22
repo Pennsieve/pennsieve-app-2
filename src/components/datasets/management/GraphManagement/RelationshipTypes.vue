@@ -18,7 +18,7 @@
 
         <a
           class="buttonLink"
-          href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/creating-relationships-between-data-models"
+          href="https://docs.pennsieve.io/docs/creating-relationships-between-metadata-models"
           target="_blank"
         >
           <bf-button
