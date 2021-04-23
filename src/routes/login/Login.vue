@@ -84,6 +84,7 @@
               <el-input
                 ref="twoFactor"
                 v-model="twoFactorForm.token"
+                maxlength="6"
                 placeholder="Two-factor token"
                 autofocus
               />
