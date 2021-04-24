@@ -84,6 +84,7 @@
               <el-input
                 ref="twoFactor"
                 v-model="twoFactorForm.token"
+                maxlength="6"
                 placeholder="Two-factor token"
                 autofocus
               />
@@ -285,13 +286,18 @@ export default Vue.component('bf-login', {
     async sendTwoFactorRequest() {
       this.isLoadingTwoFactor = true
       this.twoFactorForm.token = this.twoFactorForm.token.replace(/\s/g, '')
-      const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
-      const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
-      const userAttributes = propOr({}, 'attributes', user)
-      EventBus.$emit('login', {token, userAttributes, user})
-      this.twoFactorForm.token = ''
-      this.showToken = false
-      this.isLoadingTwoFactor = false
+      try {
+        const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+        const userAttributes = propOr({}, 'attributes', user)
+        EventBus.$emit('login', {token, userAttributes, user})
+        this.twoFactorForm.token = ''
+        this.showToken = false
+        this.isLoadingTwoFactor = false
+      } catch (error) {
+        this.handleTwoFactorError()
+      }
+
     },
 
     /**
@@ -320,6 +326,7 @@ export default Vue.component('bf-login', {
       this.showToken = false
       this.loginForm.email = ''
       this.loginForm.password = ''
+      this.twoFactorForm.token = ''
       this.isLoggingIn = false
     }
   }
