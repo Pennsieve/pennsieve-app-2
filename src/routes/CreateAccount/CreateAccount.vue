@@ -1,12 +1,12 @@
 <template>
   <div class="wrapper">
     <div class="create-account-wrap">
-      <h2 class="sharp-sans">Create Your Account</h2>
+      <div v-if="!accountCreated">
+        <h2 class="sharp-sans">Create Your Account</h2>
       <p>
         Welcome to Pennsieve! Complete the following form so that we can
         register your account.
-        <strong>All fields are required</strong>
-        .
+        <strong>All fields are required</strong>.
       </p>
       <el-form
         id="signup-form"
@@ -49,9 +49,14 @@
         and
         <a href="https://www.blackfynn.com/privacy" target="_blank">
           Privacy Policy
-        </a>
-        .
+        </a>.
       </p>
+      </div>
+      <div v-else>
+         <h2 class="sharp-sans">Thank You</h2>
+         <p>Thank you for registering an account. An email should have been sent to create your password.</p>
+        <router-link :to="{name: 'login'}">Back to login</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -66,6 +71,7 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
     data() {
       return {
         isCreatingAccount: false,
+        accountCreated: false,
         signupForm: {
         firstName: '',
         lastName: '',
@@ -89,7 +95,12 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
         this.$router.push({
           name: 'login'
         })
-      }
+      },
+
+      onFormSubmit: function() {
+        this.isCreatingAccount = true
+        this.accountCreated = true
+      },
     },
   }
 </script>
