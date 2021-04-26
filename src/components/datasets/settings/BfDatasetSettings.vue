@@ -28,7 +28,7 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'publishing-settings' }">
+            <router-link :class="[ isSandboxOrg ? 'tab-disabled' : '']" :to="{ name: 'publishing-settings' }">
               Publishing
             </router-link>
           </li>
@@ -290,7 +290,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['concepts', 'datasetEtag']),
+    ...mapState(['concepts', 'datasetEtag', 'isSandboxOrg']),
 
     ...mapGetters([
       'activeOrganization',
@@ -626,6 +626,11 @@ hr {
 .tag-wrap {
   display: flex;
   flex-wrap: wrap;
+}
+
+.tab-disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .sharing-blurb {

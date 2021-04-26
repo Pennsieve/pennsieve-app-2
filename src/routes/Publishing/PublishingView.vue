@@ -86,7 +86,7 @@ export default {
     ]),
 
     ...mapState([
-      'config', 'activeOrganization', 'primaryNavOpen'
+      'config', 'activeOrganization', 'primaryNavOpen', 'isSandboxOrg'
     ]),
 
     ...mapState('publishingModule', [
@@ -135,6 +135,14 @@ export default {
       this.togglePrimaryNav(true)
     }
 
+  },
+
+   beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.isSandboxOrg) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {

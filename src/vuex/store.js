@@ -110,7 +110,8 @@ export const state = {
   dataUseAgreements: [],
   cognitoUser: {},
   onboardingEvents: [],
-  shouldShowLinkOrcidDialog: false
+  shouldShowLinkOrcidDialog: false,
+  isSandboxOrg: true // TODO: REMOVE WHEN ENDPOINT IN PLACE
 }
 
 const initialFilterState = state.datasetFilters
