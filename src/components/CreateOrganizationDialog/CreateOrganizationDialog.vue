@@ -154,12 +154,18 @@ import EventBus from '@/utils/event-bus'
         }
       },
 
+      /**
+       * Send endpoint request
+       */
       sendRequest: function() {
         this.isCreating = true
         // TODO add endpoint logic to create organization once it becomes available
         this.handleSuccess()
       },
 
+      /**
+       * Handle endpoint request success
+       */
       handleSuccess: function() {
         // logic to handle endpoint success
          EventBus.$emit('toast', {

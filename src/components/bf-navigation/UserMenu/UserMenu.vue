@@ -303,6 +303,9 @@ export default {
 
   methods: {
 
+    /**
+     * Open Create Organization Dialog
+     */
     openCreateOrganizationDialog: function() {
       this.isCreateOrgDialogVisible = true
     },
