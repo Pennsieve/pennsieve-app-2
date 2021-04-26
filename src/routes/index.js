@@ -12,6 +12,7 @@ const Login = () => import('./login/Login.vue')
 const Viewer = () => import('../components/viewer/BfViewer/BfViewer.vue')
 const ResetPassword = () => import('./ResetPassword/ResetPassword.vue')
 const DocsLogin = () => import('./DocsLogin/DocsLogin.vue')
+const CreateOrg = () => import('./CreateOrg/CreateOrg.vue')
 
 /**
  * User Onboarding Components
@@ -350,6 +351,15 @@ const routes = [
     path: '/:orgId/datasets/:datasetId/viewer/:fileId',
     components: {
       page: Viewer
+    },
+    props: true
+  },
+  {
+    name: 'create-org',
+    path: '/:orgId/create-org',
+    components: {
+      page: CreateOrg,
+      navigation: BfNavigation
     },
     props: true
   },

@@ -98,7 +98,7 @@
     </el-select>
 
     <bf-button
-      :disabled="isFormInvalid"
+      :disabled="isFormInvalid || isSandboxOrg"
       :processing="processing"
       @click="submit"
     >
@@ -196,7 +196,8 @@
       ...mapState([
         'orgMembers',
         'teams',
-        'activeOrganization'
+        'activeOrganization',
+        'isSandboxOrg'
       ]),
 
       ...mapGetters([

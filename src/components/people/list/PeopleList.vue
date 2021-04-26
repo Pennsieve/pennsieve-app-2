@@ -137,7 +137,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 
 import BfRafter from '../../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
@@ -192,6 +192,9 @@ export default {
       'hasFeature',
       'profile'
     ]),
+    ...mapState([
+      'isSandboxOrg'
+    ]),
     hasAdminRights: function() {
       const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
       const isOwner = propOr(false, 'isOwner', this.activeOrganization)
@@ -214,6 +217,14 @@ export default {
       },
       immediate: true
     }
+  },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.isSandboxOrg) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {

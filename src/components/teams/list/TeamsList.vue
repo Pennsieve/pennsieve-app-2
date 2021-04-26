@@ -170,7 +170,8 @@ export default {
     ]),
     ...mapState([
       'teamsLoading',
-      'teams'
+      'teams',
+      'isSandboxOrg'
     ]),
     hasAdminRights: function() {
       if (this.activeOrganization) {
@@ -196,6 +197,14 @@ export default {
       },
       immediate: true
     }
+  },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.isSandboxOrg) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {
