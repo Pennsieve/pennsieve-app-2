@@ -16,12 +16,14 @@
       <p>Please use a TOTP-compatible authenticator app, such as Google Authenticator or Authy. <a href="https://docs.pennsieve.io" target="blank">Read More</a></p>
 
       <p class="strong">1. Enter the code into your authenticator app</p>
+
       <el-input v-model="totpCode"></el-input>
 
       <p class="strong">
         2. Enter validation code:
       </p>
-      <el-input v-model="totpValidation"></el-input>
+      <el-input v-model="totpValidation" maxlength="6"></el-input>
+      <p class="error" v-if="error">Incorrect validation code. Please try again.</p>
       <!-- <el-form
         ref="twoFactorForm"
         :model="ruleForm"
@@ -104,6 +106,7 @@ export default {
       dialogVisible: false,
       totpCode: '',
       totpValidation: '',
+      error: false,
       labelPosition: 'right',
       ruleForm: {
         countryCode: '1',
@@ -139,6 +142,7 @@ export default {
         return ''
       }
       return `${url}/user/twofactor?api_key=${userToken}`
+
     }
   },
 
@@ -182,7 +186,9 @@ export default {
       Auth.setPreferredMFA(this.cognitoUser, 'TOTP')
       this.handleTwoFactorXhrSucces()
 
-      }).catch(this.handleXhrError.bind(this))
+      }).catch(() => {
+        this.error = true
+      })
     },
     /**
      * Makes XHR call to update two factor auth status
@@ -206,6 +212,7 @@ export default {
      */
     handleTwoFactorXhrSucces: function(response) {
       this.closeDialog()
+      this.error = false
 
       EventBus.$emit('toast', {
         detail: {
@@ -230,6 +237,7 @@ export default {
      */
     closeDialog: function() {
       this.dialogVisible = false
+      this.totpValidation = ''
       // this.$refs.twoFactorForm.resetFields()
     }
   },
@@ -238,6 +246,7 @@ export default {
     dialogVisible: {
       handler: function(val) {
         if (val) {
+          this.error = false
           this.generateTwoFactorCode()
         }
       },
@@ -248,6 +257,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../../../assets/_variables.scss';
 p {
   color: black;
 }
@@ -256,6 +266,12 @@ p {
   font-size: 14px;
   font-weight: 500;
   margin-top: 30px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 3px;
 }
 
 </style>
