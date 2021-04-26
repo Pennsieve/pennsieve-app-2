@@ -220,9 +220,6 @@ export default {
   },
 
   beforeRouteEnter(to, from, next) {
-    if (this.isSandboxOrg) {
-      this.$router.push({name: 'create-org'})
-    }
     next(vm => {
      if (vm.isSandboxOrg) {
       vm.$router.push({name: 'create-org'})

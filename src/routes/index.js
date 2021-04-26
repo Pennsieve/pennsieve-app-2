@@ -358,7 +358,8 @@ const routes = [
     name: 'create-org',
     path: '/:orgId/create-org',
     components: {
-      page: CreateOrg
+      page: CreateOrg,
+      navigation: BfNavigation
     },
     props: true
   },
