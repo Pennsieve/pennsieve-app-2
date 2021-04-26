@@ -425,7 +425,7 @@ export default {
       this.offset = 0
       this.limit = limit
     }
-  },
+  }
 }
 </script>
 

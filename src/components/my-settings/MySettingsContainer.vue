@@ -404,7 +404,7 @@ export default {
       'userToken',
       'config',
       'onboardingEvents',
-      'cognitoUser',
+      'cognitoUser'
     ]),
 
     ...mapGetters(['hasOrcidId']),
