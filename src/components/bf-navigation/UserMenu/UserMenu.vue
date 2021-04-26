@@ -45,7 +45,7 @@
                 class="bf-menu-item"
                 @click.prevent="openCreateOrganizationDialog"
               >
-                Create Organization
+                Create New Organization
               </a>
             </li>
           </ul>
