@@ -192,10 +192,6 @@
                 .then(() => {
                   this.getConcepts()
                   EventBus.$emit('get-file-proxy-id')
-
-                  if (this.hasFeature('clinical_management_feature')) {
-                    this.getSites()
-                  }
                 })
             } else {
               throw response
