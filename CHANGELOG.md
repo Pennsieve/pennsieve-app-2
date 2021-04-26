@@ -1,7 +1,8 @@
-### 32.5.0 (2021-04-22)
+### 32.6.0 (2021-04-26)
 
 ##### Bug Fixes
 
+* **Profile:**  FAdd error messaging for MFA (52002955)
 * **Documentation:**  FIx issue with timed out credentials (#45) (ccaa8692)
 
 ##### Other Changes
