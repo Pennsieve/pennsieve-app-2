@@ -448,7 +448,7 @@ export default {
     createMenuModifier: function(data) {
       // Compute offset
       if (this.condensed) {
-        const condensedOffset = this.hasFeature('clinical_management_feature') ? -8 : 41
+        const condensedOffset = 41
         data.offsets.popper.top += condensedOffset
       } else {
         data.offsets.popper.left += 38

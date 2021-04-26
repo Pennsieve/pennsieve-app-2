@@ -1,6 +1,6 @@
 <template>
   <div class="bf-navigation-tertiary">
-    <search-menu v-if="showSearchMenu && !pageNotFound" />
+    <search-menu v-if="!pageNotFound" />
     <help-menu />
     <user-menu />
   </div>
@@ -29,14 +29,6 @@
       ...mapState([
         'pageNotFound'
       ]),
-
-      /**
-       * Compute if the organization can show
-       * @returns {Boolean}
-       */
-      showSearchMenu: function() {
-        return !this.hasFeature('clinical_management_feature')
-      }
     }
   }
 </script>

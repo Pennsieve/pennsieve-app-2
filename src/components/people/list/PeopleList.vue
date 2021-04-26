@@ -18,13 +18,6 @@
         class="buttons"
       >
         <bf-button
-          v-if="hasAdminRights && hasFeature('clinical_management_feature')"
-          class="secondary"
-          @click="openBlindReviewerDialog"
-        >
-          Invite Blind Reviewer
-        </bf-button>
-        <bf-button
           v-if="hasAdminRights"
           @click="openDialog"
         >

@@ -265,13 +265,6 @@
           this.searchText = val
         }
       )
-
-      if (this.hasFeature('clinical_management_feature')){
-        this.roles.push({
-            label: 'Can Review',
-            value: 'blind_reviewer'
-          })
-      }
     },
 
     methods: {
