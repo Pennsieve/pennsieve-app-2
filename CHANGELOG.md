@@ -9,3 +9,4 @@
 
 * //github.com/Pennsieve/pennsieve-app into implement-mfa-CU-rq6q0t (4bf2b92c)
 
+* **Documentation:**  Login redirect for Docs (#43) (179877c2)
