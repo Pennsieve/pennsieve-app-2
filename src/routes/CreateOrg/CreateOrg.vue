@@ -8,20 +8,35 @@
     >
     <h2>Restricted Access</h2>
     <p>You must create a new organization in order to access this feature on the platform. </p>
-    <a :href="takeMeHomeLink">
-      <bf-button class="primary">
+      <bf-button class="primary" @click="openCreateOrgModal">
         Create Organization
       </bf-button>
-    </a>
+      <create-organization-dialog :visible.sync="isDialogVisible" @close-dialog="onCloseDialog"/>
   </bf-page>
 </template>
 
 <script>
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
+import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/CreateOrganizationDialog'
   export default {
     name: 'CreateOrg',
     components: {
       BfButton,
+      CreateOrganizationDialog
+    },
+    data() {
+      return {
+        isDialogVisible: false
+      }
+    },
+    methods: {
+      openCreateOrgModal: function() {
+        this.isDialogVisible = true
+      },
+
+      onCloseDialog: function() {
+        this.isDialogVisible = false
+      }
     },
   }
 </script>
