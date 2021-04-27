@@ -19,5 +19,6 @@
     "region": "us-east-1",
     "userPoolId": "us-east-1_XciE1JSvP",
     "userPoolWebClientId": "2653f5r4vgk8eo1p17nvaftaea"
-  }
+  },
+  "reCAPTCHASiteKey": ""
 }

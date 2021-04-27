@@ -50,6 +50,7 @@ import EventBus from './utils/event-bus'
 import CheckOverflow from './mixins/check-overflow'
 import * as svgicon from 'vue-svgicon'
 import VueInputAutowidth from 'vue-input-autowidth'
+import { VueReCaptcha } from 'vue-recaptcha-v3'
 import './assets/icons'
 import * as siteConfig from '@/site-config/site.json'
 
@@ -145,6 +146,7 @@ Vue.use(vOutsideEvents)
 Vue.use(VueInputAutowidth)
 Vue.use(ButtonGroup)
 Vue.use(Button)
+Vue.use(VueReCaptcha, { siteKey: siteConfig.reCAPTCHASiteKey })
 // Vue.use(VueContentLoader)
 
 

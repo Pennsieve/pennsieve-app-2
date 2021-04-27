@@ -96,34 +96,51 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
+import Request from '@/mixins/request'
+
 export default {
   name: 'CreateAccount',
+
   components: {
     BfButton,
   },
+
+  mixins: [
+    Request
+  ],
+
   data() {
     return {
       isCreatingAccount: false,
       accountCreated: false,
       signupForm: {
-      firstName: '',
-      lastName: '',
-      email: '',
-    },
-    signupRules: {
-      firstName: [
-        { required: true, message: 'Please enter your first name', trigger: 'submit' }
-      ],
-      lastName: [
-        { required: true, message: 'Please enter your last name', trigger: 'submit' }
-      ],
-      email: [
-        { required: true, message: 'Please enter your email', trigger: 'submit', type: 'email' }
-      ]
-    },
+        firstName: '',
+        lastName: '',
+        email: '',
+      },
+      signupRules: {
+        firstName: [
+          { required: true, message: 'Please enter your first name', trigger: 'submit' }
+        ],
+        lastName: [
+          { required: true, message: 'Please enter your last name', trigger: 'submit' }
+        ],
+        email: [
+          { required: true, message: 'Please enter your email', trigger: 'submit', type: 'email' }
+        ]
+      }
     }
   },
+
+  computed: {
+    ...mapState([
+      'config'
+    ])
+  },
+
   methods: {
     onFormCancel: function() {
       this.$router.push({
@@ -149,8 +166,32 @@ export default {
      * Send request to endpoint to create the
      * user's account
      */
-    createAccount: function() {
+    createAccount: async function() {
       this.isCreatingAccount = true
+      try {
+        const recaptchaToken = await this.$recaptcha()
+
+        this.sendXhr(`${this.config.apiUrl}/sign-up`, {
+          method: 'POST',
+          body: {
+            ...this.signupForm,
+            recaptchaToken
+          }
+        })
+          .then((response) => {
+            console.log('success', response)
+          })
+          .catch((err) => {
+            console.warn(err)
+          })
+          .finally(() => {
+            this.isCreatingAccount = false
+          })
+      } catch (error) {
+        console.warn(error)
+        this.isCreatingAccount = false
+      }
+
     }
   },
 }
