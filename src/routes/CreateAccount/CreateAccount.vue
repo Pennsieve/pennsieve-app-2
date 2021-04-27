@@ -111,15 +111,15 @@ export default {
       lastName: '',
       email: '',
     },
-    profileRules: {
+    signupRules: {
       firstName: [
         { required: true, message: 'Please enter your first name', trigger: 'submit' }
       ],
       lastName: [
         { required: true, message: 'Please enter your last name', trigger: 'submit' }
       ],
-      jobTitle: [
-        { required: true, message: 'Please enter your email', trigger: 'submit' }
+      email: [
+        { required: true, message: 'Please enter your email', trigger: 'submit', type: 'email' }
       ]
     },
     }
@@ -127,14 +127,31 @@ export default {
   methods: {
     onFormCancel: function() {
       this.$router.push({
-        name: 'login'
+        name: 'home'
       })
     },
 
+    /**
+     * Validate the form, and if valid
+     * send request to the endpoint
+     */
     onFormSubmit: function() {
-      this.isCreatingAccount = true
-      this.accountCreated = true
+      this.$refs.signupForm
+        .validate((valid) => {
+          if (!valid) {
+            return
+          }
+          this.createAccount()
+        })
     },
+
+    /**
+     * Send request to endpoint to create the
+     * user's account
+     */
+    createAccount: function() {
+      this.isCreatingAccount = true
+    }
   },
 }
 </script>
