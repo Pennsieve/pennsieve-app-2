@@ -167,7 +167,7 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
          if (!this.wasPublished) {
            return ''
          }
-         return this.config.environment === 'prod' ? `https://discover.blackfynn.com/datasets/${this.publishedId}` : `https://discover.blackfynn.net/datasets/${this.publishedId}`
+         return this.config.environment === 'prod' ? `https://discover.pennsieve.io/datasets/${this.publishedId}` : `https://discover.pennsieve.net/datasets/${this.publishedId}`
        },
 
       /**
