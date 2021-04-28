@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 
 import BfRafter from '../../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
@@ -207,6 +207,14 @@ export default {
       },
       immediate: true
     }
+  },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.hasFeature('sandbox_org_feature')) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {

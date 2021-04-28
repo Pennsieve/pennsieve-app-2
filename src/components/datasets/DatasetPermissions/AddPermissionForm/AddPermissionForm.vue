@@ -98,7 +98,7 @@
     </el-select>
 
     <bf-button
-      :disabled="isFormInvalid"
+      :disabled="isFormInvalid || hasFeature('sandbox_org_feature')"
       :processing="processing"
       @click="submit"
     >

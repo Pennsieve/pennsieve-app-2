@@ -345,6 +345,14 @@ export default {
     this.getUsers(this.orgMembers)
   },
 
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.hasFeature('sandbox_org_feature')) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
+  },
+
   methods: {
     ...mapActions(['updateOrgMembers', 'updateOrgDatasetStatuses']),
 

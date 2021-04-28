@@ -10405,6 +10405,11 @@ readline2@^1.0.1:
     is-fullwidth-code-point "^1.0.0"
     mute-stream "0.0.5"
 
+recaptcha-v3@^1.8.0:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/recaptcha-v3/-/recaptcha-v3-1.9.1.tgz#a90af4d7901cd51bef9c4cae593d700a68a9b21b"
+  integrity sha512-5WEZAjG29FhUEnWrl9WzSGm52XKVDF6NBRv1WWOOzX2H3Xx2zU/XtvZdmpDu8lQYpfacCcDPTpGca5B5BEDWTA==
+
 rechoir@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/rechoir/-/rechoir-0.6.2.tgz#85204b54dba82d5742e28c96756ef43af50e3384"
@@ -12335,6 +12340,13 @@ vue-outside-events@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/vue-outside-events/-/vue-outside-events-1.1.3.tgz#75b3e3b7856590fbe4455c87075b54f92b2a9654"
   integrity sha512-8FZqTRy3JUd1L/CFDoUPpuk4uM3piWFX1EixgKp4E3iOwDZfDHZVsnPYORbazs41XFB5u1EVPUOzbrR8iI4ImQ==
+
+vue-recaptcha-v3@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/vue-recaptcha-v3/-/vue-recaptcha-v3-1.9.0.tgz#6315ea07e2ae34abbb11e840ab9f18a427c5d53b"
+  integrity sha512-WQIlhcOcETk3SYbEC88podUSq1J7UjmHpKgJhSy0Xm3DAjTIPjl19g9kn5KRdyTxNLiS/eR5C6H3Jk3c7b9baA==
+  dependencies:
+    recaptcha-v3 "^1.8.0"
 
 vue-router@^3.0.1:
   version "3.5.1"
