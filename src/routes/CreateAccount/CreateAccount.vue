@@ -64,6 +64,15 @@
               </bf-button>
             </el-form-item>
           </el-form>
+          <p
+            v-if="hasError"
+            class="error-copy"
+          >
+            Sorry, an error has occurred.<br> Please try again or <a
+              href="#"
+              @click.prevent="openIntercom"
+            >contact support</a>.
+          </p>
           <p class="agreement">
             By clicking “Create Account" you are agreeing to the Pennsieve
             <a
@@ -132,7 +141,8 @@ export default {
         email: [
           { required: true, message: 'Please enter your email', trigger: 'submit', type: 'email' }
         ]
-      }
+      },
+      hasError: false
     }
   },
 
@@ -143,6 +153,13 @@ export default {
   },
 
   methods: {
+    /**
+     * Open intercom to contact supprt
+     */
+    openIntercom: function() {
+      window.Intercom('show')
+    },
+
     onFormCancel: function() {
       this.$router.push({
         name: 'home'
@@ -169,6 +186,8 @@ export default {
      */
     createAccount: async function() {
       this.isCreatingAccount = true
+      this.hasError = false
+
       try {
         const recaptchaToken = await this.$recaptcha()
 
@@ -179,18 +198,18 @@ export default {
             recaptchaToken
           }
         })
-          .then((response) => {
-            console.log('success', response)
+          .then(() => {
+            this.accountCreated = true
           })
-          .catch((err) => {
-            console.warn(err)
+          .catch(() => {
+            this.hasError = true
           })
           .finally(() => {
             this.isCreatingAccount = false
           })
       } catch (error) {
-        console.warn(error)
         this.isCreatingAccount = false
+        this.hasError = true
       }
 
     }
@@ -250,5 +269,8 @@ h2 {
   margin-right: 8px;
   margin-top: 10px;
   margin-bottom: 10px;
+}
+.error-copy {
+  color: $error-color;
 }
 </style>
