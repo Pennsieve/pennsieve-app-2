@@ -167,11 +167,11 @@ export default {
       'activeOrganization',
       'userToken',
       'config',
+      'hasFeature'
     ]),
     ...mapState([
       'teamsLoading',
-      'teams',
-      'isSandboxOrg'
+      'teams'
     ]),
     hasAdminRights: function() {
       if (this.activeOrganization) {
@@ -201,7 +201,7 @@ export default {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
-     if (vm.isSandboxOrg) {
+     if (vm.hasFeature('sandbox_org_feature')) {
       vm.$router.push({name: 'create-org'})
     }
     })
