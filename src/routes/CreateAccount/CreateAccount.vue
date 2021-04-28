@@ -48,25 +48,23 @@
                 required
               />
             </el-form-item>
-            <el-form-item>
-              <router-link
-                :to="{ name: 'home' }"
-                class="button-link"
-              >
+            <div class="mb-32 mt-32">
+              <el-form-item class="button-wrap">
                 <bf-button
                   class="secondary"
+                  @click="onFormCancel"
                 >
                   Cancel
                 </bf-button>
-              </router-link>
-              <bf-button
-                :processing="isCreatingAccount"
-                processing-text="Submitting"
-                @click="onFormSubmit"
-              >
-                Create Account
-              </bf-button>
-            </el-form-item>
+                <bf-button
+                  :processing="isCreatingAccount"
+                  processing-text="Submitting"
+                  @click="onFormSubmit"
+                >
+                  Create Account
+                </bf-button>
+              </el-form-item>
+            </div>
           </el-form>
           <p
             v-if="hasError"
@@ -165,6 +163,13 @@ export default {
     },
 
     /**
+     * Take the user back home
+     */
+    onFormCancel: function() {
+      this.$router.push( { name: 'home '})
+    },
+
+    /**
      * Validate the form, and if valid
      * send request to the endpoint
      */
@@ -189,22 +194,16 @@ export default {
       try {
         const recaptchaToken = await this.$recaptcha()
 
-        this.sendXhr(`${this.config.apiUrl}/sign-up`, {
+        await this.sendXhr(`${this.config.apiUrl}/sign-up`, {
           method: 'POST',
           body: {
             ...this.signupForm,
             recaptchaToken
           }
         })
-          .then(() => {
-            this.accountCreated = true
-          })
-          .catch(() => {
-            this.hasError = true
-          })
-          .finally(() => {
-            this.isCreatingAccount = false
-          })
+
+        this.accountCreated = true
+        this.isCreatingAccount = false
       } catch (error) {
         this.isCreatingAccount = false
         this.hasError = true
@@ -263,10 +262,13 @@ h2 {
 }
 
 /deep/ .bf-button {
-  min-width: 170px;
-  margin-right: 8px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  width: 50%;
+  &:first-child {
+    margin-right: 8px;
+  }
+}
+/deep/ .button-wrap .el-form-item__content {
+  display: flex;
 }
 .error-copy {
   color: $error-color;
