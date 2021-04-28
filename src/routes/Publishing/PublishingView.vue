@@ -78,7 +78,8 @@ export default {
   computed: {
     ...mapGetters([
       'isUserPublisher',
-      'publisherTeam'
+      'publisherTeam',
+      'hasFeature'
     ]),
 
     ...mapGetters('publishingModule', [
@@ -86,7 +87,7 @@ export default {
     ]),
 
     ...mapState([
-      'config', 'activeOrganization', 'primaryNavOpen', 'isSandboxOrg'
+      'config', 'activeOrganization', 'primaryNavOpen'
     ]),
 
     ...mapState('publishingModule', [
@@ -139,7 +140,7 @@ export default {
 
    beforeRouteEnter(to, from, next) {
     next(vm => {
-     if (vm.isSandboxOrg) {
+     if (vm.hasFeature('sandbox_org_feature')) {
       vm.$router.push({name: 'create-org'})
     }
     })

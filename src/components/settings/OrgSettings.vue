@@ -268,8 +268,7 @@ export default {
       'config',
       'orgMembers',
       'datasets',
-      'orgDatasetStatuses',
-      'isSandboxOrg'
+      'orgDatasetStatuses'
     ]),
 
     ...mapGetters(['hasFeature']),
@@ -348,7 +347,7 @@ export default {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
-     if (vm.isSandboxOrg) {
+     if (vm.hasFeature('sandbox_org_feature')) {
       vm.$router.push({name: 'create-org'})
     }
     })

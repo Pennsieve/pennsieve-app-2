@@ -192,9 +192,6 @@ export default {
       'hasFeature',
       'profile'
     ]),
-    ...mapState([
-      'isSandboxOrg'
-    ]),
     hasAdminRights: function() {
       const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
       const isOwner = propOr(false, 'isOwner', this.activeOrganization)
@@ -221,7 +218,7 @@ export default {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
-     if (vm.isSandboxOrg) {
+     if (vm.hasFeature('sandbox_org_feature')) {
       vm.$router.push({name: 'create-org'})
     }
     })
