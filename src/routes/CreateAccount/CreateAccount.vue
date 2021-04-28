@@ -120,6 +120,7 @@ export default {
         firstName: '',
         lastName: '',
         email: '',
+        title: ''
       },
       signupRules: {
         firstName: [
