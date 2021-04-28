@@ -154,6 +154,14 @@ export default {
     ])
   },
 
+  mounted() {
+    this.$recaptchaInstance.showBadge()
+  },
+  destroyed() {
+    this.$recaptchaInstance.hideBadge()
+  },
+
+
   methods: {
     /**
      * Open intercom to contact supprt
@@ -166,7 +174,7 @@ export default {
      * Take the user back home
      */
     onFormCancel: function() {
-      this.$router.push( { name: 'home '})
+      this.$router.push( { name: 'home' })
     },
 
     /**

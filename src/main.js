@@ -146,7 +146,15 @@ Vue.use(vOutsideEvents)
 Vue.use(VueInputAutowidth)
 Vue.use(ButtonGroup)
 Vue.use(Button)
-Vue.use(VueReCaptcha, { siteKey: siteConfig.reCAPTCHASiteKey })
+Vue.use(VueReCaptcha, {
+  siteKey: siteConfig.reCAPTCHASiteKey,
+  loaderOptions: {
+    autoHideBadge: true,
+    explicitRenderParameters: {
+      badge: 'bottomleft'
+    }
+  },
+})
 // Vue.use(VueContentLoader)
 
 
