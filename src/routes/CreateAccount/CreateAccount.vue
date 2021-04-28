@@ -18,6 +18,7 @@
             :rules="signupRules"
             status-icon
             @submit.native.prevent="onFormSubmit"
+            @keyup.enter.native="onFormSubmit"
           >
             <el-form-item
               label="First Name"
