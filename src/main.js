@@ -50,6 +50,7 @@ import EventBus from './utils/event-bus'
 import CheckOverflow from './mixins/check-overflow'
 import * as svgicon from 'vue-svgicon'
 import VueInputAutowidth from 'vue-input-autowidth'
+import { VueReCaptcha } from 'vue-recaptcha-v3'
 import './assets/icons'
 import * as siteConfig from '@/site-config/site.json'
 
@@ -145,6 +146,15 @@ Vue.use(vOutsideEvents)
 Vue.use(VueInputAutowidth)
 Vue.use(ButtonGroup)
 Vue.use(Button)
+Vue.use(VueReCaptcha, {
+  siteKey: siteConfig.reCAPTCHASiteKey,
+  loaderOptions: {
+    autoHideBadge: true,
+    explicitRenderParameters: {
+      badge: 'bottomleft'
+    }
+  },
+})
 // Vue.use(VueContentLoader)
 
 
@@ -172,7 +182,7 @@ sync(store, router)
 const isAuthorized = (to, from, next) => {
   const token = Cookies.get('user_token')
   const savedOrgId = Cookies.get('preferred_org_id')
-  const allowList = ['home', 'password', 'welcome', 'setup-profile', 'welcome-to-pennsieve', 'docs-login']
+  const allowList = ['home', 'password', 'welcome', 'setup-profile', 'welcome-to-pennsieve', 'docs-login', 'create-account']
   if (allowList.indexOf(to.name) < 0 && !token) {
     const destination = to.fullPath
     if (destination && destination.name !== 'page-not-found') {
