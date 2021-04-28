@@ -13,6 +13,7 @@ const Viewer = () => import('../components/viewer/BfViewer/BfViewer.vue')
 const ResetPassword = () => import('./ResetPassword/ResetPassword.vue')
 const DocsLogin = () => import('./DocsLogin/DocsLogin.vue')
 const CreateAccount = () => import('./CreateAccount/CreateAccount.vue')
+const CreateOrg = () => import('./CreateOrg/CreateOrg.vue')
 
 /**
  * User Onboarding Components
@@ -359,6 +360,15 @@ const routes = [
     path: '/sign-up',
     components: {
       page: CreateAccount
+    },
+    props: true
+  },
+  {
+    name: 'create-org',
+    path: '/:orgId/create-org',
+    components: {
+      page: CreateOrg,
+      navigation: BfNavigation
     },
     props: true
   },

@@ -268,7 +268,8 @@ export default {
       'config',
       'orgMembers',
       'datasets',
-      'orgDatasetStatuses'
+      'orgDatasetStatuses',
+      'isSandboxOrg'
     ]),
 
     ...mapGetters(['hasFeature']),
@@ -343,6 +344,14 @@ export default {
   mounted() {
     this.handleGetOrg(this.activeOrganization)
     this.getUsers(this.orgMembers)
+  },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.isSandboxOrg) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {
