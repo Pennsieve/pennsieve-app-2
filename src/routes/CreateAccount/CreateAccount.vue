@@ -49,12 +49,16 @@
               />
             </el-form-item>
             <el-form-item>
-              <bf-button
-                class="secondary"
-                @click="onFormCancel"
+              <router-link
+                :to="{ name: 'home' }"
+                class="button-link"
               >
-                Cancel
-              </bf-button>
+                <bf-button
+                  class="secondary"
+                >
+                  Cancel
+                </bf-button>
+              </router-link>
               <bf-button
                 :processing="isCreatingAccount"
                 processing-text="Submitting"
@@ -158,12 +162,6 @@ export default {
      */
     openIntercom: function() {
       window.Intercom('show')
-    },
-
-    onFormCancel: function() {
-      this.$router.push({
-        name: 'home'
-      })
     },
 
     /**
