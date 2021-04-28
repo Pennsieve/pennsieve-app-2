@@ -95,7 +95,7 @@
             Thank You
           </h2>
           <p>Thank you for registering an account. An email should have been sent to create your password.</p>
-          <router-link :to="{name: 'login'}">
+          <router-link :to="{ name: 'home' }">
             Back to login
           </router-link>
         </div>
