@@ -64,14 +64,14 @@
           <p class="terms">
             By signing in to Pennsieve you accept our <a
               class="grey-link"
-              href="https://www.blackfynn.com/terms"
+              href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
               target="_blank"
             >
               Terms of Use
             </a>
             and <a
               class="grey-link"
-              href="https://www.blackfynn.com/privacy"
+              href="https://docs.pennsieve.io/page/privacy-policy"
               target="_blank"
             >
               Privacy Policy

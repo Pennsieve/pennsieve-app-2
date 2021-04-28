@@ -362,9 +362,6 @@
             </concept-instance-static-property>
 
             <concept-instance-static-property label="Location">
-              <template v-if="hasFeature('clinical_management_feature')">
-                {{ fileLocation.path }}
-              </template>
 
               <template v-if="isExternalFile">
                 <a
@@ -670,26 +667,24 @@
 
         <!-- BEGIN RELATIONSHIPS TABLE -->
         <template v-if="!editingInstance && hasRelationships">
-          <template v-if="!hasFeature('clinical_management_feature')">
-            <el-collapse
-              v-for="relationship in relationshipsModels"
-              :key="relationship.name"
-              v-model="activeSections"
-              class="concept-instance-section zero-padding no-border"
-            >
-              <relationships-table
-                :id="relationship.displayName"
-                :ref="relationship.name"
-                :active-sections="activeSections"
-                :relationship="relationship"
-                :show-collapse="true"
-                :can-add-relationship="canAddRelationship(relationship.name)"
-                :url="getRecordRelationshipsUrl(relationship.name)"
-                @remove-relationships="handleRemoveRelationships"
-                @unlink-files="handleUnlinkFiles"
-              />
-            </el-collapse>
-          </template>
+          <el-collapse
+            v-for="relationship in relationshipsModels"
+            :key="relationship.name"
+            v-model="activeSections"
+            class="concept-instance-section zero-padding no-border"
+          >
+            <relationships-table
+              :id="relationship.displayName"
+              :ref="relationship.name"
+              :active-sections="activeSections"
+              :relationship="relationship"
+              :show-collapse="true"
+              :can-add-relationship="canAddRelationship(relationship.name)"
+              :url="getRecordRelationshipsUrl(relationship.name)"
+              @remove-relationships="handleRemoveRelationships"
+              @unlink-files="handleUnlinkFiles"
+            />
+          </el-collapse>
         </template>
       </template>
       <!-- END RELATIONSHIPS TABLE -->
