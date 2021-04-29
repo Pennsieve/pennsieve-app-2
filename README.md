@@ -16,11 +16,11 @@ If you ever use nvm or similar, you should exclude installing Node.js so that nv
 
 ### Node
 
-Use node version `8.10.0` to run the app. You can use [nvm](https://github.com/creationix/nvm) to install or change version.
+Use node version `14.16.0` to run the app. You can use [nvm](https://github.com/creationix/nvm) to install or change version.
 
 With nvm installed:
 
-`nvm install 8.10.0`
+`nvm install 14.16.0`
 
 ## Setup
 
@@ -33,9 +33,6 @@ Serve local files with hot reload at localhost:3000
 
 ### Development API
 `yarn start`
-
-### Local API (local kubernetes)
-`yarn start-local`
 
 ### Production API
 `yarn start-prod`
@@ -51,7 +48,7 @@ Serve local files with hot reload at localhost:3000
 ### Run unit tests
 `yarn unit`
 
-### Run cypress tests
+### Run cypress tests (Deprecated)
 Make sure you have the following environment variables in place:
 
 ```
@@ -86,20 +83,37 @@ Update the `proto` property [data-behavior.html](web-components/src/components/b
 
 ## Configure Environment Variables
 
-There are three config files located at `/web-components/src/config/`. Use this for any environment variable, such as the API or WebSocket URL.
+There are three config files located at `/src/config/`. Use this for any environment variable, such as the API or WebSocket URL.
 
-* **Development** `config-dev.html`
-* **Local Development** `config-local.html`
-* **Production** `config-prod.html`
+* **Development** `dev.json`
+* **Local Development** `local.json`
+* **Production** `prod.json`
 
-These files will serve as the basis for the app config which is built dynamically through gulp tasks.
+These files will serve as the basis for the app config which is built dynamically through yarn scripts.
 
-This config is a Polymer Behavior, and is loaded by the Polymer app-shell at `/web-components/src/pennsieve-app.html`. If a variable needs to be used by a component other than `pennsieve-app`, pass it down to that shell component.
+This config is then imported into Vuex state, and accessible via `mapState()`.
 
-For example, `pennsieve-upload` needs the API and S3 Bucket properties, and these are passed down like this:
+For example, a component needs the API url and user token, this can be used in a computed value:
+```javascript
+computed: {
+  ...mapState([
+    'config',
+    'userToken'
+  ]),
+
+  datasetsEndpointUrl: function() {
+    return `${this.config.apiUrl}/datasets?api_key=${this.config.userToken}`
+  }
+}
 ```
-<pennsieve-upload id="pennsieveUpload" api="[[apiUrl]]" user="[[user]]" profile="[[profile]]" bucket="[[bucket]]"></pennsieve-upload>
-```
+
+## Content Security Policy (CSP)
+This app uses a [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) to ensure scripts, connections, images, etc. are only loaded from trusted sources through an allow list.
+
+This CSP needs to be updated for local development via webpack config at `/build/webpack.dev.conf.js`, as well as for deployment via terraform on dev and production.
+
+- [Dev CSP config](https://github.com/Pennsieve/infrastructure/blob/main/aws/pennsieve-non-prod/us-east-1/dev-vpc-use1/dev/app-lambda-edge/variables.tf)
+- [Prod CSP config](https://github.com/Pennsieve/infrastructure/blob/main/aws/pennsieve-prod/us-east-1/prod-vpc-use1/prod/app-lambda-edge/variables.tf)
 
 ## A Note About Content Headers
 
