@@ -204,7 +204,7 @@ export default {
       try {
         const recaptchaToken = await this.$recaptcha()
 
-        await this.sendXhr(`${this.config.apiUrl}/sign-up`, {
+        await this.sendXhr(`${this.config.apiUrl}/account/sign-up`, {
           method: 'POST',
           body: {
             ...this.signupForm,
