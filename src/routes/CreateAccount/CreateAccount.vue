@@ -155,7 +155,8 @@ export default {
     ])
   },
 
-  mounted() {
+  async mounted() {
+    await this.$recaptchaLoaded()
     this.$recaptchaInstance.showBadge()
   },
   destroyed() {
