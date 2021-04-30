@@ -22,7 +22,6 @@ export default {
 
       // clear vuex
       this.clearState()
-      this.isLinkOrcidDialogVisible = false
       // remove user token
       Cookies.remove('user_token')
 
