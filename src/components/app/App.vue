@@ -42,7 +42,10 @@
 
     <office-365-dialog />
 
-    <link-orcid-dialog :visible.sync="isLinkOrcidDialogVisible" />
+    <link-orcid-dialog
+      v-if="userToken"
+      :visible.sync="isLinkOrcidDialogVisible"
+    />
   </div>
 </template>
 

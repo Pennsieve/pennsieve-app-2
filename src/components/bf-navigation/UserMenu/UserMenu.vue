@@ -44,9 +44,9 @@
                 href="#"
                 class="bf-menu-item"
                 :class="[maxOrgsCreated ? 'disabled': '']"
-                @click.prevent="openCreateOrganizationDialog"
+                @click.prevent="requestCreateOrganization"
               >
-                Create New Organization
+                Request to Create New Organization
               </a>
             </li>
           </ul>
@@ -195,7 +195,10 @@
         </div>
       </a>
     </button>
-    <create-organization-dialog :visible.sync="isCreateOrgDialogVisible" @close-dialog="onCloseDialog"/>
+    <create-organization-dialog
+      :visible.sync="isCreateOrgDialogVisible"
+      @close-dialog="onCloseDialog"
+    />
   </div>
 </template>
 
@@ -440,6 +443,17 @@ export default {
       this.closeMenus()
 
       EventBus.$emit('logout')
+    },
+
+    /**
+     * Show the intercom window to allow
+     * user to talk to supprt to create an
+     * organization
+     */
+    requestCreateOrganization: function() {
+      this.closeMenus()
+
+      window.Intercom('show')
     }
   }
 }

@@ -8,10 +8,17 @@
     >
     <h2>Restricted Access</h2>
     <p>You must create a new organization in order to access this feature on the platform. </p>
-      <bf-button :disabled="maxOrgsCreated" class="primary" @click="openCreateOrgModal">
-        Create Organization
-      </bf-button>
-      <create-organization-dialog :visible.sync="isDialogVisible" @close-dialog="onCloseDialog"/>
+    <bf-button
+     :disabled="maxOrgsCreated"
+      class="primary"
+      @click="requestCreateOrganization"
+    >
+      Request to Create Organization
+    </bf-button>
+    <create-organization-dialog
+      :visible.sync="isDialogVisible"
+      @close-dialog="onCloseDialog"
+    />
   </bf-page>
 </template>
 
@@ -51,6 +58,15 @@ import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/Crea
 
       onCloseDialog: function() {
         this.isDialogVisible = false
+      },
+
+      /**
+       * Show the intercom window to allow
+       * user to talk to supprt to create an
+       * organization
+       */
+      requestCreateOrganization: function() {
+        window.Intercom('show')
       }
     },
   }
