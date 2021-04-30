@@ -438,6 +438,8 @@ export default {
      * organization
      */
     requestCreateOrganization: function() {
+      this.closeMenus()
+
       window.Intercom('show')
     }
   }
