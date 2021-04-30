@@ -43,6 +43,7 @@
               <a
                 href="#"
                 class="bf-menu-item"
+                :class="[maxOrgsCreated ? 'disabled': '']"
                 @click.prevent="openCreateOrganizationDialog"
               >
                 Create New Organization
@@ -239,6 +240,16 @@ export default {
     ]),
 
     /**
+     * Checks where user has created the maximum number of organizations
+     * @returns {Boolean}
+     */
+    maxOrgsCreated: function() {
+      // NOTE: Adding the first condition so that this can go through
+      // as these properties do not exist in the profile object yet
+      return this.profile.maxOrganizationsAllowed === 3 && this.profile.organizationsCreated === this.profile.maxOrganizationsAllowed
+    },
+
+    /**
        * Checks if route is a 404 page
        * @returns {Boolean}
        */
@@ -307,7 +318,9 @@ export default {
      * Open Create Organization Dialog
      */
     openCreateOrganizationDialog: function() {
-      this.isCreateOrgDialogVisible = true
+      if (!this.maxOrgsCreated) {
+        this.isCreateOrgDialogVisible = true
+      }
     },
 
     /**

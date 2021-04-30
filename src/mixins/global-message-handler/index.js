@@ -239,6 +239,7 @@ export default {
       return Promise.all([orgPromise, profilePromise])
         .then(([orgs, profile]) => {
           this.updateProfile(profile)
+          console.log('profile is now ', profile)
           this.updateUserToken(token)
 
           const sortedOrgs = this.returnSort('organization.name', orgs.organizations, 'asc')
