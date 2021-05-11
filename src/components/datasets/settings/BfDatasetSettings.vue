@@ -28,7 +28,10 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'publishing-settings' }">
+            <router-link
+              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
+              :to="{ name: 'publishing-settings' }"
+            >
               Publishing
             </router-link>
           </li>
@@ -151,7 +154,9 @@
           <!-- delete dataset -->
           <el-row>
             <el-col>
-              <h2 class="delete-title">Delete Dataset</h2>
+              <h2 class="delete-title">
+                Delete Dataset
+              </h2>
               <p>
                 Deleting a dataset removes all data from Pennsieve.
                 <strong>This cannot be undone.</strong>
@@ -626,6 +631,11 @@ hr {
 .tag-wrap {
   display: flex;
   flex-wrap: wrap;
+}
+
+.tab-disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .sharing-blurb {

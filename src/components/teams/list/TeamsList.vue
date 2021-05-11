@@ -167,6 +167,7 @@ export default {
       'activeOrganization',
       'userToken',
       'config',
+      'hasFeature'
     ]),
     ...mapState([
       'teamsLoading',
@@ -196,6 +197,14 @@ export default {
       },
       immediate: true
     }
+  },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.hasFeature('sandbox_org_feature')) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {

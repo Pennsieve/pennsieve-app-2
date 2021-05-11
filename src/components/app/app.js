@@ -55,8 +55,7 @@ export default {
       // default meta description
       defaultPageDescription: 'Pennsieve secure Sign In page. Sign in to your Pennsieve customer account.',
       isUploadExternalFileModalOpen: false,
-      externalFile: {},
-      isLinkOrcidDialogVisible: false
+      externalFile: {}
     }
   },
 
@@ -66,7 +65,8 @@ export default {
       'primaryNavOpen',
       'secondaryNavOpen',
       'environment',
-      'searchModalVisible'
+      'searchModalVisible',
+      'isLinkOrcidDialogVisible'
     ]),
 
     ...mapState('datasetModule', [
@@ -200,7 +200,8 @@ export default {
       'setIsLoadingDatasetPublishedData',
       'setIsLoadingDatasetsError',
       'updateOrgDatasetStatuses',
-      'updateShouldShowLinkOrcidDialog'
+      'updateShouldShowLinkOrcidDialog',
+      'updateIsLinkOrcidDialogVisible'
     ]),
 
     ...mapActions('datasetModule', [
@@ -321,7 +322,6 @@ export default {
       return this.getBfTermsOfService()
         .then(() => this.getProfileAndOrg(userToken))
         .then(() => this.getOnboardingEventStates(userToken))
-        .then(() => this.setLinkOrcidDialog())
     },
 
     /**
@@ -368,7 +368,13 @@ export default {
           'Authorization': `bearer ${userToken}`
         }
       })
-      .then(this.updateOnboardingEvents.bind(this))
+      .then((response) =>  {
+        this.updateOnboardingEvents(response)
+        const hasAddedOrcid = response.includes('AddedOrcid')
+        if (!hasAddedOrcid)  {
+          this.setLinkOrcidDialog()
+        }
+      })
       .catch(this.handleXhrError.bind(this))
     },
 
@@ -377,8 +383,8 @@ export default {
      */
      setLinkOrcidDialog: function() {
       this.updateShouldShowLinkOrcidDialog(true)
-      if (this.$route.name !== 'terms-of-service') {
-        this.isLinkOrcidDialogVisible = !this.hasOrcidOnboardingEvent
+      if (this.$route.name !== 'terms-of-service' && !this.hasOrcidOnboardingEvent) {
+        this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
       }
     }
   }

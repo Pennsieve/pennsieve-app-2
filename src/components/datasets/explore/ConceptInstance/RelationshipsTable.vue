@@ -1271,20 +1271,6 @@ export default {
         .catch(this.handleXhrError.bind(this))
     },
 
-    // /**
-    //  * For clinical trials, get linked files for submissions
-    //  * @param {Array} data
-    //  */
-    // getLinkedFiles: async function(data) {
-    //   await Promise.all(data.map(async (record) => {
-    //     // Make request for the record's file, and assign the response as a value
-    //     record.file = await this.requestLinkedFiles(record)
-    //     return record
-    //   }))
-
-    //   this.handleXhrResponse(data)
-    // },
-
     requestLinkedFiles: function(record) {
       const datasetId = pathOr('', ['params', 'datasetId'], this.$route)
       const modelName = propOr('', 'name', this.relationship)

@@ -1,12 +1,12 @@
-### 32.6.0 (2021-04-26)
+### 32.7.0 (2021-05-11)
 
 ##### Bug Fixes
 
-* **Profile:**  FAdd error messaging for MFA (52002955)
-* **Documentation:**  FIx issue with timed out credentials (#45) (ccaa8692)
+* **ORCID:**  Fix issue where ORCID dialog is visible when it should (#62) (f6107d52)
+* **Notifications:**  Fix issue with websocket closing too early (#53) (dcc3ba8c)
 
 ##### Other Changes
 
-* //github.com/Pennsieve/pennsieve-app into implement-mfa-CU-rq6q0t (4bf2b92c)
+* //github.com/Pennsieve/pennsieve-app into main (9022213e)
 
-* **Documentation:**  Login redirect for Docs (#43) (179877c2)
+

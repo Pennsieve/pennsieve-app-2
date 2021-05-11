@@ -38,6 +38,16 @@
                 />
               </a>
             </li>
+            <hr>
+            <li>
+              <a
+                href="#"
+                class="bf-menu-item"
+                @click.prevent="requestCreateOrganization"
+              >
+                Request to Create New Organization
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -184,6 +194,10 @@
         </div>
       </a>
     </button>
+    <create-organization-dialog
+      :visible.sync="isCreateOrgDialogVisible"
+      @close-dialog="onCloseDialog"
+    />
   </div>
 </template>
 
@@ -195,6 +209,7 @@ import BfNavigationItem from '../bf-navigation-item/BfNavigationItem.vue'
 import Avatar from '../../shared/avatar/Avatar.vue'
 import FilterInput from '../../shared/FilterInput/FilterInput.vue'
 import FilterEmptyState from '../../shared/FilterEmptyState/FilterEmptyState.vue'
+import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/CreateOrganizationDialog.vue'
 
 import EventBus from '../../../utils/event-bus'
 
@@ -205,7 +220,8 @@ export default {
     BfNavigationItem,
     Avatar,
     FilterInput,
-    FilterEmptyState
+    FilterEmptyState,
+    CreateOrganizationDialog
   },
 
   data() {
@@ -213,7 +229,8 @@ export default {
       menuOpen: false,
       orgMenuOpen: false,
       orgFilterName: '',
-      userMenuMouseover: false
+      userMenuMouseover: false,
+      isCreateOrgDialogVisible: false
     }
   },
 
@@ -288,6 +305,21 @@ export default {
   },
 
   methods: {
+
+    /**
+     * Open Create Organization Dialog
+     */
+    openCreateOrganizationDialog: function() {
+      this.isCreateOrgDialogVisible = true
+    },
+
+    /**
+     * Close Create Organization Dialog
+     */
+    onCloseDialog: function() {
+      this.isCreateOrgDialogVisible = false
+    },
+
     /**
      * Close all menus
      */
@@ -398,6 +430,17 @@ export default {
       this.closeMenus()
 
       EventBus.$emit('logout')
+    },
+
+    /**
+     * Show the intercom window to allow
+     * user to talk to supprt to create an
+     * organization
+     */
+    requestCreateOrganization: function() {
+      this.closeMenus()
+
+      window.Intercom('show')
     }
   }
 }

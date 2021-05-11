@@ -54,17 +54,24 @@
               Forgot your password?
             </router-link>
           </el-form-item>
+          <!-- <p class="terms sign-up">Don't have an account?
+            <router-link
+              :to="{name: 'create-account'}"
+              >
+                Create one here
+            </router-link>
+          </p> -->
           <p class="terms">
             By signing in to Pennsieve you accept our <a
               class="grey-link"
-              href="https://www.blackfynn.com/terms"
+              href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
               target="_blank"
             >
               Terms of Use
             </a>
             and <a
               class="grey-link"
-              href="https://www.blackfynn.com/privacy"
+              href="https://docs.pennsieve.io/page/privacy-policy"
               target="_blank"
             >
               Privacy Policy
@@ -384,6 +391,12 @@ export default Vue.component('bf-login', {
     margin-left: 16px;
   }
 
+  .sign-up {
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 30px;
+  }
+
   .sign-in,
   .forgot-password {
     width: 50%;
@@ -405,5 +418,4 @@ export default Vue.component('bf-login', {
     }
   }
 }
-
 </style>

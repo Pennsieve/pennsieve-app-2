@@ -98,7 +98,7 @@
     </el-select>
 
     <bf-button
-      :disabled="isFormInvalid"
+      :disabled="isFormInvalid || hasFeature('sandbox_org_feature')"
       :processing="processing"
       @click="submit"
     >
@@ -265,13 +265,6 @@
           this.searchText = val
         }
       )
-
-      if (this.hasFeature('clinical_management_feature')){
-        this.roles.push({
-            label: 'Can Review',
-            value: 'blind_reviewer'
-          })
-      }
     },
 
     methods: {

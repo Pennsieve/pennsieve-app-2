@@ -110,7 +110,8 @@ export const state = {
   dataUseAgreements: [],
   cognitoUser: {},
   onboardingEvents: [],
-  shouldShowLinkOrcidDialog: false
+  shouldShowLinkOrcidDialog: false,
+  isLinkOrcidDialogVisible: false
 }
 
 const initialFilterState = state.datasetFilters
@@ -183,6 +184,8 @@ export const mutations = {
     Vue.set(state, 'datasetDescription', '')
     Vue.set(state, 'datasetDoi', '')
     Vue.set(state, 'searchModalVisible', false)
+    Vue.set(state, 'shouldShowLinkOrcidDialog', false)
+    Vue.set(state, 'isLinkOrcidDialogVisible', false)
   },
   UPDATE_CUR_DATASET (state, dataset) {
     Vue.set(state, 'curDataset', dataset)
@@ -590,10 +593,15 @@ export const mutations = {
   UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG(state, shouldShowLinkOrcidDialog) {
     state.shouldShowLinkOrcidDialog = shouldShowLinkOrcidDialog
   },
+
+  UPDATE_IS_LINK_ORCID_DIALOG_VISIBLE(state, isLinkOrcidDialogVisible) {
+    state.isLinkOrcidDialogVisible = isLinkOrcidDialogVisible
+  }
 }
 
 // actions
 export const actions = {
+  updateIsLinkOrcidDialogVisible: ({commit}, evt) => commit('UPDATE_IS_LINK_ORCID_DIALOG_VISIBLE', evt),
   updateCognitoUser: ({commit}, evt) => commit('UPDATE_COGNITO_USER', evt),
   updatePageNotFound: ({ commit }, evt) => commit('SET_PAGE_NOT_FOUND', evt),
   updateScientificUnits: ({ commit }, evt) => commit('UPDATE_SCIENTIFIC_UNITS', evt),

@@ -25,14 +25,14 @@
           >
             I accept the
             <a
-              href="https://www.blackfynn.com/legal/terms"
+              href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
               target="_blank"
             >
               Terms of Service
             </a>
             and
             <a
-              href="https://www.blackfynn.com/legal/privacy/"
+              href="https://docs.pennsieve.io/page/privacy-policy"
               target="_blank"
             >
               Privacy Policy
