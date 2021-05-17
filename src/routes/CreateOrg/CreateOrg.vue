@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { mapState } from 'Vuex'
+import { mapState } from 'vuex'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/CreateOrganizationDialog'
