@@ -518,8 +518,4 @@ hr {
   margin-top: 5px;
   margin-left: -13px;
 }
-
-.disabled-nav-item {
-  pointer-events: none;
-}
 </style>
