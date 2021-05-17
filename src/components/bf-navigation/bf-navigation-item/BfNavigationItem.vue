@@ -111,6 +111,9 @@
     .svg-icon {
       color: $gray_2;
     }
+    &.disabled {
+      pointer-events: none;
+    }
     &.secondary {
       .svg-icon {
         color: inherit;
