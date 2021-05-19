@@ -54,13 +54,13 @@
               Forgot your password?
             </router-link>
           </el-form-item>
-          <!-- <p class="terms sign-up">Don't have an account?
+          <p class="terms sign-up">Don't have an account?
             <router-link
               :to="{name: 'create-account'}"
               >
                 Create one here
             </router-link>
-          </p> -->
+          </p>
           <p class="terms">
             By signing in to Pennsieve you accept our <a
               class="grey-link"
