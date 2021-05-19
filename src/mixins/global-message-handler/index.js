@@ -473,6 +473,9 @@ export default {
       if (!url) {
         return
       }
+      if (this.hasFeature('sandbox_org_feature')) {
+        return
+      }
       return this.sendXhr(url).then(resp => {
         const members = this.updateMembers(resp)
         this.updateOrgMembers(members)
