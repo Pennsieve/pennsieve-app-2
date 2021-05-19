@@ -10,6 +10,8 @@
 
 <script>
 import SetupProfile from '../../components/SetupProfile/SetupProfile.vue'
+import FinalizeAccount from '../../components/FinalizeAccount/FinalizeAccount.vue'
+
   export default {
     name: 'WelcomePage',
   }

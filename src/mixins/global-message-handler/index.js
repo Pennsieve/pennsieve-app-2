@@ -252,7 +252,7 @@ export default {
           const activeOrgIndex = orgs.organizations.findIndex(org => Boolean(org.organization.id === activeOrgId))
           const activeOrg = orgs.organizations[activeOrgIndex]
 
-          // handle org switch and terms of service re-directs
+          // handle org switch
           return this.handleRedirects(activeOrg, activeOrgId, preferredOrgId)
         })
         .then(this.getOrgMembers.bind(this))
@@ -263,7 +263,7 @@ export default {
         .catch(this.handleXhrError.bind(this))
     },
     /**
-     * Handle direct links and check if user is subscribed
+     * Switch orgs if active org is not preferred org
      * @param {Object} activeOrg
      * @param {String} activeOrgId
      * @param {String} preferredOrgId
@@ -274,11 +274,6 @@ export default {
       if ((activeOrgId && preferredOrgId) && activeOrgId !== preferredOrgId) {
         EventBus.$emit('switch-organization', activeOrg, false)
         return Promise.resolve()
-      }
-
-      const isSubscribed = this.checkIsSubscribed(activeOrg)
-      if (!isSubscribed) {
-        this.$router.replace(`/${activeOrgId}/welcome/terms-of-service`)
       }
       return this.updateActiveOrganization(activeOrg)
     },
@@ -368,9 +363,10 @@ export default {
       if (this.userIsLessThan30DaysOld && events.length < this.minCompletedEvents && events.indexOf('LaunchCarousel') >= 0) {
         // getting started guide
         this.setGettingStartedOpen(true)
+      } else if (this.shouldShowLinkOrcidDialog) {
+        this.updateIsLinkOrcidDialogVisible(true)
       }
     },
-
     /**
      * Set the default route for the user based off of their feature flag
      * @param {String} orgId
@@ -382,9 +378,6 @@ export default {
       } else {
         this.$router.push(`/${orgId}/datasets`)
         this.launchOnboarding()
-        if (this.shouldShowLinkOrcidDialog) {
-          this.setLinkOrcidDialog()
-        }
       }
     },
 

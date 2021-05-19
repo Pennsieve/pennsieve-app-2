@@ -72,7 +72,6 @@ export default {
     ...mapState('datasetModule', [
       'datasetSearchParams'
     ]),
-
     ...mapGetters([
       'activeOrganization',
       'getActiveOrganization',
@@ -372,7 +371,8 @@ export default {
         this.updateOnboardingEvents(response)
         const hasAddedOrcid = response.includes('AddedOrcid')
         if (!hasAddedOrcid)  {
-          this.setLinkOrcidDialog()
+          this.updateShouldShowLinkOrcidDialog(true)
+          // this.setLinkOrcidDialog()
         }
       })
       .catch(this.handleXhrError.bind(this))
@@ -381,11 +381,11 @@ export default {
     /**
      * Compute if the link orcid dialog should be visible
      */
-     setLinkOrcidDialog: function() {
-      this.updateShouldShowLinkOrcidDialog(true)
-      if (this.$route.name !== 'terms-of-service' && !this.hasOrcidOnboardingEvent) {
-        this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
-      }
-    }
+    //  setLinkOrcidDialog: function() {
+    //   this.updateShouldShowLinkOrcidDialog(true)
+    //   // if (this.$route.name !== 'terms-of-service' && !this.hasOrcidOnboardingEvent) {
+    //   //   this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
+    //   // }
+    // }
   }
 }
