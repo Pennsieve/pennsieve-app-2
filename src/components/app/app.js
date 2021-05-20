@@ -119,6 +119,27 @@ export default {
         const orgId = pathOr('', ['organization', 'id'], this.activeOrganization)
         return `${this.config.apiUrl}/organizations/${orgId}/dataset-status?api_key=${this.userToken}`
       }
+    },
+
+    /**
+     * Wrapper to work around visible sync witha vuex
+     * state property
+     */
+    isLinkOrcidDialogVisibleWrapper: {
+      /**
+       * True if the link ORCID dialog should be visible
+       * @returns {Boolean}
+       */
+      get() {
+        return this.isLinkOrcidDialogVisible
+      },
+      /**
+       * Set the value in the vuex store
+       * @param {Boolean} val 
+       */
+      set(val) {
+        this.updateIsLinkOrcidDialogVisible(val)
+      }
     }
   },
 

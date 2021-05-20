@@ -15,7 +15,7 @@ import { path, pathOr, propOr, find, pathEq, defaultTo, isEmpty, not, compose, p
 export default {
   data() {
     return {
-      minCompletedEvents: 5,
+      minCompletedEvents: 2,
       datasetStatusList: []
     }
   },
@@ -360,7 +360,7 @@ export default {
      */
     launchOnboarding: function() {
       const events = defaultTo([], this.onboardingEvents)
-      if (this.userIsLessThan30DaysOld && events.length < this.minCompletedEvents && events.indexOf('LaunchCarousel') >= 0) {
+      if (this.userIsLessThan30DaysOld && events.length < this.minCompletedEvents) {
         // getting started guide
         this.setGettingStartedOpen(true)
       } else if (this.shouldShowLinkOrcidDialog) {
