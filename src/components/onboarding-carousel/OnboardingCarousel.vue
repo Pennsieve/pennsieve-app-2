@@ -171,7 +171,8 @@ export default {
 
   methods: {
     ...mapActions([
-      'updateOnboardingEvents'
+      'updateOnboardingEvents',
+      'setGettingStartedOpen'
     ]),
 
     /**
@@ -227,6 +228,7 @@ export default {
         // Update onboarding events
         const onboardingEvents = [...this.onboardingEvents, 'CompletedCarousel']
         this.updateOnboardingEvents(onboardingEvents)
+        this.setGettingStartedOpen(false)
       })
       .catch(this.handleXhrError.bind(this))
     },

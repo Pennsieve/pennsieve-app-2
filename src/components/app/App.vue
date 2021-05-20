@@ -44,7 +44,7 @@
 
     <link-orcid-dialog
       v-if="userToken"
-      :visible.sync="isLinkOrcidDialogVisible"
+      :visible.sync="isLinkOrcidDialogVisibleWrapper"
     />
   </div>
 </template>
