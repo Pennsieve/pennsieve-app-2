@@ -10,6 +10,7 @@
     <p>You must create a new organization in order to access this feature on the platform. </p>
     <bf-button
      :disabled="maxOrgsCreated"
+
       class="primary"
       @click="requestCreateOrganization"
     >
@@ -38,7 +39,6 @@ import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/Crea
         isDialogVisible: false
       }
     },
-
     computed: {
       ...mapState(['profile']),
      /**
@@ -51,6 +51,7 @@ import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/Crea
         return this.profile.maxOrganizationsAllowed === 3 && this.profile.organizationsCreated === this.profile.maxOrganizationsAllowed
       },
     },
+
     methods: {
       openCreateOrgModal: function() {
         this.isDialogVisible = true

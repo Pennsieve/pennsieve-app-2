@@ -408,5 +408,6 @@ export default {
     //   //   this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
     //   // }
     // }
+
   }
 }
