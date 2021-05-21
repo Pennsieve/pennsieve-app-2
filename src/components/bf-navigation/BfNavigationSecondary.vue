@@ -148,7 +148,7 @@
         :link="{ name: 'dataset-permissions' }"
         icon="icon-collaborators"
         label="Permissions"
-        class="secondary"
+        :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
         :condensed="secondaryNavCondensed"
       />
 

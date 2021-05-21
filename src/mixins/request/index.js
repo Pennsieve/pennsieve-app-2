@@ -99,9 +99,10 @@ export default {
       else if (status === 401) {
         return this.handleLogout()
       } // unauthorized
-      else if (status === 403) {
-        return this.$router.replace({name: 'datasets-list'})
-      } else {
+      // else if (status === 403) {
+      //   return this.$router.replace({name: 'datasets-list'})
+        // }
+      else {
         // emit ajaxError
         EventBus.$emit('ajaxError', err)
       }

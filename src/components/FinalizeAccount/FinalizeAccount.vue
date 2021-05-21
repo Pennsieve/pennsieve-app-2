@@ -1,13 +1,14 @@
 <template>
   <div class="wrapper">
     <div
-      v-if="!isUserSignInFailed"
+      v-if="!isUserSignInFailed && !isUserPasswordUpdated"
       class="login-wrap"
     >
       <h2 class="sharp-sans">
-        Let's set up your profile.
+        Thank you for verifying your email and activating your account!
       </h2>
-      <p>Complete your profile so members of your team can easily idenitfy you. <strong>All fields are required</strong>.</p>
+      <p>After setting your password, you will be able to log into the <b>Pennsieve Sandbox</b> workspace with your email and password.</p>
+      <p>Within the Pennsieve Sandbox you can create and explore the functionality of the platform or/and <b>create a new workspace/organization</b> for your projects.</p>
       <el-form
         id="profile-form"
         ref="profileForm"
@@ -16,35 +17,7 @@
         status-icon
         @submit.native.prevent="onFormSubmit"
       >
-        <el-form-item
-          label="First Name"
-          prop="firstName"
-        >
-          <el-input
-            v-model="profileForm.firstName"
-            required
-            class="first-name-input"
-            autofocus
-          />
-        </el-form-item>
-        <el-form-item
-          label="Last Name"
-          prop="lastName"
-        >
-          <el-input
-            v-model="profileForm.lastName"
-            required
-          />
-        </el-form-item>
-        <el-form-item
-          label="Job Title"
-          prop="jobTitle"
-        >
-          <el-input
-            v-model="profileForm.jobTitle"
-            required
-          />
-        </el-form-item>
+
         <el-form-item
           label="Password"
           prop="password"
@@ -64,9 +37,7 @@
             </div>
           </transition>
         </el-form-item>
-        <div class="helper">
-          We recommend that you create a password that is more than 8 characters long and contains a combination of uppercase & lowercase characters, numbers and symbols.
-        </div>
+
 
         <el-form-item
           label="Retype Your Password"
@@ -78,19 +49,22 @@
             required
           />
         </el-form-item>
+<!--        <div class="helper">-->
+<!--          We recommend that you create a password that is more than 8 characters long and contains a combination of uppercase & lowercase characters, numbers and symbols.-->
+<!--        </div>-->
         <el-form-item>
           <bf-button
             class="saveProfile"
             :processing="isSavingProfile"
-            processing-text="Logging In"
+            processing-text="Setting password"
             @click="onFormSubmit"
           >
-            Save Profile
+            Set Password
           </bf-button>
         </el-form-item>
       </el-form>
       <p class="agreement">
-        By clicking “Save Profile” you are agreeing to the Pennsieve
+        By clicking “Set Password” you are agreeing to the Pennsieve
         <a
           href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
           target="_blank"
@@ -105,6 +79,29 @@
         </a>.
       </p>
     </div>
+    <div
+      v-if="isUserPasswordUpdated"
+      class="login-wrap"
+    >
+      <h2 class="sharp-sans">
+        Account creation completed.
+      </h2>
+      <p> You successfully created your Pennsieve account. You can now log in with your email and password.</p>
+      <p> We hope you will be able to use the platform to manage your scientific data and publish your datasets to the public domain when you are ready! </p>
+      <p> Please feel free to reach out to our support team if you have any questions or suggestions on how to improve the platform. You can leave us messages directly from within the app.</p>
+      <div class="user-already-created-wrap">
+        <router-link
+          class="btn-back-to-sign-in"
+          :to="{name: 'home' }"
+        >
+          <bf-button>
+            Return to Login Page
+          </bf-button>
+        </router-link>
+      </div>
+    </div>
+
+
     <div
       v-if="isUserSignInFailed"
       class="login-wrap"
@@ -130,6 +127,8 @@
           I forgot my password
         </a>
       </div>
+
+
     </div>
   </div>
 </template>
@@ -146,7 +145,7 @@ import EventBus from '@/utils/event-bus'
 import Request from '@/mixins/request'
 
 export default {
-  name: 'SetupProfile',
+  name: 'VerifyAccount',
 
   components: {
     BfButton
@@ -160,50 +159,40 @@ export default {
   data() {
     const validatePassword = (rule, value, callback) => {
 
-    if (value === '') {
-      this.isPasswordFormValid = false
-      return callback(new Error('Please input the password'))
-    }
+      if (value === '') {
+        this.isPasswordFormValid = false
+        return callback(new Error('Please input the password'))
+      }
 
-    const { isValid, feedback } = this.validatePassword(value)
+      const {isValid, feedback} = this.validatePassword(value)
 
-    if (!isValid) {
-      this.isPasswordFormValid = false
-      callback(new Error(feedback))
-    } else {
-      this.isPasswordFormValid = true
-      callback()
+      if (!isValid) {
+        this.isPasswordFormValid = false
+        callback(new Error(feedback))
+      } else {
+        this.isPasswordFormValid = true
+        callback()
+      }
     }
-  }
     return {
+      showMatchError: false,
       profileForm: {
-        firstName: '',
-        lastName: '',
-        jobTitle: '',
         password: '',
         passwordConfirm: ''
       },
       profileRules: {
-        firstName: [
-          { required: true, message: 'Please enter your first name', trigger: 'submit' }
-        ],
-        lastName: [
-          { required: true, message: 'Please enter your last name', trigger: 'submit' }
-        ],
-        jobTitle: [
-          { required: true, message: 'Please enter your job title', trigger: 'submit' }
-        ],
         password: [
           { required: true, validator: validatePassword, trigger: 'change' }
         ],
         passwordConfirm: [
-          { required: true, message: 'Please enter your password', trigger: 'submit' }
+          { required: true, message: 'Please enter your password' }
         ]
       },
       isSavingProfile: false,
       isPasswordFormValid: false,
       user: {},
-      isUserSignInFailed: false
+      isUserSignInFailed: false,
+      isUserPasswordUpdated: false
     }
   },
 
@@ -232,7 +221,7 @@ export default {
     /**
      * Get token for profile setup
     */
-    setupProfileToken: function() {
+    verifyAccountToken: function() {
       return this.$route.query.token
     },
   },
@@ -258,7 +247,8 @@ export default {
 
         this.isSavingProfile = true
         this.initialLogin()
-      }.bind(this))
+      }.bind(this)
+      )
     },
 
     /**
@@ -267,7 +257,7 @@ export default {
     async initialLogin() {
       try {
          this.user = await Auth.signIn(this.$route.params.username, this.$route.params.password)
-         this.setupProfile()
+         this.verifyAccount()
         } catch (error) {
           this.isSavingProfile = false
           this.isUserSignInFailed = true
@@ -277,7 +267,7 @@ export default {
     /**
      * API Request to create a new user
      */
-    async setupProfile() {
+    async verifyAccount() {
       try {
         const newUser = await Auth.completeNewPassword(
           this.user,
@@ -286,35 +276,13 @@ export default {
             email: this.$route.query.email
           }
         )
+        this.isUserPasswordUpdated = true
 
-        this.createUser(newUser.signInUserSession.accessToken.jwtToken)
       } catch (error) {
         this.handleFailedUserCreation()
       }
     },
 
-    /**
-     * Create the user on Pennsieve
-     * @param {String} jwt
-     */
-    async createUser(jwt) {
-      try {
-        const user = await this.sendXhr(this.createUserUrl, {
-          method: 'POST',
-          header: {
-            'Authorization': `bearer ${jwt}`
-          },
-          body: {
-            lastName: this.profileForm.lastName,
-            firstName: this.profileForm.firstName,
-            title: this.profileForm.jobTitle,
-          }
-        })
-        this.handleCreateUserSuccess(user, jwt)
-      } catch (error) {
-        this.handleFailedUserCreation()
-      }
-    },
 
     /**
      * Handle successful API response to createUser
@@ -464,6 +432,21 @@ form {
       }
     }
   }
+
+.pw-no-match {
+  color: darkred;
+  font-size: 13px;
+  line-height: 1;
+  padding: 13px 10px;
+  background: #FAFAFA;
+  border-radius: 0 0 5px 5px;
+  border: solid 1px #dadada;
+  height: 15px;
+  width: 93.5%;
+  position: absolute;
+  z-index: 0;
+  margin: 0;
+}
 
 .pw-is-valid-text {
   color: #17bb62;

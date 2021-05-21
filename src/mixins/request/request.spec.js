@@ -113,10 +113,10 @@ describe('request Mixin', () => {
     expect(spy).toBeCalled()
   })
 
-  it('handleXhrError: handles 403', () => {
-    const spy = jest.spyOn(cmp.vm.$router, 'replace')
-    cmp.vm.handleXhrError({status: 403})
-    expect(spy).toBeCalled()
-  })
+  // it('handleXhrError: handles 403', () => {
+  //   const spy = jest.spyOn(cmp.vm.$router, 'replace')
+  //   cmp.vm.handleXhrError({status: 403})
+  //   expect(spy).toBeCalled()
+  // })
 
 })

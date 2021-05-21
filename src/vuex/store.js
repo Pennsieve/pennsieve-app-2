@@ -186,6 +186,8 @@ export const mutations = {
     Vue.set(state, 'searchModalVisible', false)
     Vue.set(state, 'shouldShowLinkOrcidDialog', false)
     Vue.set(state, 'isLinkOrcidDialogVisible', false)
+    Vue.set(state, 'gettingStartedOpen', false)
+
   },
   UPDATE_CUR_DATASET (state, dataset) {
     Vue.set(state, 'curDataset', dataset)

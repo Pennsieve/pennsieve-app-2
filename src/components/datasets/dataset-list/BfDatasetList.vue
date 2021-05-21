@@ -285,7 +285,8 @@
         'isLoadingDatasets',
         'isLoadingDatasetsError',
         'onboardingEvents',
-        'datasetFilters'
+        'datasetFilters',
+        'gettingStartedOpen'
       ]),
 
       ...mapState('datasetModule', [
@@ -348,16 +349,6 @@
       },
 
       /**
-       * Compute whether or not to render the onboarding carousel
-       * @returns {Boolean}
-       */
-      shouldLaunchCarousel: function() {
-        const launchCarousel = this.onboardingEvents.indexOf('LaunchCarousel') >= 0
-        const lessThan30 = this.userIsLessThan30DaysOld
-        return !launchCarousel && lessThan30
-      },
-
-      /**
        * Computes if datasets exist
        * @returns {Boolean}
        */
@@ -382,9 +373,9 @@
         },
         immediate: true
       },
-      onboardingEvents: {
-        handler: function(val) {
-          if (val && this.shouldLaunchCarousel) {
+      gettingStartedOpen: {
+        handler: function(bool) {
+          if (bool) {
             // onboarding carousel
             this.carouselDialog = OnboardingCarousel
           }
