@@ -3,11 +3,10 @@
     v-if="hasFeature('sandbox_org_feature')"
     class="sandbox-banner"
   >
-    You are in a Sandbox organization with restricted access. Contact us to request your own organization with full access&nbsp;
-    <a href="#" @click.prevent="showIntercom">
-        here
+    You are working in the Pennsieve Sandbox - Data can be removed periodically.&nbsp;
+    <a href="https://docs.pennsieve.io/docs/pennsieve-sandbox" target="_blank">
+        More Info
     </a>
-    .
   </div>
 </template>
 
@@ -18,7 +17,7 @@
     computed: {
       ...mapGetters(['hasFeature'])
     },
-    
+
     methods: {
       /**
       * Show intercom window
