@@ -1,25 +1,27 @@
 <template>
-  <bf-page class="create-org">
-    <img
-      src="/static/images/illustrations/illo-research-platform.svg"
-      alt="Patient Data"
-      width="446"
-      height="220"
-    >
-    <h2>Restricted Access</h2>
-    <p>You must create a new organization in order to access this feature on the platform. </p>
-    <bf-button
-     :disabled="maxOrgsCreated"
+  <bf-page>
+    <div class="create-org">
+      <img
+        src="/static/images/illustrations/illo-research-platform.svg"
+        alt="Patient Data"
+        width="446"
+        height="220"
+      >
+      <h2>Restricted Access</h2>
+      <p>You must create a new organization in order to access this feature on the platform. </p>
+      <bf-button
+      :disabled="maxOrgsCreated"
 
-      class="primary"
-      @click="requestCreateOrganization"
-    >
-      Request to Create Organization
-    </bf-button>
-    <create-organization-dialog
-      :visible.sync="isDialogVisible"
-      @close-dialog="onCloseDialog"
-    />
+        class="primary"
+        @click="requestCreateOrganization"
+      >
+        Request to Create Organization
+      </bf-button>
+      <create-organization-dialog
+        :visible.sync="isDialogVisible"
+        @close-dialog="onCloseDialog"
+      />
+    </div>
   </bf-page>
 </template>
 
@@ -76,6 +78,7 @@ import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/Crea
 <style lang="scss" scoped>
 .create-org {
   display: flex;
+  height: 100vh;
   flex-direction: column;
   justify-content: center;
   align-items: center;
