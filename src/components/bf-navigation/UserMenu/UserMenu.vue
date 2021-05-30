@@ -44,6 +44,7 @@
                 href="#"
                 class="bf-menu-item"
                 :class="[maxOrgsCreated ? 'disabled': '']"
+
                 @click.prevent="requestCreateOrganization"
               >
                 Request to Create New Organization
