@@ -198,7 +198,7 @@
             ],
             products: [
               {
-                'name': 'Blackfynn Platform'
+                'name': 'Pennsieve Platform'
               }
             ]
           }

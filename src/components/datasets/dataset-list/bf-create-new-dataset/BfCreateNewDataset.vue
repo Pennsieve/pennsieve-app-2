@@ -433,22 +433,22 @@
   }
 
   &:hover {
-    background: $cortex;
+    background: $gray_2;
     hr {
-      border-top-color: $cortex;
+      border-top-color: $gray_2;
     }
   }
 
   &.selected {
     color: white;
-    background: $dopamine;
+    background: $purple_1;
 
     h2 {
       color: white;
     }
 
     hr {
-      border-top-color: $dopamine;
+      border-top-color: $purple_1;
     }
   }
 }

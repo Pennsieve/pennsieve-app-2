@@ -11,6 +11,9 @@ const BfNavigationSecondary = () => import('../components/bf-navigation/BfNaviga
 const Login = () => import('./login/Login.vue')
 const Viewer = () => import('../components/viewer/BfViewer/BfViewer.vue')
 const ResetPassword = () => import('./ResetPassword/ResetPassword.vue')
+const DocsLogin = () => import('./DocsLogin/DocsLogin.vue')
+const CreateAccount = () => import('./CreateAccount/CreateAccount.vue')
+const CreateOrg = () => import('./CreateOrg/CreateOrg.vue')
 
 /**
  * User Onboarding Components
@@ -19,6 +22,8 @@ const Welcome = () => import('./welcome/Welcome.vue')
 const TermsOfService = () => import('./TermsOfService/TermsOfService.vue')
 const SetupProfile = () => import('../components/SetupProfile/SetupProfile.vue')
 const InvitePeople = () => import('../components/onboarding/InvitePeople/InvitePeople.vue')
+const FinalizeAccount = () => import('../components/FinalizeAccount/FinalizeAccount.vue')
+
 
 /**
  * People Components
@@ -353,6 +358,23 @@ const routes = [
     props: true
   },
   {
+    name: 'create-account',
+    path: '/sign-up',
+    components: {
+      page: CreateAccount
+    },
+    props: true
+  },
+  {
+    name: 'create-org',
+    path: '/:orgId/create-org',
+    components: {
+      page: CreateOrg,
+      navigation: BfNavigation
+    },
+    props: true
+  },
+  {
     path: '/:orgId/people',
     components: {
       page: People,
@@ -488,6 +510,29 @@ const routes = [
     props: true
   },
   {
+    name: 'invitation',
+    path: '/invitation',
+    components: {
+      page: Welcome
+    },
+    children: [
+      {
+        name: 'setup-profile',
+        path: 'accept/:username/:password',
+        components: {
+          stage: SetupProfile
+        }
+      },
+      {
+        name: 'verify-account',
+        path: 'verify/:username/:password',
+        components: {
+          stage: FinalizeAccount
+        }
+      },
+    ]
+  },
+  {
     name: 'welcome',
     path: '/:orgId/welcome',
     components: {
@@ -532,6 +577,13 @@ const routes = [
     }
   },
   {
+    name: 'welcome-to-pennsieve',
+    path: '/welcome-to-pennsieve',
+    components: {
+      page: ResetPassword
+    }
+  },
+  {
     path: '/orcid-redirect',
     components: {
       page: ORCID
@@ -553,6 +605,13 @@ const routes = [
       page: Login
     },
     props: true
+  },
+  {
+    name: 'docs-login',
+    path: '/docs-login',
+    components: {
+      page: DocsLogin
+    }
   },
   /**
    * Redirects from old URLs

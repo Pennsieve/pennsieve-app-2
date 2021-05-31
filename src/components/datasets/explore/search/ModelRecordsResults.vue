@@ -490,7 +490,7 @@ export default {
   }
 
   .results-count {
-    color: $glial;
+    color: $gray_4;
     margin-right: 32px;
   }
 
@@ -510,7 +510,7 @@ export default {
     }
 
     p {
-      color: $glial;
+      color: $gray_4;
       font-size: 14px;
       line-height: 16px;
       margin: 6px 0;
@@ -547,7 +547,7 @@ export default {
   align-items: center;
 
   /deep/ .el-dropdown-text-link:not(:hover, :active) {
-    color: $myelin;
+    color: $gray_6;
   }
 }
 

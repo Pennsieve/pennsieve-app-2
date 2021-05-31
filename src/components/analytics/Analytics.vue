@@ -8,29 +8,6 @@ import EventBus from '../../utils/event-bus'
 import { path, pathOr, compose, last, split, prop, propOr, has, defaultTo, find, pathEq } from 'ramda'
 
 export default Vue.component('bf-analytics', {
-  /**
-   * Life cycle method
-   */
-  mounted: function() {
-    // Custom event handlers
-    // @TODO enable when adding Heap and Google Analytics
-    // EventBus.$on('track-page', this.trackPage.bind(this))
-    // EventBus.$on('track-user', this.trackUser.bind(this))
-    EventBus.$on('track-event', this.trackEvent.bind(this))
-    // Google analytics
-    // @TODO enable when adding Heap and Google Analytics
-    // ga('create', site.googleAnalytics, 'auto')
-    // Intercom
-    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
-  },
-
-  beforeDestroy() {
-    // @TODO enable when adding Heap and Google Analytics
-    // EventBus.$off('track-page', this.trackPage.bind(this))
-    // EventBus.$off('track-user', this.trackUser.bind(this))
-    EventBus.$off('track-event', this.trackEvent.bind(this))
-  },
-
   computed: {
     ...mapGetters([
       'getActiveOrganization',
@@ -56,6 +33,22 @@ export default Vue.component('bf-analytics', {
     }
   },
 
+  /**
+   * Life cycle method
+   */
+  mounted: function() {
+    // Custom event handlers
+    // EventBus.$on('track-user', this.trackUser.bind(this))
+    EventBus.$on('track-event', this.trackEvent.bind(this))
+    // Intercom
+    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
+  },
+
+  beforeDestroy() {
+    // EventBus.$off('track-user', this.trackUser.bind(this))
+    EventBus.$off('track-event', this.trackEvent.bind(this))
+  },
+
   methods: {
     /**
      * Registers the user with Intercom when an active organization is set or changes.
@@ -75,7 +68,8 @@ export default Vue.component('bf-analytics', {
           'id': this.activeOrgId,
           'name': this.activeOrgName,
           'subscriptionState': pathOr('', ['organization', 'subscriptionState', 'type'], this.activeOrganization),
-          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', ')
+          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', '),
+          'environment': site.environment
         }
       });
     },
@@ -93,23 +87,6 @@ export default Vue.component('bf-analytics', {
     },
 
     /**
-     * Handles `track-page` custom event. Sets page data for Google Analytics and calls a `pageview` tag.
-     * @param {Object} evt
-     */
-    trackPage: function(evt) {
-      /**
-       * Use set param, this way if we then send a subsequent event on the page it will be correctly
-       * associated with the same page
-       */
-      const page = path(['detail', 'path'], evt)
-      const title = pathOr('', ['detail', 'title'], evt)
-      if (page) {
-        ga('set', {page, title})
-      }
-      ga('send', 'pageview')
-    },
-
-    /**
      * Handles `track-user` custom event. Calls Heap Analytics `addUserProperties` API for detailed user tracking.
      * @param {Object} evt
      */
@@ -123,7 +100,7 @@ export default Vue.component('bf-analytics', {
     },
 
     /**
-     * Returns the last part of the Blackfynn user id for Heap Analytics tracking.
+     * Returns the last part of the Pennsieve user id for Heap Analytics tracking.
      * This function is point-free so you just need to pass it an id such as:
      * `N:user:4edcd1d9-1b25-4860-abdf-79140d069450`
      * @param {String}

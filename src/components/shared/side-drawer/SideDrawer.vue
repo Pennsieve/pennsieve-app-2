@@ -129,14 +129,14 @@ h1 {
   padding: 32px 16px 16px 16px;
 
   &.has-border {
-    border-bottom: solid 1px $cortex;
+    border-bottom: solid 1px $gray_2;
   }
 }
 
 .copy {
   font-size: 18px;
   line-height: 24px;
-  color: $dark-gray;
+  color: $gray_6;
 }
 
 .body {
@@ -147,7 +147,7 @@ h1 {
 }
 
 .footer {
-  border-top: solid 1px $cortex;
+  border-top: solid 1px $gray_2;
   height: 88px;
 
   .buttons {

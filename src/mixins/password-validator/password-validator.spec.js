@@ -22,7 +22,7 @@ describe('Password Validator Mixin', () => {
   })
 
   it('validatePassword: satisifies entropy requirement', () => {
-    const pw = cmp.vm.validatePassword('X4EHHoTiF1ff')
+    const pw = cmp.vm.validatePassword('X4EHHoTiF1ff!')
     expect(pw.feedback).toBe('Strong password!')
     expect(pw.isValid).toBe(true)
   })

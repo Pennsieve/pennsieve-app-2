@@ -44,7 +44,7 @@
   text-align: center;
 }
 .person-icon {
-  color: $dopamine;
+  color: $purple_1;
   margin-bottom: 8px;
 }
 </style>

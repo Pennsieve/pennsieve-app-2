@@ -25,14 +25,14 @@
           >
             I accept the
             <a
-              href="https://www.blackfynn.com/legal/terms"
+              href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
               target="_blank"
             >
               Terms of Service
             </a>
             and
             <a
-              href="https://www.blackfynn.com/legal/privacy/"
+              href="https://docs.pennsieve.io/page/privacy-policy"
               target="_blank"
             >
               Privacy Policy
@@ -268,9 +268,9 @@ export default {
 @import '../../assets/_variables.scss';
 
 .terms-of-service {
-  background: $white-matter;
+  background: $white;
   display: block;
-  color: $glial;
+  color: $gray_4;
   min-height: 100vh;
 
   .container {
@@ -282,7 +282,7 @@ export default {
   }
 
    .agreement-wrap {
-      border: 1px solid $cortex;
+      border: 1px solid $gray_2;
       color: #000;
       font-size: 14px;
       line-height: 21px;

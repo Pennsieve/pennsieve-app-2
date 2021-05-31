@@ -79,16 +79,16 @@
 import { mapState } from 'vuex'
 import { pathOr } from 'ramda'
 
-// Blackfynn components
+// Pennsieve components
 import BfButton from '../shared/bf-button/BfButton.vue'
 import BfDialog from '../shared/bf-dialog/bf-dialog.vue'
 import CharacterCountInput from '../shared/CharacterCountInput/CharacterCountInput.vue'
 
-// Blackfynn mixins
+// Pennsieve mixins
 import AutoFocus from '../../mixins/auto-focus'
 import Request from '../../mixins/request'
 
-// Blackfynn utils
+// Pennsieve utils
 import EventBus from '../../utils/event-bus.js'
 
 export default {

@@ -90,18 +90,18 @@
   import { propOr, pathOr } from 'ramda'
   import { mapGetters, mapActions, mapState } from 'vuex'
 
-  // Blackfynn components
+  // Pennsieve components
   import BfButton from '../../../../shared/bf-button/BfButton.vue'
   import BfDialog from '../../../../shared/bf-dialog/bf-dialog.vue'
   import CharacterCountInput from '../../../../shared/CharacterCountInput/CharacterCountInput.vue'
 
-  // Blackfynn mixins
+  // Pennsieve mixins
   import Request from '../../../../../mixins/request/index'
   import AutoFocus from '../../../../../mixins/auto-focus'
   import checkUniqueName from '../../../../../mixins/check-unique-names'
   import sanitizeName from '../../../../../mixins/sanitize-name'
 
-  // Blackfynn utils
+  // Pennsieve utils
   import EventBus from '../../../../../utils/event-bus.js'
 
   export default {

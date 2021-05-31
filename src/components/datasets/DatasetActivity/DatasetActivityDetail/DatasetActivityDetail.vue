@@ -493,11 +493,11 @@ import { referenceTypeOptions } from '@/utils/constants'
     margin-bottom: -2px;
     font-size: 14px;
     line-height: 24px;
-    color: $myelin;
+    color: $gray_6;
    }
   &__parent-info {
     font-size: 12px;
-    color: $myelin;
+    color: $gray_6;
     font-weight: 400;
   }
   &__info {

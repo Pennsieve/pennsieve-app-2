@@ -31,7 +31,7 @@
       >
         <h2>Embargoed Access</h2>
         <p>
-          Give individuals in your organization access to embargoed data on Blackfynn Discover.
+          Give individuals in your organization access to embargoed data on Pennsieve Discover.
         </p>
         <div
           v-if="embargoedRequests.length === 0"
@@ -186,13 +186,13 @@ export default {
 <style lang="scss" scoped>
 @import '../../../../assets/_variables.scss';
 .embargoed-permissions {
-  background: $white-matter;
+  background: $white;
   &__empty-state {
-    border-top: solid 1px $cortex;
+    border-top: solid 1px $gray_2;
     p {
       margin-top: 22px;
       font-size: 14px;
-      color: $glial;
+      color: $gray_4;
       font-style: italic;
       font-weight: 400;
       line-height: 16px;

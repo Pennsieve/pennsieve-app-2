@@ -142,7 +142,7 @@ h3 {
   display: flex;
 }
 .icon-filters {
-  color: $myelin;
+  color: $gray_6;
   margin: -6px -6px -6px 0;
 }
 </style>

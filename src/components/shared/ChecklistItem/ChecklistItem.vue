@@ -64,7 +64,7 @@
 
   .dataset-discover-checklist-item {
     align-items: center;
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     display: flex;
     padding: 10px 16px;
     &:first-child {

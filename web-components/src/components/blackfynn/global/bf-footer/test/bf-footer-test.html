@@ -45,21 +45,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       test('Should have a terms and conditions link', function() {
         const terms = Polymer.dom(basic.root).querySelector('.termsLink');
-        assert.equal(terms.href, 'https://www.blackfynn.com/terms');
+        assert.equal(terms.href, 'https://docs.pennsieve.io/page/pennsieve-terms-of-use');
         assert.equal(terms.target, '_blank');
         assert.equal(terms.textContent, 'Terms');
       });
 
       test('Should have a privacy policy link', function() {
         const privacy = Polymer.dom(basic.root).querySelector('.privacyLink');
-        assert.equal(privacy.href, 'https://www.blackfynn.com/privacy');
+        assert.equal(privacy.href, 'https://docs.pennsieve.io/page/privacy-policy');
         assert.equal(privacy.target, '_blank');
         assert.equal(privacy.textContent, 'Privacy');
       });
 
       test('Should have copyright info', function() {
         const copyrightInfo = Polymer.dom(basic.root).querySelector('.copyrightInfo');
-        const copy = `© ${new Date().getFullYear()} Blackfynn, Inc.`;
+        const copy = `© ${new Date().getFullYear()} The University of Pennsylvania`;
         assert.equal(copyrightInfo.textContent, copy);
       });
 

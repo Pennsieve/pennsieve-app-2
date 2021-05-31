@@ -524,11 +524,11 @@ export default {
   .empty-msg {
     margin-top: 8px;
     font-size: 14px;
-    color: $glial;
+    color: $gray_4;
   }
 
   .datasets-icon {
-    color: $dopamine;
+    color: $purple_1;
   }
 
 }

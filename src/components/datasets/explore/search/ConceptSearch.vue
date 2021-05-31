@@ -176,9 +176,6 @@ export default {
     },
 
     nonSortableColumns: function() {
-      if (this.hasFeature('clinical_management_feature')) {
-        return ['name']
-      }
       // check for array types
       if (this.searchResults.length) {
         const columns = pathOr([], [0, 'values'], this.searchResults)

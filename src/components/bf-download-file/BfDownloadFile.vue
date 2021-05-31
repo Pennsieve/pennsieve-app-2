@@ -124,7 +124,7 @@
   import BfStorageMetrics from '@/mixins/bf-storage-metrics';
   import Sorter from '../../mixins/sorter';
 
-  const DEFAULT_ARCHIVE_NAME = 'blackfynn-data'
+  const DEFAULT_ARCHIVE_NAME = 'pennsieve-data'
 
   export default {
     name: 'BfDownloadFile',

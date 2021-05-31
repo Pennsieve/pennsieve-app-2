@@ -21,7 +21,7 @@
         <p>
           We were unable to apply that montage.  Make sure your channel names match standard schemes.
           <a
-            href="https://help.blackfynn.com/blackfynn-web-application/interactive-data-viewers/time-series-viewer"
+            href="https://docs.pennsieve.io/docs/time-series-viewer"
             target="_blank"
           >
             Learn More
@@ -93,7 +93,7 @@ export default {
 
 .montage-error-dialog {
   .svg-icon {
-    color: $synapse;
+    color: $red_1;
     display: block;
     margin: 0 auto 8px;
   }

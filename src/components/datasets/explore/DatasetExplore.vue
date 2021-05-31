@@ -55,6 +55,6 @@ export default {
   }
 
   .bf-dataset-explore .data-model-graph .chart {
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
   }
 </style>

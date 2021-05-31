@@ -30,7 +30,7 @@
         <span class="help-link">
           (
           <a
-            href="https://help.blackfynn.com/en/articles/4211347"
+            href="https://docs.pennsieve.io/docs/what-is-an-embargoed-dataset"
             target="_blank"
           >
             what is this?

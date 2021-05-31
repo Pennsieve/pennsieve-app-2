@@ -69,7 +69,7 @@ export default {
 }
 
 p {
-  color: $glial;
+  color: $gray_4;
   font-size: 12px;
   line-height: 16px;
   margin: 0;
@@ -81,7 +81,7 @@ p {
   text-align: center;
   width: 36px;
   .circle-icon {
-    background: $nucleus;
+    background: $green_1;
     color: #fff;
     height: 16px;
     position: absolute;

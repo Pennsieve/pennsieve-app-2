@@ -229,7 +229,7 @@
   @import '../../../../assets/_variables.scss';
 
   .graph-management {
-    background: $white-matter;
+    background: $white;
   }
 
   .model-templates {

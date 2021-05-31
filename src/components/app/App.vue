@@ -41,6 +41,11 @@
     />
 
     <office-365-dialog />
+
+    <link-orcid-dialog
+      v-if="userToken"
+      :visible.sync="isLinkOrcidDialogVisibleWrapper"
+    />
   </div>
 </template>
 
@@ -57,7 +62,7 @@
   }
 
   body {
-    background-color: $noradrenaline;
+    background-color: $gray_1;
     color: $text-color;
     margin: 0;
     min-height: 100vh;

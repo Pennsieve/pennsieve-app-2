@@ -108,7 +108,7 @@ export default {
 @import '../../../assets/_variables.scss';
 
 .search-all-data-recent-search {
-  color: $myelin;
+  color: $gray_6;
   display: flex;
   overflow: hidden;
 }
@@ -132,6 +132,6 @@ export default {
   }
 }
 .search-all-data-recent-search-date {
-  color: $glial;
+  color: $gray_4;
 }
 </style>

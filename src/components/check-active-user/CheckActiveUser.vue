@@ -1,47 +1,42 @@
 <template />
 
 <script>
-import Vue from 'vue'
+import { mapActions, mapState } from 'vuex'
+import Auth from '@aws-amplify/auth'
+import Cookies from 'js-cookie'
 
-import Request from '../../mixins/request/index'
-import EventBus from '../../utils/event-bus'
-import { mapGetters } from 'vuex'
+import EventBus from '@/utils/event-bus'
 
-
-export default Vue.component('check-active-user', {
-  mixins: [
-    Request
-  ],
+export default {
+  name: 'CheckActiveUser',
 
   data() {
     return {
-      // interval to poll user session 5 minutes
-      interval: 3e5,
       // async request reference
       pingUserHandle: null
     }
   },
 
   computed: {
-    ...mapGetters([
-      'userToken',
-      'config'
+    ...mapState([
+      'config',
+      'userToken'
     ]),
 
     /**
-     * Compute active user url
-     * @returns {String}
+     * Compute interval based on environment
      */
-    computeCheckActiveUserUrl: function() {
-      if (this.config.apiUrl && this.userToken) {
-        return `${this.config.apiUrl}/security/ping?api_key=${this.userToken}`
-      }
+    interval: function() {
+      return this.config.environment === 'prod'
+        ? 600000 // 10 minutes
+        : 240000 // 4 minutes
     }
   },
 
   watch: {
     /**
      * Watch for when userToken is defined
+     * @param {String} userToken
      */
     userToken: function(userToken) {
       if (userToken !== '') {
@@ -51,8 +46,12 @@ export default Vue.component('check-active-user', {
   },
 
   methods: {
+    ...mapActions([
+      'updateUserToken'
+    ]),
+
     /**
-     * Calls blackfynnApp._logout()
+     * Calls PennsieveApp._logout()
      */
     callLogout: function() {
       EventBus.$emit('logout', {
@@ -65,25 +64,21 @@ export default Vue.component('check-active-user', {
      * sets pingUserHandle reference
      */
     pingUserActive: function() {
-      // Send the ajax call to check if user is active every 5 minutes
-      this.pingUserHandle = setTimeout(() => {
-        this.sendXhr(this.computeCheckActiveUserUrl)
-        .then(this.handleActiveUser.bind(this))
-        .catch(this.handleActiveUser.bind(this))
+      this.pingUserHandle = setTimeout(async () => {
+        try {
+          const cognitoUser = await Auth.currentAuthenticatedUser()
+          const currentSession = cognitoUser.signInUserSession
+          cognitoUser.refreshSession(currentSession.refreshToken, (err, session) => {
+            const token = session.accessToken.jwtToken
+            Cookies.set('user_token', token)
+            this.updateUserToken(token)
+          })
+        } catch (err) {
+          this.callLogout()
+          return clearTimeout(this.pingUserHandle)
+        }
       }, this.interval)
-    },
-
-    /**
-     * Handles user session
-     * @param {Object} response
-     */
-    handleActiveUser: function(response) {
-      if (response.status >= 401) {
-        this.callLogout()
-        return clearTimeout(this.pingUserHandle)
-      }
-      this.pingUserActive()
     }
   }
-})
+}
 </script>

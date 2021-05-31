@@ -15,7 +15,7 @@
           width="339"
         >
         <h2>Drag and drop files here</h2>
-        <p>We don’t recommend uploading more than 10GB through the web UI, due to browser limitations. If you’re uploading large amounts of data, please use the Blackfynn API.</p>
+        <p>We don’t recommend uploading more than 10GB through the web UI, due to browser limitations. If you’re uploading large amounts of data, please use the Pennsieve API.</p>
         <span class="circle one" />
         <span class="circle two" />
         <span class="circle three" />
@@ -124,7 +124,7 @@
     border-radius: 5px;
     box-shadow: 0 2px 15px 0 rgba(0,0,0,0.25), 0 28px 41px 0 rgba(33,43,54,0.2);
     box-sizing: border-box;
-    color: $white-matter;
+    color: $white;
     height: 440px;
     margin: 15vh auto 50px;
     overflow: hidden;
