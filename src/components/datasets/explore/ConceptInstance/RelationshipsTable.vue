@@ -67,14 +67,13 @@
               v-if="isFilesType && !datasetLocked"
               class="relationships-text-divider"
             >
-              |
             </span>
             <a
-              v-if="isFilesType && !datasetLocked"
+              v-if="isFilesType && !datasetLocked && !hasFolders"
               href="#"
               @click.stop="onDeleteFiles"
             >
-              {{ deleteText }}
+              | {{ deleteText }}
             </a>
           </div>
         </div>
@@ -211,13 +210,14 @@
                         v-if="scope.row.status === 'Unprocessed'"
                         command="process"
                       >
-                        Process File
+                        Process
                       </el-dropdown-item>
                       <el-dropdown-item command="unlink">
-                        Unlink File
+                        Unlink
                       </el-dropdown-item>
-                      <el-dropdown-item command="delete">
-                        Delete File
+                      <el-dropdown-item command="delete"
+                        v-if="scope.row.packageType !== 'Collection'">
+                        Delete
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
@@ -874,6 +874,10 @@ export default {
       return `Delete File${suffix}`
     },
 
+    hasFolders: function() {
+      return find(propEq('packageType', 'Collection'), this.selection) ? true: false
+    },
+
     /**
      * Returns boolean based on whether table will render source
      * file data or relationship data
@@ -1443,6 +1447,10 @@ export default {
         propOr('', 'children'),
         last
       )
+      const getPackageType = compose(
+        propOr('', 'packageType'),
+        last
+      )
 
       return (
         results
@@ -1460,11 +1468,11 @@ export default {
               relationshipInstanceId: propOr('', 'id', relationship)
             }
 
-            // Submissions table
-            if (this.isSubmissions) {
-              const fileContent = pathOr({}, ['file', 'content'], arr)
-              obj.file = fileContent
-            }
+            // // Submissions table
+            // if (this.isSubmissions) {
+            //   const fileContent = pathOr({}, ['file', 'content'], arr)
+            //   obj.file = fileContent
+            // }
 
             // Relationships Table
             const values = getValues(arr)
@@ -1514,6 +1522,7 @@ export default {
               obj.createdAt = getCreatedAt(content)
               obj['Date Created'] = getCreatedAt(content)
               obj.updatedAt = getUpdatedAt(content)
+              obj.packageType = content.packageType
               obj.subtype =
                 this.getFilePropertyVal(properties, 'subtype') ||
                 getSubtype(arr)
@@ -1663,15 +1672,13 @@ export default {
         }
       }
 
-      // Submissions
-      const isFile = this.isFile(scope)
-      if (isFile) {
-        const fileId = pathOr('', ['row', 'file', 'id'], scope)
+      // collection relationship
+      if (recordId && recordId.includes('collection')) {
         return {
-          name: 'file-record',
+          name: 'collection-files',
           params: {
             conceptId: this.filesProxyId,
-            instanceId: fileId
+            fileId: recordId
           }
         }
       }
@@ -1804,37 +1811,37 @@ export default {
 
     .processing-row td:nth-child(3) {
       .cell {
-        background: #2760ff;
-        color: #fafafa;
-        width: fit-content;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 6px;
-        padding-bottom: 1px;
+        background: none; //#2760ff;
+        //color: #fafafa;
+        //width: fit-content;
+        //font-size: 12px;
+        //font-weight: 600;
+        //border-radius: 6px;
+        //padding-bottom: 1px;
       }
     }
 
     .unprocessed-row td:nth-child(3) {
       .cell {
-        background: #f1f1f3;
-        color: #404554;
-        width: fit-content;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 6px;
-        padding-bottom: 1px;
+        background: none; //#f1f1f3;
+        //color: #404554;
+        //width: fit-content;
+        //font-size: 12px;
+        //font-weight: 600;
+        //border-radius: 6px;
+        //padding-bottom: 1px;
       }
     }
 
     .failed-row td:nth-child(3) {
       .cell {
-        background: #e94b4b;
-        color: #fafafa;
-        width: fit-content;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 6px;
-        padding-bottom: 1px;
+        background: none; //#e94b4b;
+        ////color: #fafafa;
+        //width: fit-content;
+        //font-size: 12px;
+        //font-weight: 600;
+        //border-radius: 6px;
+        //padding-bottom: 1px;
       }
     }
 
