@@ -461,22 +461,24 @@
               @confirm-remove-linked-property="openLinkedPropertyModal"
             />
 
-            <concept-instance-static-property
-              label="Pennsieve Id"
-              :value="instance.id"
-            />
+            <div class="static-prop-section">
+              <concept-instance-static-property
+                label="Pennsieve Id"
+                :value="instance.id"
+              />
 
-            <concept-instance-static-property
-              label="Created By"
-              :user="instance.createdBy"
-              :date="instance.createdAt"
-            />
+              <concept-instance-static-property
+                label="Created By"
+                :user="instance.createdBy"
+                :date="instance.createdAt"
+              />
 
-            <concept-instance-static-property
-              label="Updated By"
-              :user="instance.updatedBy"
-              :date="instance.updatedAt"
-            />
+              <concept-instance-static-property
+                label="Updated By"
+                :user="instance.updatedBy"
+                :date="instance.updatedAt"
+              />
+            </div>
           </el-collapse-item>
         </el-collapse>
         <!-- END PROPERTIES TABLE -->
@@ -644,8 +646,7 @@
             <h3>Create Relationships</h3>
             <div>
               <p class="relationship-inner-text">
-                Connect {{ $sanitize(formattedConceptTitle) }} with other objects in your graph by clicking the Add
-                Relationships button above.
+                Connect <b>{{ $sanitize(formattedConceptTitle) }}</b> with other objects in your graph by clicking the "Link to Record" button above.
               </p>
               <a
                 href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"
@@ -1263,7 +1264,10 @@ export default {
     },
 
     modelName: function() {
-      return this.model.name
+      if (this.model) {
+        return this.model.name
+      }
+      return '';
     },
 
     /**
@@ -3436,6 +3440,9 @@ export default {
     }
   }
 
+  .static-prop-section{
+    margin-top: 16px;
+  }
   .collapse-properties .el-collapse-item__wrap {
     padding-bottom: 16px;
     background: #fbfbfd;
@@ -3522,7 +3529,7 @@ export default {
   }
 }
 .concept-instance-section {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   .collapse-properties {
     .source-files {
       background: blue !important;
@@ -3533,6 +3540,7 @@ export default {
 .model-name{
   margin: 16px 0 0 0;
   color: $gray_4;
+  font-weight: 300;
 }
 
 .relationships-list {
@@ -3557,7 +3565,8 @@ export default {
     padding: 0;
   }
   .bf-upload-dropzone {
-    border: 2px dashed #d9e0f0;
+    background: $purple_tint;
+    border: 1px dashed $purple_1;
     height: 214px;
     padding: 0;
   }
@@ -3583,9 +3592,10 @@ export default {
     p {
       max-width: 450px;
       padding: 0 16px;
+      color: $gray_4;
 
       a {
-        color: $gray_4;
+        color: $purple_1;
       }
     }
 
@@ -3596,9 +3606,10 @@ export default {
 }
 
 .relationships-empty-state {
-  background-color: rgba(233, 237, 246, 0.2);
-  border: 2px dashed #d9e0f0;
-  padding: 47px;
+  background: $purple_tint;
+  border: 1px dashed $purple_1;
+  height: 214px;
+  display: flex;
 
   &-inner {
     max-width: 460px;
