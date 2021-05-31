@@ -16,6 +16,7 @@ import BfUploadExternalFile from '../bf-upload-external-file/BfUploadExternalFil
 import BfUpload from '../BfUpload/BfUpload.vue'
 import SearchAllData from '@/components/SearchAllData/SearchAllData.vue'
 import Office365Dialog from '@/components/datasets/files/Office365Dialog/Office365Dialog.vue'
+import LinkOrcidDialog from '@/components/LinkOrcidDialog/LinkOrcidDialog.vue'
 
 import globalMessageHandler from '../../mixins/global-message-handler'
 import Request from '../../mixins/request'
@@ -37,7 +38,8 @@ export default {
     BfDownloadFile,
     BfUploadExternalFile,
     SearchAllData,
-    Office365Dialog
+    Office365Dialog,
+    LinkOrcidDialog
   },
 
   mixins: [
@@ -63,19 +65,20 @@ export default {
       'primaryNavOpen',
       'secondaryNavOpen',
       'environment',
-      'searchModalVisible'
+      'searchModalVisible',
+      'isLinkOrcidDialogVisible'
     ]),
 
     ...mapState('datasetModule', [
       'datasetSearchParams'
     ]),
-
     ...mapGetters([
       'activeOrganization',
       'getActiveOrganization',
       'config',
       'userToken',
-      'hasFeature'
+      'hasFeature',
+      'hasOrcidOnboardingEvent'
     ]),
 
     /**
@@ -115,6 +118,27 @@ export default {
       if (this.config.apiUrl && this.userToken) {
         const orgId = pathOr('', ['organization', 'id'], this.activeOrganization)
         return `${this.config.apiUrl}/organizations/${orgId}/dataset-status?api_key=${this.userToken}`
+      }
+    },
+
+    /**
+     * Wrapper to work around visible sync witha vuex
+     * state property
+     */
+    isLinkOrcidDialogVisibleWrapper: {
+      /**
+       * True if the link ORCID dialog should be visible
+       * @returns {Boolean}
+       */
+      get() {
+        return this.isLinkOrcidDialogVisible
+      },
+      /**
+       * Set the value in the vuex store
+       * @param {Boolean} val 
+       */
+      set(val) {
+        this.updateIsLinkOrcidDialogVisible(val)
       }
     }
   },
@@ -195,7 +219,9 @@ export default {
       'setDatasetPublishedData',
       'setIsLoadingDatasetPublishedData',
       'setIsLoadingDatasetsError',
-      'updateOrgDatasetStatuses'
+      'updateOrgDatasetStatuses',
+      'updateShouldShowLinkOrcidDialog',
+      'updateIsLinkOrcidDialogVisible'
     ]),
 
     ...mapActions('datasetModule', [
@@ -295,7 +321,7 @@ export default {
      */
     setPageMeta: function(activeOrg) {
       const orgName = pathOr('', ['organization', 'name'], activeOrg)
-      let pageTitle = `${orgName} | Blackfynn`
+      let pageTitle = `${orgName} | Pennsieve`
       let pageDescription = ''
 
       if (!orgName) {
@@ -331,14 +357,14 @@ export default {
       const frag = document.createDocumentFragment()
       frag.appendChild(div)
 
-      const metaTag = frag.querySelector(`meta[name="BF.version"]`)
+      const metaTag = frag.querySelector(`meta[name="PS.version"]`)
       const content = metaTag.content
       // replace unnecessary characters if content is available
       return content ? content.replace(/\W|T/g, '') : ''
     },
 
     /**
-      * Get Blackfynn Terms of Service html
+      * Get Pennsieve Terms of Service html
       * @param {String} url
       * @returns {Promise}
       */
@@ -346,7 +372,7 @@ export default {
       return fetch('/static/files/tos.html')
         .then(response => response.text())
         .then(text => {
-          // set blackfynn terms of service version
+          // set Pennsieve terms of service version
           const bfTermsOfServiceVersion = this.getBfTermsVersion(text)
           return this.setBfTermsOfServiceVersion(bfTermsOfServiceVersion)
         })
@@ -362,8 +388,26 @@ export default {
           'Authorization': `bearer ${userToken}`
         }
       })
-      .then(this.updateOnboardingEvents.bind(this))
+      .then((response) =>  {
+        this.updateOnboardingEvents(response)
+        const hasAddedOrcid = response.includes('AddedOrcid')
+        if (!hasAddedOrcid)  {
+          this.updateShouldShowLinkOrcidDialog(true)
+          // this.setLinkOrcidDialog()
+        }
+      })
       .catch(this.handleXhrError.bind(this))
     },
+
+    /**
+     * Compute if the link orcid dialog should be visible
+     */
+    //  setLinkOrcidDialog: function() {
+    //   this.updateShouldShowLinkOrcidDialog(true)
+    //   // if (this.$route.name !== 'terms-of-service' && !this.hasOrcidOnboardingEvent) {
+    //   //   this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
+    //   // }
+    // }
+
   }
 }

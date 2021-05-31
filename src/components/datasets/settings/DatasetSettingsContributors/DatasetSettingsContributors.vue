@@ -5,7 +5,7 @@
   >
     <h4>Contributors</h4>
     <p class="mb-16">
-      A list of the people who have helped create this dataset. Contributors will appear in Blackfynn Discover if your dataset is published.
+      A list of the people who have helped create this dataset. Contributors will appear in Pennsieve Discover if your dataset is published.
     </p>
 
     <div class="contributor-input-wrap mb-16">
@@ -446,7 +446,7 @@ export default {
 @import '../../../../assets/_variables.scss';
 .add-contributor-dropdown {
   .el-select-group__title {
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
     font-weight: 600;
     line-height: 1;

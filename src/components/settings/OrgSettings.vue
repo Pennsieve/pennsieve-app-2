@@ -345,6 +345,14 @@ export default {
     this.getUsers(this.orgMembers)
   },
 
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.hasFeature('sandbox_org_feature')) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
+  },
+
   methods: {
     ...mapActions(['updateOrgMembers', 'updateOrgDatasetStatuses']),
 
@@ -568,12 +576,12 @@ export default {
 }
 
 .divider {
-  background: $cortex;
+  background: $gray_2;
   height: 1px;
   margin: 50px 1px 40px 1px;
 }
 .storage-used {
-  color: $glial;
+  color: $gray_4;
   font-size: 12px;
   line-height: 14px;
 }
@@ -589,8 +597,8 @@ export default {
 }
 .storage-display-wrap {
   padding: 16px;
-  background: $white-matter;
-  border: solid 1px $cortex;
+  background: $white;
+  border: solid 1px $gray_2;
   border-radius: 5px;
   width: 296px;
   margin-bottom: 50px;
@@ -602,7 +610,7 @@ export default {
   margin-top: 50px;
 }
 p {
-  color: $myelin;
+  color: $gray_6;
   font-size: 14px;
   font-weight: normal;
   line-height: 18px;

@@ -230,7 +230,7 @@
   }
 
   .icon-wrapper {
-    background: $dopamine;
+    background: $purple_1;
     border: solid 1px transparent;
     border-radius: 0 2px 2px 0;
     cursor: pointer;
@@ -246,7 +246,7 @@
     }
 
     &:hover {
-      background: $dopamine-dark;
+      background: $purple_3;
     }
   }
 </style>

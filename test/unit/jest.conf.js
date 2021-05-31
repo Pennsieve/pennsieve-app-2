@@ -10,7 +10,8 @@ module.exports = {
     'vue'
   ],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1'
+    '^@/(.*)$': '<rootDir>/src/$1',
+    "\\.(css)$": "<rootDir>/test/unit/__mocks__/styleMock.js" // https://jestjs.io/docs/webpack#handling-static-assets
   },
   transform: {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',

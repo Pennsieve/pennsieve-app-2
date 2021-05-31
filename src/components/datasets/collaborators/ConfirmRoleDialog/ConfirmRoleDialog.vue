@@ -24,7 +24,7 @@
             Change dataset access to Viewer?
           </h2>
 
-          <p>{{ entityCopy }} will no longer be able to invite organization members to this dataset, edit files, models, and records, or publish to Blackfynn Discover.</p>
+          <p>{{ entityCopy }} will no longer be able to invite organization members to this dataset, edit files, models, and records, or publish to Pennsiseve Discover.</p>
         </template>
         <template v-if="currentRole === 'editor'">
           <h2 slot="heading">
@@ -42,7 +42,7 @@
             Change dataset access to Manager?
           </h2>
 
-          <p>Managers can invite people and teams to a dataset, edit and delete models, records and files, as well as publish to Blackfynn Discover.</p>
+          <p>Managers can invite people and teams to a dataset, edit and delete models, records and files, as well as publish to Pennsieve Discover.</p>
         </template>
         <template v-if="role === 'editor'">
           <h2 slot="heading">

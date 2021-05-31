@@ -447,15 +447,15 @@ export default {
 }
 
 .dataset-wip-item .dot {
-  background-color: $dopamine;
+  background-color: $purple_1;
 }
 
 .dataset-in-review-item .dot {
-  background-color: $orange;
+  background-color: $status_orange;
 }
 
 .dataset-completed-item .dot {
-  background-color: $nucleus;
+  background-color: $green_1;
 }
 
 .status-item {

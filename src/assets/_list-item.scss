@@ -1,6 +1,6 @@
 .bf-dataset-list-item,
 .published-dataset-list-item {
-  border-bottom: 1px solid $cortex;
+  border-bottom: 1px solid $gray_2;
   padding: 16px 0;
 
   flex-direction: row;
@@ -14,13 +14,13 @@
     padding-bottom: 0;
   }
   h2 {
-    color: $dark-gray;
+    color: $gray_6;
     display: block;
     font-size: 16px;
     font-weight: 600;
     margin: 8px 0 16px;
     &.publish-in-progress {
-      color: $glial;
+      color: $gray_4;
     }
     .svg-icon {
       color: #000
@@ -73,7 +73,7 @@
 }
 
 .dataset-meta, .workspace-meta {
-  color: $glial;
+  color: $gray_4;
   font-size: 13px;
   strong {
     color: $text-color;
@@ -81,7 +81,7 @@
 }
 .publish-info {
   align-items: center;
-  color: $glial;
+  color: $gray_4;
   display: flex;
   &.error {
     color: $error-color;
@@ -90,7 +90,7 @@
     margin: 0;
   }
   strong {
-    color: $dark-gray;
+    color: $gray_6;
   }
   .bf-icon-waiting {
     color: $app-primary-color;

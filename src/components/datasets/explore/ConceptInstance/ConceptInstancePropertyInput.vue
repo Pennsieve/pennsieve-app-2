@@ -497,7 +497,7 @@
       .col-unit-property {
         position: relative;
         left: 10px;
-        color: $glial;
+        color: $gray_4;
       }
       .el-input-number .el-input__inner {
         text-align: left;

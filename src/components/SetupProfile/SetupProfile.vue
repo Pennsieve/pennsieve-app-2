@@ -1,6 +1,9 @@
 <template>
   <div class="wrapper">
-    <div class="login-wrap">
+    <div
+      v-if="!isUserSignInFailed"
+      class="login-wrap"
+    >
       <h2 class="sharp-sans">
         Let's set up your profile.
       </h2>
@@ -87,20 +90,46 @@
         </el-form-item>
       </el-form>
       <p class="agreement">
-        By clicking “Save Profile” you are agreeing to the Blackfynn
+        By clicking “Save Profile” you are agreeing to the Pennsieve
         <a
-          href="https://www.blackfynn.com/terms"
+          href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
           target="_blank"
         >
           Terms of Use
         </a> and
         <a
-          href="https://www.blackfynn.com/privacy"
+          href="https://docs.pennsieve.io/page/privacy-policy"
           target="_blank"
         >
           Privacy Policy
         </a>.
       </p>
+    </div>
+    <div
+      v-if="isUserSignInFailed"
+      class="login-wrap"
+    >
+      <h2 class="sharp-sans">
+        Let's set up your profile.
+      </h2>
+      <p>It looks like you already set up your profile. If you forgot your password, please select “I forgot my password” to receive an email to reset your password.</p>
+      <div class="user-already-created-wrap">
+        <router-link
+          class="btn-back-to-sign-in"
+          :to="{name: 'home' }"
+        >
+          <bf-button>
+            Back to Sign In
+          </bf-button>
+        </router-link>
+        <a
+          class="forgot-password"
+          href="#"
+          @click="onForgotPasswordClick"
+        >
+          I forgot my password
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -172,7 +201,9 @@ export default {
         ]
       },
       isSavingProfile: false,
-      isPasswordFormValid: false
+      isPasswordFormValid: false,
+      user: {},
+      isUserSignInFailed: false
     }
   },
 
@@ -215,75 +246,100 @@ export default {
       // logic goes here
       evt.preventDefault()
 
-      this.$refs.profileForm.validate((valid) => {
+      this.$refs.profileForm.validate(function(valid) {
         if (!valid) {
           return
         }
 
         // Check if the passwords match
-        if(this.password !== this.passwordConfirm) {
-          this.passwordConfirm.isValid = false
+        if(this.profileForm.password !== this.profileForm.passwordConfirm) {
           return;
         }
 
         this.isSavingProfile = true
-        this.setupProfile()
-      })
+        this.initialLogin()
+      }.bind(this))
+    },
+
+    /**
+     * Initial login
+     */
+    async initialLogin() {
+      try {
+         this.user = await Auth.signIn(this.$route.params.username, this.$route.params.password)
+         this.setupProfile()
+        } catch (error) {
+          this.isSavingProfile = false
+          this.isUserSignInFailed = true
+        }
     },
 
     /**
      * API Request to create a new user
      */
-    setupProfile: function() {
-      Auth.completeNewPassword(
-        this.$route.params.user,
-        this.profileForm.password,
-        {
-          email: this.$route.params.email
-        }
-        ).then(user => {
-          // at this time the user is logged in if no MFA required
-           this.sendXhr(this.createUserUrl, {
-           method: 'POST',
-           header: {
-            'Authorization': `bearer ${user.signInUserSession.accessToken.jwtToken}`
+    async setupProfile() {
+      try {
+        const newUser = await Auth.completeNewPassword(
+          this.user,
+          this.profileForm.password,
+          {
+            email: this.$route.query.email
+          }
+        )
+
+        this.createUser(newUser.signInUserSession.accessToken.jwtToken)
+      } catch (error) {
+        this.handleFailedUserCreation()
+      }
+    },
+
+    /**
+     * Create the user on Pennsieve
+     * @param {String} jwt
+     */
+    async createUser(jwt) {
+      try {
+        const user = await this.sendXhr(this.createUserUrl, {
+          method: 'POST',
+          header: {
+            'Authorization': `bearer ${jwt}`
           },
-           body: {
-              lastName: this.profileForm.lastName,
-              firstName: this.profileForm.firstName,
-              token: user.signInUserSession.accessToken.jwtToken,
-              title: this.profileForm.jobTitle,
-              password: this.profileForm.password
-           }
-    })
-    .then(this.handleCreateUserSuccess.bind(this))
-    .catch(this.handleFailedUserCreation.bind(this))
-    }).catch(this.handleFailedUserCreation.bind(this));
+          body: {
+            lastName: this.profileForm.lastName,
+            firstName: this.profileForm.firstName,
+            title: this.profileForm.jobTitle,
+          }
+        })
+        this.handleCreateUserSuccess(user, jwt)
+      } catch (error) {
+        this.handleFailedUserCreation()
+      }
     },
 
     /**
      * Handle successful API response to createUser
      * @param {Object} response
+     * @param {String} jwt
      *
      */
-    handleCreateUserSuccess: function(response) {
+    handleCreateUserSuccess: function(response, jwt) {
       this.isSavingProfile = false
       let loginBody = {
-        token: response.sessionId,
+        token: jwt,
         profile: response.profile,
         firstTimeSignOn: true
       }
 
-      const apiUrl = propOr('', 'apiUrl', this.config)
-      const switchOrgUrl = `${apiUrl}/user/organization/${this.activeOrganizationId}/switch?api_key=${loginBody.token}`
+      const orgId = response.orgIds[0]
+      const switchOrgUrl = `${this.config.apiUrl}/session/switch-organization?organization_id=${orgId}`
 
       this.sendXhr(switchOrgUrl, {
         method: 'PUT',
         header: {
-          'Authorization': `Bearer ${loginBody.token}`
+          'Authorization': `Bearer ${jwt}`
         }
       })
-      .then(response => {
+      .then(() => {
         EventBus.$emit('login', loginBody)
       })
       .catch(this.handleFailedUserCreation.bind(this))
@@ -305,6 +361,29 @@ export default {
           }
         })
 
+    },
+
+    /**
+     * Submit forgot password request and take user to the forgot password page
+     */
+    onForgotPasswordClick: function() {
+      Auth.forgotPassword(this.$route.params.username)
+        .then(() => {
+          EventBus.$emit('toast', {
+          detail: {
+            type: 'message',
+            msg: 'Reset password email sent'
+          }
+        })
+        })
+        .catch(error => {
+          EventBus.$emit('toast', {
+          detail: {
+            type: 'error',
+            msg: error.message
+          }
+        })
+        })
     }
   }
 }
@@ -314,9 +393,9 @@ export default {
 @import '../../assets/_variables.scss';
 
 .wrapper {
-  background: $white-matter;
+  background: $white;
   box-sizing: border-box;
-  color: $glial;
+  color: $gray_4;
   max-width: 720px;
   min-height: 100vh;
   padding-bottom: 20px;
@@ -445,5 +524,22 @@ a {
   font-size: 13px;
   margin: 0;
 }
-
+.btn-back-to-sign-in {
+  text-decoration: none;
+  .bf-button {
+    margin-top: 0;
+    text-decoration: none;;
+  }
+}
+.user-already-created-wrap {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  .forgot-password {
+    color: $app-primary-color;
+    flex: 1;
+    margin-left: 16px;
+    text-align: center;
+  }
+}
 </style>

@@ -13,10 +13,10 @@
   padding: 24px 32px;
 }
 .el-dialog__header {
-  border-bottom: 1px solid $cortex;
+  border-bottom: 1px solid $gray_2;
 }
 .el-dialog__footer {
-  border-top: 1px solid $cortex;
+  border-top: 1px solid $gray_2;
   text-align: left;
   padding: 16px 32px;
 }
@@ -34,11 +34,11 @@
   }
 }
 .dialog-msg {
-  color: $glial;
+  color: $gray_4;
   padding: 0 8px;
   text-align: center;
   .dialog-msg-icon {
-    color: $nucleus;
+    color: $green_1;
     margin-bottom: 8px;
   }
   h3 {

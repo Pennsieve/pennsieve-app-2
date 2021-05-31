@@ -59,8 +59,9 @@
             slot="heading"
             class="blinded-review-heading"
           >
+            <h2 class="model-name" v-html="modelName" />
             <h1 v-html="$sanitize(formattedConceptTitle)" />
-            
+
           </div>
         </template>
 
@@ -279,7 +280,6 @@
         <div
           class="concept-instance-section"
         >
-          <h2>Related Records</h2>
 
           <div class="relationships-list">
             <link-record-menu
@@ -363,9 +363,6 @@
             </concept-instance-static-property>
 
             <concept-instance-static-property label="Location">
-              <template v-if="hasFeature('clinical_management_feature')">
-                {{ fileLocation.path }}
-              </template>
 
               <template v-if="isExternalFile">
                 <a
@@ -396,7 +393,7 @@
               {{ fileSize }}
             </concept-instance-static-property>
 
-            <concept-instance-static-property label="Blackfynn ID">
+            <concept-instance-static-property label="Pennsieve ID">
               {{ fileId }}
             </concept-instance-static-property>
           </el-collapse-item>
@@ -463,22 +460,24 @@
               @confirm-remove-linked-property="openLinkedPropertyModal"
             />
 
-            <concept-instance-static-property
-              label="Blackfynn Id"
-              :value="instance.id"
-            />
+            <div class="static-prop-section">
+              <concept-instance-static-property
+                label="Pennsieve id"
+                :value="instance.id"
+              />
 
-            <concept-instance-static-property
-              label="Created By"
-              :user="instance.createdBy"
-              :date="instance.createdAt"
-            />
+              <concept-instance-static-property
+                label="created by"
+                :user="instance.createdBy"
+                :date="instance.createdAt"
+              />
 
-            <concept-instance-static-property
-              label="Updated By"
-              :user="instance.updatedBy"
-              :date="instance.updatedAt"
-            />
+              <concept-instance-static-property
+                label="updated by"
+                :user="instance.updatedBy"
+                :date="instance.updatedAt"
+              />
+            </div>
           </el-collapse-item>
         </el-collapse>
         <!-- END PROPERTIES TABLE -->
@@ -559,10 +558,10 @@
                     We don’t recommend uploading more than 10GB through the web UI, due to browser
                     limitations. If you’re uploading large amounts of data, please use the
                     <a
-                      href="http://help.blackfynn.com/blackfynn-developer-tools"
+                      href="https://docs.pennsieve.io/"
                       target="_blank"
                     >
-                      Blackfynn API
+                      Pennsieve API
                     </a>
                     .
                   </p>
@@ -646,11 +645,10 @@
             <h3>Create Relationships</h3>
             <div>
               <p class="relationship-inner-text">
-                Connect {{ $sanitize(formattedConceptTitle) }} with other objects in your graph by clicking the Add
-                Relationships button above.
+                Connect <b>{{ $sanitize(formattedConceptTitle) }}</b> with other objects in your graph by clicking the "Link to ..." button above.
               </p>
               <a
-                href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/linking-records-in-the-knowledge-graph"
+                href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"
                 target="_blank"
               >
                 <bf-button class="primary learn-more">
@@ -671,26 +669,24 @@
 
         <!-- BEGIN RELATIONSHIPS TABLE -->
         <template v-if="!editingInstance && hasRelationships">
-          <template v-if="!hasFeature('clinical_management_feature')">
-            <el-collapse
-              v-for="relationship in relationshipsModels"
-              :key="relationship.name"
-              v-model="activeSections"
-              class="concept-instance-section zero-padding no-border"
-            >
-              <relationships-table
-                :id="relationship.displayName"
-                :ref="relationship.name"
-                :active-sections="activeSections"
-                :relationship="relationship"
-                :show-collapse="true"
-                :can-add-relationship="canAddRelationship(relationship.name)"
-                :url="getRecordRelationshipsUrl(relationship.name)"
-                @remove-relationships="handleRemoveRelationships"
-                @unlink-files="handleUnlinkFiles"
-              />
-            </el-collapse>
-          </template>
+          <el-collapse
+            v-for="relationship in relationshipsModels"
+            :key="relationship.name"
+            v-model="activeSections"
+            class="concept-instance-section zero-padding no-border"
+          >
+            <relationships-table
+              :id="relationship.displayName"
+              :ref="relationship.name"
+              :active-sections="activeSections"
+              :relationship="relationship"
+              :show-collapse="true"
+              :can-add-relationship="canAddRelationship(relationship.name)"
+              :url="getRecordRelationshipsUrl(relationship.name)"
+              @remove-relationships="handleRemoveRelationships"
+              @unlink-files="handleUnlinkFiles"
+            />
+          </el-collapse>
         </template>
       </template>
       <!-- END RELATIONSHIPS TABLE -->
@@ -1266,6 +1262,13 @@ export default {
       return '';
     },
 
+    modelName: function() {
+      if (this.model) {
+        return this.model.name
+      }
+      return '';
+    },
+
     /**
      * Computes data type for concept title
      * @returns {String}
@@ -1329,20 +1332,20 @@ export default {
       return false
     },
 
-    /**
-     * Check if Model has sites relationships
-     * @returns {Boolean}
-     */
-    hasSite: function() {
-      const relationships = propOr([], 'relationships', this)
-      if (relationships.length > 0) {
-        const idx = this.relationships.findIndex(
-          rel => rel.displayName === 'Site'
-        )
-        return idx >= 0
-      }
-      return false
-    },
+    // /**
+    //  * Check if Model has sites relationships
+    //  * @returns {Boolean}
+    //  */
+    // hasSite: function() {
+    //   const relationships = propOr([], 'relationships', this)
+    //   if (relationships.length > 0) {
+    //     const idx = this.relationships.findIndex(
+    //       rel => rel.displayName === 'Site'
+    //     )
+    //     return idx >= 0
+    //   }
+    //   return false
+    // },
 
     /**
      * Check if Concept has Relationships
@@ -3409,7 +3412,7 @@ export default {
     padding: 0;
   }
   &.editing {
-    background: $dendrite;
+    background: $gray_1;
 
     h2 {
       margin-bottom: 4px;
@@ -3436,6 +3439,9 @@ export default {
     }
   }
 
+  .static-prop-section{
+    margin-top: 16px;
+  }
   .collapse-properties .el-collapse-item__wrap {
     padding-bottom: 16px;
     background: #fbfbfd;
@@ -3449,7 +3455,7 @@ export default {
     .table-info,
     .table-actions {
       align-items: center;
-      color: $dopamine;
+      color: $purple_1;
       display: flex;
       line-height: initial;
       font-size: 12px;
@@ -3457,12 +3463,12 @@ export default {
     }
     .table-info {
       .selected-files {
-        color: $dark-gray;
+        color: $gray_6;
         margin-right: 16px;
       }
 
       .selected-source-files {
-        color: $dark-gray;
+        color: $gray_6;
       }
     }
     &.row-is-selected {
@@ -3476,7 +3482,7 @@ export default {
     display: flex;
     flex: 1;
     h2 {
-      color: #000;
+      color: $purple_1;
       flex: 1;
       font-size: 20px;
       font-weight: 600;
@@ -3522,12 +3528,18 @@ export default {
   }
 }
 .concept-instance-section {
-  margin-bottom: 40px;
+  margin-bottom: 16px;
   .collapse-properties {
     .source-files {
       background: blue !important;
     }
   }
+}
+
+.model-name{
+  margin: 16px 0 0 0;
+  color: $gray_4;
+  font-weight: 300;
 }
 
 .relationships-list {
@@ -3552,7 +3564,8 @@ export default {
     padding: 0;
   }
   .bf-upload-dropzone {
-    border: 2px dashed #d9e0f0;
+    background: $purple_tint;
+    border: 1px dashed $purple_1;
     height: 214px;
     padding: 0;
   }
@@ -3572,15 +3585,16 @@ export default {
     max-width: 500px;
 
     a {
-      color: $dopamine;
+      color: $purple_1;
     }
 
     p {
       max-width: 450px;
       padding: 0 16px;
+      color: $gray_4;
 
       a {
-        color: $glial;
+        color: $purple_1;
       }
     }
 
@@ -3591,9 +3605,10 @@ export default {
 }
 
 .relationships-empty-state {
-  background-color: rgba(233, 237, 246, 0.2);
-  border: 2px dashed #d9e0f0;
-  padding: 47px;
+  background: $purple_tint;
+  border: 1px dashed $purple_1;
+  height: 214px;
+  display: flex;
 
   &-inner {
     max-width: 460px;
@@ -3601,7 +3616,7 @@ export default {
     text-align: center;
 
     .relationship-inner-text {
-      color: $glial;
+      color: $gray_4;
       margin-bottom: 16px;
     }
 
@@ -3625,7 +3640,7 @@ export default {
     }
   }
   button {
-    color: $glial;
+    color: $gray_4;
     display: none;
     margin-left: 8px;
     &:hover {
@@ -3639,12 +3654,13 @@ export default {
   }
 
   .blinded-review-heading {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
+    flex-direction: column;
   }
 
   .instance-type {
-  color: $glial;
+  color: $gray_4;
   font-weight: 600;
   text-transform: capitalize;
 }

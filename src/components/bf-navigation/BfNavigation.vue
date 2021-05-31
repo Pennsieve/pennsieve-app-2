@@ -210,12 +210,12 @@
 
   .bf-navigation {
     background: $app-primary-color;
-    color: $white-matter;
+    color: $white;
     z-index: 99;
   }
   .active-org {
     align-items: center;
-    color: $white-matter;
+    color: $white;
     display: flex;
     font-size: 12px;
     font-weight: 500;
@@ -231,14 +231,14 @@
     text-overflow: ellipsis;
   }
   .logo {
-    color: $white-matter;
-    fill: $white-matter;
+    color: $white;
+    fill: $white;
   }
   .logo-wrap {
     margin: 18px 0;
   }
   .logo-arrow {
-    color: $white-matter;
+    color: $white;
   }
   .slide-enter-active, .slide-leave-active {
     transition: transform .20s ease-out

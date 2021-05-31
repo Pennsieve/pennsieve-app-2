@@ -28,7 +28,10 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'publishing-settings' }">
+            <router-link
+              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
+              :to="{ name: 'publishing-settings' }"
+            >
               Publishing
             </router-link>
           </li>
@@ -146,18 +149,20 @@
         <dataset-settings-associated-publications />
 
         <hr>
-        
+
         <template>
           <!-- delete dataset -->
           <el-row>
             <el-col>
-              <h2 class="delete-title">Delete Dataset</h2>
+              <h2 class="delete-title">
+                Delete Dataset
+              </h2>
               <p>
-                Deleting a dataset removes all data from Blackfynn.
+                Deleting a dataset removes all data from Pennsieve.
                 <strong>This cannot be undone.</strong>
               </p>
               <p class="mb-20">
-                Datasets that are published to Blackfynn Discover must be removed before they can be deleted.
+                Datasets that are published to Pennsieve Discover must be removed before they can be deleted.
               </p>
               <bf-button
                 class="red"
@@ -595,7 +600,7 @@ export default {
 <style scoped lang="scss">
 @import '../../../assets/_variables';
 .bf-dataset-settings {
-  background: $white-matter;
+  background: $white;
 }
 
 .el-form-item,
@@ -628,8 +633,13 @@ hr {
   flex-wrap: wrap;
 }
 
+.tab-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .sharing-blurb {
-  color: $glial;
+  color: $gray_4;
   margin-top: 11px;
   height: 16px;
   font-weight: normal;
@@ -641,13 +651,13 @@ hr {
 @import '../../../assets/_variables.scss';
 .bf-dataset-settings {
   .el-checkbox__input.is-checked + .el-checkbox__label {
-    color: $myelin;
+    color: $gray_6;
   }
 }
 
 .delete-title {
   font-size: 14px;
-  color: $myelin;
+  color: $gray_6;
   margin-top: 20px;
 }
 

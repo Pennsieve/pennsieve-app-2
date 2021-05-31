@@ -62,7 +62,7 @@ export default {
       gettingStartedData: [
         {
           id: 1,
-          link: 'http://help.blackfynn.com/blackfynn-web-application#importing-and-managing-data',
+          link: 'https://docs.pennsieve.io/docs/creating-and-deleting-datasets#creating-datasets',
           name: 'Dataset',
           heading: 'Create a Dataset',
           blurb: 'Create your first dataset or get started with a public dataset.',
@@ -77,7 +77,7 @@ export default {
         },
         {
           id: 2,
-          link: 'https://help.blackfynn.com/en/articles/1893652',
+          link: 'https://docs.pennsieve.io/docs/creating-metadata-models',
           name: 'Graph',
           heading: 'Set Up Your Graph',
           blurb: 'Create a knowlege graph unique to your metadata.',
@@ -93,7 +93,7 @@ export default {
         },
         {
           id: 3,
-          link: 'http://help.blackfynn.com/blackfynn-web-application/importing-and-managing-data/organizing-data-in-a-dataset',
+          link: 'https://docs.pennsieve.io/docs/uploading-files',
           name: 'Files',
           heading: 'Add Your Data',
           blurb: 'Go beyond file storage with our viewers and with record management.',
@@ -108,7 +108,7 @@ export default {
         },
         {
           id: 4,
-          link: 'http://help.blackfynn.com/developers',
+          link: 'https://docs.pennsieve.io/',
           name: 'Tools',
           heading: 'Install Developer Tools',
           blurb: 'Integrate our client libraries into your workflow.',
@@ -132,7 +132,7 @@ export default {
 @import '../../bf-navigation/bf-navigation.scss';
 
 .btn-close {
-  color: $glial;
+  color: $gray_4;
   position: absolute;
   right: 16px;
   top: 8px;
@@ -143,7 +143,7 @@ h2 {
 }
 
 p {
-  color: $glial;
+  color: $gray_4;
   font-size: 12px;
   line-height: 16px;
   margin: 0;

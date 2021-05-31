@@ -338,9 +338,9 @@
   .add-another-input {
     align-items: center;
     background: transparent;
-    border: 1px dashed $light-gray;
+    border: 1px dashed $gray_2;
     box-sizing: border-box;
-    color: $dark-gray;
+    color: $gray_6;
     cursor: pointer;
     display: flex;
     height: 38px;

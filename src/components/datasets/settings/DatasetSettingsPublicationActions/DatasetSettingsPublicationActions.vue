@@ -13,7 +13,7 @@
       </bf-button>
       <h3>Request Revision</h3>
       <p>
-        Request to publish a revision of your published dataset (only updates information). <a href="https://help.blackfynn.com/en/articles/3730853">
+        Request to publish a revision of your published dataset (only updates information). <a href="https://docs.pennsieve.io/docs/submitting-a-revised-dataset-for-publication">
           Learn More
         </a>
       </p>
@@ -28,7 +28,7 @@
         Request Revision
       </bf-button>
       <h3>Request Removal</h3>
-      <p>Request to remove your published dataset from Blackfynn Discover.</p>
+      <p>Request to remove your published dataset from Pennsieve Discover.</p>
       <p class="publication-blurb">
         This requires approval by the Publishing team.
       </p>
@@ -317,7 +317,7 @@ h1{
   font-weight: 700;
 }
 h3 {
-  color: $myelin;
+  color: $gray_6;
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
@@ -331,7 +331,7 @@ p {
 .bf-button {
   margin-bottom: 32px;
   &.secondary {
-    border: solid 1px $cortex;
+    border: solid 1px $gray_2;
   }
 }
 

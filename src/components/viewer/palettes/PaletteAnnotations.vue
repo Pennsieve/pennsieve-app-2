@@ -302,7 +302,7 @@ export default {
   .annotations-heading {
     align-items: center;
     background: #f7f7f7;
-    border-bottom: solid 1px $cortex;
+    border-bottom: solid 1px $gray_2;
     display: flex;
     min-height: 33px;
     overflow: hidden;

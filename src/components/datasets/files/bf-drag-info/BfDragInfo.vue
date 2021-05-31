@@ -27,7 +27,7 @@
   @import '../../../../assets/_variables.scss';
 
   .bf-drag-info {
-    background: $neuron;
+    background: $purple_1;
     color: #eee;
     padding: 7px 10px;
     position: fixed;
@@ -36,7 +36,7 @@
     .count {
       background: $app-primary-color;
       border-radius: 50%;
-      color: $white-matter;
+      color: $white;
       height: 20px;
       font-size: 12px;
       line-height: 20px;

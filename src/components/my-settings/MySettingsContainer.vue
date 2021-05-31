@@ -106,14 +106,14 @@
             <el-col>
               <div class="two-factor-status-wrap">
                 <span class="status-text">
-                  Status: {{ hasAuthyId ? 'On' : 'Off' }}
+                  Status: {{ authEnabled ? 'On' : 'Off' }}
                 </span>
                 <span
                   class="status-icon"
-                  :class="{ enabled: hasAuthyId }"
+                  :class="{ enabled: authEnabled }"
                 >
                   <svg-icon
-                    :name="hasAuthyId ? 'icon-lock' : 'icon-unlocked'"
+                    :name="authEnabled ? 'icon-lock' : 'icon-unlocked'"
                     height="20"
                     width="20"
                   />
@@ -122,9 +122,9 @@
             </el-col>
             <el-col class="two-factor-col-btn">
               <bf-button
-                @click="handleTwoFactorBtnClick(hasAuthyId)"
+                @click="handleTwoFactorBtnClick(authEnabled)"
               >
-                {{ hasAuthyId ? 'Disable' : 'Enable' }}
+                {{ authEnabled ? 'Disable' : 'Enable' }}
               </bf-button>
             </el-col>
           </el-row>
@@ -217,7 +217,7 @@
           </h2>
           <el-row v-if="!hasOrcidId">
             <p>
-              Connect your Blackfynn Profile to your ORCID. <a href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn">
+              Connect your Pennsieve Profile to your ORCID. <a href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform">
                 Learn More
               </a>
             </p>
@@ -238,8 +238,8 @@
           <el-row v-else>
             <div>
               <p class="orcid-success-text">
-                Below is the ORCID associated with your Blackfynn account. <a
-                  href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-discover/linking-orcid-to-blackfynn"
+                Below is the ORCID associated with your Pennsieve account. <a
+                  href="https://docs.pennsieve.io/docs/orcid-ids-on-the-pennsieve-platform"
                   target="_blank"
                 >
                   Learn More
@@ -266,7 +266,7 @@
                   </el-col>
                 </el-row>
                 <el-col class="orcid-delete-button">
-                  <button @click="openORCIDWindow">
+                  <button @click="isDeleteOrcidDialogVisible = true">
                     <svg-icon
                       icon="icon-remove"
                       height="10"
@@ -293,10 +293,12 @@
 
       <create-two-factor
         ref="addTwoFactorDialog"
+        @change-status="changeStatus"
       />
 
       <delete-two-factor
         ref="deleteTwoFactorDialog"
+        @change-status="changeStatus"
       />
 
       <create-api-key
@@ -315,6 +317,7 @@
 
       <delete-orcid
         ref="deleteOrcidDialog"
+        :visible.sync="isDeleteOrcidDialogVisible"
         @orcid-deleted="updateORCID"
       />
     </bf-stage>
@@ -323,9 +326,10 @@
 
 <script>
 import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import EventBus from '../../utils/event-bus'
 import { pathOr, propOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import BfRafter from '../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../shared/bf-button/BfButton.vue'
@@ -360,6 +364,7 @@ export default {
   data() {
     return {
       apiKeys: [],
+      mfaStatus: false,
       isApiKeysLoading: true,
       ruleForm: {
         firstName: '',
@@ -387,18 +392,35 @@ export default {
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
-      loading: false
+      loading: false,
+      isDeleteOrcidDialogVisible: false
     }
   },
 
   computed: {
-    ...mapGetters(['profile', 'activeOrganization', 'userToken', 'config', 'hasOrcidId']),
-    hasAuthyId: function() {
-      return this.profile && this.profile.authyId > 0
+     ...mapState([
+      'profile',
+      'activeOrganization',
+      'userToken',
+      'config',
+      'onboardingEvents',
+      'cognitoUser'
+    ]),
+
+    ...mapGetters(['hasOrcidId']),
+
+    /**
+     * Checks whether or not auth is enabled
+     * @returns {Boolean}
+     */
+    authEnabled: function() {
+      return this.cognitoUser.preferredMFA === 'SOFTWARE_TOKEN_MFA' || this.cognitoUser.challengeName === 'SOFTWARE_TOKEN_MFA' || this.mfaStatus
     },
+
     hasApiKeys: function() {
       return this.apiKeys.length > 0
     },
+
     getApiKeysUrl: function() {
       const url = pathOr('', ['config', 'apiUrl'])(this)
       const userToken = prop('userToken', this)
@@ -483,10 +505,26 @@ export default {
     this.setRuleFormData(this.profile)
     this.getApiKeys()
     this.scrollToElement()
+    this.getCognitoUser()
   },
 
   methods: {
-    ...mapActions(['updateProfile']),
+    ...mapActions(['updateProfile', 'updateCognitoUser']),
+
+    changeStatus: function(val) {
+      this.mfaStatus = val
+    },
+
+    /**
+     * Get current authenticated Cognito user
+     */
+    getCognitoUser: function() {
+      Auth.currentAuthenticatedUser().then(user => {
+        this.updateCognitoUser(user)
+      })
+      .catch(this.handleXhrError.bind(this));
+    },
+
     /**
      * Scroll to element
      */
@@ -514,8 +552,8 @@ export default {
      * Opens proper two factor dialog
      * @param {Boolean} hasAuthyId
      */
-    handleTwoFactorBtnClick: function(hasAuthyId) {
-      if (!hasAuthyId) {
+    handleTwoFactorBtnClick: function(authEnabled) {
+      if (!authEnabled) {
         this.$refs.addTwoFactorDialog.dialogVisible = true
       } else {
         this.$refs.deleteTwoFactorDialog.dialogVisible = true
@@ -650,10 +688,11 @@ export default {
      * Function that's called after ORCID is deleted
      */
     updateORCID: function() {
+      this.isDeleteOrcidDialogVisible = false
       this.updateProfile({
         ...this.profile,
         orcid: {}
-        })
+      })
     },
 
     /**
@@ -729,7 +768,6 @@ export default {
     openORCIDWindow: function() {
       this.$refs.deleteOrcidDialog.dialogVisible = true
     }
-
   }
 }
 </script>
@@ -750,7 +788,7 @@ p {
 }
 
 .divider {
-  background: $cortex;
+  background: $gray_2;
   height: 1px;
   margin: 19px 1px 20px 1px;
 }
@@ -791,11 +829,11 @@ p {
   flex: 1;
 
   button {
-    color: $glial;
+    color: $gray_4;
     &:hover,
     &:focus {
       cursor: pointer;
-      color: $dopamine;
+      color: $purple_1;
     }
   }
 }
@@ -877,12 +915,12 @@ p {
     flex-direction: row-reverse;
 
     button {
-      color: $glial;
+      color: $gray_4;
       margin-top: 7px;
       &:hover,
       &:focus {
         cursor: pointer;
-        color: $dopamine;
+        color: $purple_1;
       }
     }
   }

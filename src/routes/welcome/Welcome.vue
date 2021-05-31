@@ -10,6 +10,8 @@
 
 <script>
 import SetupProfile from '../../components/SetupProfile/SetupProfile.vue'
+import FinalizeAccount from '../../components/FinalizeAccount/FinalizeAccount.vue'
+
   export default {
     name: 'WelcomePage',
   }
@@ -19,7 +21,7 @@ import SetupProfile from '../../components/SetupProfile/SetupProfile.vue'
   @import '../../assets/_variables.scss';
 
   .welcome-wrapper {
-     background: $neuron;
+     background: $purple_1;
 
      .welcome-logo {
       height: 20px;

@@ -143,7 +143,7 @@ export default {
   justify-content: space-between;
 
   .concept-list-count {
-    color: $myelin;
+    color: $gray_6;
   }
 }
 .model-name {

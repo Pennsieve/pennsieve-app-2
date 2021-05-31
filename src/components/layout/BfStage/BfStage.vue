@@ -70,7 +70,7 @@
     flex: 1;
     overflow: auto;
     &.editing {
-      background: $dendrite;
+      background: $gray_1;
     }
   }
   .bf-stage-content {
@@ -84,7 +84,7 @@
     }
   }
   .bf-sidebar-wrap {
-    background-color: $white-matter;
+    background-color: $white;
     display: flex;
     min-height: 100%;
     .editing & {
@@ -95,7 +95,7 @@
     }
   }
   .stage-sidebar {
-    border-left: 1px solid $cortex;
+    border-left: 1px solid $gray_2;
     box-sizing: border-box;
     width: 360px;
     h2 {
@@ -113,7 +113,7 @@
     }
   }
   .sidebar-component {
-    border-top: 1px solid $cortex;
+    border-top: 1px solid $gray_2;
     &:first-child {
       border: none;
     }

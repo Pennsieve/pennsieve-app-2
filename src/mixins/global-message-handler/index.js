@@ -1,4 +1,6 @@
 import { mapGetters, mapActions, mapState } from 'vuex'
+import Auth from '@aws-amplify/auth'
+
 import EventBus from '../../utils/event-bus'
 import Request from '../request'
 import UserRoles from '../user-roles'
@@ -13,7 +15,7 @@ import { path, pathOr, propOr, find, pathEq, defaultTo, isEmpty, not, compose, p
 export default {
   data() {
     return {
-      minCompletedEvents: 5,
+      minCompletedEvents: 2,
       datasetStatusList: []
     }
   },
@@ -99,7 +101,8 @@ export default {
     ...mapState([
       'onboardingEvents',
       'bfTermsOfServiceVersion',
-      'orgDatasetStatuses'
+      'orgDatasetStatuses',
+      'shouldShowLinkOrcidDialog'
     ]),
 
     /**
@@ -153,7 +156,8 @@ export default {
       'setDatasetTemplates',
       'setOrgContributors',
       'clearDatasetFilters',
-      'updateDataUseAgreements'
+      'updateDataUseAgreements',
+      'updateCognitoUser'
     ]),
 
     ...mapActions('datasetModule', [
@@ -183,10 +187,10 @@ export default {
         return activeOrgTermsVersion === profileTerms
       }
 
-      // get blackfynn terms on user profile object
+      // get Pennsieve terms on user profile object
       const profileTerms = pathOr('', ['pennsieveTermsOfService', 'version'], this.profile)
 
-      // short circuit if user has never accepted blackfynn terms
+      // short circuit if user has never accepted Pennsieve terms
       if (!profileTerms) {
         return false
       }
@@ -248,7 +252,7 @@ export default {
           const activeOrgIndex = orgs.organizations.findIndex(org => Boolean(org.organization.id === activeOrgId))
           const activeOrg = orgs.organizations[activeOrgIndex]
 
-          // handle org switch and terms of service re-directs
+          // handle org switch
           return this.handleRedirects(activeOrg, activeOrgId, preferredOrgId)
         })
         .then(this.getOrgMembers.bind(this))
@@ -259,7 +263,7 @@ export default {
         .catch(this.handleXhrError.bind(this))
     },
     /**
-     * Handle direct links and check if user is subscribed
+     * Switch orgs if active org is not preferred org
      * @param {Object} activeOrg
      * @param {String} activeOrgId
      * @param {String} preferredOrgId
@@ -270,11 +274,6 @@ export default {
       if ((activeOrgId && preferredOrgId) && activeOrgId !== preferredOrgId) {
         EventBus.$emit('switch-organization', activeOrg, false)
         return Promise.resolve()
-      }
-
-      const isSubscribed = this.checkIsSubscribed(activeOrg)
-      if (!isSubscribed) {
-        this.$router.replace(`/${activeOrgId}/welcome/terms-of-service`)
       }
       return this.updateActiveOrganization(activeOrg)
     },
@@ -341,6 +340,8 @@ export default {
             detail: this.profile
           })
 
+          const user = pathOr('', ['user'], evt)
+          this.updateCognitoUser(user)
           const activeOrg = this.activeOrganization
           const orgId = this.activeOrgId
           const isSubscribed = this.checkIsSubscribed(activeOrg)
@@ -359,12 +360,13 @@ export default {
      */
     launchOnboarding: function() {
       const events = defaultTo([], this.onboardingEvents)
-      if (this.userIsLessThan30DaysOld && events.length < this.minCompletedEvents && events.indexOf('LaunchCarousel') >= 0) {
+      if (this.userIsLessThan30DaysOld && events.length < this.minCompletedEvents) {
         // getting started guide
         this.setGettingStartedOpen(true)
+      } else if (this.shouldShowLinkOrcidDialog) {
+        this.updateIsLinkOrcidDialogVisible(true)
       }
     },
-
     /**
      * Set the default route for the user based off of their feature flag
      * @param {String} orgId
@@ -383,13 +385,13 @@ export default {
      * Handles logout
      * @param {Object} payload
      */
-    onLogout: function(payload) {
-      const token = Cookies.get('user_token')
-      const url = `${this.config.apiUrl}/account/logout?api_key=${token}`
-
-      this.sendXhr(url, { method: 'POST' })
-        .then(this.handleLogout.bind(this, payload))
-        .catch(this.handleXhrError.bind(this))
+    onLogout: async function(payload) {
+      try {
+        await Auth.signOut()
+        this.handleLogout(payload)
+      } catch (error) {
+        this.handleXhrError()
+      }
     },
     /**
      * Handles switch-organization event
@@ -469,6 +471,9 @@ export default {
     getOrgMembers: function() {
       const url = this.orgMembersUrl
       if (!url) {
+        return
+      }
+      if (this.hasFeature('sandbox_org_feature')) {
         return
       }
       return this.sendXhr(url).then(resp => {

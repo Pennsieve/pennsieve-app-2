@@ -9,7 +9,7 @@
     <dialog-body>
       <h2>Request Removal?</h2>
       <p>
-        Request removal from the Publishers within your organization to remove your public dataset from Blackfynn Discover
+        Request removal from the Publishers within your organization to remove your public dataset from Pennsieve Discover
       </p>
 
       <p>This action cannot be undone.</p>
@@ -54,7 +54,7 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
       },
 
       /**
-       * Removes dataset from publication on Blackfynn Discover
+       * Removes dataset from publication on Pennsieve Discover
        */
       removeDataset: function() {
         this.$emit('on-removal')

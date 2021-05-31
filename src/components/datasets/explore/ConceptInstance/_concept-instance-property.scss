@@ -3,7 +3,7 @@
 .concept-instance-property {
   box-sizing: border-box;
   color: #000;
-  border-top: 1px solid $cortex;
+  border-top: 1px solid $gray_2;
   min-height: 49px;
   padding: 16px 0;
   &:first-child {
@@ -15,7 +15,7 @@
     }
   }
   .name {
-    color: $glial;
+    color: $gray_5;
     font-weight: 500;
     position: relative;
   }
@@ -46,7 +46,7 @@
     top: 0;
   }
   .button-edit {
-    color: $glial;
+    color: $gray_4;
     margin-left: 8px;
     &:hover {
       color: $app-primary-color

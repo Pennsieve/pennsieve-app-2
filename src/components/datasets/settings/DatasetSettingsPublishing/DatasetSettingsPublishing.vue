@@ -137,7 +137,8 @@ export default {
       'datasetContributors',
       'datasetDescription',
       'getPermission',
-      'orgMembers'
+      'orgMembers',
+      'onboardingEvents'
     ]),
     ...mapGetters([
       'getPermission',
@@ -262,7 +263,7 @@ export default {
       const publishedDatasetId =  propOr(1, 'publishedDatasetId', this.publishedData)
 
       return this.config.environment === 'prod'
-        ? `https://discover.pennsieve.com/datasets/${publishedDatasetId}`
+        ? `https://discover.pennsieve.io/datasets/${publishedDatasetId}`
         : `https://discover.pennsieve.net/datasets/${publishedDatasetId}`
     },
   },
@@ -314,7 +315,6 @@ export default {
                 ...self.profile,
                 orcid: self.oauthInfo
               })
-
             })
             .catch(self.handleXhrError.bind(this))
         }
@@ -335,7 +335,7 @@ export default {
       // Set locked property on dataset
       const updatedDataset = merge(this.dataset, { locked: true })
       return this.updateDataset(updatedDataset)
-    },
+    }
   }
 }
 </script>
@@ -356,7 +356,7 @@ export default {
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
-  color: $myelin;
+  color: $gray_6;
   &.publication {
     margin-top: 33px;
   }

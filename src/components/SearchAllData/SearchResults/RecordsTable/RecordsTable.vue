@@ -217,7 +217,7 @@ export default {
     display: none;
   }
   .highlight {
-    background-color: $warning;
+    background-color: $status_yellow;
   }
 }
 .record-actions-wrap {

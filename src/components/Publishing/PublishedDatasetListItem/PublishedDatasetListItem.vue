@@ -122,7 +122,7 @@
                   Creating Embargoed Dataset
                 </template>
                 <template v-else>
-                  Publishing to Blackfynn Discover
+                  Publishing to Pennsieve Discover
                 </template>
               </p>
             </div>
@@ -360,7 +360,7 @@ export default {
 @import '../../../assets/_list-item.scss';
 
 .list-item-status-wrapper {
-  color: $glial;
+  color: $gray_4;
   font-size: 12px;
   line-height: 18px;
   font-weight: normal;

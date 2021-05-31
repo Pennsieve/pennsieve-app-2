@@ -45,7 +45,7 @@
     overflow: hidden;
     width: 70px;
     .bar {
-      background: $nucleus;
+      background: $green_1;
       height: 100%;
       width: 0;
     }

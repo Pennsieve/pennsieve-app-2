@@ -116,7 +116,7 @@
 
   .graph-toolbar {
     background: #fff;
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
     border-radius: 1px;
     box-shadow: 3px 1px 11px 0 rgba(0,0,0,0.21);
     display: flex;
@@ -125,15 +125,15 @@
     top: 20px;
     z-index: 3;
     button {
-      border-left: 1px solid $dendrite-dark;
-      color: $myelin;
+      border-left: 1px solid $gray_2;
+      color: $gray_6;
       padding: 4px;
       width: 33px;
       &:first-child {
         border: none;
       }
       &:hover {
-        background: $dendrite-dark
+        background: $gray_2
       }
       &:active {
         color: $app-primary-color;

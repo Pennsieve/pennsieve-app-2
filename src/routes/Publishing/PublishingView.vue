@@ -78,7 +78,8 @@ export default {
   computed: {
     ...mapGetters([
       'isUserPublisher',
-      'publisherTeam'
+      'publisherTeam',
+      'hasFeature'
     ]),
 
     ...mapGetters('publishingModule', [
@@ -135,6 +136,14 @@ export default {
       this.togglePrimaryNav(true)
     }
 
+  },
+
+   beforeRouteEnter(to, from, next) {
+    next(vm => {
+     if (vm.hasFeature('sandbox_org_feature')) {
+      vm.$router.push({name: 'create-org'})
+    }
+    })
   },
 
   methods: {

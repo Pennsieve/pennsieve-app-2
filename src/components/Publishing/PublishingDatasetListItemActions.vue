@@ -364,12 +364,13 @@ export default {
      * @param {Number} dataUseAgreementId
      */
     requestAccess: function(dataUseAgreementId) {
-      const url = `${this.config.apiUrl}/discover/datasets/${this.dataset.id}/preview?api_key=${this.userToken}`
+      const id = pathOr(this.dataset.id, ['content', 'intId'], this.dataset)
+      const url = `${this.config.apiUrl}/discover/datasets/${id}/preview?api_key=${this.userToken}`
 
       this.sendXhr(url, {
         method: 'POST',
         body: {
-          datasetId: this.dataset.id,
+          datasetId: id,
           dataUseAgreementId
         }
       }).then(() => {
@@ -459,7 +460,8 @@ export default {
      * @returns {Promise}
      */
     getAgreement: function() {
-      fetch(`${this.config.apiUrl}/discover/datasets/${this.dataset.id}/data-use-agreement`)
+      const id = pathOr(this.dataset.id, ['content', 'intId'], this.dataset)
+      fetch(`${this.config.apiUrl}/discover/datasets/${id}/data-use-agreement`)
         .then(async (response)=> {
           this.hasAgreement = response.status === 200
           if (response.status === 200) {
@@ -482,7 +484,8 @@ export default {
      * Download the agreement
      */
     downloadAgreement: function() {
-      const url = `${this.config.apiUrl}/discover/datasets/${this.dataset.id}/data-use-agreement/download`
+      const id = pathOr(this.dataset.id, ['content', 'intId'], this.dataset)
+      const url = `${this.config.apiUrl}/discover/datasets/${id}/data-use-agreement/download`
       this.isDataUseAgreementSignDialogVisible = false
       this.isSigningAgreement = false
 
