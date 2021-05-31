@@ -59,7 +59,9 @@
             slot="heading"
             class="blinded-review-heading"
           >
+            <h2 class="model-name" v-html="modelName" />
             <h1 v-html="$sanitize(formattedConceptTitle)" />
+
           </div>
         </template>
 
@@ -278,7 +280,7 @@
         <div
           class="concept-instance-section"
         >
-          <h2>Related Records</h2>
+<!--          <h2>Related Records</h2>-->
 
           <div class="relationships-list">
             <link-record-menu
@@ -1258,6 +1260,10 @@ export default {
         return this.formatUniqueDisplayValues(this.conceptTitle)
       }
       return '';
+    },
+
+    modelName: function() {
+      return this.model.name
     },
 
     /**
@@ -3470,7 +3476,7 @@ export default {
     display: flex;
     flex: 1;
     h2 {
-      color: #000;
+      color: $purple_1;
       flex: 1;
       font-size: 20px;
       font-weight: 600;
@@ -3516,12 +3522,17 @@ export default {
   }
 }
 .concept-instance-section {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   .collapse-properties {
     .source-files {
       background: blue !important;
     }
   }
+}
+
+.model-name{
+  margin: 16px 0 0 0;
+  color: $gray_4;
 }
 
 .relationships-list {
@@ -3633,8 +3644,9 @@ export default {
   }
 
   .blinded-review-heading {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
+    flex-direction: column;
   }
 
   .instance-type {
