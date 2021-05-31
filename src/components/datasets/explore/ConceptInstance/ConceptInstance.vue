@@ -280,7 +280,6 @@
         <div
           class="concept-instance-section"
         >
-<!--          <h2>Related Records</h2>-->
 
           <div class="relationships-list">
             <link-record-menu
@@ -646,7 +645,7 @@
             <h3>Create Relationships</h3>
             <div>
               <p class="relationship-inner-text">
-                Connect <b>{{ $sanitize(formattedConceptTitle) }}</b> with other objects in your graph by clicking the "Link to Record" button above.
+                Connect <b>{{ $sanitize(formattedConceptTitle) }}</b> with other objects in your graph by clicking the "Link to ..." button above.
               </p>
               <a
                 href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"

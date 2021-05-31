@@ -41,7 +41,7 @@
                 class="bf-menu-item"
                 @click.prevent="onMenuClick('files')"
               >
-                Existing File
+                A File or Folder
               </a>
             </li>
           </ul>
@@ -91,7 +91,7 @@
       class="compact"
       :disabled="datasetLocked"
     >
-      Link to Record
+      Link to ...
       <svg-icon
         slot="suffix"
         class="icon-caret"
