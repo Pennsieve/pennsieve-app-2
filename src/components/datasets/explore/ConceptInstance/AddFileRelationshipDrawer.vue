@@ -9,7 +9,7 @@
     <div slot="copy">
       You can attach files to this record by selecting from the files below.
     </div>
-    These {{ numFiles }} will be added as relationships to {{ conceptName }}.
+    These {{ numItems }} will be added as relationships to {{ conceptName }}.
     <div
       slot="body"
       class="full-width"
@@ -25,7 +25,7 @@
             />
           </div>
           <div class="table-nav-bar--selected-count">
-            {{ numFiles }} selected
+            {{ numItems }} selected
           </div>
         </div>
         <el-table
@@ -46,7 +46,7 @@
           >
             <template slot-scope="scope">
               <el-checkbox
-                v-if="showRowCheckbox(scope.store, scope.row, hoverRow) && scope.row.content.packageType !== 'Collection'"
+                v-if="showRowCheckbox(scope.store, scope.row, hoverRow) "
                 :value="scope.store.isSelected(scope.row)"
                 @input="scope.store.commit('rowSelectedChanged', scope.row)"
               />
@@ -162,7 +162,7 @@ export default {
   data() {
     return {
       hoverRow: {},
-      title: 'Select Files',
+      title: 'Select Files/Folders',
       headingBorder: false,
       visible: false,
       showCancelButton: false,
@@ -202,10 +202,10 @@ export default {
      * Returns number selected files
      * @returns {Number}
      */
-    numFiles: function() {
+    numItems: function() {
       const count = this.selectedItems.length
       const plural = count > 1 || count === 0 ? 's' : ''
-      return `${count} file${plural}`
+      return `${count} item${plural}`
     },
 
     /**
@@ -537,7 +537,7 @@ export default {
     handleTableSelectAll(selection) {
       // if selection length is greater than zero, then add to selectedItems;
       if (selection.length > 0) {
-        const allItems = this.selectedItems.concat(selection).filter(item => item.content.packageType !== 'Collection')
+        const allItems = this.selectedItems.concat(selection)
         this.selectedItems = uniq(allItems)
         return
       }
