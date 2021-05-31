@@ -372,7 +372,7 @@
               >
                 <template slot-scope="scope">
                   <router-link
-                    v-if="index === 0 && isSubmissions === false"
+                    v-if="index === 0"
                     :to="getRecordUrl(scope)"
                     v-html="displayValue(scope.row[heading])"
                   />
@@ -381,12 +381,6 @@
                     v-html="displayValue(scope.row[heading])"
                   />
 
-                  <router-link
-                    v-if="isFile(scope)"
-                    :to="getRecordUrl(scope, getProperty(heading))"
-                  >
-                    {{ scope.row.file.name }}
-                  </router-link>
                 </template>
               </el-table-column>
               <el-table-column
@@ -704,10 +698,10 @@ export default {
   ],
 
   props: {
-    isSubmissions: {
-      type: Boolean,
-      default: false
-    },
+    // isSubmissions: {
+    //   type: Boolean,
+    //   default: false
+    // },
     showRelationshipName: {
       type: Boolean,
       default: true
@@ -1261,10 +1255,10 @@ export default {
         }
       })
         .then(data => {
-          if (this.isSubmissions) {
-            this.getLinkedFiles(data)
-            return
-          }
+          // if (this.isSubmissions) {
+          //   this.getLinkedFiles(data)
+          //   return
+          // }
 
           if (typeof callback !== 'function') {
             this.handleXhrResponse(data)
@@ -1355,11 +1349,6 @@ export default {
         headingValues.values.push(this.generateConceptObj('subtype', 'Kind'))
       }
 
-      // Display the file as the last column if available
-      if (this.isSubmissions) {
-        headingValues.values.push(this.generateConceptObj('bf_submission_file', 'File'))
-      }
-
       this.headings = [headingValues]
     },
     /**
@@ -1447,10 +1436,6 @@ export default {
         propOr('', 'children'),
         last
       )
-      const getPackageType = compose(
-        propOr('', 'packageType'),
-        last
-      )
 
       return (
         results
@@ -1462,17 +1447,11 @@ export default {
           })
           .map(arr => {
             const relationship = head(arr)
-            const record = last(arr)
+            // const record = last(arr)
 
             const obj = {
               relationshipInstanceId: propOr('', 'id', relationship)
             }
-
-            // // Submissions table
-            // if (this.isSubmissions) {
-            //   const fileContent = pathOr({}, ['file', 'content'], arr)
-            //   obj.file = fileContent
-            // }
 
             // Relationships Table
             const values = getValues(arr)
@@ -1523,9 +1502,10 @@ export default {
               obj['Date Created'] = getCreatedAt(content)
               obj.updatedAt = getUpdatedAt(content)
               obj.packageType = content.packageType
-              obj.subtype =
-                this.getFilePropertyVal(properties, 'subtype') ||
-                getSubtype(arr)
+              // obj.subtype =
+              //   this.getFilePropertyVal(properties, 'packageType') ||
+              //   getSubtype(arr)
+              obj.subtype = content.packageType === 'Collection' ? 'Folder' : content.packageType
               obj.state = state
               obj.status = status
               obj.storage = this.formatMetric(getStorageOrSize(arr))
@@ -1719,17 +1699,6 @@ export default {
             this.sendXhrRequest(this.handleTableRefreshResponse)
           }
       }
-    },
-
-    isFile: function(scope) {
-      if (this.isSubmissions) {
-        const columnProp = pathOr('', ['column', 'property'], scope)
-        const yo = columnProp === 'bf_submission_file'
-        return yo
-      }
-
-      return false
-      // return has('file', row)
     },
 
     /**

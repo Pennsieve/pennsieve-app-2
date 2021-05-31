@@ -1333,20 +1333,20 @@ export default {
       return false
     },
 
-    /**
-     * Check if Model has sites relationships
-     * @returns {Boolean}
-     */
-    hasSite: function() {
-      const relationships = propOr([], 'relationships', this)
-      if (relationships.length > 0) {
-        const idx = this.relationships.findIndex(
-          rel => rel.displayName === 'Site'
-        )
-        return idx >= 0
-      }
-      return false
-    },
+    // /**
+    //  * Check if Model has sites relationships
+    //  * @returns {Boolean}
+    //  */
+    // hasSite: function() {
+    //   const relationships = propOr([], 'relationships', this)
+    //   if (relationships.length > 0) {
+    //     const idx = this.relationships.findIndex(
+    //       rel => rel.displayName === 'Site'
+    //     )
+    //     return idx >= 0
+    //   }
+    //   return false
+    // },
 
     /**
      * Check if Concept has Relationships
