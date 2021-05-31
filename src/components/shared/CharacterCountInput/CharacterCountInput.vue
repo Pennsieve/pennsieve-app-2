@@ -103,7 +103,7 @@ export default {
 
 .warning {
   font-size: 12px;
-  color: $glial;
+  color: $gray_4;
   margin-top: -6px;
 }
 </style>

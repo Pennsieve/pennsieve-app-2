@@ -53,8 +53,8 @@ export default {
       const publishedDatasetId =  propOr(1, 'publishedDatasetId', this.publishedData)
 
       return this.config.environment === 'prod'
-        ? `https://discover.blackfynn.com/datasets/${publishedDatasetId}`
-        : `https://discover.blackfynn.net/datasets/${publishedDatasetId}`
+        ? `https://discover.pennsieve.io/datasets/${publishedDatasetId}`
+        : `https://discover.pennsieve.net/datasets/${publishedDatasetId}`
     },
 
     /**

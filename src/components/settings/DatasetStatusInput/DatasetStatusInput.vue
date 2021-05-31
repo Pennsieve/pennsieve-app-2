@@ -544,7 +544,7 @@ ul {
   font-weight: normal;
   font-style: italic;
   margin-top: 8px;
-  color: $synapse;
+  color: $red_1;
 }
 
 .settings-status-color {
@@ -561,7 +561,7 @@ ul {
 
   li {
     &:hover {
-      background-color: $dendrite-dark;
+      background-color: $gray_2;
       width: 216px;
       padding-left: 0px !important;
     }

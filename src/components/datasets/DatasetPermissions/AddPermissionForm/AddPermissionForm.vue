@@ -98,7 +98,7 @@
     </el-select>
 
     <bf-button
-      :disabled="isFormInvalid"
+      :disabled="isFormInvalid || hasFeature('sandbox_org_feature')"
       :processing="processing"
       @click="submit"
     >
@@ -265,13 +265,6 @@
           this.searchText = val
         }
       )
-
-      if (this.hasFeature('clinical_management_feature')){
-        this.roles.push({
-            label: 'Can Review',
-            value: 'blind_reviewer'
-          })
-      }
     },
 
     methods: {
@@ -396,15 +389,15 @@
       padding: 8px 16px;
       &.hover, &.selected {
         cursor: pointer;
-        color: $white-matter;
-        background: $dopamine;
+        color: $white;
+        background: $purple_1;
 
         .email {
-          color: $white-matter;
+          color: $white;
         }
       }
       .email {
-        color: $myelin
+        color: $gray_6
       }
     }
   }

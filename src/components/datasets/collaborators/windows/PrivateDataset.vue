@@ -39,7 +39,7 @@
 @import '../../../../assets/variables.scss';
 
 svg {
-  color: $dopamine;
+  color: $purple_1;
 }
 p {
   text-align: center;

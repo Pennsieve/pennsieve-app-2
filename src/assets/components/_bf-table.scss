@@ -1,12 +1,12 @@
 @import '../_variables.scss';
 
 .bf-table {
-  border: 1px solid $cortex;
+  border: 1px solid $gray_2;
   border-radius: 2px 2px 0 0;
   overflow: hidden;
 }
 .bf-table-header, thead {
-  background: $dendrite;
+  background: $gray_1;
   padding: 16px;
   .th-non-sortable,
   button {
@@ -14,7 +14,7 @@
     display: flex;
     flex-shrink: 0;
     text-transform: capitalize;
-    color: $glial;
+    color: $gray_4;
     font-size: 12px;
     font-weight: 500;
     line-height: 14px;
@@ -48,13 +48,13 @@
   }
 }
 .bf-table-row, .bf-table-header {
-  border-bottom: 1px solid $cortex
+  border-bottom: 1px solid $gray_2
 }
 .bf-table-header {
-  background-color: $dendrite;
+  background-color: $gray_1;
 }
 .bf-table-row {
-  background: $white-matter;
+  background: $white;
   padding: 8px 16px;
   &:last-child {
     border-bottom: none;
@@ -62,7 +62,7 @@
 }
 
 .el-table {
-  border: solid 1px $cortex;
+  border: solid 1px $gray_2;
 
   .cell {
     white-space: nowrap;
@@ -82,28 +82,28 @@
 }
 
 .el-table th.is-leaf, .el-table td {
-  border-bottom: 1px solid $cortex;
+  border-bottom: 1px solid $gray_2;
 }
 
 .el-table th.is-leaf {
-  background: $dendrite;
+  background: $gray_1;
 }
 
 .el-checkbox__input {
   .el-checkbox__inner {
     &:hover {
-      border-color: $dopamine;
+      border-color: $purple_1;
     }
   }
   &.is-focus {
     .el-checkbox__inner {
-      border-color: $dopamine;
+      border-color: $purple_1;
     }
   }
   &.is-checked, &.is-indeterminate {
     .el-checkbox__inner {
-      border-color: $dopamine;
-      background-color: $dopamine;
+      border-color: $purple_1;
+      background-color: $purple_1;
     }
   }
 }

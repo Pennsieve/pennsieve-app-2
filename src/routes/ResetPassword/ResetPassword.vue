@@ -1,22 +1,50 @@
 <template>
-  <div class="reset-password">
+  <div
+    class="reset-password"
+    :class="{ 'welcome-to-pennsieve': $route.name === 'welcome-to-pennsieve' }"
+  >
     <div class="reset-password-wrapper">
       <div class="reset-password-inner">
         <div class="login-header">
           <img
+            v-if="$route.name === 'welcome-to-pennsieve'"
+            src="../../../static/images/blackfynn-logo-full.svg"
+            class="logo mb-24"
+            alt="Logo for Blackfynn"
+          >
+
+          <img
             src="../../../static/images/pennsieve-logo-full.svg"
             class="logo"
+            alt="Logo for Pennsieve"
           >
         </div>
         <!-- submit email -->
-        <div v-if="!resetToken && !linkSent">
-          <h2>Reset your password.</h2>
-          <p
-            v-if="!hideEmail"
-            class="email-description"
-          >
-            Enter the email address associated with your account, and we’ll email you a link to reset your password.
-          </p>
+        <div
+          v-if="!verificationCode && !linkSent"
+          key="emailForm"
+        >
+          <template v-if="$route.name === 'welcome-to-pennsieve'">
+            <h2>Welcome to Pennsieve.</h2>
+            <p class="mb-16">
+              Welcome to Pennsieve! We are thrilled to have you back on the platform. A lot of work has gone into migrating the platform from Blackfynn to Pennsieve at the University of Pennsylvania!
+            </p>
+            <p class="mb-16">
+              For security reasons, you need to reset your password and follow the instructions in the email that follows. 
+            </p>
+            <p class="mb-16">
+              In addition, after you login the platform, you will need to re-associate your user with an ORCID account if you have one. This is required in order to publish datasets.
+            </p>
+          </template>
+          <template v-else>
+            <h2>Reset your password.</h2>
+            <p
+              v-if="!hideEmail"
+              class="email-description"
+            >
+              Enter the email address associated with your account, and we’ll email you a link to reset your password.
+            </p>
+          </template>
           <el-form
             ref="emailForm"
             :model="emailForm"
@@ -52,20 +80,28 @@
               </router-link>
             </el-form-item>
           </el-form>
-        </div>
-        <!-- link sent -->
-        <div v-if="linkSent">
-          <h2>Reset link sent.</h2>
-          <p class="link-sent-text">
-            We’ve sent an email that contains a link to reset your password. Contact support if you have any issues or don’t receive an email.
+
+          <p
+            v-if="errorMsg !== ''"
+            class="mt-8 error"
+          >
+            {{ errorMsg }}
           </p>
-          <router-link :to="{ name: 'home' }">
-            <bf-button>Back to sign in</bf-button>
-          </router-link>
         </div>
         <!-- submit new password -->
-        <div v-if="resetToken">
-          <h2>Reset your password.</h2>
+        <div
+          v-if="verificationCode || linkSent"
+          key="resetForm"
+        >
+          <h2 v-if="linkSent">
+            Reset code sent.
+          </h2>
+          <h2 v-else>
+            Reset your password.
+          </h2>
+          <p class="link-sent-text">
+            We’ve sent an email that contains a code to reset your password. Contact support if you have any issues or don’t receive an email.
+          </p>
           <p class="password-requirements">
             We recommend that you create a password that is more than 8 characters long and contains a combination of uppercase &amp; lowercase characters,
             numbers and symbols.
@@ -76,12 +112,25 @@
             :rules="passwordRules"
             @submit.native.prevent="onPasswordFormSubmit"
           >
-           <el-form-item class="code" prop="code">
+            <el-form-item
+              v-show="!$route.query.username"
+              class="email"
+              prop="email"
+            >
               <el-input
+                ref="passwordFormEmail"
+                v-model="passwordForm.email"
+                placeholder="Email"
+              />
+            </el-form-item>
+            <el-form-item
+              class="code"
+              prop="code"
+            >
+              <el-input
+                ref="passwordFormCode"
                 v-model="passwordForm.code"
-                type="number"
                 placeholder="Verification Code"
-                autofocus
               />
             </el-form-item>
             <el-form-item
@@ -91,7 +140,7 @@
               <el-input
                 v-model="passwordForm.password"
                 type="password"
-                placeholder="Password"
+                placeholder="New Password"
                 autofocus
                 @click="onPasswordFormSubmit"
               />
@@ -108,7 +157,7 @@
               <bf-button
                 class="reset-pw-btn"
                 :processing="isResettingPassword"
-                processing-text="Saving"
+                :processing-text="resettingPasswordText"
                 @click="onPasswordFormSubmit"
               >
                 Reset Password
@@ -120,6 +169,13 @@
                 Back to sign in page.
               </router-link>
             </el-form-item>
+
+            <p
+              v-if="errorMsg !== ''"
+              class="mt-8 error"
+            >
+              {{ errorMsg }}
+            </p>
           </el-form>
         </div>
       </div>
@@ -130,8 +186,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { propOr } from 'ramda'
-import Amplify from '@aws-amplify/core'
+import { pathOr, propOr } from 'ramda'
 import Auth from '@aws-amplify/auth'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
@@ -141,7 +196,6 @@ import AutoFocus from '@/mixins/auto-focus'
 import Request from '@/mixins/request'
 import PasswordValidator from '@/mixins/password-validator/index'
 import EventBus from '@/utils/event-bus'
-import AWSConfig from '@/utils/aws-exports.js'
 
 export default {
   name: 'ResetPassword',
@@ -189,10 +243,17 @@ export default {
         ]
       },
       passwordForm: {
+        email: '',
         password: '',
         code: ''
       },
       passwordRules: {
+        email: [
+          { required: true, message: 'Please add your Email' }
+        ],
+        code: [
+          { required: true, message: 'Please add your verification code' }
+        ],
         password: [
           { validator: validatePassword, trigger: 'change' }
         ]
@@ -200,7 +261,9 @@ export default {
       isSendingEmail: false,
       isResettingPassword: false,
       isPasswordFormValid: false,
-      tempEmail: ''
+      tempEmail: '',
+      errorMsg: '',
+      resettingPasswordText: 'Saving'
     }
   },
 
@@ -210,10 +273,10 @@ export default {
     ]),
 
     /**
-     * Grab resetToken from query param in route
+     * Grab verificationCode from query param in route
      */
-    resetToken: function() {
-      return this.$route.query.resetToken
+    verificationCode: function() {
+      return this.$route.query.verificationCode
     },
 
     /**
@@ -242,24 +305,50 @@ export default {
     }
   },
 
+  watch: {
+    verificationCode: {
+      handler(val) {
+        this.passwordForm.code = val
+      },
+      immediate: true
+    },
+    '$route.query.username': {
+      handler(val) {
+        this.passwordForm.email = val
+      },
+      immediate: true
+    }
+  },
+
   methods: {
     /**
      * Send XHR to send reset password email
      * @param {Object} e
      */
     onEmailFormSubmit: function(e) {
-      Amplify.configure(AWSConfig)
       this.$refs.emailForm.validate(valid => {
         if (!valid) {
           return
         }
 
-        this.isSendingEmail = true
-
-       Auth.forgotPassword(this.emailForm.email)
-       .then(this.onEmailFormSuccess.bind(this))
-       .catch(this.handleXhrError.bind(this))
+        this.submitResetRequest()
       })
+    },
+
+    /**
+     * Submit the password reset request
+     */
+    submitResetRequest: function() {
+      this.isSendingEmail = true
+
+      Auth.forgotPassword(this.emailForm.email)
+        .then(this.onEmailFormSuccess.bind(this))
+        .catch(error => {
+          this.errorMsg = error.message
+        })
+        .finally(() => {
+          this.isSendingEmail = false
+        })
     },
 
     /**
@@ -268,7 +357,11 @@ export default {
     onEmailFormSuccess: function() {
       this.linkSent = true
       this.hideEmail = true
-      this.isSendingEmail = false
+      this.passwordForm.email = this.emailForm.email
+
+      this.$nextTick(() => {
+        this.$refs.passwordFormEmail.focus()
+      })
     },
 
     /**
@@ -276,47 +369,47 @@ export default {
      * @param {Object} e
      */
     onPasswordFormSubmit: function(e) {
-      Amplify.configure(AWSConfig)
+      this.resettingPasswordText = 'Saving'
+
       this.$refs.passwordForm.validate(valid => {
         if (!valid) {
           return
         }
 
-        this.isResettingPassword = true
+      this.isResettingPassword = true
 
-        const url = this.resetPasswordUrl
-        const token = this.passwordForm.code
-        const password = this.passwordForm.password
-
-        if (!url || !token) {
-          return
-        }
-
+      const { email, code, password } = this.passwordForm
       // Collect confirmation code and new password, then
-      Auth.forgotPasswordSubmit(this.tempEmail, token, password)
-        .then(data => console.log('success ', data))
-        .catch(err => console.log(err));
-        // this.sendXhr(url, {
-        //   method: 'POST',
-        //   body: {
-        //     resetToken: token,
-        //     newPassword: password
-        //   }
-        // })
-        // .then(this.onPasswordFormSuccess.bind(this))
-        // .catch(this.handleXhrError.bind(this))
+      Auth.forgotPasswordSubmit(email, code, password)
+        .then(() => {
+          this.loginUser()
+          this.resettingPasswordText = 'Logging In'
+        })
+        .catch(error => {
+          this.errorMsg = error.message
+          this.isResettingPassword = false
+        })
       })
     },
 
     /**
-     * Set New Password callback
-     * @param {Object} response
+     * Login the user after successfully resetting their password
+     * On failure, take the user back to the login page
      */
-    onPasswordFormSuccess: function(response) {
-      const token = response.sessionToken
-      const profile = response.profile
-
-      EventBus.$emit('login', { token, profile })
+    loginUser: async function() {
+      try {
+        const { email, password } = this.passwordForm
+        const user = await Auth.signIn(email, password)
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+        const userAttributes = propOr({}, 'attributes', user)
+        EventBus.$emit('login', { token, userAttributes })
+      } catch (error) {
+        EventBus.$emit('toast', {
+          type: 'success',
+          msg: 'Password successfully reset'
+        })
+        this.$router.push({name: 'home'})
+      }
     }
   }
 }
@@ -326,7 +419,7 @@ export default {
 @import '../../assets/variables.scss';
 
 .reset-password {
-  background: $neuron;
+  background: $purple_1;
   display: block;
 
   h2 {
@@ -337,9 +430,9 @@ export default {
 
 
   .reset-password-wrapper {
-    background: $white-matter;
+    background: $white;
     box-sizing: border-box;
-    color: $glial;
+    color: $gray_4;
     max-width: 720px;
     min-height: 100vh;
     padding-bottom: 20px;
@@ -350,9 +443,9 @@ export default {
   }
 
   .reset-password-inner {
-    background: $white-matter;
+    background: $white;
     box-sizing: border-box;
-    color: $glial;
+    color: $gray_4;
     max-width: 720px;
     flex: 1;
     width: 360px;
@@ -436,6 +529,16 @@ export default {
     .el-form-item__content {
       display: flex;
     }
+  }
+  .error {
+    color: $error-color;
+  }
+}
+
+.welcome-to-pennsieve {
+  .login-header {
+    align-items: center;
+    flex-direction: column;
   }
 }
 </style>

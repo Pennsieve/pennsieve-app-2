@@ -66,10 +66,10 @@
               <p v-if="!hasItems(fileList)">
                 If you're uploading large amounts of data, please use the
                 <a
-                  href="http://help.blackfynn.com/blackfynn-developer-tools"
+                  href="https://docs.pennsieve.io/"
                   target="_blank"
                 >
-                  Blackfynn API
+                  Pennsieve API
                 </a>.
               </p>
             </div>
@@ -143,7 +143,7 @@
             :class="showInfo ? 'show-info' : ''"
           >
             <div class="uploading-info-copy">
-              <h2>Uploading to Blackfynn</h2>
+              <h2>Uploading to Pennsieve</h2>
               <p>
                 When you upload certain types of data, we attempt to combine them into
                 <strong>Packages</strong>. Packages allow you to use our interactive viewers to playback, zoom, annotate and discuss directly on your data. If we can’t determine how to process your data, we’ll upload your file in a generic format.
@@ -158,7 +158,7 @@
                 </bf-button>
                 <p>
                   <a
-                    href="http://help.blackfynn.com/general-information/supported-file-formats"
+                    href="https://docs.pennsieve.io/docs/supported-file-formats"
                     target="_blank"
                   >
                     Learn More About Packages

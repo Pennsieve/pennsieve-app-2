@@ -117,10 +117,10 @@
   }
   .model-tooltip-wrap {
     background: #fff;
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
     border-radius: 3px;
     box-shadow: 0 0 10px 0 rgba(189,189,189,0.3);
-    color: $myelin;
+    color: $gray_6;
     width: 291px;
   }
   .model-name, ul {

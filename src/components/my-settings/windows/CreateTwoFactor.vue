@@ -7,11 +7,24 @@
   >
     <bf-dialog-header
       slot="title"
-      title="Enable Two-Factor Authentication"
+      title="Setup Two-Factor Authentication"
     />
 
     <dialog-body>
-      <el-form
+      <p> Follow these steps to enable two-factor authentication for your account.</p>
+
+      <p>Please use a TOTP-compatible authenticator app, such as Google Authenticator or Authy. <a href="https://docs.pennsieve.io" target="blank">Read More</a></p>
+
+      <p class="strong">1. Enter the code into your authenticator app</p>
+
+      <el-input v-model="totpCode"></el-input>
+
+      <p class="strong">
+        2. Enter validation code:
+      </p>
+      <el-input v-model="totpValidation" maxlength="6"></el-input>
+      <p class="error" v-if="error">Incorrect validation code. Please try again.</p>
+      <!-- <el-form
         ref="twoFactorForm"
         :model="ruleForm"
         :rules="rules"
@@ -39,7 +52,7 @@
           </a11y-keys>
         </el-form-item>
         <div>Please provide numbers only.</div>
-      </el-form>
+      </el-form> -->
     </dialog-body>
 
     <span
@@ -60,8 +73,9 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import { pathOr, prop } from 'ramda'
+import Auth from '@aws-amplify/auth'
 
 import A11yKeys from '../../shared/a11y-keys/A11yKeys.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
@@ -90,6 +104,9 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      totpCode: '',
+      totpValidation: '',
+      error: false,
       labelPosition: 'right',
       ruleForm: {
         countryCode: '1',
@@ -113,6 +130,10 @@ export default {
       'userToken',
       'config'
     ]),
+    ...mapState([
+      'cognitoUser'
+    ]),
+
     twoFactorUrl: function() {
       const url = pathOr('', ['config', 'apiUrl'])(this)
       const userToken = prop('userToken', this)
@@ -121,13 +142,26 @@ export default {
         return ''
       }
       return `${url}/user/twofactor?api_key=${userToken}`
+
     }
   },
 
   methods: {
     ...mapActions([
-      'updateProfile'
+      'updateCognitoUser'
     ]),
+
+    /**
+     * Generates Two Factor code
+     */
+    generateTwoFactorCode: function() {
+      // retrieve current authenticated user
+       Auth.setupTOTP(this.cognitoUser).then((code) => {
+          this.totpCode = code
+        })
+      .catch(err => console.log(err));
+    },
+
     /**
      * Handles key-pressed event for last input in form
      */
@@ -138,13 +172,23 @@ export default {
      * Handles submit event
      */
     onTwoFactorFormSubmit: function() {
-      this.$refs.twoFactorForm
-        .validate((valid) => {
-          if (!valid) {
-            return
-          }
-          this.sendTwoFactorAuthRequest()
-        })
+      // TODO - keep code until SMS two factor validation is completed on backend
+      // this.$refs.twoFactorForm
+      //   .validate((valid) => {
+      //     if (!valid) {
+      //       return
+      //     }
+      //     this.sendTwoFactorAuthRequest()
+      //   })
+      this.totpValidation = this.totpValidation.replace(/\s/g, '')
+      Auth.verifyTotpToken(this.cognitoUser, this.totpValidation).then(() => {
+      // don't forget to set TOTP as the preferred MFA method
+      Auth.setPreferredMFA(this.cognitoUser, 'TOTP')
+      this.handleTwoFactorXhrSucces()
+
+      }).catch(() => {
+        this.error = true
+      })
     },
     /**
      * Makes XHR call to update two factor auth status
@@ -168,6 +212,7 @@ export default {
      */
     handleTwoFactorXhrSucces: function(response) {
       this.closeDialog()
+      this.error = false
 
       EventBus.$emit('toast', {
         detail: {
@@ -176,10 +221,8 @@ export default {
         }
       })
 
-      this.updateProfile({
-        ...this.profile,
-        authyId: response.authyId
-      })
+      this.$emit('change-status', true)
+
     },
     /**
      * Resets form fields and validations
@@ -194,8 +237,41 @@ export default {
      */
     closeDialog: function() {
       this.dialogVisible = false
-      this.$refs.twoFactorForm.resetFields()
+      this.totpValidation = ''
+      // this.$refs.twoFactorForm.resetFields()
     }
-  }
+  },
+
+  watch: {
+    dialogVisible: {
+      handler: function(val) {
+        if (val) {
+          this.error = false
+          this.generateTwoFactorCode()
+        }
+      },
+      immediate: true
+    }
+  },
 }
 </script>
+
+<style scoped lang="scss">
+@import '../../../assets/_variables.scss';
+p {
+  color: black;
+}
+
+.strong {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 30px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+</style>

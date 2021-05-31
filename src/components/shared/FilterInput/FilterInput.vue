@@ -43,7 +43,7 @@ export default {
 
   .filter-input {
     align-items: center;
-    border-bottom: 1px solid $cortex;
+    border-bottom: 1px solid $gray_2;
     display: flex;
     flex-shrink: 0;
     height: 48px;
@@ -57,11 +57,11 @@ export default {
       outline: none;
       padding: 0;
       &::placeholder {
-        color: $glial
+        color: $gray_4
       }
     }
     .svg-icon {
-      color: $glial;
+      color: $gray_4;
       height: 16px;
       width: 16px;
     }

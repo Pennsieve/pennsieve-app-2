@@ -33,7 +33,7 @@ a {
 }
 a, button {
   &.grey-link {
-    color: $glial;
+    color: $gray_4;
     &a {
       text-decoration: underline;
     }
@@ -44,7 +44,7 @@ a, button {
 }
 hr {
   border: none;
-  border-top: 1px solid $cortex;
+  border-top: 1px solid $gray_2;
   margin: 24px 0;
 }
 p {
@@ -85,7 +85,7 @@ button {
   padding: 8px;
   width: 36px;
   &:hover, &:focus {
-    background: $cortex;
+    background: $gray_2;
     color: $app-primary-color;
   }
   &.small {
@@ -113,7 +113,7 @@ ul.dot-list {
     }
     &:not(:first-child):before {
       content: '\2022';
-      color: $myelin;
+      color: $gray_6;
       display: inline-block;
       margin-right: 5px;
     }
@@ -152,7 +152,7 @@ ul.dot-list {
 }
 
 .required {
-  color: $synapse;
+  color: $red_1;
   font-size: 12px;
   line-height: 16px;
 }

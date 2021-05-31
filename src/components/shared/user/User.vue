@@ -56,7 +56,7 @@
   }
 
   .email {
-    color: $glial;
+    color: $gray_4;
   }
 
   .user-info {

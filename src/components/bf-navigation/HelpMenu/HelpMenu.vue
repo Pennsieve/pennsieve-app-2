@@ -30,7 +30,7 @@
           <li>
             <a
               class="bf-menu-item"
-              href="http://help.blackfynn.com/"
+              href="http://docs.pennsieve.io/"
               target="_blank"
             >
               Documentation &amp; Tutorials
@@ -39,7 +39,7 @@
           <li>
             <a
               class="bf-menu-item"
-              href="https://developer.blackfynn.io"
+              href="https://docs.pennsieve.io/reference"
               target="_blank"
             >
               Developer Documentation
@@ -48,19 +48,10 @@
           <li>
             <a
               class="bf-menu-item"
-              href="https://help.blackfynn.com/en/articles/4317011"
+              href="https://docs.pennsieve.io/changelog"
               target="_blank"
             >
               Recent Updates
-            </a>
-          </li>
-          <li v-if="showGettingStarted">
-            <a
-              class="bf-menu-item"
-              href="https://help.blackfynn.com/en/articles/3037943"
-              target="_blank"
-            >
-              Getting Started Guide
             </a>
           </li>
         </ul>
@@ -126,7 +117,7 @@ export default {
      * @returns {Boolean}
      */
     showGettingStarted: function() {
-      return this.userIsLessThan30DaysOld && !this.hasFeature('clinical_management_feature')
+      return this.userIsLessThan30DaysOld
     },
 
     /**

@@ -309,7 +309,7 @@
     }
 
     .btn-icon {
-      color: $glial;
+      color: $gray_4;
       margin-left: 8px;
       margin-right: 2px;
       &:last-child {
@@ -319,7 +319,7 @@
         color: $app-primary-color;
       }
       &[disabled] {
-        color: $light-gray;
+        color: $gray_2;
       }
     }
     .playSelect {

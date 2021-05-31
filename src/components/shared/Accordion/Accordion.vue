@@ -69,7 +69,7 @@ export default {
   @import '../../../assets/_variables.scss';
 
   .accordion {
-    background: $dendrite;
+    background: $gray_1;
     color: #000;
     font-size: 12px;
     text-decoration: none;
@@ -80,7 +80,7 @@ export default {
   }
   .accordion-trigger {
     align-items: center;
-    border-bottom: solid 1px $cortex;
+    border-bottom: solid 1px $gray_2;
     display: flex;
     flex-direction: row;
   }

@@ -4,7 +4,7 @@
       <li>
         <a
           class="termsLink"
-          href="https://www.blackfynn.com/terms"
+          href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
           target="_blank"
         >
           Terms
@@ -13,14 +13,14 @@
       <li>
         <a
           class="privacyLink"
-          href="https://www.blackfynn.com/privacy"
+          href="https://docs.pennsieve.io/page/privacy-policy"
           target="_blank"
         >
           Privacy
         </a>
       </li>
       <li class="copyrightInfo">
-        &copy; {{ copyrightYear }} Blackfynn, Inc.
+        &copy; {{ copyrightYear }} The University of Pennsylvania
       </li>
     </ul>
   </div>
@@ -41,7 +41,7 @@ export default {
 @import '../../../assets/_variables.scss';
 
 .bf-footer {
-  background: $white-matter;
+  background: $white;
   display: block;
   font-size: 13px;
   padding: 0 0 20px 0;
@@ -71,7 +71,7 @@ li:first-child:after {
 }
 
 a {
-  color: $glial;
+  color: $gray_4;
 }
 
 a:hover {

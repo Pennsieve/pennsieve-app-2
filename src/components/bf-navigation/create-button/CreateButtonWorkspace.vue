@@ -248,7 +248,7 @@ export default {
     createMenuModifier: function(data) {
       // Compute offset
       if (this.condensed) {
-        const condensedOffset = this.hasFeature('clinical_management_feature') ? -8 : 41
+        const condensedOffset = 41
         data.offsets.popper.top += condensedOffset
       } else {
         data.offsets.popper.left += 38
@@ -294,7 +294,7 @@ export default {
   }
 
   #create-button-icon {
-    color: $myelin;
+    color: $gray_6;
     flex-shrink: 0;
     height: 28px;
     margin: -2px;
@@ -305,7 +305,7 @@ export default {
   }
 
   #create-button {
-    color: $myelin;
+    color: $gray_6;
     display: flex;
     width: 100%;
     display: flex;

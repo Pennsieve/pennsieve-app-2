@@ -418,7 +418,7 @@
   .channels-heading {
     align-items: center;
     background: #f7f7f7;
-    border-bottom: solid 1px $cortex;
+    border-bottom: solid 1px $gray_2;
     box-sizing: border-box;
     display: flex;
     justify-content: flex-end;
@@ -461,7 +461,7 @@
     }
   }
   .save-changes-wrapper {
-    border-top: solid 1px $cortex;
+    border-top: solid 1px $gray_2;
     position: absolute;
     bottom: 0;
     background: white;

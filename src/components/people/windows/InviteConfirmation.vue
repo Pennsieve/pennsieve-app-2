@@ -120,7 +120,7 @@
    text-align: center;
    font-weight: 600;
    margin-top: -1px;
-   color: $myelin;
+   color: $gray_6;
    display: block;
  }
 

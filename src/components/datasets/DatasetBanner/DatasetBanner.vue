@@ -94,7 +94,7 @@
 <style lang="scss" scoped>
   @import '../../../assets/_variables.scss';
   .dataset-banner {
-    border: 1px solid $cortex;
+    border: 1px solid $gray_2;
     border-radius: 3px;
     &:hover, &.is-dragging {
       border-color: $app-primary-color;
@@ -113,7 +113,7 @@
     width: 100%;
   }
   .empty-state {
-    color: $glial;
+    color: $gray_4;
     cursor: pointer;
     font-size: 12px;
   }

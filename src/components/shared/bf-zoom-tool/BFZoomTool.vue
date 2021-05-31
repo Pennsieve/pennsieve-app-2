@@ -171,7 +171,7 @@
           width: 71px;
           height: 26px;
           margin-left: 7px;
-          color: $myelin;
+          color: $gray_6;
         }
         .fitToScreenIcon{
           margin-left: 45px;

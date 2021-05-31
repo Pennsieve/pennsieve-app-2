@@ -1,22 +1,24 @@
 {
   "apiUrl": "https://api.pennsieve.net",
   "zipitUrl": "https://api.pennsieve.net/zipit",
+  "docsUrl": "https://docs.pennsieve.io",
   "maxDownloadSize": 15000000000,
   "environment": "local",
-  "ORCIDUrl": "https://sandbox.orcid.org/oauth/authorize?client_id=APP-4FK9BTFUGZITFOAJ&response_type=code&scope=/authenticate&redirect_uri=https://app.blackfynn.net/orcid-redirect",
+  "ORCIDUrl": "https://sandbox.orcid.org/oauth/authorize?client_id=APP-4FK9BTFUGZITFOAJ&response_type=code&scope=/activities/update&redirect_uri=https://app.pennsieve.net/orcid-redirect",
   "conceptsUrl": "https://api.pennsieve.net/models",
   "mockApiUrl": "http://localhost:9000",
   "timeSeriesUrl": "wss://api.pennsieve.net/streaming/ts/query",
   "timeSeriesApi": "https://api.pennsieve.net/streaming",
   "bucket": "https://dev-uploads-pennsieve.s3.amazonaws.com",
   "bucketName": "dev-uploads-pennsieve",
-  "googleAnalytics": "UA-86081584-1",
+  "googleAnalytics": "G-EL5G51EF0J",
   "notificationUrl": "wss://api.pennsieve.net/notifications/notification/connect",
-  "googleMapApi": "AIzaSyDpGl2JPGInNaKcMz8vx9iDuk7_vQyYHOE",
-  "mapTiler": "vKrAlO6BmgWeqYjll2TM",
+  "googleMapApi": "xxxxxxxxxxxxxx",
+  "mapTiler": "xxxxx",
   "awsConfig": {
     "region": "us-east-1",
     "userPoolId": "us-east-1_XciE1JSvP",
     "userPoolWebClientId": "2653f5r4vgk8eo1p17nvaftaea"
-  }
+  },
+  "reCAPTCHASiteKey": "6Le2Wr0aAAAAAHouFUEmy7UwN6b9wa_PPRGrWxAG"
 }

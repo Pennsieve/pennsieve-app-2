@@ -13,6 +13,10 @@ export default {
      * 'logout' event callback
      */
     handleLogout: function(payload) {
+      if (this.$route.name === 'docs-login') {
+        return
+      }
+
       const shouldShowToast = defaultTo(false, prop('shouldShowToast', payload))
       const shouldRedirect = defaultTo(false, prop('shouldRedirect', payload))
 

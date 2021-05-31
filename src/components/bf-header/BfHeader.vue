@@ -107,7 +107,7 @@
     margin: -4px 0 0 -8px;
     width: 32px;
     &:hover, &:focus {
-      color: $neuron;
+      color: $purple_1;
     }
   }
   .package-name {

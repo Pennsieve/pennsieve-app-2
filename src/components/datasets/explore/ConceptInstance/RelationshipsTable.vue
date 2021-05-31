@@ -67,14 +67,13 @@
               v-if="isFilesType && !datasetLocked"
               class="relationships-text-divider"
             >
-              |
             </span>
             <a
-              v-if="isFilesType && !datasetLocked"
+              v-if="isFilesType && !datasetLocked && !hasFolders"
               href="#"
               @click.stop="onDeleteFiles"
             >
-              {{ deleteText }}
+              | {{ deleteText }}
             </a>
           </div>
         </div>
@@ -211,13 +210,14 @@
                         v-if="scope.row.status === 'Unprocessed'"
                         command="process"
                       >
-                        Process File
+                        Process
                       </el-dropdown-item>
                       <el-dropdown-item command="unlink">
-                        Unlink File
+                        Unlink
                       </el-dropdown-item>
-                      <el-dropdown-item command="delete">
-                        Delete File
+                      <el-dropdown-item command="delete"
+                        v-if="scope.row.packageType !== 'Collection'">
+                        Delete
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
@@ -372,7 +372,7 @@
               >
                 <template slot-scope="scope">
                   <router-link
-                    v-if="index === 0 && isSubmissions === false"
+                    v-if="index === 0"
                     :to="getRecordUrl(scope)"
                     v-html="displayValue(scope.row[heading])"
                   />
@@ -381,12 +381,6 @@
                     v-html="displayValue(scope.row[heading])"
                   />
 
-                  <router-link
-                    v-if="isFile(scope)"
-                    :to="getRecordUrl(scope, getProperty(heading))"
-                  >
-                    {{ scope.row.file.name }}
-                  </router-link>
                 </template>
               </el-table-column>
               <el-table-column
@@ -704,10 +698,10 @@ export default {
   ],
 
   props: {
-    isSubmissions: {
-      type: Boolean,
-      default: false
-    },
+    // isSubmissions: {
+    //   type: Boolean,
+    //   default: false
+    // },
     showRelationshipName: {
       type: Boolean,
       default: true
@@ -872,6 +866,10 @@ export default {
     deleteText: function() {
       const suffix = this.selectionCount > 1 ? 's' : ''
       return `Delete File${suffix}`
+    },
+
+    hasFolders: function() {
+      return find(propEq('packageType', 'Collection'), this.selection) ? true: false
     },
 
     /**
@@ -1257,10 +1255,10 @@ export default {
         }
       })
         .then(data => {
-          if (this.isSubmissions) {
-            this.getLinkedFiles(data)
-            return
-          }
+          // if (this.isSubmissions) {
+          //   this.getLinkedFiles(data)
+          //   return
+          // }
 
           if (typeof callback !== 'function') {
             this.handleXhrResponse(data)
@@ -1270,20 +1268,6 @@ export default {
         })
         .catch(this.handleXhrError.bind(this))
     },
-
-    // /**
-    //  * For clinical trials, get linked files for submissions
-    //  * @param {Array} data
-    //  */
-    // getLinkedFiles: async function(data) {
-    //   await Promise.all(data.map(async (record) => {
-    //     // Make request for the record's file, and assign the response as a value
-    //     record.file = await this.requestLinkedFiles(record)
-    //     return record
-    //   }))
-
-    //   this.handleXhrResponse(data)
-    // },
 
     requestLinkedFiles: function(record) {
       const datasetId = pathOr('', ['params', 'datasetId'], this.$route)
@@ -1363,11 +1347,6 @@ export default {
         headingValues = { values: [] }
         headingValues.values.push(this.generateConceptObj('name', 'Name', true))
         headingValues.values.push(this.generateConceptObj('subtype', 'Kind'))
-      }
-
-      // Display the file as the last column if available
-      if (this.isSubmissions) {
-        headingValues.values.push(this.generateConceptObj('bf_submission_file', 'File'))
       }
 
       this.headings = [headingValues]
@@ -1468,16 +1447,10 @@ export default {
           })
           .map(arr => {
             const relationship = head(arr)
-            const record = last(arr)
+            // const record = last(arr)
 
             const obj = {
               relationshipInstanceId: propOr('', 'id', relationship)
-            }
-
-            // Submissions table
-            if (this.isSubmissions) {
-              const fileContent = pathOr({}, ['file', 'content'], arr)
-              obj.file = fileContent
             }
 
             // Relationships Table
@@ -1528,9 +1501,11 @@ export default {
               obj.createdAt = getCreatedAt(content)
               obj['Date Created'] = getCreatedAt(content)
               obj.updatedAt = getUpdatedAt(content)
-              obj.subtype =
-                this.getFilePropertyVal(properties, 'subtype') ||
-                getSubtype(arr)
+              obj.packageType = content.packageType
+              // obj.subtype =
+              //   this.getFilePropertyVal(properties, 'packageType') ||
+              //   getSubtype(arr)
+              obj.subtype = content.packageType === 'Collection' ? 'Folder' : content.packageType
               obj.state = state
               obj.status = status
               obj.storage = this.formatMetric(getStorageOrSize(arr))
@@ -1677,15 +1652,13 @@ export default {
         }
       }
 
-      // Submissions
-      const isFile = this.isFile(scope)
-      if (isFile) {
-        const fileId = pathOr('', ['row', 'file', 'id'], scope)
+      // collection relationship
+      if (recordId && recordId.includes('collection')) {
         return {
-          name: 'file-record',
+          name: 'collection-files',
           params: {
             conceptId: this.filesProxyId,
-            instanceId: fileId
+            fileId: recordId
           }
         }
       }
@@ -1726,17 +1699,6 @@ export default {
             this.sendXhrRequest(this.handleTableRefreshResponse)
           }
       }
-    },
-
-    isFile: function(scope) {
-      if (this.isSubmissions) {
-        const columnProp = pathOr('', ['column', 'property'], scope)
-        const yo = columnProp === 'bf_submission_file'
-        return yo
-      }
-
-      return false
-      // return has('file', row)
     },
 
     /**
@@ -1818,37 +1780,37 @@ export default {
 
     .processing-row td:nth-child(3) {
       .cell {
-        background: #2760ff;
-        color: #fafafa;
-        width: fit-content;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 6px;
-        padding-bottom: 1px;
+        background: none; //#2760ff;
+        //color: #fafafa;
+        //width: fit-content;
+        //font-size: 12px;
+        //font-weight: 600;
+        //border-radius: 6px;
+        //padding-bottom: 1px;
       }
     }
 
     .unprocessed-row td:nth-child(3) {
       .cell {
-        background: #f1f1f3;
-        color: #404554;
-        width: fit-content;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 6px;
-        padding-bottom: 1px;
+        background: none; //#f1f1f3;
+        //color: #404554;
+        //width: fit-content;
+        //font-size: 12px;
+        //font-weight: 600;
+        //border-radius: 6px;
+        //padding-bottom: 1px;
       }
     }
 
     .failed-row td:nth-child(3) {
       .cell {
-        background: #e94b4b;
-        color: #fafafa;
-        width: fit-content;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 6px;
-        padding-bottom: 1px;
+        background: none; //#e94b4b;
+        ////color: #fafafa;
+        //width: fit-content;
+        //font-size: 12px;
+        //font-weight: 600;
+        //border-radius: 6px;
+        //padding-bottom: 1px;
       }
     }
 
@@ -1880,7 +1842,7 @@ export default {
 
   .empty-state-text {
     margin: 16px 0;
-    color: $glial;
+    color: $gray_4;
   }
 }
 
@@ -1901,15 +1863,15 @@ export default {
 }
 
 .source-file-table-results-count {
-  border-left: solid 1px $cortex;
-  border-right: solid 1px $cortex;
-  border-bottom: solid 1px $cortex;
+  border-left: solid 1px $gray_2;
+  border-right: solid 1px $gray_2;
+  border-bottom: solid 1px $gray_2;
   border-top: none;
   padding: 13px 0;
   padding-left: 17px;
-  background: $dendrite;
+  background: $gray_1;
   font-weight: 500;
-  color: $myelin;
+  color: $gray_6;
   font-size: 13px;
   line-height: 23px;
   margin-top: -3px;
@@ -1917,7 +1879,7 @@ export default {
 }
 
 .source-file-table-skeleton-loader {
-  border-top: solid 1px $cortex;
+  border-top: solid 1px $gray_2;
   height: 45px;
 }
 
@@ -1928,7 +1890,7 @@ export default {
 
 .source-file-table-load-more {
   cursor: pointer;
-  border-top: solid 1px $cortex;
+  border-top: solid 1px $gray_2;
   width: -webkit-fill-available;
   padding-top: 11px;
   padding-bottom: 18px;

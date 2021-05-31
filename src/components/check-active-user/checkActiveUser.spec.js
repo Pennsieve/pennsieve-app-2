@@ -4,9 +4,10 @@ import CheckActiveUser from './CheckActiveUser.vue'
 import { getters } from '../../vuex/store'
 import EventBus from '../../utils/event-bus'
 
-global.site = {
-  apiUrl: 'http://app.blackfynn.net'
-}
+import Amplify from '@aws-amplify/core'
+import Auth from '@aws-amplify/auth'
+import AWSConfig from '@/utils/aws-exports.js'
+Amplify.configure(AWSConfig)
 
 describe('CheckActiveUser.vue', () => {
   let cmp
@@ -15,12 +16,21 @@ describe('CheckActiveUser.vue', () => {
   beforeEach(() => {
     store = new Vuex.Store({
       state: {
-        userToken: '123'
+        userToken: '123',
+        config: {
+          environment: 'dev'
+        }
       },
       getters
     })
-    cmp = shallow(CheckActiveUser, { store })
-    cmp.vm.interval = 100
+    cmp = shallow(CheckActiveUser, {
+      store,
+      computed: {
+        interval() {
+          return 100
+        }
+      }
+    })
   })
 
   afterEach(() => {
@@ -44,17 +54,22 @@ describe('CheckActiveUser.vue', () => {
     }, 1000)
   })
 
-  it('handleActiveUser: handles 401 status', (done) => {
-    EventBus.$on('logout', _ => {
+  it('handleActiveUser: handles active user', (done) => {
+    const spy = jest.spyOn(Auth, 'currentAuthenticatedUser').mockReturnValue({
+      mockUser: {}
+    });
+    cmp.vm.pingUserActive()
+    setTimeout(() => {
+      expect(spy).toBeCalled()
       done()
-    })
-    cmp.vm.handleActiveUser({status: 401})
+    }, 1000)
   })
 
-  it('handleActiveUser: handles 200 status', () => {
+  it('handleActiveUser: handles inactive user', (done) => {
+
     EventBus.$on('logout', _ => {
       done()
     })
-    cmp.vm.handleActiveUser({status: 200})
+    cmp.vm.callLogout()
   })
 })

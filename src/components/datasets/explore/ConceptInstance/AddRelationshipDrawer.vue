@@ -15,7 +15,7 @@
 
       <template v-else>
         Link records in your graph as determined by your model manager. <a
-          href="http://help.blackfynn.com/blackfynn-web-application/blackfynn-knowledge-graph/creating-relationships-between-data-models"
+          href="https://docs.pennsieve.io/docs/creating-relationships-between-metadata-models"
           target="_blank"
         >
           Help me with this
@@ -850,7 +850,7 @@ export default {
     }
 
     button {
-      background: $dopamine;
+      background: $purple_1;
       border: solid 1px transparent;
       border-radius: 0 3px 3px 0;
       cursor: pointer;
@@ -860,7 +860,7 @@ export default {
       text-align: center;
 
       &:hover {
-        background: $dopamine-dark;
+        background: $purple_3;
       }
     }
   }
@@ -898,7 +898,7 @@ export default {
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
     &.complete {
-      background: $nucleus;
+      background: $green_1;
     }
   }
 }

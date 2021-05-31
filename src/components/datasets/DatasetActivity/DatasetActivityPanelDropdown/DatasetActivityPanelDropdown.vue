@@ -172,7 +172,7 @@ import Request from '@/mixins/request'
   // padding-bottom: 10px;
   .dataset-activity-panel-dropdown-list {
     padding: 10px 16px;
-    border-bottom: solid 1px $cortex;
+    border-bottom: solid 1px $gray_2;
 
     &:last-child {
       border-bottom: none;
@@ -193,7 +193,7 @@ import Request from '@/mixins/request'
   }
 
   .svg-icon {
-    color: $dopamine;
+    color: $purple_1;
     margin-right: 8px;
   }
 

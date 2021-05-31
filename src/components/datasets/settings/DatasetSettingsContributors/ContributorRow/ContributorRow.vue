@@ -21,7 +21,7 @@
           <li v-if="isDatasetOwner">
             Dataset owner
             <a
-              href="https://help.blackfynn.com/en/articles/3276100-transfer-ownership-of-a-dataset"
+              href="https://docs.pennsieve.io/docs/transfer-ownership-of-a-dataset"
               target="_blank"
             >
               What's this?
@@ -183,7 +183,7 @@ export default {
     contributorTypeLabel: function() {
       return this.isExternal
         ? 'External Contributor'
-        : 'Blackfynn'
+        : 'Pennsieve'
     },
 
     /**
@@ -212,7 +212,7 @@ export default {
 
 .slat-info.contributor-row {
   align-items: center;
-  color: $myelin;
+  color: $gray_6;
   padding: 16px 0;
 }
 .contributor-info-wrap {
@@ -235,7 +235,7 @@ h3 {
   }
 }
 .icon-orcid {
-  fill: $cortex;
+  fill: $gray_2;
   &.has-orcid {
     fill: #A6CE39
   }

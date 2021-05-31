@@ -41,10 +41,10 @@ export default {
 
 .tag-pill {
   align-items: center;
-  border: 1px solid $glial;
+  border: 1px solid $gray_4;
   border-radius: 3px;
   box-sizing: border-box;
-  color: $glial;
+  color: $gray_4;
   display: flex;
   font-size: 12px;
   line-height: 18px;
@@ -59,7 +59,7 @@ export default {
   }
 
   .indicator {
-    background-color: $glial;
+    background-color: $gray_4;
     border-radius: 50%;
     flex-shrinK: 0;
     height: 8px;

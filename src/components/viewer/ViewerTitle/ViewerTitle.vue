@@ -70,7 +70,7 @@
   .viewer-title {
     align-items: center;
     box-sizing: border-box;
-    background-color: $glial;
+    background-color: $gray_4;
     color: #fff;
     display: flex;
     padding: 6px 11px 4px;
@@ -78,7 +78,7 @@
     width: 100%;
     z-index: 10;
     &.is-active {
-      background-color: $serotonin;
+      background-color: $purple_3;
     }
   }
 

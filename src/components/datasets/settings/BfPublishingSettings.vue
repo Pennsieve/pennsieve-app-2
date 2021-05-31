@@ -437,7 +437,7 @@ import { pathOr } from 'ramda'
 <style lang="scss" scoped>
 @import '../../../assets/_variables.scss';
 .bf-publishing-settings {
-  background: $white-matter;
+  background: $white;
   hr {
     margin: 32px 0 24px;
   }

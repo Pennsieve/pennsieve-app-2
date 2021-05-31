@@ -15,7 +15,7 @@
         <bf-card
           :class="{ disabled: datasetLocked }"
           title="Empty Model"
-          card-copy="Create a custom model for records in your graph."
+          card-copy="Create a model for metadata records."
         >
           <template slot="icon">
             <img
@@ -74,7 +74,7 @@
 
     <dataset-owner-message
       v-if="hasNoModels"
-      title="You have no models in your graph."
+      title="You have no metadata models defined yet"
       :display-owner-message="true"
       :hide-got-it="true"
       class="long-copy"
@@ -85,7 +85,7 @@
         alt=""
       >
       <p slot="copy">
-        Models are the basis of your data template. Before adding Metadata, you'll need to <br> create some models
+        Models are the basis of your metadata schema. Before adding metadata records, you'll need to <br> create some models
       </p>
       <bf-button
         slot="button"

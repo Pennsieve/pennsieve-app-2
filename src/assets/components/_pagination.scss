@@ -18,13 +18,13 @@ $height: 24px;
 }
 
 .el-pager li {
-  color: $myelin;
+  color: $gray_6;
   font-size: 14px;
   font-weight: 400;
   min-width: 32px;
   padding: 0 4px;
   &.active {
-    color: $myelin;
+    color: $gray_6;
     font-weight: 700;
     &:after {
       background: $app-primary-color;

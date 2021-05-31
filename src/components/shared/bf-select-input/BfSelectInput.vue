@@ -221,7 +221,7 @@
       &:hover {
         background: transparent;
         .svg-icon {
-          color: $myelin;
+          color: $gray_6;
         }
       }
     }
@@ -230,7 +230,7 @@
     .inputWrap {
       position: relative;
       padding-bottom: 5px;
-      background: $white-matter;
+      background: $white;
       border: 1px solid #BDBDBD;
       border-radius: 3px;
       box-sizing: border-box;
@@ -287,7 +287,7 @@
 
   }
   .svg-icon {
-    color: $myelin;
+    color: $gray_6;
     height: 27px;
     margin-right: 5px;
     padding: 0;

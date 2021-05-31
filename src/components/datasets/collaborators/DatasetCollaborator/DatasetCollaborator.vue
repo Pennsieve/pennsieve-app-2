@@ -262,14 +262,14 @@ export default {
 @import '../../../../assets/variables';
 
 .member-col {
-  color: $glial;
+  color: $gray_4;
 
   &.menu {
     display: flex;
     justify-content: flex-end;
   }
   button {
-    color: $glial;
+    color: $gray_4;
     white-space: nowrap;
   }
 }
@@ -292,6 +292,6 @@ export default {
   @import '../../../../assets/_variables.scss';
 
   .member .el-spinner-inner .path {
-    stroke: $glial
+    stroke: $gray_4
   }
 </style>
