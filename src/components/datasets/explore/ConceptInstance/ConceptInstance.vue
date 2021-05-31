@@ -463,18 +463,18 @@
 
             <div class="static-prop-section">
               <concept-instance-static-property
-                label="Pennsieve Id"
+                label="Pennsieve id"
                 :value="instance.id"
               />
 
               <concept-instance-static-property
-                label="Created By"
+                label="created by"
                 :user="instance.createdBy"
                 :date="instance.createdAt"
               />
 
               <concept-instance-static-property
-                label="Updated By"
+                label="updated by"
                 :user="instance.updatedBy"
                 :date="instance.updatedAt"
               />
