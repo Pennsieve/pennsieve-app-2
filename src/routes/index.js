@@ -22,6 +22,8 @@ const Welcome = () => import('./welcome/Welcome.vue')
 const TermsOfService = () => import('./TermsOfService/TermsOfService.vue')
 const SetupProfile = () => import('../components/SetupProfile/SetupProfile.vue')
 const InvitePeople = () => import('../components/onboarding/InvitePeople/InvitePeople.vue')
+const FinalizeAccount = () => import('../components/FinalizeAccount/FinalizeAccount.vue')
+
 
 /**
  * People Components
@@ -520,7 +522,14 @@ const routes = [
         components: {
           stage: SetupProfile
         }
-      }
+      },
+      {
+        name: 'verify-account',
+        path: 'verify/:username/:password',
+        components: {
+          stage: FinalizeAccount
+        }
+      },
     ]
   },
   {

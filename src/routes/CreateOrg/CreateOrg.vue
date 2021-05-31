@@ -1,27 +1,33 @@
 <template>
-  <bf-page class="create-org">
-    <img
-      src="/static/images/illustrations/illo-research-platform.svg"
-      alt="Patient Data"
-      width="446"
-      height="220"
-    >
-    <h2>Restricted Access</h2>
-    <p>You must create a new organization in order to access this feature on the platform. </p>
-    <bf-button
-      class="primary"
-      @click="requestCreateOrganization"
-    >
-      Request to Create Organization
-    </bf-button>
-    <create-organization-dialog
-      :visible.sync="isDialogVisible"
-      @close-dialog="onCloseDialog"
-    />
+  <bf-page>
+    <div class="create-org">
+      <img
+        src="/static/images/illustrations/illo-research-platform.svg"
+        alt="Patient Data"
+        width="446"
+        height="220"
+      >
+      <h2>Restricted Access</h2>
+      <p>You must create a new organization in order to access this feature on the platform. </p>
+      <bf-button
+      :disabled="maxOrgsCreated"
+
+        class="primary"
+        @click="requestCreateOrganization"
+      >
+        Request to Create Organization
+      </bf-button>
+      <create-organization-dialog
+        :visible.sync="isDialogVisible"
+        @close-dialog="onCloseDialog"
+      />
+    </div>
   </bf-page>
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/CreateOrganizationDialog'
   export default {
@@ -35,6 +41,19 @@ import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/Crea
         isDialogVisible: false
       }
     },
+    computed: {
+      ...mapState(['profile']),
+     /**
+       * Checks where user has created the maximum number of organizations
+       * @returns {Boolean}
+       */
+      maxOrgsCreated: function() {
+        // NOTE: Adding the first condition so that this can go through
+        // as these properties do not exist in the profile object yet
+        return this.profile.maxOrganizationsAllowed === 3 && this.profile.organizationsCreated === this.profile.maxOrganizationsAllowed
+      },
+    },
+
     methods: {
       openCreateOrgModal: function() {
         this.isDialogVisible = true
@@ -59,6 +78,7 @@ import CreateOrganizationDialog from '@/components/CreateOrganizationDialog/Crea
 <style lang="scss" scoped>
 .create-org {
   display: flex;
+  height: 100vh;
   flex-direction: column;
   justify-content: center;
   align-items: center;

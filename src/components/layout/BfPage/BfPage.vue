@@ -3,6 +3,7 @@
     class="bf-page"
     :class="[condensed ? 'condensed' : '']"
   >
+    <sandbox-organization-banner />
     <slot name="banner" />
     <slot name="heading" />
     <slot name="stage" />
@@ -13,9 +14,14 @@
 <script>
   import { pathOr } from 'ramda'
   import EventBus from '../../../utils/event-bus'
+  import SandboxOrganizationBanner from '@/components/SandboxOrganizationBanner/SandboxOrganizationBanner.vue'
 
   export default {
     name: 'BfPage',
+
+    components: {
+      SandboxOrganizationBanner
+    },
 
     data: function() {
       return {

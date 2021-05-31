@@ -72,7 +72,6 @@ export default {
     ...mapState('datasetModule', [
       'datasetSearchParams'
     ]),
-
     ...mapGetters([
       'activeOrganization',
       'getActiveOrganization',
@@ -119,6 +118,27 @@ export default {
       if (this.config.apiUrl && this.userToken) {
         const orgId = pathOr('', ['organization', 'id'], this.activeOrganization)
         return `${this.config.apiUrl}/organizations/${orgId}/dataset-status?api_key=${this.userToken}`
+      }
+    },
+
+    /**
+     * Wrapper to work around visible sync witha vuex
+     * state property
+     */
+    isLinkOrcidDialogVisibleWrapper: {
+      /**
+       * True if the link ORCID dialog should be visible
+       * @returns {Boolean}
+       */
+      get() {
+        return this.isLinkOrcidDialogVisible
+      },
+      /**
+       * Set the value in the vuex store
+       * @param {Boolean} val 
+       */
+      set(val) {
+        this.updateIsLinkOrcidDialogVisible(val)
       }
     }
   },
@@ -372,7 +392,8 @@ export default {
         this.updateOnboardingEvents(response)
         const hasAddedOrcid = response.includes('AddedOrcid')
         if (!hasAddedOrcid)  {
-          this.setLinkOrcidDialog()
+          this.updateShouldShowLinkOrcidDialog(true)
+          // this.setLinkOrcidDialog()
         }
       })
       .catch(this.handleXhrError.bind(this))
@@ -381,11 +402,12 @@ export default {
     /**
      * Compute if the link orcid dialog should be visible
      */
-     setLinkOrcidDialog: function() {
-      this.updateShouldShowLinkOrcidDialog(true)
-      if (this.$route.name !== 'terms-of-service' && !this.hasOrcidOnboardingEvent) {
-        this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
-      }
-    }
+    //  setLinkOrcidDialog: function() {
+    //   this.updateShouldShowLinkOrcidDialog(true)
+    //   // if (this.$route.name !== 'terms-of-service' && !this.hasOrcidOnboardingEvent) {
+    //   //   this.updateIsLinkOrcidDialogVisible(!this.hasOrcidOnboardingEvent)
+    //   // }
+    // }
+
   }
 }
