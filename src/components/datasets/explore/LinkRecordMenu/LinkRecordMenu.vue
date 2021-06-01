@@ -197,7 +197,7 @@ export default {
 
 <style lang="scss" scoped>
   @import '../../../../assets/_variables.scss';
-  
+
   .link-record-menu {
     .bf-button {
       border: none;

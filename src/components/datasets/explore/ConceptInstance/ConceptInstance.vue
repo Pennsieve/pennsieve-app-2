@@ -418,31 +418,31 @@
         </el-collapse>
 
         <!-- BEGIN PROPERTIES TABLE -->
-        <el-collapse
-          v-if="!isFile && !isRecordsLoading"
-          key="properties"
-          v-model="activeSections"
-          class="concept-instance-section collapse-properties no-border"
-        >
-          <el-collapse-item
-            title="Consistency"
-            name="properties"
-          >
-            <div
-              slot="title"
-              class="relationship-title"
-            >
-              <svg-icon
-                class="icon-collapse"
-                name="icon-arrow-up"
-                :dir="arrowDirection('properties')"
-                height="10"
-                width="10"
-                color="#404554"
-              />
-              <h2>Properties</h2>
-            </div>
-
+<!--        <el-collapse-->
+<!--          v-if="!isFile && !isRecordsLoading"-->
+<!--          key="properties"-->
+<!--          v-model="activeSections"-->
+<!--          class="concept-instance-section collapse-properties no-border"-->
+<!--        >-->
+<!--          <el-collapse-item-->
+<!--            title="Consistency"-->
+<!--            name="properties"-->
+<!--          >-->
+<!--            <div-->
+<!--              slot="title"-->
+<!--              class="relationship-title"-->
+<!--            >-->
+<!--              <svg-icon-->
+<!--                class="icon-collapse"-->
+<!--                name="icon-arrow-up"-->
+<!--                :dir="arrowDirection('properties')"-->
+<!--                height="10"-->
+<!--                width="10"-->
+<!--                color="#404554"-->
+<!--              />-->
+<!--              <h2>Properties</h2>-->
+<!--            </div>-->
+        <div class="property-list">
             <concept-instance-property
               v-for="property in properties"
               :key="property.name"
@@ -478,8 +478,9 @@
                 :date="instance.updatedAt"
               />
             </div>
-          </el-collapse-item>
-        </el-collapse>
+<!--          </el-collapse-item>-->
+<!--        </el-collapse>-->
+        </div>
         <!-- END PROPERTIES TABLE -->
 
         <!-- BEGIN FILES TABLE EMPTY STATE -->
@@ -3440,7 +3441,7 @@ export default {
   }
 
   .static-prop-section{
-    margin-top: 16px;
+    margin-top: 8px;
   }
   .collapse-properties .el-collapse-item__wrap {
     padding-bottom: 16px;
@@ -3602,6 +3603,12 @@ export default {
       color: #000;
     }
   }
+}
+
+.property-list {
+  padding: 0 16px;
+  background: $gray_0;
+  margin-bottom: 16px;
 }
 
 .relationships-empty-state {
