@@ -1,5 +1,5 @@
 <template>
-  <div class="concept-instance-property">
+  <div class="concept-instance-static-property">
     <el-row
       type="flex"
       :gutter="32"
@@ -77,5 +77,5 @@
 </script>
 
 <style lang="scss">
-  @import '_concept-instance-property';
+  @import '_concept-instance-static-property';
 </style>

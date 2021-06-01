@@ -59,7 +59,9 @@
             slot="heading"
             class="blinded-review-heading"
           >
+            <h2 class="model-name" v-html="modelName" />
             <h1 v-html="$sanitize(formattedConceptTitle)" />
+
           </div>
         </template>
 
@@ -278,7 +280,6 @@
         <div
           class="concept-instance-section"
         >
-          <h2>Related Records</h2>
 
           <div class="relationships-list">
             <link-record-menu
@@ -417,31 +418,31 @@
         </el-collapse>
 
         <!-- BEGIN PROPERTIES TABLE -->
-        <el-collapse
-          v-if="!isFile && !isRecordsLoading"
-          key="properties"
-          v-model="activeSections"
-          class="concept-instance-section collapse-properties no-border"
-        >
-          <el-collapse-item
-            title="Consistency"
-            name="properties"
-          >
-            <div
-              slot="title"
-              class="relationship-title"
-            >
-              <svg-icon
-                class="icon-collapse"
-                name="icon-arrow-up"
-                :dir="arrowDirection('properties')"
-                height="10"
-                width="10"
-                color="#404554"
-              />
-              <h2>Properties</h2>
-            </div>
-
+<!--        <el-collapse-->
+<!--          v-if="!isFile && !isRecordsLoading"-->
+<!--          key="properties"-->
+<!--          v-model="activeSections"-->
+<!--          class="concept-instance-section collapse-properties no-border"-->
+<!--        >-->
+<!--          <el-collapse-item-->
+<!--            title="Consistency"-->
+<!--            name="properties"-->
+<!--          >-->
+<!--            <div-->
+<!--              slot="title"-->
+<!--              class="relationship-title"-->
+<!--            >-->
+<!--              <svg-icon-->
+<!--                class="icon-collapse"-->
+<!--                name="icon-arrow-up"-->
+<!--                :dir="arrowDirection('properties')"-->
+<!--                height="10"-->
+<!--                width="10"-->
+<!--                color="#404554"-->
+<!--              />-->
+<!--              <h2>Properties</h2>-->
+<!--            </div>-->
+        <div class="property-list">
             <concept-instance-property
               v-for="property in properties"
               :key="property.name"
@@ -459,24 +460,27 @@
               @confirm-remove-linked-property="openLinkedPropertyModal"
             />
 
-            <concept-instance-static-property
-              label="Pennsieve Id"
-              :value="instance.id"
-            />
+            <div class="static-prop-section">
+              <concept-instance-static-property
+                label="Pennsieve id"
+                :value="instance.id"
+              />
 
-            <concept-instance-static-property
-              label="Created By"
-              :user="instance.createdBy"
-              :date="instance.createdAt"
-            />
+              <concept-instance-static-property
+                label="created by"
+                :user="instance.createdBy"
+                :date="instance.createdAt"
+              />
 
-            <concept-instance-static-property
-              label="Updated By"
-              :user="instance.updatedBy"
-              :date="instance.updatedAt"
-            />
-          </el-collapse-item>
-        </el-collapse>
+              <concept-instance-static-property
+                label="updated by"
+                :user="instance.updatedBy"
+                :date="instance.updatedAt"
+              />
+            </div>
+<!--          </el-collapse-item>-->
+<!--        </el-collapse>-->
+        </div>
         <!-- END PROPERTIES TABLE -->
 
         <!-- BEGIN FILES TABLE EMPTY STATE -->
@@ -642,8 +646,7 @@
             <h3>Create Relationships</h3>
             <div>
               <p class="relationship-inner-text">
-                Connect {{ $sanitize(formattedConceptTitle) }} with other objects in your graph by clicking the Add
-                Relationships button above.
+                Connect <b>{{ $sanitize(formattedConceptTitle) }}</b> with other objects in your graph by clicking the "Link to ..." button above.
               </p>
               <a
                 href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"
@@ -1260,6 +1263,13 @@ export default {
       return '';
     },
 
+    modelName: function() {
+      if (this.model) {
+        return this.model.name
+      }
+      return '';
+    },
+
     /**
      * Computes data type for concept title
      * @returns {String}
@@ -1323,20 +1333,20 @@ export default {
       return false
     },
 
-    /**
-     * Check if Model has sites relationships
-     * @returns {Boolean}
-     */
-    hasSite: function() {
-      const relationships = propOr([], 'relationships', this)
-      if (relationships.length > 0) {
-        const idx = this.relationships.findIndex(
-          rel => rel.displayName === 'Site'
-        )
-        return idx >= 0
-      }
-      return false
-    },
+    // /**
+    //  * Check if Model has sites relationships
+    //  * @returns {Boolean}
+    //  */
+    // hasSite: function() {
+    //   const relationships = propOr([], 'relationships', this)
+    //   if (relationships.length > 0) {
+    //     const idx = this.relationships.findIndex(
+    //       rel => rel.displayName === 'Site'
+    //     )
+    //     return idx >= 0
+    //   }
+    //   return false
+    // },
 
     /**
      * Check if Concept has Relationships
@@ -3430,6 +3440,9 @@ export default {
     }
   }
 
+  .static-prop-section{
+    margin-top: 8px;
+  }
   .collapse-properties .el-collapse-item__wrap {
     padding-bottom: 16px;
     background: #fbfbfd;
@@ -3470,7 +3483,7 @@ export default {
     display: flex;
     flex: 1;
     h2 {
-      color: #000;
+      color: $purple_1;
       flex: 1;
       font-size: 20px;
       font-weight: 600;
@@ -3516,12 +3529,18 @@ export default {
   }
 }
 .concept-instance-section {
-  margin-bottom: 40px;
+  margin-bottom: 16px;
   .collapse-properties {
     .source-files {
       background: blue !important;
     }
   }
+}
+
+.model-name{
+  margin: 16px 0 0 0;
+  color: $gray_4;
+  font-weight: 300;
 }
 
 .relationships-list {
@@ -3546,7 +3565,8 @@ export default {
     padding: 0;
   }
   .bf-upload-dropzone {
-    border: 2px dashed #d9e0f0;
+    background: $purple_tint;
+    border: 1px dashed $purple_1;
     height: 214px;
     padding: 0;
   }
@@ -3572,9 +3592,10 @@ export default {
     p {
       max-width: 450px;
       padding: 0 16px;
+      color: $gray_4;
 
       a {
-        color: $gray_4;
+        color: $purple_1;
       }
     }
 
@@ -3584,10 +3605,17 @@ export default {
   }
 }
 
+.property-list {
+  padding: 0 16px;
+  background: $gray_0;
+  margin-bottom: 16px;
+}
+
 .relationships-empty-state {
-  background-color: rgba(233, 237, 246, 0.2);
-  border: 2px dashed #d9e0f0;
-  padding: 47px;
+  background: $purple_tint;
+  border: 1px dashed $purple_1;
+  height: 214px;
+  display: flex;
 
   &-inner {
     max-width: 460px;
@@ -3633,8 +3661,9 @@ export default {
   }
 
   .blinded-review-heading {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
+    flex-direction: column;
   }
 
   .instance-type {
