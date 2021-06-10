@@ -326,11 +326,11 @@
              class="file-list"
              v-if="isFile">
 
-          <concept-instance-static-property class="highlight-property" label="package name" helpUrl="https://docs.pennsieve.io">
+          <concept-instance-static-property class="highlight-property" :label="fileNameLabel" :helpUrl="computePackageHelpUrl">
             {{ packageDisplayName }}
           </concept-instance-static-property>
 
-          <concept-instance-static-property label="package type">
+          <concept-instance-static-property :label="fileTypeLabel">
             {{ fileType }}
           </concept-instance-static-property>
 
@@ -341,7 +341,7 @@
             {{ externalFile.description }}
           </concept-instance-static-property>
 
-          <concept-instance-static-property label="package status">
+          <concept-instance-static-property :label="fileStatusLabel">
             {{ getDisplayFileStatus }}
           </concept-instance-static-property>
 
@@ -389,7 +389,7 @@
         </div>
 
         <el-collapse
-          v-if="hasSourceFiles"
+          v-if="hasMultipleSourceFiles"
           key="sourcefiles"
           v-model="activeSections"
           class="zero-padding concept-instance-section source-file-table-properties source-files no-border"
@@ -989,7 +989,18 @@ export default {
     ownerId: function() {
       return pathOr('', ['content', 'ownerId'], this.proxyRecord)
     },
-
+    fileTypeLabel: function() {
+      return this.packageSourceFiles.length > 1 ? "package type": "file type"
+    },
+    fileNameLabel: function() {
+      return this.packageSourceFiles.length > 1 ? "package name": "file name"
+    },
+    computePackageHelpUrl: function() {
+      return this.packageSourceFiles.length > 1 ? "https://docs.pennsieve.io/docs/what-is-a-package-and-what-are-source-files" : null
+    },
+    fileStatusLabel: function() {
+      return this.packageSourceFiles.length > 1 ? "package status": "file status"
+    },
 
     /**
      * Compute whether or not to display detailed directory view
@@ -1076,8 +1087,8 @@ export default {
      * should be displayed
      * @returns {Boolean}
      */
-    hasSourceFiles: function() {
-      return this.packageSourceFiles.length > 0 ? true : false
+    hasMultipleSourceFiles: function() {
+      return this.packageSourceFiles.length > 1 ? true : false
     },
 
     /**

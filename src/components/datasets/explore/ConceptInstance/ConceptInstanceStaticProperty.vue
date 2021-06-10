@@ -15,7 +15,7 @@
           <div>{{ label }}</div>
           <div v-if="hasHelp">
             <a
-              href="https://docs.pennsieve.io/docs/what-is-a-package-and-what-are-source-files"
+              :href="hasHelp"
               target="_blank"
             ><svg-icon
               class="ml-8 arrow-style"
