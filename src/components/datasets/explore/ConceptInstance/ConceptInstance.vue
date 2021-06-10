@@ -345,7 +345,7 @@
             {{ getDisplayFileStatus }}
           </concept-instance-static-property>
 
-          <concept-instance-static-property label="location">
+          <concept-instance-static-property label="Location">
 
             <template v-if="isExternalFile">
               <a
@@ -381,7 +381,7 @@
           </concept-instance-static-property>
 
           <concept-instance-static-property
-            label="created by"
+            label="Created by"
             :user="ownerId"
             :date="proxyRecord.content.createdAt"
           />
@@ -433,13 +433,13 @@
             />
 
             <concept-instance-static-property
-              label="created by"
+              label="Created by"
               :user="instance.createdBy"
               :date="instance.createdAt"
             />
 
             <concept-instance-static-property
-              label="updated by"
+              label="Updated by"
               :user="instance.updatedBy"
               :date="instance.updatedAt"
             />
@@ -990,16 +990,16 @@ export default {
       return pathOr('', ['content', 'ownerId'], this.proxyRecord)
     },
     fileTypeLabel: function() {
-      return this.packageSourceFiles.length > 1 ? "package type": "file type"
+      return this.packageSourceFiles.length > 1 ? "Package type": "File type"
     },
     fileNameLabel: function() {
-      return this.packageSourceFiles.length > 1 ? "package name": "file name"
+      return this.packageSourceFiles.length > 1 ? "Package name": "File name"
     },
     computePackageHelpUrl: function() {
       return this.packageSourceFiles.length > 1 ? "https://docs.pennsieve.io/docs/what-is-a-package-and-what-are-source-files" : null
     },
     fileStatusLabel: function() {
-      return this.packageSourceFiles.length > 1 ? "package status": "file status"
+      return this.packageSourceFiles.length > 1 ? "Package status": "File status"
     },
 
     /**
