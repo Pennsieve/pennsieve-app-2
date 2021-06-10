@@ -322,82 +322,71 @@
           </div>
         </div>
 
-        <el-collapse
-          v-if="isFile"
-          key="properties"
-          v-model="activeSections"
-          class="concept-instance-section collapse-properties"
-        >
-          <el-collapse-item
-            title="Consistency"
-            name="properties"
+        <div files-section
+             class="file-list"
+             v-if="isFile">
+
+          <concept-instance-static-property class="highlight-property" label="package name" helpUrl="https://docs.pennsieve.io">
+            {{ packageDisplayName }}
+          </concept-instance-static-property>
+
+          <concept-instance-static-property label="package type">
+            {{ fileType }}
+          </concept-instance-static-property>
+
+          <concept-instance-static-property
+            v-if="isExternalFile"
+            label="Description"
           >
-            <div
-              slot="title"
-              class="relationship-title"
-            >
-              <svg-icon
-                class="icon-collapse"
-                name="icon-arrow-up"
-                :dir="arrowDirection('properties')"
-                height="10"
-                width="10"
-                color="#404554"
-              />
-              <h2>File Details</h2>
-            </div>
+            {{ externalFile.description }}
+          </concept-instance-static-property>
 
-            <concept-instance-static-property label="File Type">
-              {{ fileType }}
-            </concept-instance-static-property>
+          <concept-instance-static-property label="package status">
+            {{ getDisplayFileStatus }}
+          </concept-instance-static-property>
 
-            <concept-instance-static-property
-              v-if="isExternalFile"
-              label="Description"
-            >
-              {{ externalFile.description }}
-            </concept-instance-static-property>
+          <concept-instance-static-property label="location">
 
-            <concept-instance-static-property label="File Status">
-              {{ getDisplayFileStatus }}
-            </concept-instance-static-property>
+            <template v-if="isExternalFile">
+              <a
+                v-if="isExternalFileClickable"
+                :href="externalFile.location"
+                target="_blank"
+              >
+                {{ externalFile.location }}
+              </a>
+              <span v-else>
+                {{ externalFile.location }}
+              </span>
+            </template>
 
-            <concept-instance-static-property label="Location">
+            <template v-else>
+              <router-link
+                :to="fileLocation.route"
+              >
+                {{ fileLocation.path }}
+              </router-link>
+            </template>
+          </concept-instance-static-property>
 
-              <template v-if="isExternalFile">
-                <a
-                  v-if="isExternalFileClickable"
-                  :href="externalFile.location"
-                  target="_blank"
-                >
-                  {{ externalFile.location }}
-                </a>
-                <span v-else>
-                  {{ externalFile.location }}
-                </span>
-              </template>
+          <concept-instance-static-property
+            v-if="!externalFile"
+            label="file size"
+          >
+            {{ fileSize }}
+          </concept-instance-static-property>
 
-              <template v-else>
-                <router-link
-                  :to="fileLocation.route"
-                >
-                  {{ fileLocation.path }}
-                </router-link>
-              </template>
-            </concept-instance-static-property>
+          <concept-instance-static-property label="Pennsieve id">
+            {{ fileId }}
+          </concept-instance-static-property>
 
-            <concept-instance-static-property
-              v-if="!externalFile"
-              label="File Size"
-            >
-              {{ fileSize }}
-            </concept-instance-static-property>
+          <concept-instance-static-property
+            label="created by"
+            :user="ownerId"
+            :date="proxyRecord.content.createdAt"
+          />
 
-            <concept-instance-static-property label="Pennsieve ID">
-              {{ fileId }}
-            </concept-instance-static-property>
-          </el-collapse-item>
-        </el-collapse>
+        </div>
 
         <el-collapse
           v-if="hasSourceFiles"
@@ -418,68 +407,43 @@
         </el-collapse>
 
         <!-- BEGIN PROPERTIES TABLE -->
-<!--        <el-collapse-->
-<!--          v-if="!isFile && !isRecordsLoading"-->
-<!--          key="properties"-->
-<!--          v-model="activeSections"-->
-<!--          class="concept-instance-section collapse-properties no-border"-->
-<!--        >-->
-<!--          <el-collapse-item-->
-<!--            title="Consistency"-->
-<!--            name="properties"-->
-<!--          >-->
-<!--            <div-->
-<!--              slot="title"-->
-<!--              class="relationship-title"-->
-<!--            >-->
-<!--              <svg-icon-->
-<!--                class="icon-collapse"-->
-<!--                name="icon-arrow-up"-->
-<!--                :dir="arrowDirection('properties')"-->
-<!--                height="10"-->
-<!--                width="10"-->
-<!--                color="#404554"-->
-<!--              />-->
-<!--              <h2>Properties</h2>-->
-<!--            </div>-->
-        <div class="property-list">
-            <concept-instance-property
-              v-for="property in properties"
-              :key="property.name"
-              :property="property"
-              :string-subtypes="stringSubtypes"
-              @edit-instance="enableEditFocus(property.name)"
+        <div class="property-list"
+           v-if="!isFile && !isRecordsLoading">
+          <concept-instance-property
+            v-for="property in properties"
+            :key="property.name"
+            :property="property"
+            :string-subtypes="stringSubtypes"
+            @edit-instance="enableEditFocus(property.name)"
+          />
+
+          <concept-instance-linked-property
+            v-for="property in linkedProperties"
+            :key="property.to.modelId"
+            :property="property"
+            :label="property.schemaLinkedProperty.displayName"
+            @edit-linked-property="editLinkedProperty"
+            @confirm-remove-linked-property="openLinkedPropertyModal"
+          />
+
+          <div class="static-prop-section">
+            <concept-instance-static-property
+              label="Pennsieve id"
+              :value="instance.id"
             />
 
-            <concept-instance-linked-property
-              v-for="property in linkedProperties"
-              :key="property.to.modelId"
-              :property="property"
-              :label="property.schemaLinkedProperty.displayName"
-              @edit-linked-property="editLinkedProperty"
-              @confirm-remove-linked-property="openLinkedPropertyModal"
+            <concept-instance-static-property
+              label="created by"
+              :user="instance.createdBy"
+              :date="instance.createdAt"
             />
 
-            <div class="static-prop-section">
-              <concept-instance-static-property
-                label="Pennsieve id"
-                :value="instance.id"
-              />
-
-              <concept-instance-static-property
-                label="created by"
-                :user="instance.createdBy"
-                :date="instance.createdAt"
-              />
-
-              <concept-instance-static-property
-                label="updated by"
-                :user="instance.updatedBy"
-                :date="instance.updatedAt"
-              />
-            </div>
-<!--          </el-collapse-item>-->
-<!--        </el-collapse>-->
+            <concept-instance-static-property
+              label="updated by"
+              :user="instance.updatedBy"
+              :date="instance.updatedAt"
+            />
+          </div>
         </div>
         <!-- END PROPERTIES TABLE -->
 
@@ -1021,6 +985,11 @@ export default {
     computePackageType: function() {
       return pathOr('', ['content', 'packageType'], this.proxyRecord)
     },
+
+    ownerId: function() {
+      return pathOr('', ['content', 'ownerId'], this.proxyRecord)
+    },
+
 
     /**
      * Compute whether or not to display detailed directory view
@@ -3412,6 +3381,10 @@ export default {
   .files-section {
     padding: 0;
   }
+  .highlight-property {
+    color: $gray_6;
+    font-weight: 500;
+  }
   &.editing {
     background: $gray_1;
 
@@ -3603,6 +3576,12 @@ export default {
       color: #000;
     }
   }
+}
+
+.file-list {
+  padding: 0 16px;
+  background: $gray_0;
+  margin-bottom: 16px;
 }
 
 .property-list {
