@@ -1,6 +1,6 @@
-## 35.0.0 (2021-05-21)
+### 34.1.0 (2021-06-01)
 
-## 34.0.0 (2021-05-21)
+##### Other Changes
 
-* Updated Account Creation Workflow
-* Fixed onboarding events
+* Pennsieve/pennsieve-app (287b3942)
+
