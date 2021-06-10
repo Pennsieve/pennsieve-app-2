@@ -16,9 +16,15 @@
   }
   .name {
     //color: $gray_4;
-    font-weight: 300;
+    //font-weight: 300;
     position: relative;
   }
+
+  .label {
+    display:flex;
+    flex-direction: row;
+  }
+
   .property-label {
     display: inline-block;
     max-width: 85%;

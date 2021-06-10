@@ -11,7 +11,22 @@
         :md="9"
         :lg="8"
       >
-        {{ label }}
+        <div class="label">
+          <div>{{ label }}</div>
+          <div v-if="hasHelp">
+            <a
+              :href="hasHelp"
+              target="_blank"
+            ><svg-icon
+              class="ml-8 arrow-style"
+              name="icon-info"
+              height="18"
+              width="18"
+            />
+            </a>
+          </div>
+        </div>
+
       </el-col>
       <el-col
         :sm="11"
@@ -45,6 +60,7 @@
       user: String,
       date: String,
       value: String,
+      helpUrl: String
     },
 
     computed: {
@@ -52,12 +68,17 @@
         'orgMembers'
       ]),
 
+      hasHelp: function() {
+        return this.helpUrl
+      },
+
       /**
        * Compute user name from state
        * @returns {String}
        */
       userName: function() {
-        const user = find(propEq('id', this.user), this.orgMembers)
+        const user = find(propEq('id', this.user), this.orgMembers) || find(propEq('intId', this.user), this.orgMembers)
+
         const firstName = propOr('', 'firstName', user)
         const lastName = propOr('', 'lastName', user)
 
