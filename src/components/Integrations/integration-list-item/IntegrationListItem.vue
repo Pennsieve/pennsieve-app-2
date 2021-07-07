@@ -1,0 +1,183 @@
+<template>
+  <div class="integration-list-item">
+
+    <el-row
+      type="flex"
+      align="middle"
+      class="info"
+    >
+      <el-col
+        :sm="24"
+      >
+        <div class="intergration-type" >
+          PUBLIC
+        </div>
+      </el-col>
+      <el-col
+        :sm="8"
+      >
+        <el-tooltip
+          popper-class="bf-tooltip"
+          :content="userName"
+          placement="top-start"
+          :open-delay="300"
+        >
+          <avatar
+            class="icon condensed"
+            :user="user"
+          />
+        </el-tooltip>
+      </el-col>
+      <el-col
+        :sm="8"
+      >
+        {{ created }}
+      </el-col>
+      <el-col
+        :sm="8"
+        class = "integration-menu"
+
+      >
+        <el-dropdown
+          trigger="click"
+          placement="bottom-end"
+          @command="onIntegrationMenu"
+        >
+          <span class="btn-file-menu el-dropdown-link">
+            <svg-icon
+              name="icon-menu"
+              height="20"
+              width="20"
+            />
+          </span>
+          <el-dropdown-menu
+            slot="dropdown"
+            class="bf-menu"
+            :offset="9"
+          >
+            <el-dropdown-item command="changeRoute">
+              Edit integration
+            </el-dropdown-item>
+            <el-dropdown-item
+              v-if="!systemTeamType"
+              command="openDeleteDialog"
+            >
+              Remove integration
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-col>
+
+    </el-row>
+    <el-row>
+      <div class="integration-title">
+        {{integration.displayName}}
+      </div>
+    </el-row>
+    <el-row>
+      <p class="integration-description">
+        {{integration.description}}
+
+      </p>
+    </el-row>
+
+  </div>
+
+
+<!--  </div>-->
+</template>
+
+<script>
+
+import {
+  mapActions, mapState,
+} from 'vuex'
+import {find, propEq} from "ramda";
+import FormatDate from '@/mixins/format-date'
+import Avatar from '../../shared/avatar/Avatar.vue'
+
+
+
+export default {
+  name: 'IntegrationListItem',
+
+  components: {
+    Avatar
+  },
+  mixins: [
+    FormatDate,
+  ],
+
+  props: {
+    integration: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+
+  computed: {
+    ...mapState([
+      'orgMembers',
+    ]),
+    user: function() {
+      return find(propEq('intId', this.integration.createdBy), this.orgMembers)
+    },
+    created: function() {
+      return this.formatDate(this.integration.createdAt)
+    },
+    userName: function() {
+      if (this.user) {
+        return this.user.firstName + " " + this.user.lastName
+      }
+      return ""
+    }
+  },
+
+  methods: {
+    ...mapActions([
+      'updateDataset'
+    ])
+
+  }
+}
+</script>
+
+<style scoped lang="scss">
+@import '../../../assets/_variables.scss';
+
+.integration-menu {
+  width: 24px;
+}
+
+.integration-list-item {
+  border: 1px solid $gray_3;
+  margin: 0 0 16px 0;
+  padding: 16px 24px 24px 24px;
+  background-color: white;
+  display:flex;
+  flex-direction: column;
+}
+.integration-title {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: black;
+}
+
+.intergration-type {
+  color: $gray_5;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.integration-description {
+  font-size: 14px;
+  color: $gray_5;
+  min-height: 3em;
+  max-width: 500px;
+}
+
+.list-item-col-spacer {
+  padding-top: 32px;
+}
+
+</style>

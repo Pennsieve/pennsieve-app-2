@@ -1,9 +1,19 @@
 <template>
-  <router-view name="stage" />
+  <router-view
+    name="stage"
+    :integrations="integrations"
+  />
 </template>
 
 <script>
-export default {
-  name: 'Integrations'
-}
+  import {mapState} from "vuex";
+
+  export default {
+    name: 'Integrations',
+    computed: {
+      ...mapState('integrationsModule', [
+        'integrations'
+      ]),
+    }
+  }
 </script>

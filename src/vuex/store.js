@@ -7,6 +7,7 @@ import viewer from './modules/viewer'
 import datasetModule from './modules/datasetModule'
 import publishingModule from './modules/publishingModule'
 import collectionsModule from './modules/collectionsModule'
+import integrationsModule from './modules/integrationsModule'
 import filesModule from './modules/filesModule'
 
 Vue.use(Vuex)
@@ -916,6 +917,7 @@ export default new Vuex.Store({
     datasetModule,
     publishingModule,
     collectionsModule,
+    integrationsModule,
     filesModule
   }
 })
