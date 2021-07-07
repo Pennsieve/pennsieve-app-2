@@ -37,6 +37,12 @@ const PeopleList = () => import('../components/people/list/PeopleList.vue')
 const Publishing = () => import('@/routes/Publishing/PublishingView.vue')
 const PublishingDatasetsList = () => import ('@/components/Publishing/PublishingDatasetsList/PublishingDatasetsList.vue')
 
+/**
+ * Integrations Components
+ */
+ const Integrations = () => import('@/routes/Integrations/Integrations.vue')
+ const IntegrationsList = () => import ('@/components/Integrations/IntegrationsList/IntegrationsList.vue')
+ 
 
 /**
  * Teams Components
@@ -116,6 +122,24 @@ const routes = [
         path: '',
         components: {
           stage: BfDatasetList
+        },
+        props: true
+      }
+    ]
+  },
+  {
+    path: '/:orgId/integrations',
+    components: {
+      page: Integrations,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'integrations-list',
+        path: '',
+        components: {
+          stage: IntegrationsList
         },
         props: true
       }

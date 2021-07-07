@@ -82,6 +82,15 @@
       />
 
       <bf-navigation-item
+        v-if="!pageNotFound"
+        id="nav-integrations"
+        :link="{ name: 'integrations-list', params: {orgId: activeOrganizationId} }"
+        label="Integrations"
+        icon="icon-integrations"
+        :condensed="primaryNavCondensed"
+      />
+
+      <bf-navigation-item
         v-if="hasAdminRights && !pageNotFound"
         :link="{ name: 'settings', params: {orgId: activeOrganizationId} }"
         label="Settings"
@@ -255,5 +264,10 @@
     height: 30px !important;
     margin: 0 20px 0 -6px;
     width: 30px !important;
+  }
+  #nav-integrations .icon-main {
+    height: 26px !important;
+    margin: 0 20px 0 -3px;
+    width: 26px !important;
   }
 </style>
