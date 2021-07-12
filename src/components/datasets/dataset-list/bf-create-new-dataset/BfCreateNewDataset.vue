@@ -3,7 +3,6 @@
     :visible="visible"
     :show-close="false"
     class="create-new-dataset-dialog"
-    :class="[ step === 1 ? 'step-1' : 'step-2' ]"
     @open="handleOpen"
     @close="closeDialog"
   >
@@ -12,63 +11,108 @@
       title="Create Dataset"
     />
 
+    <!--      <div-->
+    <!--        v-if="hasTemplates && step === 1"-->
+    <!--        class="step-1 dataset-template-select"-->
+    <!--      >-->
+    <!--        <div-->
+    <!--          class="dataset-template-select-item"-->
+    <!--          :class="templateSelection === 'blank' ? 'selected' : ''"-->
+    <!--          @click.prevent="onTemplateClick('blank')"-->
+    <!--        >-->
+    <!--          <h2>Blank Dataset</h2>-->
+    <!--          <p>Start with an empty dataset.</p>-->
+    <!--          <hr>-->
+    <!--        </div>-->
+    <!--        <div-->
+    <!--          v-for="item in datasetTemplates"-->
+    <!--          :key="item.id"-->
+    <!--          class="dataset-template-select-item"-->
+    <!--          :class="item.id === templateSelection ? 'selected' : ''"-->
+    <!--          @click.prevent="onTemplateClick(item.id)"-->
+    <!--        >-->
+    <!--          <h2>{{ item.name }}</h2>-->
+    <!--          <p>{{ item.description }}</p>-->
+    <!--          <hr>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <div-->
+    <!--        v-else-->
+    <!--        class="step-2"-->
+    <!--      >-->
     <dialog-body>
-      <div
-        v-if="hasTemplates && step === 1"
-        class="step-1 dataset-template-select"
+
+      <!-- Step 1 -->
+      <el-form
+        v-show="shouldShow(1)"
+        ref="newDatasetFormStep1"
+        :model="newDatasetForm"
+        :rules="rules"
+        @submit.native.prevent="createDataset('newDatasetForm')"
+      >
+        <el-form-item
+          label="Dataset Name"
+          prop="name"
+        >
+          <el-input
+            v-model="newDatasetForm.name"
+            autofocus
+            :maxlength="255"
+          />
+        </el-form-item>
+        <el-form-item
+          label="Subtitle"
+          prop="description"
+        >
+          <character-count-input
+            v-model="newDatasetForm.description"
+            :rows="4"
+          />
+        </el-form-item>
+      </el-form>
+
+      <!-- Step 2 -->
+      <el-form
+        v-show="shouldShow(2)"
+        ref="newDatasetFormStep2"
+        :model="newDatasetForm"
+        :rules="rules"
+        @submit.native.prevent="createDataset('newDatasetForm')"
       >
         <div
-          class="dataset-template-select-item"
-          :class="templateSelection === 'blank' ? 'selected' : ''"
-          @click.prevent="onTemplateClick('blank')"
-        >
-          <h2>Blank Dataset</h2>
-          <p>Start with an empty dataset.</p>
-          <hr>
+          class="section-title">
+          Manage Integrations
         </div>
+        <p
+          class="section-description">
+          Integrations allow external services to be notified when certain events occur on Pennsieve.
+          <span v-show="hasDefaultIntegrations">Some integrations are turned on by default by the <span class="org-name">{{activeOrganization}}</span> Administrators.</span>
+        </p>
+
         <div
-          v-for="item in datasetTemplates"
-          :key="item.id"
-          class="dataset-template-select-item"
-          :class="item.id === templateSelection ? 'selected' : ''"
-          @click.prevent="onTemplateClick(item.id)"
-        >
-          <h2>{{ item.name }}</h2>
-          <p>{{ item.description }}</p>
-          <hr>
+          class="integration-list">
+          <integration-item-small
+            v-for="integration in integrations"
+            :key="integration.id"
+            :integration="integration"
+            :open-index="openIndex"
+            v-on:updateIsActive="updateIsActive"
+          />
         </div>
-      </div>
-      <div
-        v-else
-        class="step-2"
-      >
-        <el-form
-          ref="newDatasetForm"
-          :model="newDatasetForm"
-          :rules="rules"
-          @submit.native.prevent="createDataset('newDatasetForm')"
-        >
-          <el-form-item
-            label="Dataset Name"
-            prop="name"
-          >
-            <el-input
-              v-model="newDatasetForm.name"
-              autofocus
-              :maxlength="255"
-            />
-          </el-form-item>
-          <el-form-item
-            label="Subtitle"
-            prop="description"
-          >
-            <character-count-input
-              v-model="newDatasetForm.description"
-              :rows="4"
-            />
-          </el-form-item>
-        </el-form>
-      </div>
+
+
+        <el-form-item prop="acknowledgeInfo"
+          v-show="hasActiveIntegrations">
+          <el-checkbox
+            class="acknowledgeInfo"
+            v-model="acknowledgeInfo"
+            label="I acknowledge events will be shared with a third party"
+          />
+        </el-form-item>
+
+      </el-form>
+
+
     </dialog-body>
 
     <div
@@ -78,33 +122,31 @@
       <bf-button
         tabindex="4"
         class="secondary"
-        @click="closeDialog"
+        @click="advanceStep(-1)"
       >
-        Cancel
+        {{ stepBackText }}
       </bf-button>
-      <div v-if="step === 1">
-        <bf-button
-          :disabled="!templateSelection"
-          @click="onContinue"
-        >
-          Continue
-        </bf-button>
-        <router-link
-          v-if="hasAdminRights"
-          class="manage-datasets"
-          :to="{ name: 'settings' }"
-        >
-          Manage Dataset Templates
-        </router-link>
-      </div>
+<!--      <div v-if="step === 1">-->
+<!--        <bf-button-->
+<!--          :disabled="!templateSelection"-->
+<!--          @click="onContinue"-->
+<!--        >-->
+<!--          Continue-->
+<!--        </bf-button>-->
+<!--        <router-link-->
+<!--          v-if="hasAdminRights"-->
+<!--          class="manage-datasets"-->
+<!--          :to="{ name: 'settings' }"-->
+<!--        >-->
+<!--          Manage Dataset Templates-->
+<!--        </router-link>-->
+<!--      </div>-->
       <bf-button
-        v-else
         :disabled="isCreating"
         :processing="isCreating"
         processing-text="Creating Dataset"
-        @click="createDataset('newDatasetForm')"
-      >
-        Create Dataset
+        @click="advanceStep(1)">
+        {{ createText }}
       </bf-button>
     </div>
   </el-dialog>
@@ -112,13 +154,14 @@
 
 <script>
   import { mapGetters, mapState, mapActions } from 'vuex'
-  import { prop, propOr, pathOr } from 'ramda'
+  import { clone, propOr, pathOr } from 'ramda'
 
   import A11yKeys from '../../../shared/a11y-keys/A11yKeys.vue'
   import BfButton from '../../../shared/bf-button/BfButton.vue'
   import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
   import CharacterCountInput from '../../../shared/CharacterCountInput/CharacterCountInput.vue'
   import DialogBody from '../../../shared/dialog-body/DialogBody.vue'
+  import IntegrationItemSmall from "./IntegrationItemSmall.vue";
 
   import CheckUniqueNames from '../../../../mixins/check-unique-names'
   import SanitizeName from '../../../../mixins/sanitize-name'
@@ -135,7 +178,8 @@
       BfButton,
       BfDialogHeader,
       DialogBody,
-      CharacterCountInput
+      CharacterCountInput,
+      IntegrationItemSmall
     },
 
     mixins: [
@@ -145,13 +189,19 @@
       SanitizeName
     ],
 
+    mounted: function() {
+    },
+
     props: {
       visible: Boolean,
-      datasets: Array
+      datasets: Array,
+      integrations: Array
     },
 
     data: function() {
       return {
+        processStep: 1,
+        openIndex:0,
         newDatasetForm: {
           name: '',
           description: ''
@@ -164,7 +214,9 @@
         duplicateName: false,
         step: 2,
         templateSelection: '',
-        isCreating: false
+        isCreating: false,
+        acknowledgeInfo: false,
+        hasActiveIntegrations: false
       }
     },
 
@@ -178,8 +230,29 @@
       ]),
 
       ...mapGetters([
-        'hasFeature'
+        'hasFeature',
+        'getActiveOrganization'
       ]),
+
+      hasDefaultIntegrations: function() {
+        return this.integrations.map(x => x.isDefault).some( (x) => x === true)
+      },
+
+      activeOrganization :function() {
+        if (this.getActiveOrganization().organization) {
+          return  this.getActiveOrganization().organization.name
+        } else {
+          return ''
+        }
+      },
+
+      createText: function() {
+        return this.processStep > 1 ? 'Create Dataset' : 'Continue'
+      },
+
+      stepBackText: function() {
+        return this.processStep > 1 ? 'Back' : 'Cancel'
+      },
 
       /**
        * Compute create dataset url
@@ -246,7 +319,7 @@
           }
         },
         immediate: true
-      }
+      },
     },
 
     methods: {
@@ -254,6 +327,36 @@
         'addDataset',
         'updateOnboardingEvents'
       ]),
+      updateIsActive: function(value) {
+        this.integrations.filter(n => n.id === value.id)[0].isActive = value.isActive
+        this.checkActiveIntegrations()
+
+      },
+      checkActiveIntegrations: function() {
+        this.hasActiveIntegrations = this.integrations.map(x => x.isActive).some( (x) => x === true)
+      },
+      /**
+       * Determines button action
+       * @param {String} key
+       */
+      advanceStep: function(step) {
+        this.processStep += step
+        if (this.processStep === 0) {
+          this.closeDialog()
+        }
+        if (this.processStep === 3) {
+          this.createDataset('newDatasetForm')
+        }
+      },
+
+      /**
+       * Determines which step content is active
+       * @param {String} key
+       * @returns {Boolean}
+       */
+      shouldShow: function(key) {
+        return this.processStep === key
+      },
 
       /**
        * Handles key-pressed event
@@ -268,6 +371,10 @@
        */
       handleOpen: function() {
         this.autoFocus()
+        this.openIndex += 1
+        for (let x in this.integrations) {
+          this.integrations[x].isActive = this.integrations[x].isDefault
+        }
       },
       /**
        * Closes the dialog
@@ -275,20 +382,29 @@
       closeDialog: function() {
         this.$emit('close-dialog')
         this.duplicateName = false
-
-        // form ref is only available in step 2
-        if (this.step === 2) {
-          this.$refs.newDatasetForm.resetFields()
+        for (let x in this.integrations) {
+          this.integrations[x].isActive = this.integrations[x].isDefault
         }
 
-        if (this.hasTemplates) {
-          // scroll dataset templates section to top
-          const scrollEl = this.$el.querySelector('.el-dialog__body')
-          scrollEl.scrollTop = 0
-        }
+        setTimeout(() => {
+          this.processStep = 1
+          this.$refs.newDatasetFormStep1.resetFields()
+          this.$refs.newDatasetFormStep2.resetFields()
+        })
 
-        this.hasTemplates ? this.step = 1 : this.step = 2
-        this.templateSelection = ''
+        // // form ref is only available in step 2
+        // if (this.step === 2) {
+        //   this.$refs.newDatasetFormStep1.resetFields()
+        // }
+
+        // if (this.hasTemplates) {
+        //   // scroll dataset templates section to top
+        //   const scrollEl = this.$el.querySelector('.el-dialog__body')
+        //   scrollEl.scrollTop = 0
+        // }
+
+        // this.hasTemplates ? this.step = 1 : this.step = 2
+        // this.templateSelection = ''
       },
       /**
        * Create Dataset
@@ -416,6 +532,37 @@
 <style lang="scss" scoped>
 @import "../../../../assets/_variables.scss";
 
+.el-dialog__header, .el-dialog__body {
+  padding: 24px 24px 32px 0;
+
+}
+
+
+.acknowledgeInfo {
+  color: $gray_5;
+}
+
+.integration-list {
+  max-height: 300px;
+  overflow: scroll;
+}
+.section-title {
+  color: $gray_5;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.section-description {
+  margin-bottom: 40px;
+  color:$gray_5;
+}
+
+.org-name {
+  color: $purple_1;
+  font-weight: 500;
+}
+
 .dataset-template-select-item {
   padding-top: 16px;
   cursor: pointer;
@@ -471,16 +618,16 @@
 }
 </style>
 
-<style lang="scss">
-.create-new-dataset-dialog {
-  &.step-1 {
-    .el-dialog__body {
-      max-height: 250px;
-      overflow-y: scroll;
-      padding: 0 0 24px;
-    }
-  }
-}
-</style>
+<!--<style lang="scss">-->
+<!--.create-new-dataset-dialog {-->
+<!--  &.step-1 {-->
+<!--    .el-dialog__body {-->
+<!--      max-height: 250px;-->
+<!--      overflow-y: scroll;-->
+<!--      padding: 0 0 24px;-->
+<!--    }-->
+<!--  }-->
+<!--}-->
+<!--</style>-->
 
 
