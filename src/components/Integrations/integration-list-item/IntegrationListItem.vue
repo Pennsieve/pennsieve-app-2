@@ -59,7 +59,6 @@
               Edit integration
             </el-dropdown-item>
             <el-dropdown-item
-              v-if="!systemTeamType"
               command="openDeleteDialog"
             >
               Remove integration
@@ -136,7 +135,10 @@ export default {
   methods: {
     ...mapActions([
       'updateDataset'
-    ])
+    ]),
+    onIntegrationMenu: function(action) {
+      console.log(action)
+    }
 
   }
 }
@@ -152,7 +154,7 @@ export default {
 .integration-list-item {
   border: 1px solid $gray_3;
   margin: 0 0 16px 0;
-  padding: 16px 24px 24px 24px;
+  padding: 24px;
   background-color: white;
   display:flex;
   flex-direction: column;

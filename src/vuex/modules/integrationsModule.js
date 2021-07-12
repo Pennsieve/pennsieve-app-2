@@ -51,23 +51,23 @@ export const actions = {
     }
   },
 
-  createIntegration: async ({commit, rootState, dispatch}, { datasetId, integration }) => {
+  createIntegration: async ({commit, rootState}, integrationDTO ) => {
     try {
       const url = `${rootState.config.apiUrl}/webhooks?api_key=${rootState.userToken}`
 
+      console.log("Hello:" + JSON.stringify(integrationDTO))
       const resp = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(integration)
+        body: JSON.stringify(integrationDTO)
       })
 
       if (resp.ok) {
-        const collection = await resp.json()
-        commit('CREATE_COLLECTION', collection)
+        const integration = await resp.json()
+        commit('CREATE_INTEGRATION', integration)
 
-        dispatch('addCollection', { datasetId, collectionId: collection.id })
       } else {
         return Promise.reject(resp)
       }

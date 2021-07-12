@@ -17,8 +17,8 @@
         class="buttons"
       >
         <bf-button
-          v-if="hasAdminRights && !isEmpty"
-          @click="openCreateDialog"
+          v-if="hasAdminRights"
+          @click="openAddIntegration"
         >
           Add Global Integration
         </bf-button>
@@ -27,7 +27,6 @@
 
     <bf-stage
       slot="stage"
-      v-loading="integrationsLoading"
       element-loading-background="transparent"
     >
       <div
@@ -59,7 +58,7 @@
           <p>Integrations allow external services to be notified when certain events occur on Pennsieve. These integrations are available to all members within the organization and can be managed at the dataset level under settings.</p>
           <bf-button
             class="create-team-button"
-            @click="openCreateDialog"
+            @click="openAddIntegration"
           >
             Add Global Integration
           </bf-button>
@@ -68,21 +67,19 @@
           v-if="!hasAdminRights"
           class="copy"
         >
-          <h2>{{ orgName }} doesn't have any integrastions yet.</h2>
+          <h2>{{ orgName }} doesn't have any integrations yet.</h2>
           <p>Contact your administrator to get started working with Integrations.</p>
         </div>
       </bf-empty-page-state>
 
-      <create-edit-team
-        ref="createEditTeam"
-        @team-created="onTeamCreated"
-      />
 
-      <remove-team
-        ref="removeTeam"
-        @team-removed="onTeamRemoved"
-      />
     </bf-stage>
+
+    <add-edit-integration-dialog
+      :visible.sync="addEditIntegrationDialogVisible"
+      @add-integration="onAddIntegrationConfirm"
+    />
+
   </bf-page>
 </template>
 
@@ -93,12 +90,13 @@ import BfRafter from '../../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
 import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
 
+import AddEditIntegrationDialog from '../AddEditIntegrationDialog.vue'
 import IntegrationListItem from "../integration-list-item/IntegrationListItem";
 import Sorter from  '../../../mixins/sorter'
 import UserRoles from  '../../../mixins/user-roles'
 
 
-import { path, pathOr, propOr } from 'ramda'
+import { pathOr, propOr} from 'ramda'
 
 export default {
   name: 'IntegrationsList',
@@ -107,7 +105,8 @@ export default {
     BfEmptyPageState,
     BfRafter,
     BfButton,
-    IntegrationListItem
+    IntegrationListItem,
+    AddEditIntegrationDialog
   },
 
   mixins: [
@@ -124,6 +123,7 @@ export default {
 
   data() {
     return {
+      addEditIntegrationDialogVisible: false,
     }
   },
 
@@ -134,17 +134,13 @@ export default {
       'config',
       'hasFeature'
     ]),
-    ...mapState([
-    ]),
+
     hasAdminRights: function() {
       if (this.activeOrganization) {
         const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
         const isOwner = propOr(false, 'isOwner', this.activeOrganization)
         return isAdmin || isOwner
-      }
-    },
-    isEmpty: function() {
-      return !this.teamsLoading && this.teams && this.teams.length === 0
+      } else { return null}
     },
     orgName: function() {
       return pathOr('', ['organization', 'name'], this.activeOrganization)
@@ -164,54 +160,49 @@ export default {
   },
 
   methods: {
-    ...mapActions([
+    ...mapActions('integrationsModule', [
+      'createIntegration'
     ]),
+
+    ...mapState([
+    ]),
+
     /**
-     * Handles team-removed event
-     * @param {Object} teamObj
+     * Model URL
+     * @returns {String}
      */
-    onTeamRemoved: function(teamObj) {
-      const teamId = path(['team', 'id'], teamObj)
-      if (!teamId) {
-        return
+    getIntegrationUrl: function() {
+      if (this.config.apiUrl && this.userToken) {
+        return `${this.config.apiUrl}/webhooks`
       }
-      const updatedTeams = this.teamsList.filter(t => t.team.id !== teamId)
-      this.updateTeams(updatedTeams)
-      this.teamsList = updatedTeams
+
+      return ''
     },
     /**
-     * Handles team-created event
-     * @param {Object} teamObj
+     * Open the add property dialog
      */
-    onTeamCreated: function(teamObj) {
-      const teamId = path(['team', 'id'], teamObj)
-      const hasTeam = this.teamsList.filter(t => t.team.id === teamId)
-      if (hasTeam.length > 0) {
-        return
+    openAddIntegration: function() {
+      this.addEditIntegrationDialogVisible = true
+    },
+
+    /**
+     * Send add integration request to API
+     * @param {Object} integration
+     */
+    onAddIntegrationConfirm: function(integration) {
+
+      let integrationDTO = {
+        displayName: integration.displayName,
+        secret: integration.secret,
+        description: integration.description,
+        apiUrl: integration.apiUrl,
+        isPrivate: !integration.isPublic,
+        imageUrl: integration.imageUrl,
+        isDefault: integration.isDefault
       }
-      this.teamsList.push(teamObj)
-      const sortedTeams = this.returnSort('team.name', this.teamsList, this.sortDirection)
-      this.updateTeams(sortedTeams)
-      this.teamsList = sortedTeams
-    },
-    /**
-     * Sorts teams from vuex
-     */
-    getTeams: function() {
-      this.teamsList = this.returnSort('team.name', this.teams, 'asc')
-    },
-    /**
-     * Makes call to resort table by column
-     * @param {String} key
-     */
-    sortColumn: function(key) {
-      this.teamsList = this.returnSort(key, this.teams)
-    },
-    /**
-     * Opens dialog to create
-     */
-    openCreateDialog: function() {
-      this.$refs.createEditTeam.dialogVisible = true
+
+      console.log(integrationDTO)
+      this.createIntegration(integrationDTO)
     },
   }
 }
