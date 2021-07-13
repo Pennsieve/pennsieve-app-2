@@ -30,6 +30,14 @@
           <li>
             <router-link
               :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
+              :to="{ name: 'integrations-settings' }"
+            >
+              Integrations
+            </router-link>
+          </li>
+          <li>
+            <router-link
+              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
               :to="{ name: 'publishing-settings' }"
             >
               Publishing

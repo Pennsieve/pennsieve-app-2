@@ -34,6 +34,17 @@
         {{ created }}
       </el-col>
       <el-col
+        :sm="4"
+        v-show="enableSwitch"
+        class="activeSwitch"
+      >
+        <ps-switch
+          v-model="isActive"
+          active-color="#5039F7"
+          inactive-color="#CAC5BF">
+        </ps-switch>
+      </el-col>
+      <el-col
         :sm="8"
         class = "integration-menu"
 
@@ -94,6 +105,8 @@ import {
 import {find, propEq} from "ramda";
 import FormatDate from '@/mixins/format-date'
 import Avatar from '../../shared/avatar/Avatar.vue'
+import PsSwitch from '../../shared/PsSwitch/PsSwitch.vue'
+
 
 
 
@@ -101,7 +114,8 @@ export default {
   name: 'IntegrationListItem',
 
   components: {
-    Avatar
+    Avatar,
+    PsSwitch
   },
   mixins: [
     FormatDate,
@@ -111,6 +125,10 @@ export default {
     integration: {
       type: Object,
       default: () => ({})
+    },
+    enableSwitch: {
+      type: Boolean,
+      default: () => (false)
     }
   },
 
@@ -154,7 +172,7 @@ export default {
 .integration-list-item {
   border: 1px solid $gray_3;
   margin: 0 0 16px 0;
-  padding: 24px;
+  padding:  16px 24px 8px 24px;
   background-color: white;
   display:flex;
   flex-direction: column;

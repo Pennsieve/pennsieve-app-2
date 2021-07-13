@@ -43,19 +43,6 @@
           </h1>
 
           <div class="dataset-owners">
-            <template v-if="!isContributorListVisible">
-              <contributor-item :contributor="firstContributor" />
-              <button
-                class="contributors-button"
-                href="#"
-                @click.prevent="isContributorListVisible = true"
-              >
-                <span class="button-text">
-                  ...
-                </span>
-              </button>
-            </template>
-
             <div
               v-for="(contributor, idx) in datasetContributorsList"
               :key="contributor.id"
@@ -76,7 +63,7 @@
           />
 
           <div class="dataset-heading-meta">
-            Updated on {{ lastUpdatedDate }}
+            Last updated on <b>{{ lastUpdatedDate }}</b>
             <template v-if="isPublished && publishedCount > 0">
               (<a
                 :href="discoverLink"
@@ -85,9 +72,29 @@
                 Version {{ publishedVersionLabel }}
               </a>)
             </template>
+
+            <div class="sharing-status">
+
+              Last published on <b>{{ publishedDate }}</b>
+              <a
+                  target="_blank"
+                  :href="discoverLink"
+                  class="discover-link"
+                >
+                  View on Discover
+                </a>
+            </div>
+            <div class="sharing-status">
+              Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
+            </div>
+
             <div class="dataset-corresponding-contributor">
-              <p>Corresponding Contributor:</p>
+              <p>Dataset owner:</p>
               <contributor-item :contributor="correspondingContributor" />
+            </div>
+
+            <div>
+
             </div>
           </div>
         </div>
@@ -389,7 +396,6 @@ export default {
       isSavingMarkdown: false,
       datasetDescriptionEmptyState,
       packageTypeCount: 0,
-      isContributorListVisible: true
     }
   },
 
@@ -418,6 +424,10 @@ export default {
       'isLoadingDatasetDescription',
       'datasetContributors'
     ]),
+
+    doiUrl: function(){
+      return "https://doi.org/" + this.datasetDoi.doi
+    },
 
     /**
      * Return corresponding contributor details
@@ -449,9 +459,7 @@ export default {
      * of contributors in the dataset
      */
     datasetContributorsList: function() {
-      return this.isContributorListVisible
-        ? this.datasetContributors
-        : [last(this.datasetContributors)]
+      return this.datasetContributors
     },
 
     /**
@@ -661,15 +669,6 @@ export default {
     datasetIntId: {
       handler: function() {
         this.checkIfChecklistDismissed()
-      },
-      immediate: true
-    },
-
-    datasetContributors: {
-      handler: function(val) {
-        if (val.length > 5) {
-          this.isContributorListVisible = false
-        }
       },
       immediate: true
     }

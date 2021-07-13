@@ -201,7 +201,6 @@ export default {
         isDefault: integration.isDefault
       }
 
-      console.log(integrationDTO)
       this.createIntegration(integrationDTO)
     },
   }
