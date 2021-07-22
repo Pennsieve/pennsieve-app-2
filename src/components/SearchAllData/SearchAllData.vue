@@ -24,7 +24,7 @@
         ref="filters"
         v-model="search.filters"
         class="mb-16"
-        :datasets="allDatasets"
+        :datasets="filteredDatasets"
         :models="relatedModelsList"
         :is-loading-targets="isLoadingTargets"
         :disabled="search.model === ''"
@@ -194,6 +194,7 @@ export default {
         limit: 25,
         offset: 0
       },
+      filteredDatasets:[]
     }
   },
 
@@ -514,6 +515,8 @@ export default {
       this.search.filters = [filter()]
 
       this.search.isModelInvalid = false
+
+      this.filteredDatasets = "somesubset of this.allDatasets"
     },
 
     /**

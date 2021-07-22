@@ -21,8 +21,13 @@
     >
     <div
       class = "test-text"
-      v-show="checked">
+      v-if="checked">
       ON
+    </div>
+    <div
+      class = "test-text-off"
+      v-else>
+      OFF
     </div>
     <span
       :class="['el-switch__label', 'el-switch__label--left', !checked ? 'is-active' : '']"
@@ -181,6 +186,16 @@ export default {
 .test-text {
   position: relative;
   left: 19px;
+  color: white;
+  z-index: 1;
+  font-weight: 300;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.test-text-off {
+  position: relative;
+  left: 36px;
   color: white;
   z-index: 1;
   font-weight: 300;

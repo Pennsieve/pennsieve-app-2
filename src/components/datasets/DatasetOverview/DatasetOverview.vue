@@ -25,7 +25,7 @@
             class="primary"
             :disabled="datasetLocked"
           >
-            Update Dataset
+            Update Information
           </bf-button>
         </router-link>
       </div>
@@ -88,10 +88,10 @@
               Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
             </div>
 
-            <div class="dataset-corresponding-contributor">
-              <p>Dataset owner:</p>
-              <contributor-item :contributor="correspondingContributor" />
-            </div>
+<!--            <div class="dataset-corresponding-contributor">-->
+<!--              <p>Dataset owner:</p>-->
+<!--              <contributor-item :contributor="correspondingContributor" />-->
+<!--            </div>-->
 
             <div>
 
@@ -868,7 +868,7 @@ h1 {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  color: $gray_6;
+  color: $gray_5;
   font-size: 14px;
   line-height: 24px;
   margin-bottom: 13px;

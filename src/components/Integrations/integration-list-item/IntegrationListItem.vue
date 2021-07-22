@@ -35,7 +35,7 @@
       </el-col>
       <el-col
         :sm="4"
-        v-show="enableSwitch"
+        v-if="enableSwitch"
         class="activeSwitch"
       >
         <ps-switch
@@ -47,6 +47,7 @@
       <el-col
         :sm="8"
         class = "integration-menu"
+        v-else
 
       >
         <el-dropdown
