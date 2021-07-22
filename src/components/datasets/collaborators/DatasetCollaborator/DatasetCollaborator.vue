@@ -176,7 +176,7 @@ export default {
 
     /**
      * Filter roles for entity
-     * Allow Owners, and SuperAdmins to change ownership
+     * Allow Owners, and SuperAdmins to change ownership of a dataset
      *
      * Only users can become owners of a dataset
      * @returns {Array}
