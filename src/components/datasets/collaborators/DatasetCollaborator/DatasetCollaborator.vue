@@ -206,7 +206,7 @@ export default {
      */
     canEditCollaborator: function() {
       const role = propOr('viewer', 'permission', this.item)
-      return (this.getPermission('manager') || this.isSuperAdmin) && role !== 'owner' && !this.isSystemTeam
+      return (this.getPermission('manager') || this.isUserSuperAdmin) && role !== 'owner' && !this.isSystemTeam
     },
 
     isSystemTeam: function() {
