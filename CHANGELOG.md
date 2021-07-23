@@ -1,6 +1,4 @@
-## 35.0.0 (2021-05-21)
+### 34.6.0 (2021-07-22)
 
-## 34.0.0 (2021-05-21)
+### 34.3.0 (2021-06-17)
 
-* Updated Account Creation Workflow
-* Fixed onboarding events
