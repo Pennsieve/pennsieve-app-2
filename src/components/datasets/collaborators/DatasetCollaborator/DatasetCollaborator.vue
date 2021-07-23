@@ -151,7 +151,8 @@ export default {
     ]),
 
     ...mapGetters([
-      'getPermission'
+      'getPermission',
+      'isUserSuperAdmin'
     ]),
 
     /**
@@ -175,13 +176,15 @@ export default {
 
     /**
      * Filter roles for entity
+     * Allow Owners, and SuperAdmins to change ownership of a dataset
+     *
      * Only users can become owners of a dataset
      * @returns {Array}
      */
     rolesForEntity: function() {
       const noOwnerRole = this.roles.filter(role => role.value !== 'owner')
 
-      const userRoles = this.datasetRole === 'owner'
+      const userRoles = (this.datasetRole === 'owner' || this.isUserSuperAdmin)
         ? this.roles
         : noOwnerRole
 
@@ -203,7 +206,7 @@ export default {
      */
     canEditCollaborator: function() {
       const role = propOr('viewer', 'permission', this.item)
-      return this.getPermission('manager') && role !== 'owner' && !this.isSystemTeam
+      return (this.getPermission('manager') || this.isUserSuperAdmin) && role !== 'owner' && !this.isSystemTeam
     },
 
     isSystemTeam: function() {
