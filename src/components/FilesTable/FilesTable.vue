@@ -157,6 +157,7 @@
               @move="moveFile"
               @download-file="downloadFile"
               @process-file="processFile"
+              @copy-url="getPresignedUrl"
             />
           </div>
         </template>
@@ -386,6 +387,14 @@ export default {
      */
     processFile: function(file) {
       this.$emit('process', file)
+    },
+
+    /**
+     * Get presigned URL and copy to clipboard
+     * @param {Object} file
+     */
+    getPresignedUrl: function(file) {
+      this.$emit('copy-url', file)
     },
 
     /**

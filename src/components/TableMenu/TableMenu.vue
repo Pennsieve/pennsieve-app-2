@@ -56,6 +56,13 @@
         Download
       </el-dropdown-item>
       <el-dropdown-item
+        v-if="packageType !== 'Collection' && !multipleSelected && !isExternalFile && !searchAllDataRecords"
+        :disabled="isFileProcessing"
+        command="copyUrl"
+      >
+        Copy URL to Clipboard
+      </el-dropdown-item>
+      <el-dropdown-item
         v-if="getPermission('editor') && !searchAllDataMenu"
         :disabled="datasetLocked"
         command="delete"
@@ -272,6 +279,13 @@ export default {
      */
     processFile: function() {
       this.$emit('process-file', this.file)
+    },
+
+    /**
+     * Copy url
+     */
+    copyUrl: function() {
+      this.$emit('copy-url', this.file)
     },
 
     /**

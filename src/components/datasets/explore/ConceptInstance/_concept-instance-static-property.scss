@@ -1,11 +1,11 @@
 @import '../../../../assets/_variables.scss';
 
-.concept-instance-property {
+.concept-instance-static-property {
   box-sizing: border-box;
-  color: #000;
+  color: $gray_4;
   border-top: 1px solid $gray_2;
   min-height: 49px;
-  padding: 16px 0;
+  padding: 8px 0;
   &:first-child {
     border: none;
   }
@@ -15,10 +15,16 @@
     }
   }
   .name {
-    color: $gray_6;
-    font-weight: 500;
+    //color: $gray_4;
+    //font-weight: 300;
     position: relative;
   }
+
+  .label {
+    display:flex;
+    flex-direction: row;
+  }
+
   .property-label {
     display: inline-block;
     max-width: 85%;

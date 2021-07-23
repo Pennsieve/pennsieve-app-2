@@ -10,26 +10,7 @@
       transition=""
       :visible-arrow="false"
     >
-      <div
-        v-if="modelsWithRecords.length === 0 && modelsWithoutRecords.length === 0"
-        class="empty-state"
-      >
-        <img
-          class="mb-16"
-          src="/static/images/illustrations/illo-missing-relationships.svg"
-          alt=""
-          width="120"
-          height="80"
-        >
-        <h2>No Relationships Defined</h2>
-        <p>
-          Set up some <router-link :to="{ name: 'relationship-types' }">
-            relationship types
-          </router-link> in your models tab to enable links to records.
-        </p>
-      </div>
-
-      <template v-else>
+      <template>
         <div
           v-if="showExistingFile"
           class="bf-menu existing-file-menu"
@@ -41,18 +22,34 @@
                 class="bf-menu-item"
                 @click.prevent="onMenuClick('files')"
               >
-                Existing File
+                Files or folders
               </a>
             </li>
           </ul>
         </div>
 
-
         <div class="scroll-wrap">
           <div class="bf-menu scroll-menu">
-            <template v-if="modelsWithRecords.length">
-              <h2>Relationships with Records</h2>
-              <ul>
+            <template >
+              <div
+                v-if="modelsWithRecords.length === 0 && modelsWithoutRecords.length === 0"
+                class="empty-state"
+              >
+
+                <img
+                  class="mb-16"
+                  src="/static/images/illustrations/illo-missing-relationships.svg"
+                  alt=""
+                  width="120"
+                  height="80"
+                >
+                <p>
+                  Set up <router-link :to="{ name: 'relationship-types' }">
+                  relationship types
+                </router-link> for your models to enable linking metadata records.
+                </p>
+              </div>
+              <ul v-else>
                 <li
                   v-for="model in modelsWithRecords"
                   :key="model.id"
@@ -68,19 +65,6 @@
               </ul>
             </template>
 
-            <template v-if="modelsWithoutRecords.length">
-              <h2>Relationships without records</h2>
-              <ul>
-                <li
-                  v-for="model in modelsWithoutRecords"
-                  :key="model.id"
-                >
-                  <span class="bf-menu-item disabled">
-                    {{ model.displayName }}
-                  </span>
-                </li>
-              </ul>
-            </template>
           </div>
         </div>
       </template>
@@ -91,7 +75,7 @@
       class="compact"
       :disabled="datasetLocked"
     >
-      Link to Record
+      Link to ...
       <svg-icon
         slot="suffix"
         class="icon-caret"
@@ -227,7 +211,7 @@ export default {
     border-bottom: 1px solid $gray_2;
   }
   .empty-state {
-    padding: 64px 24px;
+    padding: 24px;
     text-align: center;
     p {
       margin: 0;
