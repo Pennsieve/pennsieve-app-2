@@ -158,7 +158,7 @@
             </template>
 
             <el-checkbox
-              v-model="integration.eventTypeList.metadata"
+              v-model="integration.eventTypeList.METADATA"
               class="input-property"
               label="Metadata"
             />
@@ -167,7 +167,7 @@
             </div>
 
             <el-checkbox
-              v-model="integration.eventTypeList.status"
+              v-model="integration.eventTypeList.STATUS"
               class="input-property"
               label="Status"
             />
@@ -176,7 +176,7 @@
             </div>
 
             <el-checkbox
-              v-model="integration.eventTypeList.models"
+              v-model="integration.eventTypeList.RECORDS_AND_MODELS"
               class="input-property"
               label="Records and Models"
             />
@@ -185,7 +185,7 @@
             </div>
 
             <el-checkbox
-              v-model="integration.eventTypeList.files"
+              v-model="integration.eventTypeList.FILES"
               class="input-property"
               label="Files"
             />
@@ -194,7 +194,7 @@
             </div>
 
             <el-checkbox
-              v-model="integration.eventTypeList.permissions"
+              v-model="integration.eventTypeList.PERMISSIONS"
               class="input-property"
               label="Permissions"
             />
@@ -203,7 +203,7 @@
             </div>
 
             <el-checkbox
-              v-model="integration.eventTypeList.publishing"
+              v-model="integration.eventTypeList.PUBLISHING"
               class="input-property"
               label="Publishing"
             />
@@ -268,12 +268,12 @@ const defaultIntegration = () => (
     name: '',
     integrationType: '',
     eventTypeList: {
-      metadata: false,
-      status: false,
-      models: false,
-      files: false,
-      permissions: false,
-      publishing: false
+      METADATA: false,
+      STATUS: false,
+      RECORDS_AND_MODELS: false,
+      FILES: false,
+      PERMISSIONS: false,
+      PUBLISHING: false
     }
   }
 )

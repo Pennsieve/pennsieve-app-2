@@ -10,7 +10,7 @@
         :sm="24"
       >
         <div class="intergration-type" >
-          PUBLIC
+          {{isPrivateStr}}
         </div>
       </el-col>
       <el-col
@@ -137,6 +137,12 @@ export default {
     ...mapState([
       'orgMembers',
     ]),
+    isPrivateStr: function() {
+      if (this.integration.isPrivate) {
+        return "PRIVATE"
+      }
+      return  "PUBLIC"
+    },
     user: function() {
       return find(propEq('intId', this.integration.createdBy), this.orgMembers)
     },

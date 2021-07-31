@@ -191,6 +191,13 @@ export default {
      */
     onAddIntegrationConfirm: function(integration) {
 
+      let eventTargets = []
+      for (const [key, value] of Object.entries(integration.eventTypeList)) {
+        if (value) {
+          eventTargets.push(key)
+        }
+      }
+
       let integrationDTO = {
         displayName: integration.displayName,
         secret: integration.secret,
@@ -198,7 +205,8 @@ export default {
         apiUrl: integration.apiUrl,
         isPrivate: !integration.isPublic,
         imageUrl: integration.imageUrl,
-        isDefault: integration.isDefault
+        isDefault: integration.isDefault,
+        targetEvents: eventTargets
       }
 
       this.createIntegration(integrationDTO)
