@@ -8,20 +8,20 @@
         <div class="noselect">
             <div id="scrubber" noselect>
                 <div id="canvasWrap" ref="canvasWrap">
-                    <canvas id="segmentsCanvas" class="canvas" ref="segmentsCanvas" 
-                        :width="_cpCanvasScaler(cWidth, pixelRatio,0)" 
+                    <canvas id="segmentsCanvas" class="canvas" ref="segmentsCanvas"
+                        :width="_cpCanvasScaler(cWidth, pixelRatio,0)"
                         :height="_cpCanvasScaler(viewportHeight-2, pixelRatio,0)"
                         :style="canvasStyle"></canvas>
-                    <canvas id="annotationCanvas" class="canvas" ref="annotationCanvas" 
-                        :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+                    <canvas id="annotationCanvas" class="canvas" ref="annotationCanvas"
+                        :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
                         :height="_cpCanvasScaler(viewportHeight-2, pixelRatio,0)"
                         :style="canvasStyle"></canvas>
-                    <canvas id="iCanvas" class="canvas" ref="iCanvas" :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" :height="_cpCanvasScaler(viewportHeight, pixelRatio,0)" 
-                        v-on:tap="_onTap" 
-                        v-on:mousemove="_onMouseMove" 
-                        v-on:mousedown="_onMouseDown" 
-                        v-on:mouseup="_onMouseUp" 
-                        v-on:mouseenter="_onMouseEnter" 
+                    <canvas id="iCanvas" class="canvas" ref="iCanvas" :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" :height="_cpCanvasScaler(viewportHeight, pixelRatio,0)"
+                        v-on:tap="_onTap"
+                        v-on:mousemove="_onMouseMove"
+                        v-on:mousedown="_onMouseDown"
+                        v-on:mouseup="_onMouseUp"
+                        v-on:mouseenter="_onMouseEnter"
                         v-on:mouseout="_onMouseOut"
                         :style="iCanvasStyle"></canvas>
                 </div>
@@ -69,7 +69,7 @@
             cursorLoc:Number,
             labelWidth:Number
         },
-        
+
         computed: {
             ...mapState([
                 'config',
@@ -96,18 +96,18 @@
             },
             canvasStyle: function() {
                 return {
-                    width: this.labelWidth + this.cWidth  +'px',
+                    width: this.labelWidth + this.cWidth - 8 + 5 +'px',
                     height: '28px'
                 }
             },
             iCanvasStyle: function() {
                 return {
-                    width: this.labelWidth + this.cWidth  +'px',
+                    width: this.labelWidth + this.cWidth - 8 + 5 +'px',
                     height: '30px'
                 }
             },
             scrubberCWidth: function() {
-                return this.cWidth + this.labelWidth
+                return this.cWidth + this.labelWidth - 8 + 5
             },
             period: function() {
                 return Math.floor((this.ts_end - this.ts_start) / this.cWidth)
@@ -116,13 +116,13 @@
         },
         watch: {
             start: function() {
-                this.renderViewPort()
+                this.render()
             },
             duration: function() {
-                this.renderViewPort()
+                this.render()
             },
             cWidth: function() {
-                this.renderViewPort()
+                this.render()
             }
         },
 
@@ -149,7 +149,7 @@
             this.renderViewPort()
         },
         methods: {
-            
+
             _cpCanvasScaler: function(sz, pixelRatio, offset) {
                 return pixelRatio * (sz + offset);
             },
@@ -216,7 +216,7 @@
                     }
 
                 } else {
-                    // is Dragging 
+                    // is Dragging
                     const _dx = e.clientX - this.clickX
                     const realStart = ( (_dx)/this.cWidth ) * (this.ts_end - this.ts_start );
                     const setStart = this.startDragTime + realStart;
@@ -241,9 +241,12 @@
             _onMouseOut: function() {
                 this.hoverTxt = '';
             },
-            
+
             // -------
             // ------- Annotation Functions -------
+            pageInGap: function(startEpoch, pageSize) {
+
+            },
             initSegmentSpans: function() {
                 // GET SEGMENTS AND GAPS
                 let fetchSpan = Math.min(this.constants['SEGMENTSPAN'], (this.ts_end - this.ts_start));
@@ -260,8 +263,7 @@
                 this.sendXhr(url)
                     .then(resp => {
                         // Parse response into vector
-                        // let resp = data;
-                        let vector = new Array(resp.length*2)
+                        let vector = new Array(resp.length * 2)
                         let i = 0;
                         for (let j = 0; j < resp.length; j++) {
                             vector[i] = resp[j][0];
@@ -294,7 +296,7 @@
                             }
                             ii++;
                         }
-                        
+
                         if (inSegment) {
                             this.segmentSpans = this.segmentSpans.concat([startSegment, ii]);
                         }
@@ -347,8 +349,8 @@
                     console.log(resp)
                     this.annotations = resp;
                     this.render();
-                }) 
-              
+                })
+
             },
             // -------
             // ------- Render Functions -------
@@ -386,16 +388,18 @@
                 })
             },
             renderSegments: function() {
+              this.$nextTick(() => {
                 const ctx = this.$refs.segmentsCanvas.getContext('2d');
                 ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
                 ctx.fillStyle = ctx.createPattern(this.patternCnvs, 'repeat');
                 ctx.clearRect(0, 0, this.cWidth, this.viewportHeight);
 
-                for (let i=1; i<this.segmentSpans.length; i+=2) {
-                    const xStart = (this.cWidth*this.segmentSpans[i]) / 5000;
-                    const xEnd = (this.cWidth*this.segmentSpans[i+1]) / 5000;
-                    ctx.fillRect(xStart, 2, xEnd-xStart, this.viewportHeight-6 )
+                for (let i = 1; i < this.segmentSpans.length; i += 2) {
+                  const xStart = (this.cWidth * this.segmentSpans[i]) / 5000;
+                  const xEnd = (this.cWidth * this.segmentSpans[i + 1]) / 5000;
+                  ctx.fillRect(xStart, 2, xEnd - xStart, this.viewportHeight - 6)
                 }
+              })
 
             },
             renderTimelimeLine: function() {
@@ -430,20 +434,22 @@
                 }
             },
             plotAnnotations: function(ctx, xStart, xEnd, layerSpacing, layerHeight, annotations, rank, color) {
+              this.$nextTick(() => {
                 ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
                 ctx.fillStyle = color;
                 for (let i = 0; i < annotations.length; i++) {
-                    if(annotations[i].value > 0) {
-                    const xPosStart = ((annotations[i].start - xStart) /(xEnd - xStart)) * this.cWidth;
-                    const xPosEnd = ((annotations[i].end - xStart) /(xEnd - xStart)) * this.cWidth;
+                  if (annotations[i].value > 0) {
+                    const xPosStart = ((annotations[i].start - xStart) / (xEnd - xStart)) * this.cWidth;
+                    const xPosEnd = ((annotations[i].end - xStart) / (xEnd - xStart)) * this.cWidth;
                     let cw = xPosEnd - xPosStart;
                     if (cw < 1) {
-                        cw = 1;
+                      cw = 1;
                     }
-                    const yPos = 1 + rank * ((layerHeight-1) + layerSpacing) + rank;
+                    const yPos = 1 + rank * ((layerHeight - 1) + layerSpacing) + rank;
                     ctx.fillRect(xPosStart, yPos, cw, layerHeight);
-                    }
+                  }
                 }
+              })
             },
             /** Creates a canvas filled with a 45-degree pinstripe.
             * @returns the filled HTMLCanvasElement. */

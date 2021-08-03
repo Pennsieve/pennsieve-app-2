@@ -279,10 +279,46 @@
 
             },
             onPageBack: function() {
-                this.start = this.start - (3*this.duration)/4
+              //TODO: Update logic to track gap over all channels
+
+              let setStart = this.start - (3*this.duration)/4
+              let channelOneSegments = this.viewerChannels[0].dataSegments
+
+              let i = 0;
+              for(let segment in channelOneSegments) {
+                if (channelOneSegments[segment] > setStart) {
+                  break
+                }
+                i++
+              }
+
+              // If new page completely in gap --> set start to next timestamp with data
+              if(i % 2 == 0) {
+                setStart = channelOneSegments[i-1] - 0.5*this.duration
+              }
+
+              this.start = setStart
             },
             onPageForward: function() {
-                this.start = this.start + (3*this.duration)/4
+
+                //TODO: Update logic to track gap over all channels
+                let setStart = this.start + (3*this.duration)/4
+                let channelOneSegments = this.viewerChannels[0].dataSegments
+
+                let i = 0;
+                for(let segment in channelOneSegments) {
+                  if (channelOneSegments[segment] > setStart) {
+                    break
+                  }
+                  i++
+                }
+
+                // If new page completely in gap --> set start to next timestamp with data
+                if(i % 2 == 0) {
+                  setStart = channelOneSegments[i] - 0.5*this.duration
+                }
+
+                this.start = setStart
             },
             selectChannel: function(payload) {
               const _channels = this.viewerChannels.map(channel => {
@@ -349,13 +385,13 @@
                 if (this.$refs.ts_viewer === undefined) {
                     return
                 }
-                console.log('RESIZE EVENT')
+
                 this.window_height = window.innerHeight - 100;
                 this.window_width = this.$refs.ts_viewer.offsetWidth
 
                 const labelDiv = this.$refs.channelLabels;
-                this.labelWidth = labelDiv.clientWidth + 15
-                this.cWidth = (this.window_width - labelDiv.clientWidth - 5 - 10);
+                this.labelWidth = labelDiv.clientWidth
+                this.cWidth = (this.window_width - labelDiv.clientWidth - 16);
                 this.cHeight = (this.window_height - 88);
             },
             _computeLabelInfo: function(item, globalZoomMult, rowscale) {
@@ -382,6 +418,7 @@
                     this.start = this.ts_start
                 }
             },
+
             openFilterWindow: function(payload) {
 
                 const channels = propOr([], 'channels', payload);
