@@ -23,6 +23,7 @@ const initialState = () => ({
   },
   viewerChannels: [],
   viewerAnnotations: [],
+  activeAnnotationLayer: {},
   viewerDiscussions: {
     comments: {},
     discussions: []
@@ -72,6 +73,10 @@ export const mutations = {
 
   CREATE_LAYER (state, data)  {
     state.viewerAnnotations.push(data)
+  },
+
+  SET_ACTIVE_ANNOTATION_LAYER (state, data) {
+    state.activeAnnotationLayer = data
   },
 
   UPDATE_LAYER (state, { layer, index })  {
@@ -194,6 +199,8 @@ export const actions = {
   },
   createLayer: ({ commit }, evt) =>
     commit('CREATE_LAYER', evt),
+  setActiveAnnotationLayer: ({ commit }, evt) =>
+    commit('SET_ACTIVE_ANNOTATION_LAYER', evt),
   updateLayer: ({ commit, state }, data) => {
     const index = getLayerIndex('id', data, state.viewerAnnotations)
     const layer = Object.assign( state.viewerAnnotations[index], data)

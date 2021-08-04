@@ -36,7 +36,7 @@ import { pathOr } from 'ramda'
 import { mapActions } from 'vuex'
 
 import ImportHref from '../../../mixins/import-href'
-import PaletteAnnotations from '../palettes/PaletteAnnotations.vue'
+import PaletteAnnotations from '../palettes/PaletteAnnotations/PaletteAnnotations.vue'
 import PaletteNavigator from '../palettes/PaletteNavigator/PaletteNavigator.vue'
 import PaletteChannels from '../palettes/PaletteChannels/PaletteChannels.vue'
 import PaletteDiscussions from '../palettes/PaletteDiscussions/PaletteDiscussions.vue'
