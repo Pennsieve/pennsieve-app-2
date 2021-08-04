@@ -13,13 +13,13 @@
             height="20"
             width="20"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
 
-      <el-input-number 
-        v-model="durationInSeconds" 
+      <el-input-number
+        v-model="durationInSeconds"
         v-if="showTimeZoom"
         :precision="1"
-        :step="5" 
+        :step="5"
         :max="this.constants['MAXDURATION']"
         size="mini"
         controls-position="right">
@@ -36,7 +36,7 @@
             height="20"
             width="20"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
 
       <el-button-group v-if="showVertZoom">
         <el-button icon="el-icon-plus" size="mini" @click="incrementZoom"></el-button>
@@ -56,7 +56,7 @@
             height="12"
             width="12"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
       <el-tooltip
         placement="top-end"
         content="Previous Annotation">
@@ -68,7 +68,7 @@
             height="12"
             width="18"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
       <el-tooltip
         placement="top-end"
         content="Automatic Forward">
@@ -80,7 +80,7 @@
             height="12"
             width="18"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
       <el-tooltip
         placement="top-end"
         content="Next Annotation">
@@ -92,7 +92,7 @@
             height="12"
             width="18"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
       <el-tooltip
         placement="top-end"
         content="Next Page">
@@ -104,7 +104,7 @@
             height="12"
             width="18"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
     </div>
     <div id="right-controls">
       <el-tooltip
@@ -131,13 +131,13 @@
             height="20"
             width="22"/>
         </button>
-      </el-tooltip>  
+      </el-tooltip>
 
-      <el-select 
-        v-model="selectedPlaySpeed" 
+      <el-select
+        v-model="selectedPlaySpeed"
         v-if="showPlaybackSpeed"
-        placeholder="Select" 
-        size="mini" 
+        placeholder="Select"
+        size="mini"
         class="playSelect">
         <el-option
           v-for="item in playSpeedOptions"
@@ -171,7 +171,6 @@
             },
             // setter
             set: function (newValue) {
-              console.log('calling setter with: ' + newValue)
               this.$emit('updateDuration', newValue)
             }
           }
@@ -326,7 +325,7 @@
       width: 70px;
       margin-right: 8px;
     }
-    
+
 </style>
 
 

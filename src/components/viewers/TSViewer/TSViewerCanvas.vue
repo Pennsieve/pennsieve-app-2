@@ -3,7 +3,7 @@
         <!-- <annotation-popover on-mouseleave="_onPopoverMouseLeave" id="annotationPopover"></annotation-popover> -->
 
         <div id="canvasWrapper">
-            
+
             <timeseries-plot-canvas
                 :cWidth='cWidth'
                 :cHeight='cHeight'
@@ -18,19 +18,19 @@
                 @channelsInitialized='channelsInitialized'
                 @setGlobalZoom='setGlobalZoom'>
                 <canvas id="axisArea" class="canvas" ref="axisArea" slot="axisCanvas"
-                    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+                    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
                     :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
                     :style="canvasStyle1">
                 </canvas>
                 <canvas id="annArea" class="canvas" ref="annArea" slot="annCanvas"
-                    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+                    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
                     :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
                     :style="canvasStyle2">
-                </canvas>   
+                </canvas>
             </timeseries-plot-canvas>
-            
-            <canvas id="cursorArea" class="canvas"   ref="cursorArea" 
-                :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+
+            <canvas id="cursorArea" class="canvas"   ref="cursorArea"
+                :width="_cpCanvasScaler(cWidth + 5, pixelRatio, 0)"
                 :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
                 :style="canvasStyle3">
             </canvas>
@@ -50,17 +50,17 @@
                     @annotationsReceived='onAnnotationsReceived'
                     @closeAnnotationLayerWindow='onCloseAnnotationLayerWindow'
             ></timeseries-annotation-canvas>
-            
-            <canvas id="iArea" class="canvas" ref="iArea" 
-                :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+
+            <canvas id="iArea" class="canvas" ref="iArea"
+                :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
                 :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
                 :style="canvasStyle1"
-                v-on:wheel="_onMouseWheel" 
-                v-on:mousemove="_onMouseMove" 
+                v-on:wheel="_onMouseWheel"
+                v-on:mousemove="_onMouseMove"
                 v-on:mousedown="_onMouseDown"
-                v-on:mouseup="_onMouseUp" 
-                v-on:mouseout="_onMouseOut" 
-                v-on:mouseenter="_onMouseEnter" 
+                v-on:mouseup="_onMouseUp"
+                v-on:mouseout="_onMouseOut"
+                v-on:mouseenter="_onMouseEnter"
                 tabindex="-1">
             </canvas>
         </div>
@@ -196,7 +196,7 @@
 
         mounted: function () {
             this.pixelRatio = this.getScreenPixelRatio();
-            
+
         },
 
         methods: {
@@ -248,8 +248,8 @@
                             this.$emit('setGlobalZoom',this.globalZoomMult/1.2);
                         }
                     }
-                    
-                    
+
+
 
                 }
             },
@@ -278,7 +278,7 @@
 
                             return channel
                             })
-                        
+
                         this.$store.dispatch('viewer/setChannels', channels)
 
                 }
@@ -413,7 +413,7 @@
                     this.$refs.plotCanvas.renderAll()
                     this.$refs.annCanvas.render()
                 })
-  
+
             },
            // Render the X and Y axis, and time ticks
             _renderAxis: function() {
@@ -612,12 +612,12 @@
                     }
                     this.$store.dispatch('viewer/updateChannel', channel)
                 }
-                
+
                 this.$refs.plotCanvas.invalidate();
                 this.renderAll();
 
             }
-            
+
 
         }
 
