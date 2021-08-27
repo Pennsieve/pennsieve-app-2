@@ -58,14 +58,12 @@
         <div slot="items">
           <template v-for="annotation in layer.annotations.filter(ann => ann.layer_id === layer.id)">
             <!-- <p v-if="isTimeseriesViewer" :key="annotation.id">{{ annotation.description }}</p> -->
-            <bf-ts-annotation
+            <ts-annotation
               v-if="isTimeseriesViewer"
               :ref="`ann-${annotation.id}`"
               :key="annotation.id"
-              :layer-id="layer.id"
-              :layer="JSON.stringify(layer)"
-              :annotation="JSON.stringify(annotation)"
-              @click="onAnnTap(annotation)"
+              :layer="layer"
+              :annotation="annotation"
             />
 
             <bf-annotation
@@ -107,13 +105,15 @@ import ImportHref from '../../../../mixins/import-href'
 
 import Accordion from '../../../shared/Accordion/Accordion.vue'
 import AnnotationGroup from './AnnotationGroup.vue'
+import TsAnnotation from './TSAnnotation.vue'
 
 export default {
   name: 'PaletteAnnotations',
 
   components: {
     Accordion,
-    AnnotationGroup
+    AnnotationGroup,
+    TsAnnotation
   },
 
   mixins: [
@@ -165,14 +165,8 @@ export default {
    * Import required Polymer components
    */
   mounted: function() {
-    // bf-accordion
-    // this.importHref('/web-components/src/components/blackfynn/shared/bf-accordion/bf-accordion.html')
-
-    // bf-annotation-group
-    // this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation-group.html')
-
     // bf-ts-annotation
-    this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-ts-annotation.html')
+    // this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-ts-annotation.html')
 
     // bf-annotation
     this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation.html')

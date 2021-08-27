@@ -101,10 +101,10 @@ export default {
     font-weight: 500;
     line-height: 17px;
     margin: 0;
-    
+
   }
   .selected {
-      color: #295eff
+      color: $purple_1
     }
   bf-annotation-group {
     flex: 0;

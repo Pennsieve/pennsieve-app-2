@@ -1,87 +1,96 @@
 <template>
-    <div class="timeseries-viewer-canvas" >
-        <!-- <annotation-popover on-mouseleave="_onPopoverMouseLeave" id="annotationPopover"></annotation-popover> -->
+  <div class="timeseries-viewer-canvas">
+    <!-- <annotation-popover on-mouseleave="_onPopoverMouseLeave" id="annotationPopover"></annotation-popover> -->
 
-        <div id="canvasWrapper">
+    <div id="canvasWrapper">
+      <timeseries-plot-canvas
+        ref="plotCanvas"
+        :c-width="cWidth"
+        :c-height="cHeight"
+        :start="start"
+        :ts_start="tsStart"
+        :ts_end="tsEnd"
+        :duration="duration"
+        :constants="constants"
+        :rs-period="rsPeriod"
+        :global-zoom-mult="globalZoomMult"
+        @channelsInitialized="channelsInitialized"
+        @setGlobalZoom="setGlobalZoom"
+      >
+        <canvas
+          id="axisArea"
+          ref="axisArea"
+          slot="axisCanvas"
+          class="canvas"
+          :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
+          :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
+          :style="canvasStyle1"
+        />
+        <canvas
+          id="annArea"
+          ref="annArea"
+          slot="annCanvas"
+          class="canvas"
+          :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
+          :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
+          :style="canvasStyle2"
+        />
+      </timeseries-plot-canvas>
 
-            <timeseries-plot-canvas
-                :cWidth='cWidth'
-                :cHeight='cHeight'
-                :start='start'
-                :ts_start='ts_start'
-                :ts_end='ts_end'
-                :duration='duration'
-                :constants='constants'
-                :rsPeriod='rsPeriod'
-                :globalZoomMult='globalZoomMult'
-                ref="plotCanvas"
-                @channelsInitialized='channelsInitialized'
-                @setGlobalZoom='setGlobalZoom'>
-                <canvas id="axisArea" class="canvas" ref="axisArea" slot="axisCanvas"
-                    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
-                    :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
-                    :style="canvasStyle1">
-                </canvas>
-                <canvas id="annArea" class="canvas" ref="annArea" slot="annCanvas"
-                    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
-                    :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
-                    :style="canvasStyle2">
-                </canvas>
-            </timeseries-plot-canvas>
+      <canvas
+        id="cursorArea"
+        ref="cursorArea"
+        class="canvas"
+        :width="_cpCanvasScaler(cWidth + 5, pixelRatio, 0)"
+        :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
+        :style="canvasStyle3"
+      />
 
-            <canvas id="cursorArea" class="canvas"   ref="cursorArea"
-                :width="_cpCanvasScaler(cWidth + 5, pixelRatio, 0)"
-                :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
-                :style="canvasStyle3">
-            </canvas>
+      <timeseries-annotation-canvas
+        ref="annCanvas"
+        :c-width="cWidth"
+        :c-height="cHeight"
+        :constants="constants"
+        :annotations-canvas="this.$refs.annArea"
+        :pixel-ratio="pixelRatio"
+        :rs-period="rsPeriod"
+        :start="start"
+        :duration="duration"
+        :ts-end="tsEnd"
+        :pointer-mode="pointerMode"
+        @annLayersInitialized="onAnnLayersInitialized"
+        @annotationsReceived="onAnnotationsReceived"
+        @closeAnnotationLayerWindow="onCloseAnnotationLayerWindow"
+      />
 
-            <timeseries-annotation-canvas ref="annCanvas"
-                    :cWidth='cWidth'
-                    :cHeight='cHeight'
-                    :constants='constants'
-                    :annotationsCanvas='this.$refs.annArea'
-                    :pixelRatio='pixelRatio'
-                    :rsPeriod='rsPeriod'
-                    :start='start'
-                    :duration='duration'
-                    :ts_end='ts_end'
-                    :pointerMode='pointerMode'
-                    @annLayersInitialized='onAnnLayersInitialized'
-                    @annotationsReceived='onAnnotationsReceived'
-                    @closeAnnotationLayerWindow='onCloseAnnotationLayerWindow'
-            ></timeseries-annotation-canvas>
-
-            <canvas id="iArea" class="canvas" ref="iArea"
-                :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
-                :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
-                :style="canvasStyle1"
-                v-on:wheel="_onMouseWheel"
-                v-on:mousemove="_onMouseMove"
-                v-on:mousedown="_onMouseDown"
-                v-on:mouseup="_onMouseUp"
-                v-on:mouseout="_onMouseOut"
-                v-on:mouseenter="_onMouseEnter"
-                tabindex="-1">
-            </canvas>
-        </div>
+      <canvas
+        id="iArea"
+        ref="iArea"
+        class="canvas"
+        :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
+        :height="_cpCanvasScaler(cHeight, pixelRatio,0)"
+        :style="canvasStyle1"
+        tabindex="-1"
+        @wheel="_onMouseWheel"
+        @mousemove="_onMouseMove"
+        @mousedown="_onMouseDown"
+        @mouseup="_onMouseUp"
+        @mouseout="_onMouseOut"
+        @mouseenter="_onMouseEnter"
+      />
     </div>
+  </div>
 </template>
 
 <script>
+/* eslint-disable no-case-declarations */
     import {
-        mapActions,
-        mapGetters,
         mapState
     } from 'vuex'
 
     import {
-        compose,
-        defaultTo,
         find,
-        head,
-        pathOr,
         propEq,
-        propOr
     } from 'ramda'
 
     import ViewerActiveTool from '@/mixins/viewer-active-tool'
@@ -101,33 +110,35 @@
         ],
 
         props: {
-            window_height: Number,
-            window_width: Number,
+            windowHeight: Number,
+            windowWidth: Number,
             duration: Number,
             start: Number,
             cHeight: Number,
             cWidth: Number,
             globalZoomMult: Number,
             constants: Object,
-            ts_start: Number,
-            ts_end: Number,
+            tsStart: Number,
+            tsEnd: Number,
             cursorLoc: Number,
         },
 
         computed: {
             ...mapState([
-                'config',
-                'userToken'
+              'config',
+              'userToken'
             ]),
             ...mapState('viewer', [
-                'activeViewer',
-                'viewerChannels',
-                'viewerActiveTool']),
+              'activeViewer',
+              'viewerChannels',
+              'viewerActiveTool',
+              'viewerAnnotations'
+            ]),
             pHeight: function() {
                 return this.cHeight -20;
             },
             cursorWidth: function() {
-                this.cWidth + this.constants['CURSOROFFSET']
+                return this.cWidth + this.constants['CURSOROFFSET']
             },
             blurCanvas: function() {
                 return this.$refs.blurCanvas
@@ -189,8 +200,10 @@
                 resizeClicked: false,
                 pointerMode: 'pan',
                 trackDirection: false,
-                startDragCoord: Object,
-                actionMode: null                 // Secondary mode for pointer specific to tsviewer canvas
+                startDragCoord: {x: 0, y: 0},
+                actionMode: null,                 // Secondary mode for pointer specific to tsviewer canvas
+                defaultLabels: ['Event', 'Artifact', 'Seizure', 'Mark', 'Stim On', 'Stim Off', 'Start', 'Stop'],
+                labelSelect: 0
             }
         },
 
@@ -228,7 +241,7 @@
             channelsInitialized: function() {
                 this.$emit('channelsInitialized')
             },
-            _onMouseWheel: function(e, details) {
+            _onMouseWheel: function(e) {
                 e.stopPropagation();
                 e.preventDefault();
 
@@ -262,24 +275,46 @@
                 this.mouseDown = false;
 
                 switch (this.viewerActiveTool) {
-                    case 'pointer':
-                        const append = e.metaKey;
-                        const yEnd = e.clientY - iCanvas.getBoundingClientRect().top
-                        const yStart = this.startDragCoord.y - iCanvas.getBoundingClientRect().top
+                  case 'pointer':
+                    const append = e.metaKey;
+                    const yEnd = e.clientY - iCanvas.getBoundingClientRect().top
+                    const yStart = this.startDragCoord.y - iCanvas.getBoundingClientRect().top
 
-                        const channels = this.viewerChannels.map(channel => {
-                            if (append === false) {
-                                channel.selected = false
-                            }
-                            if( (channel.rowBaseline > yStart && channel.rowBaseline < yEnd) ||
-                                    (channel.rowBaseline < yStart && channel.rowBaseline > yEnd)) {
-                                        channel.selected = true
-                            }
+                    const channels = this.viewerChannels.map(channel => {
+                        if (append === false) {
+                            channel.selected = false
+                        }
+                        if( (channel.rowBaseline > yStart && channel.rowBaseline < yEnd) ||
+                                (channel.rowBaseline < yStart && channel.rowBaseline > yEnd)) {
+                                    channel.selected = true
+                        }
 
-                            return channel
-                            })
+                        return channel
+                        })
 
-                        this.$store.dispatch('viewer/setChannels', channels)
+                    this.$store.dispatch('viewer/setChannels', channels)
+                    break
+                  case 'annotate':
+                    let curLIndex = null;
+                    for (let i=0; i<this.viewerAnnotations.length; i++) {
+                      if (this.viewerAnnotations[i].selected) {
+                        curLIndex = i;
+                        break;
+                      }
+                    }
+
+                    // No layers
+                    if (curLIndex === null) {
+                      return;
+                    }
+
+                    const selectedChannels = this.$store.getters['viewer/viewerSelectedChannels']
+                    const allChannels = selectedChannels.length === this.viewerChannels.length || selectedChannels.length === 0
+
+                    const duration = (-e.clientX + this.startDragCoord.x) * this.rsPeriod
+                    const startTime = this.start +  this.startDragCoord.x * this.rsPeriod
+                    this.$emit("addAnnotation", startTime, duration, allChannels, this.defaultLabels[this.labelSelect], '', this.viewerAnnotations[curLIndex] )
+                    break;
 
                 }
 
@@ -287,7 +322,8 @@
             _onMouseDown: function(evt) {
                 this.mouseDown = true;
                 this.startDragTimeStamp = this.start
-                this.startDragCoord = {"x":evt.clientX, "y":evt.clientY}
+                this.startDragCoord.x = evt.clientX
+                this.startDragCoord.y = evt.clientY
 
                 switch(this.pointerMode) {
                     case 'annResize-left':
@@ -327,14 +363,17 @@
 
                         break;
                     case 'pointer':
-                        this.$refs.iArea.setAttribute('point', true);
+                        this.$refs.iArea.setAttribute('point', "true");
                         if( this.mouseDown){
                             this.renderSelectBox(e.clientX, e.clientY);
                         }
 
                         break;
                     case 'annotate':
-                        this.$refs.iArea.setAttribute('point', true);
+                        this.$refs.iArea.setAttribute('point', "true");
+                        if( this.mouseDown) {
+                          this.renderAnnotationBox(e.clientX)
+                        }
                         break;
 
                 }
@@ -407,7 +446,6 @@
             },
             _renderAll: function() {
                 this.$nextTick(() => {
-                    console.log('Rendering All')
                     this._renderAxis();
                     this._renderCursor();
                     this.$refs.plotCanvas.renderAll()
@@ -417,7 +455,6 @@
             },
            // Render the X and Y axis, and time ticks
             _renderAxis: function() {
-                console.log('Rendering Axis')
                 const pa = this.$refs.axisArea;
                 const ctx = pa.getContext('2d');
                 ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
@@ -461,7 +498,7 @@
 
                     // actual time of the timeline = canvas start time + xLoc1 time
                     let realX = this.start + xLoc1 + i * gridSpacing;
-                    if (realX > this.ts_end) {
+                    if (realX > this.tsEnd) {
                         break;
                     }
 
@@ -549,7 +586,111 @@
 
                 ctx.restore();
             },
+            // Render an annotation during dragging mouse while creating annotation
+            renderAnnotationBox: function(curX) {
+              const iCanvas = this.$refs.cursorArea
+              const ctx = iCanvas.getContext('2d');
+              ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
 
+
+              const annotationHeight = this.constants['ANNOTATIONLABELHEIGHT'];
+              const halfAnnotationHeight = (annotationHeight/2) |0;
+
+              // Find active layer
+              let curLIndex = null;
+              for (let i=0; i<this.viewerAnnotations.length; i++) {
+                if (this.viewerAnnotations[i].selected) {
+                  curLIndex = i;
+                  break;
+                }
+              }
+
+              // No active Layers
+              if (curLIndex === null) {
+                return;
+              }
+
+              ctx.save();
+              ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+              ctx.lineWidth = 1;
+
+              // Determine if the user is adding annotation to specific channels
+              const selectedChannels = this.$store.getters['viewer/viewerSelectedChannels']
+              const allChannels = selectedChannels.length === this.viewerChannels.length || selectedChannels.length === 0
+
+              const xStart = curX - iCanvas.getBoundingClientRect().left;
+              const dx = -curX + this.startDragCoord.x
+
+              if (allChannels) {
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.fillRect(xStart, 0, dx, this.pHeight);
+
+                ctx.fillStyle = this.viewerAnnotations[curLIndex].color;
+                ctx.strokeStyle = ctx.fillStyle;
+
+                let lblStart = xStart -1;
+                let lblEnd = dx +2;
+                if (dx < 0) {
+                  lblStart = xStart +1;
+                  lblEnd = dx-2;
+                }
+
+                ctx.fillRect(lblStart, 0, lblEnd, annotationHeight);
+
+                ctx.setLineDash([5, 5, 5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(xStart, annotationHeight);
+                ctx.lineTo(xStart, this.pHeight );
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(xStart+dx, annotationHeight);
+                ctx.lineTo(xStart+dx, this.pHeight );
+                ctx.stroke();
+              } else {
+
+                let minOffset = this.cHeight | 0;
+                let maxOffset = 0;
+                const channelConfig = this.viewerChannels;
+
+                ctx.fillStyle = this.viewerAnnotations[curLIndex].color;
+                ctx.strokeStyle=ctx.fillStyle;
+
+                let lblStart = xStart -1;
+                let lblEnd = dx +2;
+                if (dx < 0) {
+                  lblStart = xStart +1;
+                  lblEnd = dx-2;
+                }
+
+                for (let ch=0; ch< channelConfig.length; ch++) {
+                  const curChannelView = channelConfig[ch];
+                  if(curChannelView.selected && curChannelView.visible) {
+                    const channelOffset = curChannelView.rowBaseline |0;
+                    if (channelOffset < minOffset) { minOffset = channelOffset; }
+                    if (channelOffset > maxOffset) { maxOffset = channelOffset; }
+
+                    ctx.fillRect(lblStart, channelOffset - halfAnnotationHeight, lblEnd, annotationHeight);
+
+                  }
+                }
+
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.setLineDash([5, 5, 5, 5]);
+
+                ctx.fillRect(xStart -1, minOffset+halfAnnotationHeight,
+                  dx +2, maxOffset-minOffset -annotationHeight);
+                ctx.beginPath();
+                ctx.moveTo(xStart, minOffset +halfAnnotationHeight);
+                ctx.lineTo(xStart, maxOffset-halfAnnotationHeight );
+                ctx.moveTo(xStart+dx, minOffset +halfAnnotationHeight);
+                ctx.lineTo(xStart+dx, maxOffset -halfAnnotationHeight);
+                ctx.stroke();
+
+
+              }
+              ctx.restore();
+            },
             getScreenPixelRatio: function() {
                 let ctx = this.$refs.iArea.getContext('2d');
                 let dpr = window.devicePixelRatio || 1
@@ -567,59 +708,59 @@
             },
             setFilters: function(payload) {
 
-                let input0 = parseFloat(payload.input0)
-                let input1 = parseFloat(payload.input1)
-                let message = {};
-                    switch (payload.filterType) {
-                        case 'clear':
-                            message = {'channelFiltersToClear':payload.selChannels};
-                            break;
-                        case 'bandpass':
-                            let bp_center = (input0 + input1) / 2;
-                            let bp_width = Math.abs( (input1 - input0) / 2 )
-                            message = {'filter':payload.filterType, 'filterParameters': [4, bp_center, bp_width], 'channels':payload.selChannels};
-                            break;
-                        case 'highpass':
-                            message = {'filter':payload.filterType, 'filterParameters': [4, input0], 'channels':payload.selChannels};
-                            break;
-                        case 'lowpass':
-                            message = {'filter':payload.filterType, 'filterParameters': [4, input0], 'channels':payload.selChannels};
-                            break;
-                        case 'bandstop':
-                            let bs_width = 10;
-                            const bs_center = payload.notchFreq;
-                            message = {'filter':payload.filterType, 'filterParameters': [4, bs_center, bs_width], 'channels':payload.selChannels};
-                            break;
-                        default:
-                            return;
-                    }
+                  let input0 = parseFloat(payload.input0)
+                  let input1 = parseFloat(payload.input1)
+                  let message = {};
+                      switch (payload.filterType) {
+                          case 'clear':
+                              message = {'channelFiltersToClear':payload.selChannels};
+                              break;
+                          case 'bandpass':
+                              let bp_center = (input0 + input1) / 2;
+                              let bp_width = Math.abs( (input1 - input0) / 2 )
+                              message = {'filter':payload.filterType, 'filterParameters': [4, bp_center, bp_width], 'channels':payload.selChannels};
+                              break;
+                          case 'highpass':
+                              message = {'filter':payload.filterType, 'filterParameters': [4, input0], 'channels':payload.selChannels};
+                              break;
+                          case 'lowpass':
+                              message = {'filter':payload.filterType, 'filterParameters': [4, input0], 'channels':payload.selChannels};
+                              break;
+                          case 'bandstop':
+                              let bs_width = 10;
+                              const bs_center = payload.notchFreq;
+                              message = {'filter':payload.filterType, 'filterParameters': [4, bs_center, bs_width], 'channels':payload.selChannels};
+                              break;
+                          default:
+                              return;
+                      }
 
-                this.$refs.plotCanvas.sendFilterMessage(message)
+                  this.$refs.plotCanvas.sendFilterMessage(message)
 
-                for (let i=0; i<payload.selChannels.length; i++) {
-                    let channelId = payload.selChannels[i]
-                    let channel = find(propEq('id', channelId), this.viewerChannels)
+                  for (let i=0; i<payload.selChannels.length; i++) {
+                      let channelId = payload.selChannels[i]
+                      let channel = find(propEq('id', channelId), this.viewerChannels)
 
-                    if (payload.filterType === 'clear') {
-                        channel.filter = {}
-                    } else {
-                        channel.filter = {
-                            type: payload.filterType,
-                            input0: input0,
-                            input1: input1,
-                            notchFreq: payload.notchFreq
-                        }
-                    }
-                    this.$store.dispatch('viewer/updateChannel', channel)
-                }
+                      if (payload.filterType === 'clear') {
+                          channel.filter = {}
+                      } else {
+                          channel.filter = {
+                              type: payload.filterType,
+                              input0: input0,
+                              input1: input1,
+                              notchFreq: payload.notchFreq
+                          }
+                      }
+                      this.$store.dispatch('viewer/updateChannel', channel)
+                  }
 
-                this.$refs.plotCanvas.invalidate();
-                this.renderAll();
+                  this.$refs.plotCanvas.invalidate();
+                  this.renderAll();
 
-            }
+              }
 
 
-        }
+          }
 
     }
 

@@ -1,8 +1,12 @@
 <template>
-    <canvas id="annLabelArea" class="timeseries-annotation-canvas"  ref="annLabelArea" 
-        :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
-        :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
-        :style="canvasStyle"></canvas>
+  <canvas
+    id="annLabelArea"
+    ref="annLabelArea"
+    class="timeseries-annotation-canvas"
+    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
+    :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
+    :style="canvasStyle"
+  />
 </template>
 
 <script>
@@ -11,14 +15,11 @@
     import Request from '@/mixins/request'
     import EventBus from '@/utils/event-bus'
 
-    import {    
-        mapActions,
-        mapGetters,
+    import {
         mapState
     } from 'vuex'
 
     import {
-        compose,
         defaultTo,
         find,
         head,
@@ -26,10 +27,10 @@
         propEq,
         propOr
     } from 'ramda'
-    
+
     export default {
         name: 'TimeseriesAnnotationCanvas',
-        
+
         mixins: [
             Request,
             ViewerActiveTool
@@ -39,11 +40,10 @@
               type: Number,
               default: 0
             },
-              
             cHeight: Number,
             start: Number,
             duration: Number,
-            ts_end: Number,
+            tsEnd: Number,
             rsPeriod: Number,
             pixelRatio: Number,
             constants: Object,
@@ -112,7 +112,7 @@
                 .then(resp => {
                     this._getLayerResponse(resp)
                 .then(() => {
-                    this.checkAnnotationRange(this.start, this.start + this.duration);    
+                    this.checkAnnotationRange(this.start, this.start + this.duration);
                 })
                 })
     },
@@ -302,8 +302,8 @@
                 // If part of the viewport is not cached, request up to limit.
                 // Start with full width --> split on exisiting ranges
                 const reqRange = [];
-                reqRange.push({start: RStart, end: this.ts_end});
-                
+                reqRange.push({start: RStart, end: this.tsEnd});
+
                 // check if viewport is cached
                 let firstIndex = 0;
                 for (let i = 0; i < this.cachedAnnRange.length; i++) {
@@ -629,7 +629,7 @@
                 return defaultTo({}, find(propEq('id', layerId), this.viewerAnnotations))
             },
             createAnnotationLayer: function(newLayer) {
-            
+
                 const url = `${this.config.apiUrl}/timeseries/${this.activeViewer.content.id}/layers?api_key=${this.userToken}`;
                 this.sendXhr(url, {
                     method: "POST",
@@ -657,12 +657,108 @@
                                 }
                             })
                         })
-                    })  
+                    })
                     this.$emit('closeAnnotationLayerWindow')
-                    
+
                 })
 
 
+            },
+            // addAnnotation: function(start, duration, onAll, label, description, layer) {
+            //   // correct negative durations
+            //   if (duration < 0 ) {
+            //     duration = -duration;
+            //     start = start - duration;
+            //   }
+            //
+            //   const onChannels = [];
+            //   for (let ch = 0; ch < this.viewerChannels.length; ch++) {
+            //     const curChannelView = this.viewerChannels[ch];
+            //     if((curChannelView.selected && curChannelView.visible) || onAll) {
+            //       const id = this.getChannelId(curChannelView)
+            //       onChannels.push(id);
+            //     }
+            //   }
+            //
+            //   const newAjaxAnn = {
+            //     name: '',
+            //     channelIds: onChannels,
+            //     label: label,
+            //     description: description,
+            //     layer_id: layer.id,
+            //     start: start,
+            //     end: start + duration
+            //   }
+            //
+            //   //Unselect current annotations
+            //   this.unSelectAnnotations(null, false);
+            //
+            //   // Send ADD annotation request to server
+            //   this.
+            // },
+            _addAnnResponse(e) {
+              const response = e.detail.response;
+              const newAnn = {
+                name: '',
+                id: response.id,
+                label: response.label,
+                description: response.description,
+                start: response.start,
+                duration: response.end - response.start,
+                end: response.end,
+                cStart: null,
+                cEnd: null,
+                selected: true,
+                channelIds: response.channelIds,
+                allChannels: false,
+                layer_id: response.layerId,
+                userId: response.userId
+              };
+              if (response.linkedPackage) {
+                newAnn.linkedPackage = response.linkedPackage
+              }
+              // Check if user is in userMap
+              const userMap = this.parent.parent.userMap;
+              const userProfile = R.path(['state', 'profile'])(this);
+              if (userMap && !R.hasIn(response.userId, userMap) && userProfile) {
+                const userObj = {};
+                userObj[userProfile.id] = userProfile;
+              }
+              // Check if all channels are selected
+              if (newAnn.channelIds.length >= this.vuex.viewer.viewerChannels.length) {
+                newAnn.allChannels = true;
+              }
+              // Find layer
+              let curLIndex = 0;
+              for (let i = 0; i < this.vuex.viewer.viewerAnnotations.length; i++) {
+                if (this.vuex.viewer.viewerAnnotations[i].id === response.layerId) {
+                  curLIndex = i;
+                  break;
+                }
+              }
+
+              this.$store.dispatch('viewer/createAnnotation', newAnn).then(() => {
+
+                this.sortAnns(this.vuex.viewer.viewerAnnotations[curLIndex].annotations);
+
+                // let the viewer know an annotation has been added
+                this.annotationChange(response.layerId);
+                this.selectedAnns = [newAnn];
+
+                this.render();
+                // open window
+                const annotationInfo = {
+                  annotation: newAnn,
+                  layers: this.vuex.viewer.viewerAnnotations,
+                  selectedLabelId: response.label,
+                  selectedLayerId: response.layerId,
+                  isCreating: true
+                };
+                this.fire('active-viewer-action', {
+                  method: 'openAnnotationWindow',
+                  payload: annotationInfo
+                });
+              });
             },
             // RENDER METHODS
             render: function() {

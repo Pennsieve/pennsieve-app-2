@@ -216,7 +216,7 @@
     margin-bottom: 2px;
   }
   .selected {
-      color: #295eff
+      color: $purple_2
     }
   button {
     &:hover, &:focus {
