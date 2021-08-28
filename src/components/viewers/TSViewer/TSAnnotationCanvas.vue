@@ -407,7 +407,7 @@
             _getAnnResponse(e) {
                 // const userMap = R.pathOr([], ['users'], e);
                 const linkedPackages = propOr({}, 'linkedPackages', e)
-                let resp = pathOr([], ['annotations', 'results'], e);
+                let resp = pathOr([], ['annotations', 'results'], e)
 
                 // Set requested range to last annstart.
                 if (resp.length >= this.constants['LIMITANNFETCH']) {
@@ -454,9 +454,9 @@
                         userId: curAnn.userId
                         };
                         if (curAnn.linkedPackage) {
-                        const pkgId = curAnn.linkedPackage
-                        newAnn.linkedPackage = R.pathOr('', ['content', 'id'], linkedPackages[pkgId])
-                        newAnn.linkedPackageDTO = linkedPackages[pkgId]
+                          const pkgId = curAnn.linkedPackage
+                          newAnn.linkedPackage = pathOr('', ['content', 'id'], linkedPackages[pkgId])
+                          newAnn.linkedPackageDTO = linkedPackages[pkgId]
                         }
                         // Check if all channels are selected
                         if (!isViewingMontage && newAnn.channelIds.length === this.viewerChannels.length) {
@@ -664,38 +664,6 @@
 
 
             },
-            // addAnnotation: function(start, duration, onAll, label, description, layer) {
-            //   // correct negative durations
-            //   if (duration < 0 ) {
-            //     duration = -duration;
-            //     start = start - duration;
-            //   }
-            //
-            //   const onChannels = [];
-            //   for (let ch = 0; ch < this.viewerChannels.length; ch++) {
-            //     const curChannelView = this.viewerChannels[ch];
-            //     if((curChannelView.selected && curChannelView.visible) || onAll) {
-            //       const id = this.getChannelId(curChannelView)
-            //       onChannels.push(id);
-            //     }
-            //   }
-            //
-            //   const newAjaxAnn = {
-            //     name: '',
-            //     channelIds: onChannels,
-            //     label: label,
-            //     description: description,
-            //     layer_id: layer.id,
-            //     start: start,
-            //     end: start + duration
-            //   }
-            //
-            //   //Unselect current annotations
-            //   this.unSelectAnnotations(null, false);
-            //
-            //   // Send ADD annotation request to server
-            //   this.
-            // },
             _addAnnResponse(e) {
               const response = e.detail.response;
               const newAnn = {

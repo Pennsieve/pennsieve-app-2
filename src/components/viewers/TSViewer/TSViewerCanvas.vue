@@ -295,12 +295,6 @@
                     this.$store.dispatch('viewer/setChannels', channels)
                     break
                   case 'annotate':
-
-                    // Clear Interactive Canvas
-                    const iCanvas = this.$refs.iArea;
-                    const ctx = iCanvas.getContext('2d');
-                    ctx.clearRect(0, 0, this.cWidth, this.cHeight);
-
                     let curLIndex = null;
                     for (let i=0; i<this.viewerAnnotations.length; i++) {
                       if (this.viewerAnnotations[i].selected) {
@@ -317,13 +311,11 @@
                     const selectedChannels = this.$store.getters['viewer/viewerSelectedChannels']
                     const allChannels = selectedChannels.length === this.viewerChannels.length || selectedChannels.length === 0
 
-                    const duration = (-e.clientX + this.startDragCoord.x) * this.rsPeriod
-                    const startTime = this.start +  this.startDragCoord.x * this.rsPeriod
+                    const duration = (e.clientX - this.startDragCoord.x) * this.rsPeriod
+                    const startTime = this.startDragTimeStamp + ( (this.startDragCoord.x - iCanvas.getBoundingClientRect().left) * this.rsPeriod)
                     this.$emit("addAnnotation", startTime, duration, allChannels, this.defaultLabels[this.labelSelect], '', this.viewerAnnotations[curLIndex] )
                     break;
-
                 }
-
             },
             _onMouseDown: function(evt) {
                 this.mouseDown = true;
@@ -597,7 +589,7 @@
             },
             // Render an annotation during dragging mouse while creating annotation
             renderAnnotationBox: function(curX) {
-              const iCanvas = this.$refs.cursorArea
+              const iCanvas = this.$refs.iArea
               const ctx = iCanvas.getContext('2d');
               ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
 
