@@ -108,6 +108,13 @@
       @closeWindow="onCloseAnnotationLayerWindow"
       @createLayer="onCreateAnnotationLayer"
     />
+
+    <ts-annotation-delete-dialog
+      :visible.sync="isTsAnnotationDeleteDialogVisible"
+      :delete-annotation.sync="annotationDelete"
+      @delete="onDeleteAnnotation"
+    />
+
   </div>
 </template>
 
@@ -136,13 +143,14 @@
             'timeseries-viewer-toolbar': () => import('@/components/viewers/TSViewer/TSViewerToolbar.vue'),
             'timeseries-filter-modal': () => import('@/components/viewers/TSViewer/TSFilterModal.vue'),
             'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TSAnnotationModal.vue'),
-            'timeseries-annotation-layer-modal': () => import('@/components/viewers/TSViewer/TSViewerLayerWindow.vue')
+            'timeseries-annotation-layer-modal': () => import('@/components/viewers/TSViewer/TSViewerLayerWindow.vue'),
+            'ts-annotation-delete-dialog': () => import('@/components/viewers/TSViewer/TSAnnotationDeleteDialog/TsAnnotationDeleteDialog.vue')
         },
 
         mixins: [
             Request,
             ViewerActiveTool,
-            TsAnnotation
+            TsAnnotation,
         ],
         watch: {
             viewerSidePanelOpen: {
@@ -222,7 +230,10 @@
                 cursorLoc: 1/10,
                 filterWindowOpen: false,
                 annotationWindowOpen: false,
-                annotationLayerWindowOpen: false
+                annotationLayerWindowOpen: false,
+                annotationDelete: null,
+                isTsAnnotationDeleteDialogVisible: false
+
             }
         },
 
@@ -245,8 +256,22 @@
         },
 
         methods: {
+            confirmDeleteAnnotation: function(annotation) {
+              this.annotationDelete = annotation
+              this.isTsAnnotationDeleteDialogVisible = true
+            },
+            onDeleteAnnotation: function(annotation) {
+              this.isTsAnnotationDeleteDialogVisible = false
+              this.removeAnnotation(annotation)
+            },
+            onAnnotationDeleted: function() {
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+            },
             onAddAnnotation: function (start, duration, onAll, label, description, layer) {
               this.addAnnotation(start, duration, onAll, label, description, layer)
+            },
+            onAnnotationCreated: function() {
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
             },
             onCreateAnnotationLayer: function (newLayer) {
                 this.$refs.viewerCanvas.createAnnotationLayer(newLayer)

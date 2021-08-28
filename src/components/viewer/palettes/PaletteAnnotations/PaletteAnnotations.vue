@@ -42,13 +42,16 @@
         :ref="`accordion-${layer.id}`"
         :key="layer.id"
         :title="layer.name"
+        :window-height="windowHeight"
         :selected="layer.selected"
+        :nr-layers="viewerAnnotations.length"
         icon="blackfynn:chevron-down-small"
         :border-color="layer.hexColor"
         :layer-id="layer.id"
+        @selectItem="onLayerSelected(layer.id)"
       >
         <annotation-group
-          slot="title"
+          slot="operations"
           ref="annotationGroup"
           :hide-title="false"
           :layer="layer"
@@ -57,12 +60,10 @@
         />
         <div slot="items">
           <template v-for="annotation in layer.annotations.filter(ann => ann.layer_id === layer.id)">
-            <!-- <p v-if="isTimeseriesViewer" :key="annotation.id">{{ annotation.description }}</p> -->
             <ts-annotation
               v-if="isTimeseriesViewer"
               :ref="`ann-${annotation.id}`"
               :key="annotation.id"
-              :layer="layer"
               :annotation="annotation"
             />
 
@@ -92,7 +93,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import {mapActions, mapGetters, mapState} from 'vuex'
 import {
   pathEq,
   propOr,
@@ -114,6 +115,13 @@ export default {
     Accordion,
     AnnotationGroup,
     TsAnnotation
+  },
+
+  props: {
+    windowHeight: {
+      type: Number,
+      default: 0
+    }
   },
 
   mixins: [
@@ -165,8 +173,6 @@ export default {
    * Import required Polymer components
    */
   mounted: function() {
-    // bf-ts-annotation
-    // this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-ts-annotation.html')
 
     // bf-annotation
     this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation.html')
@@ -176,6 +182,17 @@ export default {
   },
 
   methods: {
+    onLayerSelected: function(layer_id) {
+
+      // Fold all layers except selected one.
+      for (let [key, value] of Object.entries(this.$refs)) {
+        if (/^accordion/.test(key) && value[0].layerId !== layer_id) {
+          value[0].fold()
+        }
+      }
+
+      this.$store.dispatch('viewer/setActiveAnnotationLayer', layer_id)
+    },
     /**
      * View annotation
      * Opens annotation palette, opens the layer for the annotation
@@ -214,36 +231,10 @@ export default {
      */
     onAnnTap: function(annotation) {
       const annStart = propOr(null, 'start', annotation)
-      const annLayerId = propOr('', 'layer_id', annotation)
-      const annLayerIndex = this.viewerAnnotations.findIndex(layer => layer.id === annLayerId)
-      const annLayer = this.viewerAnnotations[annLayerIndex]
-
-      // Update cursor position in Timeseries Canvas
       EventBus.$emit('active-viewer-action', {
         method: 'onAnnotationSelect',
         payload: annStart
       })
-
-      this.setActiveLayer(annLayerId)
-
-    },
-
-    setActiveLayer: function(layerId) {
-
-      const annLayers = this.viewerAnnotations.map(layer => {
-        layer.selected = false
-
-          if( layer.id === layerId) {
-              layer.selected = true
-          }
-          return layer
-      })
-      for (layer in annLayers) {
-        this.$store.dispatch('viewer/updateLayer', layer)
-      }
-
-      // this.$store.dispatch('viewer/setChannels', annLayers)
-
     },
 
     /**
@@ -312,7 +303,7 @@ export default {
     background: #f7f7f7;
     border-bottom: solid 1px $gray_2;
     display: flex;
-    min-height: 33px;
+    min-height: 35px;
     overflow: hidden;
     width: 100%;
     // @apply(--layout-horizontal);

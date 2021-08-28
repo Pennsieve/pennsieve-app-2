@@ -936,7 +936,6 @@
                         continue;
                     }
                     // Set options
-                    console.log(curAnn)
                     if (curAnn.selected) {
                         ctx.fillStyle = curAnnLayer.selColor || 'rgba(51,204,102, 0.8)';
                         ctx.strokeStyle = 'white';

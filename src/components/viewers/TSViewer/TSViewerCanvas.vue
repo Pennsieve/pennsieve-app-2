@@ -295,6 +295,12 @@
                     this.$store.dispatch('viewer/setChannels', channels)
                     break
                   case 'annotate':
+
+                    // Clear Interactive Canvas
+                    const iCanvas = this.$refs.iArea;
+                    const ctx = iCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+
                     let curLIndex = null;
                     for (let i=0; i<this.viewerAnnotations.length; i++) {
                       if (this.viewerAnnotations[i].selected) {
@@ -443,6 +449,9 @@
                     }
                     return result;
                 };
+            },
+            renderAnnotationCanvas: function() {
+              this.$refs.annCanvas.render()
             },
             _renderAll: function() {
                 this.$nextTick(() => {

@@ -77,6 +77,11 @@ export const mutations = {
 
   SET_ACTIVE_ANNOTATION_LAYER (state, data) {
     state.activeAnnotationLayer = data
+    state.viewerAnnotations.forEach(index => index.selected = false)
+    const layerIndex = findIndex(propEq('id', data), state.viewerAnnotations)
+    state.viewerAnnotations[layerIndex].selected = true
+
+
   },
 
   UPDATE_LAYER (state, { layer, index })  {
