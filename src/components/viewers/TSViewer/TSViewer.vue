@@ -147,7 +147,7 @@
             'timeseries-filter-modal': () => import('@/components/viewers/TSViewer/TSFilterModal.vue'),
             'timeseries-annotation-layer-modal': () => import('@/components/viewers/TSViewer/TSViewerLayerWindow.vue'),
             'ts-annotation-delete-dialog': () => import('@/components/viewers/TSViewer/TSAnnotationDeleteDialog/TsAnnotationDeleteDialog.vue'),
-            'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TsAnnotationModal.vue')
+            'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TSAnnotationModal.vue')
         },
 
         mixins: [
