@@ -1010,9 +1010,12 @@
                         break;
                     }
 
+                  } else {
+                    this.focusedAnn = null
                   }
 
                 } else {
+                  this.focusedAnn = null
                   newPointerMode = this.viewerActiveTool
                 }
 
