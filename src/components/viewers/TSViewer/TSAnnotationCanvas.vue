@@ -673,7 +673,6 @@
                 this.focusedAnn.duration = this.focusedAnn.oldDuration
                 this.focusedAnn.end = this.focusedAnn.start + this.focusedAnn.duration
               }
-
             },
             // RENDER METHODS
             render: function() {
