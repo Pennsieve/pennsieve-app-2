@@ -15,7 +15,7 @@
         width="32"
       />
       <h2>Delete annotation?</h2>
-      <template v-if="deleteAnnotation.withDiscussions">
+      <template v-if="deleteDiscussions">
         <p>
           {{ annotationDescription }} - {{ annotationDateTime}}
         </p>
@@ -49,7 +49,7 @@
 
 <script>
 import {
-  pathOr
+  pathOr, propOr
 } from 'ramda'
 
 import BfDialogHeader from '@/components/shared/bf-dialog-header/BfDialogHeader.vue'
@@ -99,13 +99,15 @@ export default {
         const deleteAnnStart = pathOr('', ['annotation', 'start'], this.deleteAnnotation)
         return this.getUTCDateString(deleteAnnStart) + ' ' + this.getUTCTimeString(deleteAnnStart);
     },
-
+    deleteDiscussions: function() {
+      return propOr(false, 'withDiscussions', this.deleteAnnotation)
+    },
     /**
      * Compute copy for the delete button
      * @returns {String}
      */
     btnDeleteCopy: function (){
-      return this.deleteAnnotation.withDiscussions
+      return this.deleteDiscussions
         ? `Yes, I'm sure`
         : 'Delete'
     },

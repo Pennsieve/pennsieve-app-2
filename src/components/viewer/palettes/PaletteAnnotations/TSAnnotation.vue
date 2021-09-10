@@ -1,7 +1,9 @@
 <template>
   <div
     :id="annotation.id"
-    class="ts-annotation"
+    :class="['ts-annotation',
+                isSelected ? 'selected' : ''
+              ]"
     @click="onAnnotationSelect"
   >
     <div class="annotation-info">
@@ -46,14 +48,9 @@
 </template>
 
 <script>
-import { propOr, merge, pathOr } from 'ramda'
 import { mapState, mapActions } from 'vuex'
 import EventBus from '../../../../utils/event-bus'
 import Request from '../../../../mixins/request'
-
-import {
-  isEmpty
-} from 'ramda'
 
 export default {
   name: 'TsAnnotation',
@@ -77,31 +74,46 @@ export default {
   },
 
   computed: {
-    ...mapState('viewer', ['activeViewer']),
+    ...mapState('viewer', ['activeViewer', 'activeAnnotation']),
     ...mapState([
       'config',
       'userToken',
     ]),
+    isSelected: function() {
+      return this.annotation.selected
+    },
     startTime: function() {
         return this.getUTCDateString(this.annotation.start) + ' ' + this.getUTCTimeString(this.annotation.start);
     }
   },
 
   methods: {
-    ...mapActions('viewer', ['updateChannel']),
 
     onEditChannel: function() {
-      console.log('clicked on annotation edit')
+      EventBus.$emit('active-viewer-action', {
+        method: 'openEditAnnotationDialog',
+        payload: this.annotation
+      })
     },
 
-    deleteAnnotation: function() {
-      EventBus.$emit('active-viewer-action', {
-        method: 'confirmDeleteAnnotation',
-        payload: {
-          annotation: this.annotation,
-          withDiscussions: true,
-        }
-      })
+    deleteAnnotation: function(evt) {
+      const forceDelete = evt.metaKey
+      if (forceDelete){
+        EventBus.$emit('active-viewer-action', {
+          method: 'deleteAnnotation',
+          payload: this.annotation
+        })
+      } else {
+        EventBus.$emit('active-viewer-action', {
+          method: 'confirmDeleteAnnotation',
+          payload: {
+            annotation: this.annotation,
+            withDiscussions: true,
+          }
+        })
+      }
+
+
     },
 
     getUTCDateString: function(d) {
@@ -125,6 +137,8 @@ export default {
      * Jump to annotation in viewer
      */
     onAnnotationSelect: function() {
+      this.$store.dispatch('viewer/setActiveAnnotation', this.annotation)
+
       EventBus.$emit('active-viewer-action', {
         method: 'selectAnnotation',
         payload: {
@@ -145,6 +159,9 @@ export default {
   box-sizing: border-box;
   display: flex;
   padding: 3px 8px 3px 16px;
+  & .selected {
+    background-color: $purple_tint;
+  }
   &:hover {
     background: white;
   }
@@ -156,10 +173,11 @@ export default {
       color: $gray_4;
     }
   }
+
 }
 
 .annotation-info {
-  color: $gray_4;
+  //color: $gray_4;
   flex: 1;
 }
 .annotation-controls {

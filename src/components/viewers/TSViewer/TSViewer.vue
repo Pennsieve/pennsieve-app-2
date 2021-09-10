@@ -72,7 +72,8 @@
         @channelsInitialized="onChannelsInitialized"
         @annLayersInitialized="onAnnLayersInitialized"
         @closeAnnotationLayerWindow="onCloseAnnotationLayerWindow"
-        @addAnnotation="onAddAnnotation"
+        @addAnnotation="onOpenAnnotationWindow"
+        @updateAnnotation="onUpdateAnnotation"
       />
     </div>
 
@@ -98,8 +99,9 @@
 
     <timeseries-annotation-modal
       ref="annotationModal"
-      :annotation-window-open="annotationWindowOpen"
+      :visible.sync="annotationWindowOpen"
       @closeWindow="onCloseAnnotationWindow"
+      @createUpdateAnnotation="onCreateUpdateAnnotation"
     />
 
     <timeseries-annotation-layer-modal
@@ -112,8 +114,9 @@
     <ts-annotation-delete-dialog
       :visible.sync="isTsAnnotationDeleteDialogVisible"
       :delete-annotation.sync="annotationDelete"
-      @delete="onDeleteAnnotation"
+      @delete="deleteAnnotation"
     />
+
 
   </div>
 </template>
@@ -142,9 +145,9 @@
             'timeseries-viewer-canvas': () => import('@/components/viewers/TSViewer/TSViewerCanvas.vue'),
             'timeseries-viewer-toolbar': () => import('@/components/viewers/TSViewer/TSViewerToolbar.vue'),
             'timeseries-filter-modal': () => import('@/components/viewers/TSViewer/TSFilterModal.vue'),
-            'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TSAnnotationModal.vue'),
             'timeseries-annotation-layer-modal': () => import('@/components/viewers/TSViewer/TSViewerLayerWindow.vue'),
-            'ts-annotation-delete-dialog': () => import('@/components/viewers/TSViewer/TSAnnotationDeleteDialog/TsAnnotationDeleteDialog.vue')
+            'ts-annotation-delete-dialog': () => import('@/components/viewers/TSViewer/TSAnnotationDeleteDialog/TsAnnotationDeleteDialog.vue'),
+            'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TsAnnotationModal.vue')
         },
 
         mixins: [
@@ -232,8 +235,7 @@
                 annotationWindowOpen: false,
                 annotationLayerWindowOpen: false,
                 annotationDelete: null,
-                isTsAnnotationDeleteDialogVisible: false
-
+                isTsAnnotationDeleteDialogVisible: false,
             }
         },
 
@@ -256,11 +258,34 @@
         },
 
         methods: {
+            openEditAnnotationDialog: function(annotation) {
+              this.$store.dispatch('viewer/setActiveAnnotation', annotation).then(() =>{
+                this.$refs.viewerCanvas.renderAnnotationCanvas()
+                this.annotationWindowOpen = true
+              })
+            },
+            onUpdateAnnotation: function(annotation) {
+              this.openEditAnnotationDialog(annotation)
+            },
+            onCreateUpdateAnnotation: function(annotation) {
+              this.annotationWindowOpen = false
+              if (annotation.id) {
+                this.updateAnnotation()
+              } else {
+                this.addAnnotation()
+              }
+            },
+            onAnnotationUpdated: function() {
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+            },
+            onOpenAnnotationWindow: function() {
+              this.annotationWindowOpen = true
+            },
             confirmDeleteAnnotation: function(annotation) {
               this.annotationDelete = annotation
               this.isTsAnnotationDeleteDialogVisible = true
             },
-            onDeleteAnnotation: function(annotation) {
+            deleteAnnotation: function(annotation) {
               this.isTsAnnotationDeleteDialogVisible = false
               this.removeAnnotation(annotation)
             },
@@ -277,14 +302,12 @@
                 this.$refs.viewerCanvas.createAnnotationLayer(newLayer)
             },
             onCloseAnnotationLayerWindow: function() {
-                 this.annotationLayerWindowOpen = false
-            },
-            onAnnotationSelect: function(annStart) {
-                let rsPeriod = this.$refs.viewerCanvas.rsPeriod
-                this.updateStart(annStart - ((this.cursorLoc*this.cWidth - this.constants['CURSOROFFSET']) * rsPeriod));
+              this.annotationLayerWindowOpen = false
             },
             onCloseAnnotationWindow: function() {
-                this.annotationWindowOpen = false
+              this.$refs.viewerCanvas.resetFocusedAnnotation()
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+              this.annotationWindowOpen = false
             },
             onCloseFilterWindow: function() {
                 this.filterWindowOpen = false
@@ -367,7 +390,8 @@
                 this.start = setStart
             },
             selectAnnotation: function(payload) {
-              this.updateStart(payload.annotation.start - this.duration*this.cursorLoc)
+              let rsPeriod = this.$refs.viewerCanvas.rsPeriod
+              this.updateStart(payload.annotation.start - ((this.cursorLoc*this.cWidth - this.constants['CURSOROFFSET']) * rsPeriod))
             },
             selectChannel: function(payload) {
               const _channels = this.viewerChannels.map(channel => {

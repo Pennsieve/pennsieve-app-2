@@ -79,15 +79,6 @@
           </template>
         </div>
       </accordion>
-
-      <bf-viewer-side-panel-empty-state v-show="!hasLayers">
-        <img
-          id="illustration"
-          src="/static/images/illustrations/illo-sharing.svg"
-          alt="illustration of two people interacting"
-        >
-        <p>Add an annotation by using the annotation tool.</p>
-      </bf-viewer-side-panel-empty-state>
     </div>
   </div>
 </template>
@@ -137,7 +128,7 @@ export default {
 
   computed: {
     ...mapGetters(['getPermission']),
-    ...mapState('viewer', ['activeViewer', 'viewerAnnotations']),
+    ...mapState('viewer', ['activeViewer', 'viewerAnnotations', 'activeAnnotation']),
 
     /**
      * Compute sorted layers and annotations
@@ -168,17 +159,17 @@ export default {
     }
   },
 
-  /**
-   * Vue lifecycle method
-   * Import required Polymer components
-   */
   mounted: function() {
 
     // bf-annotation
     this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation.html')
 
-    // bf-viewer-side-panel-empty-state
-    this.importHref('/web-components/src/components/blackfynn/data/bf-viewer/bf-viewer-side-panel-empty-state.html')
+  },
+
+  watch: {
+    activeAnnotation: function() {
+      this.viewAnnotation(this.activeAnnotation.id)
+    }
   },
 
   methods: {
@@ -204,21 +195,14 @@ export default {
       const layerId = propOr('', 'layer_id', annotation)
       const layer = head(this.$refs[`accordion-${layerId}`])
 
+
+      this.onLayerSelected(layerId)
       layer.open = true
-
-      let annotationSelector = 'bf-annotation'
-      if (this.isTimeseriesViewer) {
-        annotationSelector = 'bf-ts-annotation'
-      }
-
-      const annotations = this.$el.querySelectorAll(annotationSelector)
-      annotations.forEach(ann => ann.selected = false)
 
       // Select annotation and scroll it into view
       this.$nextTick(() => {
-        const annotationEl = this.$el.querySelector(`#ann-${id}`)
+        const annotationEl = this.$refs[`ann-${id}`][0].$el
         if (annotationEl) {
-          annotationEl.selected = true
           annotationEl.scrollIntoView()
         }
       })

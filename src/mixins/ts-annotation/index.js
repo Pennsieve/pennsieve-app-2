@@ -16,7 +16,8 @@ export default {
       'activeViewer',
       'viewerChannels',
       'viewerSidePanelOpen',
-      'viewerAnnotations'
+      'viewerAnnotations',
+      'activeAnnotation'
     ]),
     ...mapActions('viewer', [
       'createAnnotation'
@@ -25,7 +26,20 @@ export default {
   },
 
   methods: {
-    addAnnotation: function(start, duration, onAll, label, description, layer) {
+    addAnnotation: function() {
+
+      // assert that we only call this function on activeAnnotations without an existing ID
+      if (this.activeAnnotation.id) {
+        throw new TypeError("Trying to create an annotation that already exists", this.activeAnnotation.id)
+      }
+
+      let start = this.activeAnnotation.start
+      let duration = this.activeAnnotation.duration
+      const onAll =  this.activeAnnotation.allChannels
+      const label = this.activeAnnotation.label
+      const description = this.activeAnnotation.description
+      const layer_id = this.activeAnnotation.layer_id
+
       // correct negative durations
       if (duration < 0 ) {
         duration = -duration;
@@ -46,7 +60,7 @@ export default {
         channelIds: onChannels,
         label: label,
         description: description,
-        layer_id: layer.id,
+        layer_id: layer_id,
         start: start,
         end: start + duration
       }
@@ -56,7 +70,7 @@ export default {
 
       // Send ADD annotation request to server
       const timeseriesId = this.activeViewer.content.nodeId
-      const url = `${this.config.apiUrl}/timeseries/${timeseriesId}/layers/${layer.id}/annotations`
+      const url = `${this.config.apiUrl}/timeseries/${timeseriesId}/layers/${layer_id}/annotations`
       this.sendXhr(url, {
         method:'POST',
         header: {
@@ -101,15 +115,58 @@ export default {
         this.$store.dispatch('viewer/createAnnotation',newAnn)
           .then(() => {
             this.sortAnns(this.viewerAnnotations[curLIndex].annotations);
+            this.onAnnotationCreated()
           })
-
-        this.onAnnotationCreated()
-
       })
         .catch(
         )
 
 
+    },
+    updateAnnotation: function() {
+
+      if (!this.activeAnnotation.id) {
+        throw new TypeError("Trying to update an annotation that doesn't exists on server", this.activeAnnotation.id)
+      }
+
+      let start = this.activeAnnotation.start
+      let duration = this.activeAnnotation.duration
+
+      // correct negative durations
+      if (duration < 0 ) {
+        duration = -duration;
+        start = start - duration;
+        this.activeAnnotation.start = start
+        this.activeAnnotation.duration = duration
+        this.activeAnnotation.end = start + duration
+      }
+
+      const annLayerId = this.activeAnnotation.layer_id
+      const timeseriesId = this.activeViewer.content.nodeId
+      const url = `${this.config.apiUrl}/timeseries/${timeseriesId}/layers/${annLayerId}/annotations/${this.activeAnnotation.id}`;
+
+      const XhrBody = {
+        name: '',
+        channelIds: this.activeAnnotation.channelIds,
+        label: this.activeAnnotation.label,
+        description: this.activeAnnotation.description,
+        layer_id: this.activeAnnotation.layer_id,
+        start: start,
+        end: start + duration
+      }
+
+      const self = this
+      self.sendXhr(url, {
+        method:'PUT',
+        header: {
+          'Authorization': `Bearer ${this.userToken}`
+        },
+        body:XhrBody
+      } ).then((response) => {
+        self.$store.dispatch('viewer/updateAnnotation', this.activeAnnotation)
+        self.onAnnotationUpdated()
+      })
+        .catch(self.handleXhrError.bind(this))
     },
     removeAnnotation: function(annotation) {
       let annLayerId = ''
@@ -122,17 +179,18 @@ export default {
       }
       const timeseriesId = this.activeViewer.content.nodeId
       const url = `${this.config.apiUrl}/timeseries/${timeseriesId}/layers/${annLayerId}/annotations/${annotation.id}`;
-      this.sendXhr(url, {
+
+      const self = this
+      self.sendXhr(url, {
         method:'DELETE',
         header: {
           'Authorization': `Bearer ${this.userToken}`
         },
       } ).then((response) => {
-        this.$store.dispatch('viewer/deleteAnnotation', annotation)
-        this.onAnnotationDeleted()
+        self.$store.dispatch('viewer/deleteAnnotation', annotation)
+        self.onAnnotationDeleted()
       })
         .catch(self.handleXhrError.bind(this))
-
 
     },
     sortAnns: function(annArray) {

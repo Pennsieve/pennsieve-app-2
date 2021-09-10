@@ -1,6 +1,5 @@
 <template>
   <div class="timeseries-viewer-canvas">
-    <!-- <annotation-popover on-mouseleave="_onPopoverMouseLeave" id="annotationPopover"></annotation-popover> -->
 
     <div id="canvasWrapper">
       <timeseries-plot-canvas
@@ -61,6 +60,7 @@
         @annLayersInitialized="onAnnLayersInitialized"
         @annotationsReceived="onAnnotationsReceived"
         @closeAnnotationLayerWindow="onCloseAnnotationLayerWindow"
+        @updateAnnotation="onUpdateAnnotation"
       />
 
       <canvas
@@ -85,7 +85,7 @@
 <script>
 /* eslint-disable no-case-declarations */
     import {
-        mapState
+        mapState, mapActions
     } from 'vuex'
 
     import {
@@ -187,6 +187,56 @@
                 this.$nextTick(() => {
                     this.renderAll()
                 })
+            },
+            pointerMode: function () {
+
+              this.$refs.iArea.removeAttribute('col_resize');
+              this.$refs.iArea.removeAttribute('active');
+              this.$refs.iArea.removeAttribute('point')
+
+
+              switch (this.pointerMode) {
+                case 'cursor_hover':
+                  console.log('hover')
+                  this.$refs.iArea.removeAttribute('point')
+                  this.$refs.iArea.setAttribute('cursor_hover', true)
+                  break
+                case 'annResize-left':
+                  console.log('left')
+
+                  this.$refs.iArea.setAttribute('col_resize', true)
+                  break
+                case 'annResize-right':
+                  console.log('right')
+
+                  this.$refs.iArea.setAttribute('col_resize', true)
+                  break
+                case 'annSelect':
+                  this.$refs.iArea.setAttribute('active', true)
+                  break
+                case 'pan':
+                  break;
+                case 'pointer':
+                  this.$refs.iArea.setAttribute('point', true);
+                  break;
+                case 'annotate':
+                  this.$refs.iArea.setAttribute('point', true);
+                  break;
+                default:
+                  console.log('other')
+
+                  this.$refs.iArea.removeAttribute('point');
+                  this.$refs.iArea.removeAttribute('cursor_hover');
+                  break
+
+
+              }
+
+              this.$nextTick(() => {
+                this.renderAnnotationCanvas()
+              })
+
+
             }
         },
         data: function () {
@@ -201,7 +251,6 @@
                 pointerMode: 'pan',
                 trackDirection: false,
                 startDragCoord: {x: 0, y: 0},
-                actionMode: null,                 // Secondary mode for pointer specific to tsviewer canvas
                 defaultLabels: ['Event', 'Artifact', 'Seizure', 'Mark', 'Stim On', 'Stim Off', 'Start', 'Stop'],
                 labelSelect: 0
             }
@@ -213,6 +262,9 @@
         },
 
         methods: {
+            resetFocusedAnnotation: function() {
+              this.$refs.annCanvas.resetFocusedAnnotation()
+            },
             createAnnotationLayer: function(newLayer) {
                 this.$refs.annCanvas.createAnnotationLayer(newLayer)
             },
@@ -225,6 +277,9 @@
                 let cursorOffset = (this.cursorLoc*this.cWidth - this.constants['CURSOROFFSET']) * this.rsPeriod
                 let nextAnn = this.$refs.annCanvas.findPreviousAnnotation(this.start + cursorOffset)
                 return nextAnn.start - cursorOffset
+            },
+            onUpdateAnnotation: function(annotation) {
+              this.$emit('updateAnnotation', annotation)
             },
             onCloseAnnotationLayerWindow: function() {
                 this.$emit('closeAnnotationLayerWindow')
@@ -267,18 +322,16 @@
                 }
             },
             _onMouseUp: function(e) {
-                const iCanvas = this.$refs.iArea;
-                const ctx = iCanvas.getContext('2d');
-                ctx.clearRect(0, 0, this.cWidth, this.cHeight);
 
                 this.resizeClicked = false;
                 this.mouseDown = false;
 
-                switch (this.viewerActiveTool) {
+                switch (this.pointerMode) {
                   case 'pointer':
+                    this.clearICanvas()
                     const append = e.metaKey;
-                    const yEnd = e.clientY - iCanvas.getBoundingClientRect().top
-                    const yStart = this.startDragCoord.y - iCanvas.getBoundingClientRect().top
+                    const yEnd = e.clientY - this.$refs.iArea.getBoundingClientRect().top
+                    const yStart = this.startDragCoord.y - this.$refs.iArea.getBoundingClientRect().top
 
                     const channels = this.viewerChannels.map(channel => {
                         if (append === false) {
@@ -293,6 +346,10 @@
                         })
 
                     this.$store.dispatch('viewer/setChannels', channels)
+                    break
+                  case 'annSelect':
+                    this.clearICanvas()
+                    this.$refs.annCanvas.selectFocusedAnn()
                     break
                   case 'annotate':
                     let curLIndex = null;
@@ -312,21 +369,51 @@
                     const allChannels = selectedChannels.length === this.viewerChannels.length || selectedChannels.length === 0
 
                     const duration = (e.clientX - this.startDragCoord.x) * this.rsPeriod
-                    const startTime = this.startDragTimeStamp + ( (this.startDragCoord.x - iCanvas.getBoundingClientRect().left) * this.rsPeriod)
+                    const startTime = this.startDragTimeStamp + ( (this.startDragCoord.x - this.$refs.iArea.getBoundingClientRect().left) * this.rsPeriod)
+
+                    const newAnn = {
+                      name: '',
+                      id: null,
+                      label: this.defaultLabels[this.labelSelect],
+                      description: '',
+                      start: startTime,
+                      duration: duration,
+                      end: startTime + duration,
+                      cStart: null,
+                      cEnd: null,
+                      selected: true,
+                      channelIds: selectedChannels,
+                      allChannels: allChannels,
+                      layer_id: this.viewerAnnotations[curLIndex].id,
+                      userId: null
+                    };
+
+                    this.$store.dispatch('viewer/setActiveAnnotation', newAnn)
+
                     this.$emit("addAnnotation", startTime, duration, allChannels, this.defaultLabels[this.labelSelect], '', this.viewerAnnotations[curLIndex] )
                     break;
+                  case 'annResize-left':
+                  case 'annResize-right':
+                    this.$refs.annCanvas.onMouseUp()
                 }
+            },
+            clearICanvas: function() {
+              const iCanvas = this.$refs.iArea;
+              const ctx = iCanvas.getContext('2d');
+              ctx.clearRect(0, 0, this.cWidth, this.cHeight);
             },
             _onMouseDown: function(evt) {
                 this.mouseDown = true;
                 this.startDragTimeStamp = this.start
+                const cCoord = this.$refs.iArea.getBoundingClientRect();
                 this.startDragCoord.x = evt.clientX
                 this.startDragCoord.y = evt.clientY
 
                 switch(this.pointerMode) {
                     case 'annResize-left':
                     case 'annResize-right':
-                        this.resizeClicked = true;
+                        this.resizeClicked = true
+                        this.$refs.annCanvas.onMouseDown(evt.clientX - cCoord.left, evt.clientY - cCoord.top)
                         break;
                 }
             },
@@ -345,11 +432,9 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                this.$refs.iArea.removeAttribute('col_resize');
-                this.$refs.iArea.removeAttribute('active');
-                this.$refs.iArea.removeAttribute('point');
-                this.$refs.iArea.removeAttribute('cursor_hover');
-
+                const cCoord = this.$refs.iArea.getBoundingClientRect();
+                const mY = e.clientY - cCoord.top;
+                const mX = e.clientX - cCoord.left;
 
                 switch (this.viewerActiveTool) {
                     case 'pan':
@@ -357,26 +442,31 @@
                             // Update StartTime and get new data
                             const setStart = this.startDragTimeStamp - ((e.clientX-this.startDragCoord.x) * this.rsPeriod);
                             this.$emit('setStart', setStart)
+                        } else {
+                          this.pointerMode = this.$refs.annCanvas.onMouseMove(mX,mY, this.pointerMode, this.mouseDown)
                         }
 
                         break;
                     case 'pointer':
-                        this.$refs.iArea.setAttribute('point', "true");
                         if( this.mouseDown){
                             this.renderSelectBox(e.clientX, e.clientY);
+                        } else {
+                          this.pointerMode = this.$refs.annCanvas.onMouseMove(mX,mY, this.pointerMode , this.mouseDown)
                         }
 
                         break;
                     case 'annotate':
-                        this.$refs.iArea.setAttribute('point', "true");
-                        if( this.mouseDown) {
-                          this.renderAnnotationBox(e.clientX)
-                        }
-                        break;
+                      if( this.mouseDown && this.pointerMode == 'annotate') {
+                        this.renderAnnotationBox(e.clientX)
+                      } else if (this.mouseDown && ['annResize-left', 'annResize-right'].includes(this.pointerMode))  {
+                        this.pointerMode = this.$refs.annCanvas.onMouseMove(mX,mY, this.pointerMode, this.mouseDown)
+                        this.renderAll()
+                      } else {
+                        this.pointerMode = this.$refs.annCanvas.onMouseMove(mX,mY, this.pointerMode, this.mouseDown)
+                      }
 
+                      break;
                 }
-
-
             },
             resize: function() {
                 this.updateRsPeriod(this.cWidth, this.duration)
@@ -443,6 +533,7 @@
                 };
             },
             renderAnnotationCanvas: function() {
+              this.clearICanvas()
               this.$refs.annCanvas.render()
             },
             _renderAll: function() {
