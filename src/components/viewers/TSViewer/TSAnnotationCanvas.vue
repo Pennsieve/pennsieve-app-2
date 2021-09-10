@@ -1,8 +1,12 @@
 <template>
-    <canvas id="annLabelArea" class="timeseries-annotation-canvas"  ref="annLabelArea" 
-        :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
-        :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
-        :style="canvasStyle"></canvas>
+  <canvas
+    id="annLabelArea"
+    ref="annLabelArea"
+    class="timeseries-annotation-canvas"
+    :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
+    :height="_cpCanvasScaler(pHeight, pixelRatio,0)"
+    :style="canvasStyle"
+  />
 </template>
 
 <script>
@@ -11,14 +15,11 @@
     import Request from '@/mixins/request'
     import EventBus from '@/utils/event-bus'
 
-    import {    
-        mapActions,
-        mapGetters,
+    import {
         mapState
     } from 'vuex'
 
     import {
-        compose,
         defaultTo,
         find,
         head,
@@ -26,10 +27,10 @@
         propEq,
         propOr
     } from 'ramda'
-    
+
     export default {
         name: 'TimeseriesAnnotationCanvas',
-        
+
         mixins: [
             Request,
             ViewerActiveTool
@@ -39,11 +40,10 @@
               type: Number,
               default: 0
             },
-              
             cHeight: Number,
             start: Number,
             duration: Number,
-            ts_end: Number,
+            tsEnd: Number,
             rsPeriod: Number,
             pixelRatio: Number,
             constants: Object,
@@ -81,7 +81,9 @@
                 hoverOffsets: [],
                 cachedAnnRange: [],
                 a11yList:['#FFFF4E'],
-                focusedAnn:null
+                focusedAnn: null,
+                renderAnn: null,
+                mouseDownPosition: null
             }
         },
         computed: {
@@ -112,7 +114,7 @@
                 .then(resp => {
                     this._getLayerResponse(resp)
                 .then(() => {
-                    this.checkAnnotationRange(this.start, this.start + this.duration);    
+                    this.checkAnnotationRange(this.start, this.start + this.duration);
                 })
                 })
     },
@@ -302,8 +304,8 @@
                 // If part of the viewport is not cached, request up to limit.
                 // Start with full width --> split on exisiting ranges
                 const reqRange = [];
-                reqRange.push({start: RStart, end: this.ts_end});
-                
+                reqRange.push({start: RStart, end: this.tsEnd});
+
                 // check if viewport is cached
                 let firstIndex = 0;
                 for (let i = 0; i < this.cachedAnnRange.length; i++) {
@@ -407,7 +409,7 @@
             _getAnnResponse(e) {
                 // const userMap = R.pathOr([], ['users'], e);
                 const linkedPackages = propOr({}, 'linkedPackages', e)
-                let resp = pathOr([], ['annotations', 'results'], e);
+                let resp = pathOr([], ['annotations', 'results'], e)
 
                 // Set requested range to last annstart.
                 if (resp.length >= this.constants['LIMITANNFETCH']) {
@@ -454,9 +456,9 @@
                         userId: curAnn.userId
                         };
                         if (curAnn.linkedPackage) {
-                        const pkgId = curAnn.linkedPackage
-                        newAnn.linkedPackage = R.pathOr('', ['content', 'id'], linkedPackages[pkgId])
-                        newAnn.linkedPackageDTO = linkedPackages[pkgId]
+                          const pkgId = curAnn.linkedPackage
+                          newAnn.linkedPackage = pathOr('', ['content', 'id'], linkedPackages[pkgId])
+                          newAnn.linkedPackageDTO = linkedPackages[pkgId]
                         }
                         // Check if all channels are selected
                         if (!isViewingMontage && newAnn.channelIds.length === this.viewerChannels.length) {
@@ -629,7 +631,7 @@
                 return defaultTo({}, find(propEq('id', layerId), this.viewerAnnotations))
             },
             createAnnotationLayer: function(newLayer) {
-            
+
                 const url = `${this.config.apiUrl}/timeseries/${this.activeViewer.content.id}/layers?api_key=${this.userToken}`;
                 this.sendXhr(url, {
                     method: "POST",
@@ -657,12 +659,17 @@
                                 }
                             })
                         })
-                    })  
+                    })
                     this.$emit('closeAnnotationLayerWindow')
-                    
+
                 })
 
 
+            },
+            resetFocusedAnnotation: function() {
+              this.focusedAnn.start = this.focusedAnn.oldStart
+              this.focusedAnn.duration = this.focusedAnn.oldDuration
+              this.focusedAnn.end = this.focusedAnn.start + this.focusedAnn.duration
             },
             // RENDER METHODS
             render: function() {
@@ -677,7 +684,6 @@
 
 
                 // Init hover offsets --> used to track which channels contain individual annotations.
-                // this.set('hoverOffsets', [this.constants['ANNOTATIONLABELHEIGHT']/2]);
                 this.hoverOffsets = [this.constants['ANNOTATIONLABELHEIGHT']/2]
 
                 // clear canvas
@@ -721,7 +727,7 @@
                                 this.renderAnn.push(curAnn);
                             }
                         }
-                    }
+                    }``
                 }
 
                 // Sort rendered annotations
@@ -840,7 +846,6 @@
                         continue;
                     }
                     // Set options
-                    console.log(curAnn)
                     if (curAnn.selected) {
                         ctx.fillStyle = curAnnLayer.selColor || 'rgba(51,204,102, 0.8)';
                         ctx.strokeStyle = 'white';
@@ -868,7 +873,7 @@
 
                     // Render Inside lines (resize handles)
                     const firstOffset = curAnn.allOffsets[minOffsetIdx];
-                    if (this.pointerMode === 'annotate') {
+                    if (['annSelect','annResize-left','annResize-right'].includes(this.pointerMode) && this.viewerActiveTool == "annotate") {
                         ctx.beginPath();
 
                         if (curAnn.duration !== 0) {
@@ -878,6 +883,8 @@
                         ctx.moveTo(curAnnStartRounded + 3, firstOffset - halfAnnotationHeight + 3);
                         ctx.lineTo(curAnnStartRounded + 3, firstOffset + halfAnnotationHeight - 3);
                         ctx.stroke();
+                    } else {
+                      console.log(this.pointerMode)
                     }
 
                     // fill text
@@ -893,8 +900,8 @@
                     const linkedPackageDTO = curAnn.linkedPackageDTO
 
                     if (linkedPackageDTO && (curAnnEndRounded - curAnnStartRounded) >= 30 ) {
-                    const preview = R.pathOr({}, ['objects', 'view', 1, 'content'], linkedPackageDTO)
-                    const fileType = R.propOr('', 'fileType', preview)
+                    const preview = pathOr({}, ['objects', 'view', 1, 'content'], linkedPackageDTO)
+                    const fileType = propOr('', 'fileType', preview)
 
                     const img = new Image()
 
@@ -917,6 +924,157 @@
 
                 ctx.restore();
             },
+            // MOUSEMOVE METHODS
+            onMouseDown: function(mX, mY) {
+              if (this.focusedAnn) {
+                switch (this.pointerMode) {
+                  case 'annResize-left':
+                  case 'annResize-right':
+                    this.focusedAnn.oldStart = this.focusedAnn.start
+                    this.focusedAnn.oldDuration = this.focusedAnn.duration;
+                    this.mouseDownPosition = [mX, mY]
+                    break
+                }
+              }
+            },
+            onMouseMove: function(mX, mY, pointerMode, mouseDown ) {
+
+              let newPointerMode = pointerMode;
+
+              if (mouseDown) {
+                // Dragging and updating annotation start/duration
+                const timeDiff = (mX-this.mouseDownPosition[0]) * this.rsPeriod
+                switch (this.pointerMode) {
+                  case 'annResize-left':
+                    if (this.focusedAnn.oldDuration > 0) {
+                      this.focusedAnn.start = (this.focusedAnn.oldStart + timeDiff);
+                      this.focusedAnn.duration = (this.focusedAnn.oldDuration - timeDiff );
+                      this.focusedAnn.end = this.focusedAnn.start + this.focusedAnn.duration;
+                    } else {
+                      this.focusedAnn.start = (this.focusedAnn.oldStart + timeDiff);
+                    }
+                    break
+                  case 'annResize-right':
+                    this.focusedAnn.duration = (this.focusedAnn.oldDuration + timeDiff );
+                    this.focusedAnn.end = this.focusedAnn.start + this.focusedAnn.duration;
+                    break
+                }
+
+              } else {
+                const checkAnns = this.shouldCheckAnnotationHover(mY)
+                newPointerMode = this.viewerActiveTool;
+
+                if (checkAnns) {
+                  const annHeight = this.constants['ANNOTATIONLABELHEIGHT'];
+                  const halfAnnHeight = annHeight/2;
+
+                  let onAnn = null;
+                  for(let i = 0; i < this.renderAnn.length; i++) {
+
+                    if( (this.renderAnn[i].cStart) < mX && (this.renderAnn[i].cEnd) > mX) {
+
+                      // Now check annotation offset
+                      if( mY > (this.renderAnn[i].cY - halfAnnHeight) && mY < (this.renderAnn[i].cY + halfAnnHeight) ) {
+                        onAnn = i;
+                      }
+
+                    } else if(this.renderAnn[i].cStart > mX ) {
+                      // Break on first annotation where start > mX
+                      break;
+                    }
+
+                  }
+                  // Setting the cursor pointer
+                  if (onAnn !== null) {
+                    const oldFocus = this.focusedAnn;
+
+                    // If no focus, or focused but now outside range ---> update focus to annotation under cursor
+                    if (oldFocus === null || (this.focusedAnn && (mX < this.focusedAnn.cStart || mX > this.focusedAnn.cEnd )) ) {
+                      this.focusedAnn = this.renderAnn[onAnn];
+                    }
+
+                    // Check which activeArea
+                    switch (this.viewerActiveTool) {
+
+                      case 'annotate':
+                        if (mX <= (this.focusedAnn.cStart + 10)) {
+                          newPointerMode = 'annResize-left';
+                        } else if ( mX >= (this.focusedAnn.cEnd - 10) && this.focusedAnn.duration > 0 ) {
+                          newPointerMode = 'annResize-right';
+                        } else {
+                          newPointerMode = 'annSelect';
+                        }
+                        break;
+                      case 'pointer':
+                        newPointerMode = 'annSelect';
+                        break;
+                    }
+
+                  } else {
+                    this.focusedAnn = null
+                  }
+
+                } else {
+                  this.focusedAnn = null
+                  newPointerMode = this.viewerActiveTool
+                }
+
+              }
+
+
+
+              return newPointerMode
+
+            },
+            onMouseUp: function() {
+              if (this.focusedAnn) {
+                switch (this.pointerMode) {
+                  case 'annResize-left':
+                  case 'annResize-right':
+                    // update start/duration in case of annotation inversion
+
+                    // let duration = -this.focusedAnn.duration
+                    // let start = this.focusedAnn.start
+
+                    // correct negative durations
+                    if (this.focusedAnn.duration < 0 ) {
+                      const duration = -this.focusedAnn.duration;
+                      const start = this.focusedAnn.start - duration;
+                      this.focusedAnn.start = start
+                      this.focusedAnn.duration = duration
+                      this.focusedAnn.end = start + duration
+                    }
+
+                    this.$store.dispatch('viewer/setActiveAnnotation', this.focusedAnn).then(() => {
+                      this.$emit('updateAnnotation', this.focusedAnn)
+                      }
+                    )
+                    break
+                }
+              }
+            },
+            shouldCheckAnnotationHover: function(mY) {
+              const annHeight = this.constants['ANNOTATIONLABELHEIGHT'];
+              const halfAnnHeight = annHeight/2;
+
+              let checkAnns = false;
+              for (let o=0; o< this.hoverOffsets.length; o++) {
+                if (mY >= (this.hoverOffsets[o] - halfAnnHeight) && mY <= (this.hoverOffsets[o] + halfAnnHeight)) {
+                  checkAnns = true;
+                  break;
+                }
+              }
+              return checkAnns
+
+          },
+            // ACTION METHODS
+            selectFocusedAnn: function(){
+              this.$store.dispatch('viewer/setActiveAnnotation', this.focusedAnn)
+              this.$nextTick(() => {
+                this.render()
+              })
+
+            }
         }
     }
 

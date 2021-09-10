@@ -1,9 +1,9 @@
 <template>
     <div class="timeseries-scrubber">
         <div class="dateWrap">
-            <div>{{ts_start_str}}</div>
-            <div>{{fullDateStr}}</div>
-            <div>{{ts_end_str}}</div>
+            <div>{{ ts_start_str }}</div>
+            <div>{{ fullDateStr }}</div>
+            <div>{{ ts_end_str }}</div>
         </div>
         <div class="noselect">
             <div id="scrubber" noselect>
@@ -90,8 +90,8 @@
                 if (this.hoverTxt !== '') {
                     return this.hoverTxt;
                 } else if(this.start > 0) {
-                    const d = new Date(this.start/1000);
-                    return ( d.toDateString() );
+                    const d = new Date(this.start/1000).toUTCString();
+                    return d.substring(0, d.length - 3);
                 }
             },
             canvasStyle: function() {
@@ -208,8 +208,8 @@
 
                     //update hoverTxt
                     const realStart = ( (cHoverOffset)/this.cWidth ) * (this.ts_end - this.ts_start ) + this.ts_start;
-                    const d = new Date(realStart/1000);
-                    this.hoverTxt = d.toUTCString();
+                    const d = new Date(realStart/1000).toUTCString();;
+                    this.hoverTxt = d.substring(0, d.length - 3);
 
                     if (oldMode !== this.pointerMode) {
                         this.render();
