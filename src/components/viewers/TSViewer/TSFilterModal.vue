@@ -1,6 +1,6 @@
 <template>
-    <bf-dialog 
-        class="timeseries-filter-modal" 
+    <bf-dialog
+        class="timeseries-filter-modal"
         ref="filter-modal"
         title="Set Filter"
         :open="filterWindowOpen"
@@ -8,8 +8,8 @@
 
         <div slot="body">
             <div class="select-wrapper">
-                <el-select 
-                    v-model="selectedFilter" 
+                <el-select
+                    v-model="selectedFilter"
                     placeholder="Select" >
                     <el-option
                         v-for="item in filterOptions"
@@ -21,28 +21,28 @@
 
                 <div v-if="computeVisible0">
                     {{computePlaceholder1}}
-                    <el-input-number 
+                    <el-input-number
                         class="filterInput"
-                        v-model="input0" 
-                        controls-position="right" 
+                        v-model="input0"
+                        controls-position="right"
                         :precision="2"
-                        @change="handleChange" 
+                        @change="handleChange"
                         ></el-input-number>
                 </div>
-                
+
                 <div v-if="computeVisible1">
                     {{computePlaceholder2}}
-                    <el-input-number 
+                    <el-input-number
                         class="filterInput"
-                        v-model="input1" 
-                        controls-position="right" 
+                        v-model="input1"
+                        controls-position="right"
                         :precision="2"
-                        @change="handleChange" 
+                        @change="handleChange"
                         ></el-input-number>
                 </div>
-               
-                <el-select 
-                    v-model="selectedNotch" 
+
+                <el-select
+                    v-model="selectedNotch"
                     v-if="computeVisible2"
                     placeholder="Select" >
                     <el-option
@@ -59,7 +59,7 @@
         <div slot="footer">
             <div class="button-wrapper">
                 <div class="channelsSelected">
-                  
+
                     <svg-icon
                         name="icon-selection"
                         height="16"
@@ -67,11 +67,11 @@
 
                     <div v-if="onSingleChannel">
                         Adding to single channel
-                    </div>    
+                    </div>
                     <div v-else>
                         Adding to {{selectedChannels}} Selected Channels
                     </div>
-                    
+
                 </div>
                 <div class="buttons">
                     <bf-button
@@ -79,7 +79,7 @@
                     >Set Filter
                     </bf-button>
                 </div>
-            </div> 
+            </div>
 
         </div>
 
@@ -229,9 +229,9 @@
                 input0: null,
                 input1: null,
                 onChannels:[]
-                
+
             }
-                
+
         },
 
         methods: {
@@ -256,7 +256,7 @@
                         notch: this.selectedNotch}
                 })
 
-            },            
+            },
         }
     }
 

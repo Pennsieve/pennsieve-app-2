@@ -2,25 +2,37 @@
   <div class="palette-annotations">
     <div class="annotations-heading">
       <div class="controls">
-        <div
-          v-if="getPermission('editor')"
-          class="inner"
-          @tap="createLayer"
+        <el-tooltip
+          placement="top"
+          content="Hide all channels"
+          :popper-options="{ boundariesElement: 'window' }"
+          :open-delay="300"
         >
-          <iron-icon
-            class="annotation-control create-new-layer"
-            icon="blackfynn:add"
-          />
-          New Layer
-        </div>
+          <button @click="createLayer">
+            <svg-icon
+              name="icon-plus"
+              height="20"
+              width="20"
+            />
+            New Layer
+          </button>
+        </el-tooltip>
       </div>
-      <div class="visibility">
-        <iron-icon
-          class="annotation-control toggle-visibility"
-          :class="[ allVisible ? 'all-hidden' : '' ]"
-          icon="blackfynn:remove-red-eye"
-          @click="toggleAllGroupsVisibility"
-        />
+        <div class="visibility">
+          <el-tooltip
+          placement="top"
+          content="Hide all annotations"
+          :popper-options="{ boundariesElement: 'window' }"
+          :open-delay="300"
+        >
+          <button @click="toggleAllGroupsVisibility">
+            <svg-icon
+              name="icon-eyeball"
+              height="20"
+              width="20"
+            />
+          </button>
+        </el-tooltip>
       </div>
     </div>
 
@@ -30,30 +42,29 @@
         :ref="`accordion-${layer.id}`"
         :key="layer.id"
         :title="layer.name"
+        :window-height="windowHeight"
         :selected="layer.selected"
+        :nr-layers="viewerAnnotations.length"
         icon="blackfynn:chevron-down-small"
         :border-color="layer.hexColor"
         :layer-id="layer.id"
+        @selectItem="onLayerSelected(layer.id)"
       >
-        <bf-annotation-group
-          slot="title"
+        <annotation-group
+          slot="operations"
           ref="annotationGroup"
-          :hide-title="true"
-          :layer="JSON.stringify(layer)"
+          :hide-title="false"
+          :layer="layer"
           :orig-label="layer.name"
           :can-crud-annotation="getPermission('editor')"
         />
         <div slot="items">
           <template v-for="annotation in layer.annotations.filter(ann => ann.layer_id === layer.id)">
-            <!-- <p v-if="isTimeseriesViewer" :key="annotation.id">{{ annotation.description }}</p> -->
-            <bf-ts-annotation
+            <ts-annotation
               v-if="isTimeseriesViewer"
               :ref="`ann-${annotation.id}`"
               :key="annotation.id"
-              :layer-id="layer.id"
-              :layer="JSON.stringify(layer)"
-              :annotation="JSON.stringify(annotation)"
-              @click="onAnnTap(annotation)"
+              :annotation="annotation"
             />
 
             <bf-annotation
@@ -68,38 +79,40 @@
           </template>
         </div>
       </accordion>
-
-      <bf-viewer-side-panel-empty-state v-show="!hasLayers">
-        <img
-          id="illustration"
-          src="/static/images/illustrations/illo-sharing.svg"
-          alt="illustration of two people interacting"
-        >
-        <p>Add an annotation by using the annotation tool.</p>
-      </bf-viewer-side-panel-empty-state>
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import {mapActions, mapGetters, mapState} from 'vuex'
 import {
   pathEq,
   propOr,
   head
 } from 'ramda'
 
-import EventBus from '../../../utils/event-bus'
-import Sorter from '../../../mixins/sorter'
-import ImportHref from '../../../mixins/import-href'
+import EventBus from '../../../../utils/event-bus'
+import Sorter from '../../../../mixins/sorter'
+import ImportHref from '../../../../mixins/import-href'
 
-import Accordion from '../../shared/Accordion/Accordion.vue'
+import Accordion from '../../../shared/Accordion/Accordion.vue'
+import AnnotationGroup from './AnnotationGroup.vue'
+import TsAnnotation from './TSAnnotation.vue'
 
 export default {
   name: 'PaletteAnnotations',
 
   components: {
-    Accordion
+    Accordion,
+    AnnotationGroup,
+    TsAnnotation
+  },
+
+  props: {
+    windowHeight: {
+      type: Number,
+      default: 0
+    }
   },
 
   mixins: [
@@ -115,7 +128,7 @@ export default {
 
   computed: {
     ...mapGetters(['getPermission']),
-    ...mapState('viewer', ['activeViewer', 'viewerAnnotations']),
+    ...mapState('viewer', ['activeViewer', 'viewerAnnotations', 'activeAnnotation']),
 
     /**
      * Compute sorted layers and annotations
@@ -146,28 +159,31 @@ export default {
     }
   },
 
-  /**
-   * Vue lifecycle method
-   * Import required Polymer components
-   */
   mounted: function() {
-    // bf-accordion
-    this.importHref('/web-components/src/components/blackfynn/shared/bf-accordion/bf-accordion.html')
-
-    // bf-annotation-group
-    this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation-group.html')
-
-    // bf-ts-annotation
-    this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-ts-annotation.html')
 
     // bf-annotation
     this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation.html')
 
-    // bf-viewer-side-panel-empty-state
-    this.importHref('/web-components/src/components/blackfynn/data/bf-viewer/bf-viewer-side-panel-empty-state.html')
+  },
+
+  watch: {
+    activeAnnotation: function() {
+      this.viewAnnotation(this.activeAnnotation.id)
+    }
   },
 
   methods: {
+    onLayerSelected: function(layer_id) {
+
+      // Fold all layers except selected one.
+      for (let [key, value] of Object.entries(this.$refs)) {
+        if (/^accordion/.test(key) && value[0].layerId !== layer_id) {
+          value[0].fold()
+        }
+      }
+
+      this.$store.dispatch('viewer/setActiveAnnotationLayer', layer_id)
+    },
     /**
      * View annotation
      * Opens annotation palette, opens the layer for the annotation
@@ -179,21 +195,14 @@ export default {
       const layerId = propOr('', 'layer_id', annotation)
       const layer = head(this.$refs[`accordion-${layerId}`])
 
+
+      this.onLayerSelected(layerId)
       layer.open = true
-
-      let annotationSelector = 'bf-annotation'
-      if (this.isTimeseriesViewer) {
-        annotationSelector = 'bf-ts-annotation'
-      }
-
-      const annotations = this.$el.querySelectorAll(annotationSelector)
-      annotations.forEach(ann => ann.selected = false)
 
       // Select annotation and scroll it into view
       this.$nextTick(() => {
-        const annotationEl = this.$el.querySelector(`#ann-${id}`)
+        const annotationEl = this.$refs[`ann-${id}`][0].$el
         if (annotationEl) {
-          annotationEl.selected = true
           annotationEl.scrollIntoView()
         }
       })
@@ -206,36 +215,10 @@ export default {
      */
     onAnnTap: function(annotation) {
       const annStart = propOr(null, 'start', annotation)
-      const annLayerId = propOr('', 'layer_id', annotation)
-      const annLayerIndex = this.viewerAnnotations.findIndex(layer => layer.id === annLayerId)
-      const annLayer = this.viewerAnnotations[annLayerIndex]
-
-      // Update cursor position in Timeseries Canvas
       EventBus.$emit('active-viewer-action', {
         method: 'onAnnotationSelect',
         payload: annStart
       })
-
-      this.setActiveLayer(annLayerId)
-
-    },
-
-    setActiveLayer: function(layerId) {
-
-      const annLayers = this.viewerAnnotations.map(layer => {
-        layer.selected = false
-
-          if( layer.id === layerId) {
-              layer.selected = true
-          }
-          return layer
-      })
-      for (layer in annLayers) {
-        this.$store.dispatch('viewer/updateLayer', layer)
-      }
-
-      // this.$store.dispatch('viewer/setChannels', annLayers)
-
     },
 
     /**
@@ -286,7 +269,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '../../../assets/_variables.scss';
+  @import '../../../../assets/_variables.scss';
 
   .palette-annotations {
     background: #fff;
@@ -304,7 +287,7 @@ export default {
     background: #f7f7f7;
     border-bottom: solid 1px $gray_2;
     display: flex;
-    min-height: 33px;
+    min-height: 35px;
     overflow: hidden;
     width: 100%;
     // @apply(--layout-horizontal);
