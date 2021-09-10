@@ -25,7 +25,8 @@
         head,
         pathOr,
         propEq,
-        propOr
+        propOr,
+        prop
     } from 'ramda'
 
     export default {
@@ -667,9 +668,12 @@
 
             },
             resetFocusedAnnotation: function() {
-              this.focusedAnn.start = this.focusedAnn.oldStart
-              this.focusedAnn.duration = this.focusedAnn.oldDuration
-              this.focusedAnn.end = this.focusedAnn.start + this.focusedAnn.duration
+              if (prop('oldStart',this.focusedAnn)) {
+                this.focusedAnn.start = this.focusedAnn.oldStart
+                this.focusedAnn.duration = this.focusedAnn.oldDuration
+                this.focusedAnn.end = this.focusedAnn.start + this.focusedAnn.duration
+              }
+
             },
             // RENDER METHODS
             render: function() {
