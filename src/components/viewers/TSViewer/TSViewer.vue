@@ -1,115 +1,141 @@
 <template>
-    <div class="timeseries-viewer" ref="ts_viewer">
-        <timeseries-scrubber
-            ref="scrubber"
-            :ts_start='ts_start'
-            :ts_end='ts_end'
-            :cWidth='cWidth'
-            :labelWidth='labelWidth'
-            :cursorLoc='cursorLoc'
-            :start='start'
-            :duration='duration'
-            :constants='constants'
-            @setStart="updateStart">
-        </timeseries-scrubber>
+  <div
+    ref="ts_viewer"
+    class="timeseries-viewer"
+  >
+    <timeseries-scrubber
+      ref="scrubber"
+      :ts_start="ts_start"
+      :ts_end="ts_end"
+      :c-width="cWidth"
+      :label-width="labelWidth"
+      :cursor-loc="cursorLoc"
+      :start="start"
+      :duration="duration"
+      :constants="constants"
+      @setStart="updateStart"
+    />
 
-        <div id="channelCanvas">
-
-            <!-- Channel labels -->
-            <div id="channelLabels" ref="channelLabels">
-                <div v-if="item.visible" v-for="item in viewerChannels" :key="item.label">
-                    <div class="chLabelWrap" :data-id="item.id" v-on:tap="onLabelTap">
-                        <div class="labelDiv" >{{item.label}}</div>
-                        <div class="chLabelIndWrap" :hidden="hideLabelInfo" :selected="item.selected">
-                            <div class="chLabelInd" :hidden="hideLabelInfo">{{_computeLabelInfo(item, globalZoomMult, item.rowScale)}}</div>
-                        </div>
-                    </div>
-                </div>
+    <div id="channelCanvas">
+      <!-- Channel labels -->
+      <div
+        id="channelLabels"
+        ref="channelLabels"
+      >
+        <div
+          v-for="item in viewerChannels"
+          v-if="item.visible"
+          :key="item.label"
+        >
+          <div
+            class="chLabelWrap"
+            :data-id="item.id"
+            @tap="onLabelTap"
+          >
+            <div class="labelDiv">
+              {{ item.label }}
             </div>
-
-            <!-- Timeseries viewport -->
-            <timeseries-viewer-canvas
-                ref="viewerCanvas"
-                :window_height='window_height'
-                :window_width='window_width'
-                :duration='duration'
-                :start='start'
-                :cWidth='cWidth'
-                :cHeight='cHeight'
-                :constants='constants'
-                :ts_start='ts_start'
-                :ts_end='ts_end'
-                :cursorLoc='cursorLoc'
-                :globalZoomMult='globalZoomMult'
-                @setStart="updateStart"
-                @setCursor="setCursor"
-                @setGlobalZoom="setGlobalZoom"
-                @setDuration="setDuration"
-                @channelsInitialized="onChannelsInitialized"
-                @annLayersInitialized="onAnnLayersInitialized"
-                @closeAnnotationLayerWindow="onCloseAnnotationLayerWindow">
-            </timeseries-viewer-canvas>
-
+            <div
+              class="chLabelIndWrap"
+              :hidden="hideLabelInfo"
+              :selected="item.selected"
+            >
+              <div
+                class="chLabelInd"
+                :hidden="hideLabelInfo"
+              >
+                {{ _computeLabelInfo(item, globalZoomMult, item.rowScale) }}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <timeseries-viewer-toolbar
-            :constants='constants'
-            :duration='duration'
-            :start='start'
-            @pageBack="onPageBack"
-            @pageForward="onPageForward"
-            @incrementZoom="onIncrementZoom"
-            @decrementZoom="onDecrementZoom"
-            @updateDuration="onUpdateDuration"
-            @nextAnnotation="onNextAnnotation"
-            @previousAnnotation="onPreviousAnnotation"
-            @setStart="updateStart">
-        </timeseries-viewer-toolbar>
-
-        <timeseries-filter-modal
-            ref="filterWindow"
-            :filterWindowOpen='filterWindowOpen'
-            @closeWindow="onCloseFilterWindow">
-        </timeseries-filter-modal>
-
-        <timeseries-annotation-modal
-            ref="annotationModal"
-            :annotationWindowOpen='annotationWindowOpen'
-            @closeWindow="onCloseAnnotationWindow">
-        </timeseries-annotation-modal>
-
-        <timeseries-annotation-layer-modal
-            ref="layerModal"
-            :annotationLayerWindowOpen='annotationLayerWindowOpen'
-            @closeWindow="onCloseAnnotationLayerWindow"
-            @createLayer="onCreateAnnotationLayer">
-        </timeseries-annotation-layer-modal>
-
-
-
+      <!-- Timeseries viewport -->
+      <timeseries-viewer-canvas
+        ref="viewerCanvas"
+        :window_height="window_height"
+        :window_width="window_width"
+        :duration="duration"
+        :start="start"
+        :c-width="cWidth"
+        :c-height="cHeight"
+        :constants="constants"
+        :ts-start="ts_start"
+        :ts-end="ts_end"
+        :cursor-loc="cursorLoc"
+        :global-zoom-mult="globalZoomMult"
+        @setStart="updateStart"
+        @setCursor="setCursor"
+        @setGlobalZoom="setGlobalZoom"
+        @setDuration="setDuration"
+        @channelsInitialized="onChannelsInitialized"
+        @annLayersInitialized="onAnnLayersInitialized"
+        @closeAnnotationLayerWindow="onCloseAnnotationLayerWindow"
+        @addAnnotation="onOpenAnnotationWindow"
+        @updateAnnotation="onUpdateAnnotation"
+      />
     </div>
+
+    <timeseries-viewer-toolbar
+      :constants="constants"
+      :duration="duration"
+      :start="start"
+      @pageBack="onPageBack"
+      @pageForward="onPageForward"
+      @incrementZoom="onIncrementZoom"
+      @decrementZoom="onDecrementZoom"
+      @updateDuration="onUpdateDuration"
+      @nextAnnotation="onNextAnnotation"
+      @previousAnnotation="onPreviousAnnotation"
+      @setStart="updateStart"
+    />
+
+    <timeseries-filter-modal
+      ref="filterWindow"
+      :filter-window-open="filterWindowOpen"
+      @closeWindow="onCloseFilterWindow"
+    />
+
+    <timeseries-annotation-modal
+      ref="annotationModal"
+      :visible.sync="annotationWindowOpen"
+      @closeWindow="onCloseAnnotationWindow"
+      @createUpdateAnnotation="onCreateUpdateAnnotation"
+    />
+
+    <timeseries-annotation-layer-modal
+      ref="layerModal"
+      :annotation-layer-window-open="annotationLayerWindowOpen"
+      @closeWindow="onCloseAnnotationLayerWindow"
+      @createLayer="onCreateAnnotationLayer"
+    />
+
+    <ts-annotation-delete-dialog
+      :visible.sync="isTsAnnotationDeleteDialogVisible"
+      :delete-annotation.sync="annotationDelete"
+      @delete="deleteAnnotation"
+    />
+
+
+  </div>
 </template>
 
 <script>
     import {
-        mapActions,
-        mapGetters,
         mapState
     } from 'vuex'
 
     import {
-        compose,
-        defaultTo,
-        find,
         head,
         pathOr,
-        propEq,
         propOr,
         isEmpty
     } from 'ramda'
 
     import ViewerActiveTool from '@/mixins/viewer-active-tool'
     import Request from '@/mixins/request'
+    import TsAnnotation from '@/mixins/ts-annotation'
 
     export default {
         name: 'TimeseriesViewer',
@@ -119,18 +145,20 @@
             'timeseries-viewer-canvas': () => import('@/components/viewers/TSViewer/TSViewerCanvas.vue'),
             'timeseries-viewer-toolbar': () => import('@/components/viewers/TSViewer/TSViewerToolbar.vue'),
             'timeseries-filter-modal': () => import('@/components/viewers/TSViewer/TSFilterModal.vue'),
-            'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TSAnnotationModal.vue'),
-            'timeseries-annotation-layer-modal': () => import('@/components/viewers/TSViewer/TSViewerLayerWindow.vue')
+            'timeseries-annotation-layer-modal': () => import('@/components/viewers/TSViewer/TSViewerLayerWindow.vue'),
+            'ts-annotation-delete-dialog': () => import('@/components/viewers/TSViewer/TSAnnotationDeleteDialog/TsAnnotationDeleteDialog.vue'),
+            'timeseries-annotation-modal': () => import('@/components/viewers/TSViewer/TSAnnotationModal.vue')
         },
 
         mixins: [
             Request,
-            ViewerActiveTool
+            ViewerActiveTool,
+            TsAnnotation,
         ],
         watch: {
             viewerSidePanelOpen: {
                 handler: function() {
-                    console.log('resized triggered')
+                    // console.log('resized triggered')
                     this.onResize()
                 },
                 immediate: true
@@ -205,7 +233,9 @@
                 cursorLoc: 1/10,
                 filterWindowOpen: false,
                 annotationWindowOpen: false,
-                annotationLayerWindowOpen: false
+                annotationLayerWindowOpen: false,
+                annotationDelete: null,
+                isTsAnnotationDeleteDialogVisible: false,
             }
         },
 
@@ -228,18 +258,56 @@
         },
 
         methods: {
+            openEditAnnotationDialog: function(annotation) {
+              this.$store.dispatch('viewer/setActiveAnnotation', annotation).then(() =>{
+                this.$refs.viewerCanvas.renderAnnotationCanvas()
+                this.annotationWindowOpen = true
+              })
+            },
+            onUpdateAnnotation: function(annotation) {
+              this.openEditAnnotationDialog(annotation)
+            },
+            onCreateUpdateAnnotation: function(annotation) {
+              this.annotationWindowOpen = false
+              if (annotation.id) {
+                this.updateAnnotation()
+              } else {
+                this.addAnnotation()
+              }
+            },
+            onAnnotationUpdated: function() {
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+            },
+            onOpenAnnotationWindow: function() {
+              this.annotationWindowOpen = true
+            },
+            confirmDeleteAnnotation: function(annotation) {
+              this.annotationDelete = annotation
+              this.isTsAnnotationDeleteDialogVisible = true
+            },
+            deleteAnnotation: function(annotation) {
+              this.isTsAnnotationDeleteDialogVisible = false
+              this.removeAnnotation(annotation)
+            },
+            onAnnotationDeleted: function() {
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+            },
+            onAddAnnotation: function (start, duration, onAll, label, description, layer) {
+              this.addAnnotation(start, duration, onAll, label, description, layer)
+            },
+            onAnnotationCreated: function() {
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+            },
             onCreateAnnotationLayer: function (newLayer) {
                 this.$refs.viewerCanvas.createAnnotationLayer(newLayer)
             },
             onCloseAnnotationLayerWindow: function() {
-                 this.annotationLayerWindowOpen = false
-            },
-            onAnnotationSelect: function(annStart) {
-                let rsPeriod = this.$refs.viewerCanvas.rsPeriod
-                this.updateStart(annStart - ((this.cursorLoc*this.cWidth - this.constants['CURSOROFFSET']) * rsPeriod));
+              this.annotationLayerWindowOpen = false
             },
             onCloseAnnotationWindow: function() {
-                this.annotationWindowOpen = false
+              this.$refs.viewerCanvas.resetFocusedAnnotation()
+              this.$refs.viewerCanvas.renderAnnotationCanvas()
+              this.annotationWindowOpen = false
             },
             onCloseFilterWindow: function() {
                 this.filterWindowOpen = false
@@ -321,6 +389,10 @@
 
                 this.start = setStart
             },
+            selectAnnotation: function(payload) {
+              let rsPeriod = this.$refs.viewerCanvas.rsPeriod
+              this.updateStart(payload.annotation.start - ((this.cursorLoc*this.cWidth - this.constants['CURSOROFFSET']) * rsPeriod))
+            },
             selectChannel: function(payload) {
               const _channels = this.viewerChannels.map(channel => {
                 const selected = channel.selected
@@ -353,7 +425,7 @@
                 this.$store.dispatch('viewer/setChannels', channels)
             },
             updateStart: function(value) {
-                console.log('setting start to: ' + value)
+                // console.log('setting start to: ' + value)
                 this.start = value
             },
             setCursor: function(value) {
@@ -361,7 +433,7 @@
                 this.cursorLoc = value
             },
             setGlobalZoom: function(value) {
-                console.log('setGlobalZoom')
+                // console.log('setGlobalZoom')
                 this.globalZoomMult = value
             },
             setDuration: function(value) {

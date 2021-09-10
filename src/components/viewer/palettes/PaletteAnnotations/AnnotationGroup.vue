@@ -1,19 +1,19 @@
 <template>
-    <div>
-        <el-tooltip
-            placement="top"
-            content="Hide"
-            :open-delay="300"
-        >
-            <button @click="toggleChannel">
-            <svg-icon
-                name="icon-eyeball"
-                height="16"
-                width="16"
-            />
-            </button>
-      </el-tooltip>
-    </div>
+  <div class="controls-icons">
+    <el-tooltip
+      placement="top"
+      content="Hide"
+      :open-delay="300"
+    >
+      <button @click="onToggleVisibility">
+        <svg-icon
+          name="icon-eyeball"
+          height="16"
+          width="16"
+        />
+      </button>
+    </el-tooltip>
+  </div>
       <!-- inline editing -->
       <!-- <div
         v-if="channel.isEditing && !bulkEditingChannels"
@@ -166,12 +166,24 @@
         'bulkEditingChannels'
       ]),
 
+    },
+    methods: {
+      onToggleVisibility: function(event) {
+        event.preventDefault()
+        event.stopPropagation()
+        console.log('Toggle visibility')
+      }
     }
   }
 </script>
 
 <style lang="scss" scoped>
   @import '../../../../assets/_variables.scss';
+
+  .controls-icons {
+    padding-right: 8px;
+
+  }
 
   .bf-channel {
     background: #F7F7F7;
@@ -216,7 +228,7 @@
     margin-bottom: 2px;
   }
   .selected {
-      color: #295eff
+      color: $purple_2
     }
   button {
     &:hover, &:focus {

@@ -1,15 +1,15 @@
 <template>
     <div class="timeseries-plot-canvas">
         <canvas id="blurArea" class="canvas" ref="blurArea"
-            :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+            :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
             :height="_cpCanvasScaler(pHeight, pixelRatio, 0)"
             :style="canvasStyle"></canvas>
         <slot name="axisCanvas">
         </slot>
         <slot name="annCanvas">
         </slot>
-        <canvas id="plotArea" class="canvas" ref="plotArea" 
-            :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" 
+        <canvas id="plotArea" class="canvas" ref="plotArea"
+            :width="_cpCanvasScaler(cWidth, pixelRatio, 0)"
             :height="_cpCanvasScaler(pHeight, pixelRatio, 0)"
             :style="canvasStyle">
         </canvas>
@@ -321,7 +321,7 @@
 
             this.requestedPages = new Map();
             this.openWebsocket()
-                        
+
         },
 
         methods: {
@@ -395,7 +395,7 @@
                 }
                 const chObjects = [];
                 if (channels.length > 0) {
-                    
+
                     const channelConfig = []
 
                     for (let ic=0; ic<channels.length; ic++) {
@@ -476,7 +476,7 @@
                 this.chData = chObjects;
                 this.autoScale = channels.length;
                 this.channelsReady = true;
-                
+
                 return Promise.resolve()
 
             },
@@ -488,7 +488,7 @@
                 }
 
                 this.globalGaps = path(['gaps', 0], channels);
-                
+
             },
             // Find segment that contains timepoint val --> search over startPage property
             segmIndexOf: function(segmArray, val, first, startAtIndex) {
@@ -640,7 +640,7 @@
             requestData: function(showChannels, start, duration ) {
 
                 // If number of requestedpages is getting to big, reset websocket connection
-                
+
                 // TODO: BRING BACK
                 // if (this.requestedPages.size > 20 ) {
                 //     clearTimeout(this.preFetchTime);
@@ -914,7 +914,7 @@
 
             invalidate: function() {
                 console.log('Invalidating')
-                
+
                 clearTimeout(this.preFetchTime);
                 this.aSyncPreRequests = [];
                 this.globalGaps = [];
@@ -929,7 +929,7 @@
             },
             // _________________
             // RENDER METHODS
-        
+
             renderAll: function() {
                 this.generatePoints();
                 this._renderData();
@@ -1079,9 +1079,6 @@
                 }
             },
             _renderData: function(isRedraw=false) {
-
-                console.log('rendering data')
-
                 const ba = this.$refs.blurArea;
                 const ctxb = ba.getContext('2d');
                 ctxb.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0);
@@ -1312,7 +1309,7 @@
                 ctx.restore();
                // console.log('render time: ' + allTimes)
             },
-                    
+
             // Function that is called with the throttledDataRenderer
             renderDataOnMessage: function() {
                 this.generatePoints();
@@ -1322,7 +1319,7 @@
                 } else {
                     this._renderData();
                 }
-                
+
             },
             // Method sets the global zoom multiplier based on the viewport data buffer.
             // This is called once when first page is available
@@ -1444,7 +1441,7 @@
             sendMontageMessage: function (value) {
                 if (this._websocket && this._websocket.readyState === 1) {
                     const payload = { montage: value, packageId: this.activeViewer.content.id }
-                    this._websocket.send(JSON.stringify(payload))                    
+                    this._websocket.send(JSON.stringify(payload))
                 } else {
                     this.async(() => {this.sendMontageMessage(value)}, 500)
                 }
@@ -1493,7 +1490,7 @@
                 try {
                   data = JSON.parse(msg.data)
                 } catch (e) {
-                  this.$store.dispatch('setViewerErrors', { error: 'JSON Parse Error' })
+                  this.$store.dispatch('viewer/setViewerErrors', { error: 'JSON Parse Error' })
                 }
 
                 if (data.virtualChannels) {
@@ -1524,7 +1521,7 @@
                         this.renderAll()
                     })
                 } else if (data.error) {
-                  this.$store.dispatch('setViewerErrors', data)
+                  this.$store.dispatch('viewer/setViewerErrors', data)
                 }
 
                 // short circuit
@@ -1837,7 +1834,7 @@
                     console.log('No Longer Supporting RealTime Data')
                     break;
                 }
-                
+
             }
 
         }

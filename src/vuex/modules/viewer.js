@@ -24,6 +24,7 @@ const initialState = () => ({
   viewerChannels: [],
   viewerAnnotations: [],
   activeAnnotationLayer: {},
+  activeAnnotation: {},
   viewerDiscussions: {
     comments: {},
     discussions: []
@@ -77,8 +78,26 @@ export const mutations = {
 
   SET_ACTIVE_ANNOTATION_LAYER (state, data) {
     state.activeAnnotationLayer = data
-  },
+    state.viewerAnnotations.forEach(index => index.selected = false)
+    const layerIndex = findIndex(propEq('id', data), state.viewerAnnotations)
+    state.viewerAnnotations[layerIndex].selected = true
 
+
+  },
+  SET_ACTIVE_ANNOTATION (state, data) {
+    state.viewerAnnotations.forEach( index =>
+      index.annotations.forEach(ann =>
+        ann.selected = false
+      )
+    )
+
+    if (data.id) {
+      const layerIndex = findIndex(propEq('id', data.layer_id), state.viewerAnnotations)
+      const annotationIndex = findIndex(propEq('id', data.id), state.viewerAnnotations[layerIndex].annotations)
+      state.viewerAnnotations[layerIndex].annotations[annotationIndex].selected = true
+    }
+    state.activeAnnotation = data
+  },
   UPDATE_LAYER (state, { layer, index })  {
     Vue.set(state.viewerAnnotations, index, layer)
   },
@@ -217,7 +236,10 @@ export const actions = {
     const index = getLayerIndex('layer_id', annotation, state.viewerAnnotations)
 
     commit('CREATE_ANNOTATION', { annotation, index })
+    commit('SET_ACTIVE_ANNOTATION', annotation)
   },
+  setActiveAnnotation: ({ commit }, data) =>
+    commit('SET_ACTIVE_ANNOTATION',  data),
   updateAnnotation: ({ commit }, data) =>
     commit('UPDATE_ANNOTATION', { data }),
   deleteAnnotation: ({commit, getters}, data) =>
