@@ -37,6 +37,7 @@
           v-for="integration in integrations"
           :key="integration.id"
           :integration="integration"
+          @open-remove-integration="openDeleteIntegrationDialog"
         />
       </div>
 
@@ -80,6 +81,12 @@
       @add-integration="onAddIntegrationConfirm"
     />
 
+    <remove-integration-dialog
+      ref="removeIntegrationDialog"
+      :visible.sync="removeIntegrationDialogVisible"
+      @delete="onDeleteIntegrationConfirm"
+    />
+
   </bf-page>
 </template>
 
@@ -94,6 +101,8 @@ import AddEditIntegrationDialog from '../AddEditIntegrationDialog.vue'
 import IntegrationListItem from "../integration-list-item/IntegrationListItem";
 import Sorter from  '../../../mixins/sorter'
 import UserRoles from  '../../../mixins/user-roles'
+import RemoveIntegrationDialog from  '../removeIntegrationDialog'
+
 
 
 import { pathOr, propOr} from 'ramda'
@@ -106,7 +115,8 @@ export default {
     BfRafter,
     BfButton,
     IntegrationListItem,
-    AddEditIntegrationDialog
+    AddEditIntegrationDialog,
+    RemoveIntegrationDialog
   },
 
   mixins: [
@@ -124,6 +134,8 @@ export default {
   data() {
     return {
       addEditIntegrationDialogVisible: false,
+      removeIntegrationDialogVisible: false,
+      integrationDelete: null
     }
   },
 
@@ -161,12 +173,22 @@ export default {
 
   methods: {
     ...mapActions('integrationsModule', [
-      'createIntegration'
+      'createIntegration',
+      'removeIntegration'
     ]),
 
     ...mapState([
     ]),
 
+    openDeleteIntegrationDialog: function(integration) {
+      this.$refs.removeIntegrationDialog.setIntegration(integration)
+      this.removeIntegrationDialogVisible = true
+    },
+    onDeleteIntegrationConfirm: function(integration) {
+      console.log("do deletion on " + integration.id)
+      this.removeIntegration(integration.id)
+      this.removeIntegrationDialogVisible = false
+    },
     /**
      * Model URL
      * @returns {String}

@@ -53,6 +53,7 @@
         <el-dropdown
           trigger="click"
           placement="bottom-end"
+          v-if="isOwner"
           @command="onIntegrationMenu"
         >
           <span class="btn-file-menu el-dropdown-link">
@@ -107,6 +108,7 @@ import {find, propEq} from "ramda";
 import FormatDate from '@/mixins/format-date'
 import Avatar from '../../shared/avatar/Avatar.vue'
 import PsSwitch from '../../shared/PsSwitch/PsSwitch.vue'
+import EventBus from "../../../utils/event-bus";
 
 
 
@@ -135,8 +137,11 @@ export default {
 
   computed: {
     ...mapState([
-      'orgMembers',
+      'orgMembers','profile'
     ]),
+    isOwner: function() {
+      return this.integration.createdBy == this.profile.intId
+    },
     isPrivateStr: function() {
       if (this.integration.isPrivate) {
         return "PRIVATE"
@@ -161,8 +166,13 @@ export default {
     ...mapActions([
       'updateDataset'
     ]),
+    openDeleteDialog: function(integration) {
+      this.$emit('open-remove-integration', integration)
+    },
     onIntegrationMenu: function(action) {
-      console.log(action)
+      if (typeof this[action] === 'function') {
+        this[action](this.integration)
+      }
     }
 
   }

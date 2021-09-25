@@ -22,7 +22,13 @@ export const mutations = {
 
   CREATE_INTEGRATION(state, integration) {
     state.integrations.push(integration)
-  }
+  },
+
+  REMOVE_INTEGRATION(state, integrationId) {
+    const integrations = state.integrations.filter(integration => integration.id !== integrationId)
+    state.integrations = integrations
+  },
+
 }
 
 export const actions = {
@@ -50,7 +56,6 @@ export const actions = {
       return Promise.reject(err)
     }
   },
-
   createIntegration: async ({commit, rootState}, integrationDTO ) => {
     try {
       const url = `${rootState.config.apiUrl}/webhooks?api_key=${rootState.userToken}`
@@ -75,8 +80,7 @@ export const actions = {
       return Promise.reject(err)
     }
   },
-
-  removeCollection: async({ commit, dispatch, rootState }, { integrationId }) => {
+  removeIntegration: async({ commit, dispatch, rootState }, integrationId) => {
     try {
       const url = `${rootState.config.apiUrl}/webhooks/${integrationId}?api_key=${rootState.userToken}`
 
@@ -88,13 +92,7 @@ export const actions = {
       })
 
       if (resp.ok) {
-        /**
-         * Need to fetch collections again in the chance that
-         * this collection was the deleted from the organization.
-         * This happens when a collection is removed and it wasn't
-         * assigned to another dataset.
-         */
-        dispatch('fetchCollections')
+        commit('REMOVE_INTEGRATION', integrationId)
       } else {
         return Promise.reject(resp)
       }
