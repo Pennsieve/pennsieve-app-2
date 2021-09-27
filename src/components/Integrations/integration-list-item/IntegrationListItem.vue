@@ -41,7 +41,8 @@
         <ps-switch
           v-model="isActive"
           active-color="#5039F7"
-          inactive-color="#CAC5BF">
+          inactive-color="#CAC5BF"
+          @change="toggleActive">
         </ps-switch>
       </el-col>
       <el-col
@@ -104,14 +105,10 @@
 import {
   mapActions, mapState,
 } from 'vuex'
-import {find, propEq} from "ramda";
+import {find, propEq, propOr} from "ramda";
 import FormatDate from '@/mixins/format-date'
 import Avatar from '../../shared/avatar/Avatar.vue'
 import PsSwitch from '../../shared/PsSwitch/PsSwitch.vue'
-import EventBus from "../../../utils/event-bus";
-
-
-
 
 export default {
   name: 'IntegrationListItem',
@@ -128,6 +125,10 @@ export default {
     integration: {
       type: Object,
       default: () => ({})
+    },
+    activeIntegrations: {
+      type: Array,
+      default: () => (null)
     },
     enableSwitch: {
       type: Boolean,
@@ -162,10 +163,32 @@ export default {
     }
   },
 
+  data: function () {
+    return {
+      isActive: false
+    }
+  },
+  mounted() {
+    this.$nextTick(function () {
+      if (this.enableSwitch){
+        this.isActive = find(propEq('webhookId', this.integration.id), this.activeIntegrations) != null
+      }
+    })
+  },
+  watch: {
+    activeIntegrations: function() {
+      if (this.enableSwitch) {
+        this.isActive = find(propEq('webhookId', this.integration.id), this.activeIntegrations) != null
+      }
+    }
+  },
   methods: {
     ...mapActions([
       'updateDataset'
     ]),
+    toggleActive: function() {
+      this.$emit('toggle-integration', this)
+    },
     openDeleteDialog: function(integration) {
       this.$emit('open-remove-integration', integration)
     },

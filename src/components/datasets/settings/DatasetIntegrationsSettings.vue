@@ -71,7 +71,9 @@
             v-for="integration in integrations"
             :key="integration.id"
             :integration="integration"
-            enable-switch=true
+            :active-integrations="activeIntegrations"
+            :enable-switch=true
+            @toggle-integration="toggleIntegration"
           />
         </div>
 
@@ -107,6 +109,8 @@ export default {
 
   data() {
     return {
+      activeIntegrations: [],
+      isLoadingIntegrations: false
     }
   },
 
@@ -250,6 +254,32 @@ export default {
   },
 
   watch: {
+    dataset: {
+      handler: function(dataset) {
+        if (pathOr(false, ['content','id'],dataset)) {
+          const url = `${this.config.apiUrl}/datasets/${dataset.content.id}/webhook`
+
+          // Set loading state
+          this.isLoadingIntegrations = true
+
+          this.sendXhr(url, {
+            header: {
+              'Authorization': `Bearer ${this.userToken}`
+            }
+          })
+            .then(response => {
+              this.activeIntegrations = response
+            })
+            .catch(this.handleXhrError.bind(this))
+            .finally(() => {
+              // Set loading state
+              this.isLoadingIntegrations = false
+            })
+        }
+      },
+      deep: true,
+      immediate: true
+    },
     /**
      * Watches focusInput route query
      * to scroll into view for right items
@@ -274,7 +304,7 @@ export default {
         }
       },
       immediate: true
-    },
+    }
   },
 
   methods: {
@@ -282,6 +312,27 @@ export default {
       'updateProfile'
     ]),
 
+    toggleIntegration: function(item) {
+      const url = `${this.config.apiUrl}/datasets/${this.dataset.content.id}/webhook/${item.integration.id}`
+
+      let method = "PUT"
+      if (!item.isActive) {
+        method = "DELETE"
+      }
+
+      this.sendXhr(url, {
+        method: method,
+        header: {
+          'Authorization': `Bearer ${this.userToken}`
+        }
+      })
+        // .then(response => {
+        //   console.log('Integration enabled')
+        // })
+        .catch(this.handleXhrError.bind(this))
+        .finally(() => {
+        })
+    },
 
     /**
      * Logic to connect to user's ORCID
