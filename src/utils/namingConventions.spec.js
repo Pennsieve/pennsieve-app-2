@@ -6,15 +6,15 @@ describe('namingConventions', () => {
     expect(isValidPackageName(name)).toBe(true)
   })
 
-  it('Disallows double whitespaces', () => {
+  it('Allows double whitespaces', () => {
     const name = 'name  here'
-    expect(isValidPackageName(name)).toBe(false)
+    expect(isValidPackageName(name)).toBe(true)
   })
 
   it('Allows proper percentage sign', () => {
     const validName = 'name %20 here'
     expect(isValidPackageName(validName)).toBe(true)
     const invalidName = 'name % here'
-    expect(isValidPackageName(invalidName)).toBe(false)
+    expect(isValidPackageName(invalidName)).toBe(true)
   })
 })

@@ -146,6 +146,6 @@ describe('bf-upload-package.vue', () => {
 
   it('Shows the proper display name', () => {
     cmp.setProps({ name: '%40 ! _ %2520foo.png' })
-    expect(cmp.vm.displayName).toBe('@ ! _ %20foo.png')
+    expect(cmp.vm.displayName).toBe('%40 ! _ %2520foo.png')
   })
 })
