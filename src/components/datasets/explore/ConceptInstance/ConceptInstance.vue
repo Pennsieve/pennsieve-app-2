@@ -899,8 +899,8 @@ export default {
         values: [],
         createdAt: '',
         updatedAt: '',
-        createdBy: '',
-        updatedBy: '',
+        createdBy: 0,
+        updatedBy: 0,
         id: ''
       },
       errorProperties: [],
@@ -951,7 +951,7 @@ export default {
     packageDisplayName: function() {
       const name = this.proxyRecord.content.name
       return name
-        ? decodeURIComponent(name)
+        ? name
         : ''
     },
 
@@ -987,7 +987,7 @@ export default {
     },
 
     ownerId: function() {
-      return pathOr('', ['content', 'ownerId'], this.proxyRecord)
+      return pathOr(0, ['content', 'ownerId'], this.proxyRecord)
     },
     fileTypeLabel: function() {
       return this.packageSourceFiles.length > 1 ? "Package type": "File type"

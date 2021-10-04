@@ -69,7 +69,7 @@
        * @returns {String}
        */
       displayName: function() {
-        return decodeURIComponent(this.item.fileName)
+        return this.item.fileName
       }
     }
   }
