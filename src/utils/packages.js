@@ -5,7 +5,7 @@
  * @returns {String}
  */
 export const packageDisplayName = (fileName, extension = '', children = []) => {
-  const name = decodeURIComponent(fileName)
+  const name = fileName
   return extension && !name.endsWith(extension) && children.length === 0
     ? `${name}.${extension}`
     : name
