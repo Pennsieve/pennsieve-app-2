@@ -525,7 +525,7 @@
               :resizable="true"
             >
               <template slot-scope="scope">
-                {{ decodeURIComponent(scope.row.filename) }}
+                {{ scope.row.filename }}
               </template>
             </el-table-column>
             <el-table-column

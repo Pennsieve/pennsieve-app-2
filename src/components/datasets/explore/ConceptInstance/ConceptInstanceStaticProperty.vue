@@ -57,7 +57,7 @@
 
     props: {
       label: String,
-      user: String,
+      user: Number,
       date: String,
       value: String,
       helpUrl: String

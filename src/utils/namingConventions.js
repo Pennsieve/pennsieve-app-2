@@ -9,6 +9,7 @@
 export const allCharactersValid = name => /^[\u00C0-\u1FFF\u2C00-\uD7FF\w() %*_\-'.]{1,255}$/mg.test(name)
 
 /**
+ * @Deprecated - LEGACY
  * Matches several white spaces in a row
  * @param {String} name
  * @returns {Boolean}
@@ -16,6 +17,7 @@ export const allCharactersValid = name => /^[\u00C0-\u1FFF\u2C00-\uD7FF\w() %*_\
 export const multipleContiguousSpaces = name => /\s{2,}/mg.test(name)
 
 /**
+ * @Deprecated - LEGACY
  * negative lookahead: this regex will match any % that is not
  * followed by an hexadecimal code for an html entity (between 20 and FF)
  * @param {String} name
@@ -25,11 +27,9 @@ export const ForbiddenPercentSign = name => /%(?![2-9A-F][0-9A-F])/mg.test(name)
 
 
 /**
- * Test if the name is valid by running three validations
+ * We always return true as we now allow for any name
  * @param {String} name
  */
 export const isValidPackageName = (name) => {
-  return allCharactersValid(name)
-    && !multipleContiguousSpaces(name)
-    && !ForbiddenPercentSign(name)
+  return true
 }

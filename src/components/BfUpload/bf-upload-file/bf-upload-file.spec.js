@@ -33,6 +33,6 @@ describe('bf-upload-file.vue', () => {
   })
 
   it('Shows the proper display name', () => {
-    expect(cmp.vm.displayName).toBe('@ ! _  foo.png')
+    expect(cmp.vm.displayName).toBe('@ ! _ %20foo.png')
   })
 })
