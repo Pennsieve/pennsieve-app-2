@@ -147,7 +147,9 @@ export default {
       'config',
       'datasetOwnerHasOrcidId',
       'datasetLocked',
-      'getPublishedDataByIntId'
+      'getPublishedDataByIntId',
+      'isUserSuperAdmin',
+      'isUserPublisher'
     ]),
 
     /**
@@ -208,7 +210,7 @@ export default {
         this.datasetTags.length > 0,
         contributors.length > 0,
         Boolean(datasetDescription),
-        Boolean(this.getPermission('owner'))
+        Boolean(this.getPermission('owner') ||  this.isUserPublisher)
       ])
     },
 

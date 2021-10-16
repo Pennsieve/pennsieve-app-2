@@ -273,7 +273,7 @@ export default {
      * @returns {String}
      */
     displayName: function() {
-      return decodeURIComponent(this.name)
+      return this.name
     },
 
    /**

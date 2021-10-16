@@ -889,6 +889,9 @@ export const getters = {
     const owner = getters.datasetOwner
     return pathOr(false, ['orcid', 'orcid'], owner)
   },
+  isUserSuperAdmin: state => {
+    return state.profile.isSuperAdmin === true
+  },
   isUserPublisher: state => {
     return state.publishers.map(p => p.id).includes(state.profile.id)
   },

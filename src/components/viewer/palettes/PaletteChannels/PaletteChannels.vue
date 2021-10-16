@@ -45,6 +45,7 @@
         icon="blackfynn:chevron-down-small"
         :border-color="channelColorMap[channelType]"
         :title="channelType"
+        :window-height="windowHeight"
       >
         <el-tooltip
           placement="top"
@@ -134,6 +135,13 @@
       Accordion,
       BfChannel,
       BfButton
+    },
+
+    props: {
+      windowHeight: {
+        type: Number,
+        default: 0
+      }
     },
 
     mixins: [

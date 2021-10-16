@@ -1,11 +1,13 @@
 <template>
-  <div class="accordion">
+  <div
+    class="accordion"
+    :style="{maxHeight:`${annotationHeight}`}">
     <div class="accordion-trigger">
       <a
         href="#openAccordion"
         class="toggle"
         :style="{ borderLeft: `solid 5px ${borderColor}` }"
-        @click.capture="toggle"
+        @click="toggle"
       >
         <svg-icon
           v-show="!isIconHidden"
@@ -16,10 +18,12 @@
           :dir="iconDir"
         />
 
-        <h3 :class="{selected: selected}">{{ title }}</h3>
+        <h3 :class="{selected: selected}">
+          {{ title }}
+        </h3>
       </a>
 
-      <slot name="title" />
+      <slot name="operations" />
     </div>
 
     <div v-if="open">
@@ -32,7 +36,23 @@
 export default {
   name: 'Accordion',
 
-  props: ['icon', 'borderColor', 'title', 'selected'],
+  props: {
+    nrLayers: {
+      type: Number,
+      default: function () {
+        return 1
+      }
+    },
+    layerId: Number,
+    icon: String,
+    borderColor: String,
+    title: String,
+    selected: Boolean,
+    windowHeight: {
+      type: Number,
+      default: 0
+    }
+  },
 
   data: function() {
     return {
@@ -50,17 +70,24 @@ export default {
     },
     iconDir: function() {
       return this.open ? 'down' : 'right'
+    },
+    annotationHeight: function() {
+      return this.windowHeight - (this.nrLayers - 1)*35 + "px"
     }
   },
 
   methods: {
+    fold: function() {
+      this.open = false
+    },
     /**
      * toggles opened property true/false
      * @param {Event} evt
      */
     toggle: function(evt) {
       this.open = !this.open
-    }
+      this.$emit('selectItem', this)
+    },
   }
 }
 </script>
@@ -74,6 +101,7 @@ export default {
     font-size: 12px;
     text-decoration: none;
     white-space: nowrap;
+    overflow: scroll;
     &:hover {
       background: #fff;
     }
@@ -101,10 +129,10 @@ export default {
     font-weight: 500;
     line-height: 17px;
     margin: 0;
-    
+
   }
   .selected {
-      color: #295eff
+      color: $purple_1
     }
   bf-annotation-group {
     flex: 0;

@@ -24,7 +24,7 @@
         ref="filters"
         v-model="search.filters"
         class="mb-16"
-        :datasets="filteredDatasets"
+        :datasets="selectedDatasets"
         :models="relatedModelsList"
         :is-loading-targets="isLoadingTargets"
         :disabled="search.model === ''"
@@ -68,7 +68,7 @@
         <search-results
           ref="searchResults"
           class="mb-48"
-          :dataset-list="allDatasets"
+          :dataset-list="selectedDatasets"
           :search-criteria="search"
           :show-search-results="showSearchResults"
           :table-search-params="tableSearchParams"
@@ -188,7 +188,8 @@ export default {
       relatedModels: [],
       isLoadingAllModels: false,
       isLoadingRelatedModels: false,
-      allDatasets: [],
+      selectedDatasets: [],
+      mapAllDatasets: new Map(),
       isLoadingAllDatasets: false,
       tableSearchParams: {
         limit: 25,
@@ -234,6 +235,14 @@ export default {
      */
     getAllDatasetsUrl: function() {
       return `${this.config.apiUrl}/datasets?api_key=${this.userToken}`
+    },
+
+    /**
+     * Compute URL to get the datasets filtered by model endpoint
+     * @returns {String}
+     */
+    getFilteredDatasetsUrl: function() {
+      return `${this.config.conceptsUrl}/v2/organizations/${this.activeOrganizationIntId}/autocomplete/models/filter`
     },
 
     /**
@@ -294,7 +303,8 @@ export default {
 
         // Reset search data
         this.clearAll()
-        this.allDatasets = []
+        this.selectedDatasets = []
+        this.mapDatasets = new Map()
         this.allModels = []
       },
       immediate: true
@@ -352,7 +362,7 @@ export default {
         this.getAllModels()
       }
 
-      if (this.allDatasets.length === 0) {
+      if (this.selectedDatasets.length === 0) {
         this.getAllDatasets()
       }
 
@@ -424,13 +434,46 @@ export default {
         }
       })
         .then(response => {
-          this.allDatasets = response
+          //all datasets are loaded since no filter are applied
+          this.selectedDatasets = response
+          //build the map dataset name -> dataset to search for a particular dataset
+          for (let i = 0; i < this.selectedDatasets.length; i++) {
+            this.mapDatasets.set(this.selectedDatasets[i].content.id, this.selectedDatasets[i])
+          }
         })
         .catch(this.handleXhrError.bind(this))
         .finally(() => {
           // Set loading state
           this.isLoadingAllDatasets = false
         })
+    },
+
+    /**
+    * Get dataset filtered by models
+    */
+    getFilteredDatasets: function() {
+
+      this.sendXhr(this.getFilteredDatasetsUrl+"/"+this.search.model, {
+        header: {
+          'Authorization': `Bearer ${this.userToken}`
+        }
+       })
+         .then(response => {
+            this.selectedDatasets = []
+            for (let j = 0; j < response.datasets.length; j++){
+              if(this.mapDatasets.has(response.datasets[j].nodeId)){
+                this.selectedDatasets.push(this.mapDatasets.get(response.datasets[j].nodeId))
+              }
+              else{
+                console.error("The dataset ["+response.datasets[j].nodeId+"] contains the model selected but it is not included in all datasets available.")
+              }
+            }
+         })
+         .catch(this.handleXhrError.bind(this))
+         .finally(() => {
+         })
+
+
     },
 
     /**
@@ -491,7 +534,7 @@ export default {
 
     /**
      * Load search filters and make
-     * requeest to get search results
+     * request to get search results
      * @param {Object} search
      */
     loadSearch: function(search) {
@@ -513,6 +556,8 @@ export default {
      */
     onModelChange: function() {
       this.search.filters = [filter()]
+
+      this.getFilteredDatasets()
 
       this.search.isModelInvalid = false
 

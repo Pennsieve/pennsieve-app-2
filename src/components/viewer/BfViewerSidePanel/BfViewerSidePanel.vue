@@ -20,11 +20,13 @@
     <palette-annotations
       v-show="sidePanelView === viewerSidePanelTypes.ANNOTATIONS"
       :ref="viewerSidePanelTypes.ANNOTATIONS"
+      :window-height="window_height"
     />
 
     <palette-channels
       v-if="sidePanelView === viewerSidePanelTypes.CHANNELS"
       :ref="viewerSidePanelTypes.CHANNELS"
+      :window-height="window_height"
     />
 
     <palette-navigator v-show="sidePanelView === 'navigator'" />
@@ -36,7 +38,7 @@ import { pathOr } from 'ramda'
 import { mapActions } from 'vuex'
 
 import ImportHref from '../../../mixins/import-href'
-import PaletteAnnotations from '../palettes/PaletteAnnotations.vue'
+import PaletteAnnotations from '../palettes/PaletteAnnotations/PaletteAnnotations.vue'
 import PaletteNavigator from '../palettes/PaletteNavigator/PaletteNavigator.vue'
 import PaletteChannels from '../palettes/PaletteChannels/PaletteChannels.vue'
 import PaletteDiscussions from '../palettes/PaletteDiscussions/PaletteDiscussions.vue'
@@ -72,6 +74,7 @@ export default {
 
   data: function(){
     return {
+      window_height: 0,
       expanded: false,
       viewerSidePanelTypes
     }
@@ -84,19 +87,22 @@ export default {
   mounted: function() {
     this.$el.addEventListener('view-discussion', this.goToDiscussion.bind(this))
     this.$el.addEventListener('start-discussion', this.goToDiscussion.bind(this))
+    window.addEventListener('resize', this.onResize)
+
 
     // bf-file-browser
     this.importHref('/web-components/src/components/blackfynn/palettes/bf-file-browser/bf-file-browser.html')
 
-    // bf-annotations-list
-    this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotations-list.html')
-
     EventBus.$on('view-annotation', this.onViewAnnotation.bind(this))
+
+    this.window_height = window.innerHeight - 85;
   },
 
   beforeDestroy: function() {
     this.$el.removeEventListener('view-discussion', this.goToDiscussion.bind(this))
     this.$el.removeEventListener('start-discussion', this.goToDiscussion.bind(this))
+    window.removeEventListener('resize', this.onResize)
+
 
     EventBus.$off('view-annotation', this.onViewAnnotation.bind(this))
   },
@@ -104,6 +110,9 @@ export default {
   methods: {
     ...mapActions('viewer', ['setSidePanel']),
 
+    onResize: function() {
+      this.window_height = window.innerHeight - 85;
+    },
     /**
      * Callback for going to a discussion from another palette
      * @param {Object} evt
@@ -151,7 +160,6 @@ export default {
 .bf-viewer-side-panel{
   background: #f7f7f7;
   border-left: 1px solid $gray_2;
-  display: flex;
   height: 100%;
   flex-direction: column;
   width: 100%;
