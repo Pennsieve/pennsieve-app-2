@@ -41,7 +41,7 @@ import {
   Pagination,
   InputNumber,
   ButtonGroup,
-  Button, Switch
+  Button
 } from 'element-ui'
 import './assets/element-variables.scss'
 import vOutsideEvents from 'vue-outside-events'
@@ -130,7 +130,6 @@ Vue.use(Spinner)
 Vue.use(Pagination)
 Vue.use(Tooltip)
 Vue.use(Slider)
-Vue.use(Switch)
 Vue.use(VueAwesomeSwiper),
 Vue.use(Collapse)
 Vue.use(CollapseItem)
