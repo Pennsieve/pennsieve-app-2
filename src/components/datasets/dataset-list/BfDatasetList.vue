@@ -129,6 +129,7 @@
 
       <bf-create-new-dataset
         :datasets="datasets"
+        :integrations="integrations"
         :visible.sync="newDatasetDialogOpen"
         @close-dialog="newDatasetDialogOpen = false"
       />
@@ -208,10 +209,7 @@
     mapState
   } from 'vuex'
   import {
-    filter,
-    pathEq,
     propOr,
-    reject
   } from 'ramda'
   import BfRafter from '@/components/shared/bf-rafter/BfRafter.vue'
   import BfButton from '@/components/shared/bf-button/BfButton.vue'
@@ -287,6 +285,10 @@
         'onboardingEvents',
         'datasetFilters',
         'gettingStartedOpen'
+      ]),
+
+      ...mapState('integrationsModule', [
+        'integrations'
       ]),
 
       ...mapState('datasetModule', [

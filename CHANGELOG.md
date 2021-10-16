@@ -2,5 +2,3 @@
 
 ##### Other Changes
 
-* Pennsieve/pennsieve-app (35da9d33)
-

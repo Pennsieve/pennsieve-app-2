@@ -29,7 +29,18 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'publishing-settings' }">
+            <router-link
+              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
+              :to="{ name: 'integrations-settings' }"
+            >
+              Integrations
+            </router-link>
+          </li>
+          <li>
+            <router-link
+              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
+              :to="{ name: 'publishing-settings' }"
+            >
               Publishing
             </router-link>
           </li>
@@ -228,6 +239,7 @@ import { pathOr } from 'ramda'
         'datasetLocked',
         'datasetOwner',
         'datasetOwnerHasOrcidId',
+        'hasFeature'
       ]),
 
       ...mapState([

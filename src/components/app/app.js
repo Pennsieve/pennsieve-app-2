@@ -135,7 +135,7 @@ export default {
       },
       /**
        * Set the value in the vuex store
-       * @param {Boolean} val 
+       * @param {Boolean} val
        */
       set(val) {
         this.updateIsLinkOrcidDialogVisible(val)
@@ -181,6 +181,7 @@ export default {
           this.fetchDatasets()
           this.fetchDatasetPublishedData()
           this.fetchCollections()
+          this.fetchIntegrations()
         }
 
         if (this.getDatasetTemplatesUrl && this.hasFeature('dataset_templates_feature')) {
@@ -230,6 +231,10 @@ export default {
 
     ...mapActions('collectionsModule', [
       'fetchCollections'
+    ]),
+
+    ...mapActions('integrationsModule', [
+      'fetchIntegrations'
     ]),
 
     /**
