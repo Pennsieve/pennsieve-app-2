@@ -11,44 +11,14 @@
       title="Create Dataset"
     />
 
-    <!--      <div-->
-    <!--        v-if="hasTemplates && step === 1"-->
-    <!--        class="step-1 dataset-template-select"-->
-    <!--      >-->
-    <!--        <div-->
-    <!--          class="dataset-template-select-item"-->
-    <!--          :class="templateSelection === 'blank' ? 'selected' : ''"-->
-    <!--          @click.prevent="onTemplateClick('blank')"-->
-    <!--        >-->
-    <!--          <h2>Blank Dataset</h2>-->
-    <!--          <p>Start with an empty dataset.</p>-->
-    <!--          <hr>-->
-    <!--        </div>-->
-    <!--        <div-->
-    <!--          v-for="item in datasetTemplates"-->
-    <!--          :key="item.id"-->
-    <!--          class="dataset-template-select-item"-->
-    <!--          :class="item.id === templateSelection ? 'selected' : ''"-->
-    <!--          @click.prevent="onTemplateClick(item.id)"-->
-    <!--        >-->
-    <!--          <h2>{{ item.name }}</h2>-->
-    <!--          <p>{{ item.description }}</p>-->
-    <!--          <hr>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--      <div-->
-    <!--        v-else-->
-    <!--        class="step-2"-->
-    <!--      >-->
     <dialog-body>
-
       <!-- Step 1 -->
       <el-form
         v-show="shouldShow(1)"
         ref="newDatasetFormStep1"
         :model="newDatasetForm"
         :rules="rules"
-        @submit.native.prevent="createDataset('newDatasetForm')"
+        @submit.native.prevent="createDataset()"
       >
         <el-form-item
           label="Dataset Name"
@@ -80,39 +50,40 @@
         @submit.native.prevent="createDataset('newDatasetForm')"
       >
         <div
-          class="section-title">
+          class="section-title"
+        >
           Manage Integrations
         </div>
         <p
-          class="section-description">
+          class="section-description"
+        >
           Integrations allow external services to be notified when certain events occur on Pennsieve.
-          <span v-show="hasDefaultIntegrations">Some integrations are turned on by default by the <span class="org-name">{{activeOrganization}}</span> Administrators.</span>
+          <span v-show="hasDefaultIntegrations">Some integrations are turned on by default by the <span class="org-name">{{ activeOrganization }}</span> Administrators.</span>
         </p>
 
         <div
-          class="integration-list">
+          class="integration-list"
+        >
           <integration-item-small
             v-for="integration in integrations"
             :key="integration.id"
             :integration="integration"
             :open-index="openIndex"
-            v-on:updateIsActive="updateIsActive"
+            @updateIsActive="updateIsActive"
           />
         </div>
 
-
-        <el-form-item prop="acknowledgeInfo"
-          v-show="hasActiveIntegrations">
+        <el-form-item
+          v-show="hasActiveIntegrations"
+          prop="acknowledgeInfo"
+        >
           <el-checkbox
-            class="acknowledgeInfo"
             v-model="acknowledgeInfo"
+            class="acknowledgeInfo"
             label="I acknowledge events will be shared with a third party"
           />
         </el-form-item>
-
       </el-form>
-
-
     </dialog-body>
 
     <div
@@ -126,26 +97,13 @@
       >
         {{ stepBackText }}
       </bf-button>
-<!--      <div v-if="step === 1">-->
-<!--        <bf-button-->
-<!--          :disabled="!templateSelection"-->
-<!--          @click="onContinue"-->
-<!--        >-->
-<!--          Continue-->
-<!--        </bf-button>-->
-<!--        <router-link-->
-<!--          v-if="hasAdminRights"-->
-<!--          class="manage-datasets"-->
-<!--          :to="{ name: 'settings' }"-->
-<!--        >-->
-<!--          Manage Dataset Templates-->
-<!--        </router-link>-->
-<!--      </div>-->
+
       <bf-button
         :disabled="isCreating"
         :processing="isCreating"
         processing-text="Creating Dataset"
-        @click="advanceStep(1)">
+        @click="advanceStep(1)"
+      >
         {{ createText }}
       </bf-button>
     </div>
@@ -154,9 +112,8 @@
 
 <script>
   import { mapGetters, mapState, mapActions } from 'vuex'
-  import { clone, propOr, pathOr } from 'ramda'
+  import { propOr, pathOr } from 'ramda'
 
-  import A11yKeys from '../../../shared/a11y-keys/A11yKeys.vue'
   import BfButton from '../../../shared/bf-button/BfButton.vue'
   import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
   import CharacterCountInput from '../../../shared/CharacterCountInput/CharacterCountInput.vue'
@@ -174,7 +131,6 @@
     name: 'BfCreateNewDataset',
 
     components: {
-      A11yKeys,
       BfButton,
       BfDialogHeader,
       DialogBody,
@@ -189,9 +145,6 @@
       SanitizeName
     ],
 
-    mounted: function() {
-    },
-
     props: {
       visible: Boolean,
       datasets: Array,
@@ -204,11 +157,16 @@
         openIndex:0,
         newDatasetForm: {
           name: '',
-          description: ''
+          description: '',
+          includedWebhookIds: [],
+          excludedWebhookIds: []
         },
         rules: {
           name: [
             { required: true, validator: this.validateName, trigger: 'false' },
+          ],
+          acknowledgeInfo: [
+            { required: true, validator: this.checkedAck, trigger: 'false' }
           ]
         },
         duplicateName: false,
@@ -262,6 +220,7 @@
         if (this.config.apiUrl && this.userToken) {
           return `${this.config.apiUrl}/datasets?api_key=${this.userToken}`
         }
+        return ''
       },
 
       /**
@@ -273,6 +232,7 @@
         if (apiUrl && this.userToken) {
           return `${apiUrl}/onboarding/events?api_key=${this.userToken}`
         }
+        return ''
       },
 
       /**
@@ -322,6 +282,9 @@
       },
     },
 
+    mounted: function() {
+    },
+
     methods: {
       ...mapActions([
         'addDataset',
@@ -337,7 +300,7 @@
       },
       /**
        * Determines button action
-       * @param {String} key
+       * @param step
        */
       advanceStep: function(step) {
         this.processStep += step
@@ -345,13 +308,14 @@
           this.closeDialog()
         }
         if (this.processStep === 3) {
+          this.processStep = 2
           this.createDataset('newDatasetForm')
         }
       },
 
       /**
        * Determines which step content is active
-       * @param {String} key
+       * @param {number} key
        * @returns {Boolean}
        */
       shouldShow: function(key) {
@@ -408,18 +372,33 @@
       },
       /**
        * Create Dataset
-       * @param {String} formName
        */
-      createDataset: function(formName) {
+      createDataset: function() {
         this.duplicateName = false
+        let isValid = true
 
-        this.$refs[formName]
-          .validate((valid) => {
-            if (!valid) {
-              return
-            }
-            this.sendRequest()
-          })
+        // Set include/exclude webhooks
+        this.newDatasetForm.includedWebhookIds= this.integrations.filter(n => n.isActive === true).map(x => x.id)
+        this.newDatasetForm.excludedWebhookIds = this.integrations.filter(n => n.isActive === false).map(x => x.id)
+
+        this.$refs.newDatasetFormStep1.validate( (valid) => {
+          if (!valid) {
+            isValid = false
+            return this.processStep = 1
+          }
+        })
+
+        this.$refs.newDatasetFormStep2.validate( (valid) => {
+          if (!valid) {
+            isValid = false
+            return this.processStep = 2
+          }
+        })
+
+        if (isValid) {
+          this.sendRequest()
+        }
+
       },
       /**
        * Sends XHR request to create dataset
@@ -471,7 +450,11 @@
       handleError: function(response) {
         if (response.status === 400) {
           this.duplicateName = true
-          this.$refs.newDatasetForm.validate()
+          this.$refs.newDatasetFormStep1.validate((valid) => {
+            if (!valid) {
+              return this.processStep = 1
+            }
+          })
         }
       },
       /**
@@ -480,6 +463,7 @@
        * @param {String} value
        * @param {Function} callback
        */
+      // eslint-disable-next-line complexity
       validateName: function(rule, value, callback) {
         const isUnique = this.checkUniqueName(this.datasets, ['content', 'name'], value, '')
         const hasReservedChars = this.containsReservedChars(value)
@@ -495,6 +479,18 @@
           callback()
         }
       },
+      checkedAck: function(rule, value, callback) {
+        const needCheck = this.hasActiveIntegrations
+        if (needCheck) {
+          if (this.acknowledgeInfo) {
+            callback()
+          } else {
+            callback(new Error('Need to acknowledge sharing info'))
+          }
+        } else {
+          callback()
+        }
+      },
       /**
        * Save onboarding event
        */
@@ -506,6 +502,7 @@
               'Authorization': `bearer ${this.userToken}`
             }
           })
+          // eslint-disable-next-line no-unused-vars
           .then(response => {
             const onboardingEvents = [...this.onboardingEvents, 'CreatedDataset']
             this.updateOnboardingEvents(onboardingEvents)

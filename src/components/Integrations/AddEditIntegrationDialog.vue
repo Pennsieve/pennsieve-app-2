@@ -83,7 +83,8 @@
           :model="integration"
           :rules="rules">
 
-          <el-form-item prop="integrationType">
+          <el-form-item v-show=false
+                        prop="integrationType">
             <template slot="label">
               Integration Type <span class="label-helper">
                 required
@@ -266,7 +267,7 @@ const defaultIntegration = () => (
     isDisabled: false,
     isPublic: false,
     name: '',
-    integrationType: '',
+    integrationType: 'viewer',
     eventTypeList: {
       METADATA: false,
       STATUS: false,
