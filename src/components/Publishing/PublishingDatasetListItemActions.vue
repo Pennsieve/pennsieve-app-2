@@ -376,7 +376,7 @@ export default {
     rejectPublishingRequest: function(message) {
       console.log('rejecting request: ' + message)
       this.isRejectRequestDialogVisible = false
-      // this.triggerRequest(PublicationStatus.REJECTED, this.datasetPublicationType, message)
+      this.triggerRequest(PublicationStatus.REJECTED, this.datasetPublicationType, message)
     },
     /**
      * Opens Data Use Agreement Modal
@@ -423,7 +423,7 @@ export default {
       }/publication/${publicationSuffix
       }?publicationType=${publicationType
       }&api_key=${this.userToken
-      }&comments=${message}`
+      }&comments=${encodeURI(message.replaceAll('\n','<br>'))}`
       }
 
       this.inFlightStatus = true;

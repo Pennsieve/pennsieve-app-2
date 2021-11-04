@@ -20,7 +20,7 @@
           type="textarea"
           :rows="8"
           v-model="rejectRationale"
-          maxlength="255"
+          maxlength="1024"
           show-word-limit
         />
       </div>
