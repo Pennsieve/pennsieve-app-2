@@ -2,7 +2,8 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
-const { VueLoaderPlugin } = require('vue-loader')
+// const { VueLoaderPlugin } = require('vue-loader')
+const vueLoaderConfig = require('./vue-loader.conf')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -38,9 +39,6 @@ module.exports = {
       '@': resolve('src'),
     }
   },
-  plugins: [
-    new VueLoaderPlugin()
-  ],
   module: {
     rules: [
       // Not using until all source files have been cleaned up
