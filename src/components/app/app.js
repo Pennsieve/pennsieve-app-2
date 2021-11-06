@@ -363,7 +363,10 @@ export default {
       frag.appendChild(div)
 
       const metaTag = frag.querySelector(`meta[name="PS.version"]`)
+
       const content = metaTag.content
+
+
       // replace unnecessary characters if content is available
       return content ? content.replace(/\W|T/g, '') : ''
     },
@@ -374,7 +377,7 @@ export default {
       * @returns {Promise}
       */
      getBfTermsOfService: function() {
-      return fetch('/static/files/tos.html')
+      return fetch('/static/files/tos_html.txt')
         .then(response => response.text())
         .then(text => {
           // set Pennsieve terms of service version
