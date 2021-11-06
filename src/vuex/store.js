@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import site from '@/site-config/site.json'
+import * as site from '@/site-config/site.json'
 import { pathOr, merge, propOr, prop, contains, find, propEq, compose, findIndex, clone, defaultTo, pathEq, pluck, length, sum, take, sort, filter, append, assocPath, remove } from 'ramda'
 import Cookies from 'js-cookie'
 import viewer from './modules/viewer'
