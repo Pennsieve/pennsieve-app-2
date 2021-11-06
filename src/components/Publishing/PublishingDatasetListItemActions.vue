@@ -78,7 +78,7 @@
           v-else
           :disabled="!!inFlightStatus || datasetPublicationStatus === PublicationStatus.ACCEPTED"
           href="#"
-          @click.prevent="triggerRequest(PublicationStatus.REJECTED, datasetPublicationType)"
+          @click.prevent="openRejectDialog"
         >
           Reject Revision
         </a>
@@ -184,6 +184,11 @@
       @submit="requestAccess"
       @download="downloadAgreement"
     />
+
+    <reject-request-dialog
+      :visible.sync="isRejectRequestDialogVisible"
+      @rejectRequest="rejectPublishingRequest"
+    />
   </div>
 </template>
 
@@ -192,6 +197,7 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 import { pathOr, propOr } from 'ramda';
 
 import DataUseAgreementSignDialog from './DataUseAgreementSignDialog/DataUseAgreementSignDialog'
+import RejectRequestDialog from './RejectRequestDialog/RejectRequestDialog'
 
 import DatasetPublishedData from '@/mixins/dataset-published-data'
 import Request from '@/mixins/request'
@@ -213,7 +219,8 @@ export default {
   name: 'PublishingDatasetListItemActions',
 
   components: {
-    DataUseAgreementSignDialog
+    DataUseAgreementSignDialog,
+    RejectRequestDialog
   },
 
   mixins: [
@@ -252,6 +259,7 @@ export default {
     return {
       inFlightStatus: false,
       isDataUseAgreementSignDialogVisible: false,
+      isRejectRequestDialogVisible: false,
       dataUseAgreement: {},
       hasAgreement: false,
       isSigningAgreement: false
@@ -358,7 +366,18 @@ export default {
     ...mapActions('publishingModule', [
       'refreshPublishingData'
     ]),
+    openRejectDialog: function() {
+      this.isRejectRequestDialogVisible = true
+    },
 
+    /**
+     * Called when user clicks on REJECT in rejectDialog
+     */
+    rejectPublishingRequest: function(message) {
+      console.log('rejecting request: ' + message)
+      this.isRejectRequestDialogVisible = false
+      this.triggerRequest(PublicationStatus.REJECTED, this.datasetPublicationType, message)
+    },
     /**
      * Opens Data Use Agreement Modal
      * @param {Number} dataUseAgreementId
@@ -386,7 +405,7 @@ export default {
       }).catch(this.handleXhrError.bind(this))
     },
 
-    triggerRequest: async function(publicationStatus, publicationType) {
+    triggerRequest: async function(publicationStatus, publicationType, message = "") {
       const publicationSuffix = getPublicationSuffix(publicationStatus)
       let url = ''
 
@@ -403,7 +422,8 @@ export default {
       }/datasets/${this.dataset.content.id
       }/publication/${publicationSuffix
       }?publicationType=${publicationType
-      }&api_key=${this.userToken}`
+      }&api_key=${this.userToken
+      }&comments=${encodeURI(message.replaceAll('\n','<br>'))}`
       }
 
       this.inFlightStatus = true;
