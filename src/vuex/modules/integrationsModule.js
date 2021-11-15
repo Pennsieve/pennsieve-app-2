@@ -20,6 +20,12 @@ export const mutations = {
     state.integrations = sortIntegrations(integrations)
   },
 
+  EDIT_INTEGRATION(state, integration) {
+    const integrations = state.integrations.filter(it => it.id !== integration.id)
+    integrations.push(integration)
+    state.integrations = sortIntegrations(integrations)
+  },
+
   CREATE_INTEGRATION(state, integration) {
     state.integrations.push(integration)
   },
@@ -56,11 +62,35 @@ export const actions = {
       return Promise.reject(err)
     }
   },
+
+  editIntegration: async ({commit, rootState}, integrationDTO ) => {
+    try {
+      const url = `${rootState.config.apiUrl}/webhooks/${integrationDTO.id}?api_key=${rootState.userToken}`
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(integrationDTO)
+      })
+
+      if (resp.ok) {
+        const integration = await resp.json()
+        commit('EDIT_INTEGRATION', integration)
+
+      } else {
+        return Promise.reject(resp)
+      }
+
+    }catch (err) {
+      return Promise.reject(err)
+    }
+  },
+
   createIntegration: async ({commit, rootState}, integrationDTO ) => {
     try {
       const url = `${rootState.config.apiUrl}/webhooks?api_key=${rootState.userToken}`
 
-      console.log("Hello:" + JSON.stringify(integrationDTO))
       const resp = await fetch(url, {
         method: 'POST',
         headers: {
