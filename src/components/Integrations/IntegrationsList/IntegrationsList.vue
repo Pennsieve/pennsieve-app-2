@@ -79,7 +79,7 @@
 
     <add-edit-integration-dialog
       :visible.sync="addEditIntegrationDialogVisible"
-      :integration-edit="integrationEdit"
+      :integration-edit.sync="integrationEdit"
       @add-integration="onAddIntegrationConfirm"
       @edit-integration="onEditIntegrationConfirm"
     />
