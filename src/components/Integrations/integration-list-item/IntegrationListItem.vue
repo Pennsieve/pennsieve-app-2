@@ -69,7 +69,7 @@
             class="bf-menu"
             :offset="9"
           >
-            <el-dropdown-item command="changeRoute">
+            <el-dropdown-item command="openEditDialog">
               Edit integration
             </el-dropdown-item>
             <el-dropdown-item
@@ -165,7 +165,13 @@ export default {
 
   data: function () {
     return {
-      isActive: false
+      isActive: false,
+      integrationEdit: {
+        type: Object,
+        default: function(){
+          return {}
+        }
+      },
     }
   },
   mounted() {
@@ -191,6 +197,9 @@ export default {
     },
     openDeleteDialog: function(integration) {
       this.$emit('open-remove-integration', integration)
+    },
+    openEditDialog: function(integration) {
+      this.$emit('open-edit-integration', integration)
     },
     onIntegrationMenu: function(action) {
       if (typeof this[action] === 'function') {

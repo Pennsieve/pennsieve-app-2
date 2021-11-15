@@ -130,17 +130,28 @@
             />
           </el-form-item>
 
-          <el-form-item prop="secret">
+          <el-form-item
+            prop="secret">
             <template slot="label">
               Secret <span class="label-helper">
             </span>
               <p class="info">This unique string is sent with all published events to this webhook and can be used to validate the origin of the message.</p>
             </template>
             <el-input
+              v-if="showSecret"
               v-model="integration.secret"
               placeholder="TODO: Create secret"
             />
+            <bf-button
+              v-else
+              class="secondary"
+              @click="generateSecret"
+            >
+              Generate new secret
+            </bf-button>
           </el-form-item>
+
+
 
 
         </el-form>
@@ -298,10 +309,14 @@ export default {
 
   props: {
     visible: Boolean,
-    editingIntegration: false
+    integrationEdit: {
+      type: Object,
+      default: function(){
+        return {}
+      }
+    },
   },
   mounted: function() {
-    this.integration.secret = this.generateId(16)
   },
   data: function() {
     return {
@@ -356,13 +371,20 @@ export default {
       'dataset',
       'scientificUnits'
     ]),
-
+    showSecret: function() {
+      return Boolean(this.integration.secret)
+    },
     /**
      * Computes create property CTA
      * @returns {String}
      */
     createText: function() {
-      return this.processStep > 2 ? 'Add Integration' : 'Continue'
+      let createText = 'Add Integration'
+      if (this.integrationEdit) {
+        createText = 'Update Integration'
+      }
+
+      return this.processStep > 2 ? createText : 'Continue'
     },
 
     stepBackText: function() {
@@ -381,13 +403,20 @@ export default {
 
       return snakeCase(this.integration.displayName)
     },
+    /**
+     * Compute if user is editing an integration
+     * @returns {Boolean}
+     */
+    editingIntegration: function() {
+      return Boolean(Object.keys(this.integrationEdit).length)
+    },
 
     /**
      * Compute dialog title based on if the user is editing a property
      * @returns {String}
      */
     dialogTitle: function() {
-      return this.editingProperty ? 'Update Integration' : 'Add Integration'
+      return this.editingIntegration ? 'Update Integration' : 'Add Integration'
     },
   },
 
@@ -402,7 +431,9 @@ export default {
   },
 
   methods: {
-
+    generateSecret: function() {
+      this.integration.secret = this.generateId(16)
+    },
     /**
      * Handle enum list updates
      * @param {Array} list
@@ -424,9 +455,22 @@ export default {
      */
     onOpen: function() {
 
-      if (this.editingProperty) {
+      if (this.editingIntegration) {
         // set properties in local state to be referenced in createIntegration fn
-        this.integration = clone(this.integrationEdit)
+        var ei = this.integrationEdit
+        this.integration.displayName = ei.displayName
+        this.integration.apiUrl = ei.apiUrl
+        this.integration.name = ei.name
+        this.integration.id = ei.id
+        this.integration.description = ei.description
+        this.integration.secret = ei.secret
+        this.integration.isDefault = ei.isDefault
+        this.integration.isDisabled = ei.isDisabled
+        this.integration.isPrivate = ei.isPrivate
+        for (let target in ei.eventTargets) {
+          this.integration.eventTypeList[ei.eventTargets[target]] = true
+        }
+
       } else {
         this.integration.secret = this.generateId(16)
       }
