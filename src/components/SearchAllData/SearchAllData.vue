@@ -195,6 +195,7 @@ export default {
         limit: 25,
         offset: 0
       },
+      filteredDatasets:[]
     }
   },
 
@@ -559,6 +560,8 @@ export default {
       this.getFilteredDatasets()
 
       this.search.isModelInvalid = false
+
+      this.filteredDatasets = "somesubset of this.allDatasets"
     },
 
     /**

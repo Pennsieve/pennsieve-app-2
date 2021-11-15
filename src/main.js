@@ -35,18 +35,18 @@ import {
   Collapse,
   CollapseItem,
   Spinner,
+  Switch,
   Slider,
   Tooltip,
   Pagination,
   InputNumber,
   ButtonGroup,
-  Button, Switch
+  Button
 } from 'element-ui'
 import './assets/element-variables.scss'
 import vOutsideEvents from 'vue-outside-events'
 import routes from './routes'
 import Cookies from 'js-cookie'
-import EventBus from './utils/event-bus'
 import CheckOverflow from './mixins/check-overflow'
 import * as svgicon from 'vue-svgicon'
 import VueInputAutowidth from 'vue-input-autowidth'
@@ -54,7 +54,6 @@ import { VueReCaptcha } from 'vue-recaptcha-v3'
 import './assets/icons'
 import * as siteConfig from '@/site-config/site.json'
 
-import qs from 'qs'
 import Amplify from '@aws-amplify/core'
 import AWSConfig from '@/utils/aws-exports.js'
 Amplify.configure(AWSConfig)
@@ -119,6 +118,7 @@ Vue.use(DropdownMenu)
 Vue.use(DropdownItem)
 Vue.use(Row)
 Vue.use(Col)
+Vue.use(Switch)
 Vue.use(Popover)
 Vue.use(Select)
 Vue.use(Option)
@@ -130,7 +130,6 @@ Vue.use(Spinner)
 Vue.use(Pagination)
 Vue.use(Tooltip)
 Vue.use(Slider)
-Vue.use(Switch)
 Vue.use(VueAwesomeSwiper),
 Vue.use(Collapse)
 Vue.use(CollapseItem)
@@ -201,6 +200,7 @@ const topLevelRoutes = [
   'datasets-list',
   'people-list',
   'teams-list',
+  'integrations-list',
   'settings',
   'my-settings-container'
 ]

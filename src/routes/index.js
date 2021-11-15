@@ -37,6 +37,12 @@ const PeopleList = () => import('../components/people/list/PeopleList.vue')
 const Publishing = () => import('@/routes/Publishing/PublishingView.vue')
 const PublishingDatasetsList = () => import ('@/components/Publishing/PublishingDatasetsList/PublishingDatasetsList.vue')
 
+/**
+ * Integrations Components
+ */
+ const Integrations = () => import('@/routes/Integrations/Integrations.vue')
+ const IntegrationsList = () => import ('@/components/Integrations/IntegrationsList/IntegrationsList.vue')
+
 
 /**
  * Teams Components
@@ -67,6 +73,7 @@ const DatasetActivity = () => import('../components/datasets/DatasetActivity/Dat
 const EmbargoedPermissions = () => import('../components/datasets/DatasetPermissions/EmbargoedPermissions/EmbargoedPermissions.vue')
 const BfDatasetSettings = () => import('../components/datasets/settings/BfDatasetSettings.vue')
 const BfPublishingSettings = () => import('../components/datasets/settings/BfPublishingSettings.vue')
+const DatasetIntegrationsSettings = () => import('../components/datasets/settings/DatasetIntegrationsSettings.vue')
 const DatasetOverview = () => import('../components/datasets/DatasetOverview/DatasetOverview.vue')
 
 /**
@@ -85,13 +92,13 @@ const RelationshipTypes = () => import('../components/datasets/management/GraphM
 const ConceptManagement = () => import('../components/datasets/management/ConceptManagement/ConceptManagement.vue')
 const ModelTemplates = () => import('../components/datasets/management/ModelTemplates/ModelTemplates.vue')
 
-
 /**
  * 404
  */
 const Bf404 = () => import('../components/Bf-404/Bf-404.vue')
 
 /**
+ * ORCIDRedirect
  * ORCIDRedirect
  */
 
@@ -116,6 +123,24 @@ const routes = [
         path: '',
         components: {
           stage: BfDatasetList
+        },
+        props: true
+      }
+    ]
+  },
+  {
+    path: '/:orgId/integrations',
+    components: {
+      page: Integrations,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'integrations-list',
+        path: '',
+        components: {
+          stage: IntegrationsList
         },
         props: true
       }
@@ -320,6 +345,15 @@ const routes = [
         path: 'publishing-settings',
         components: {
           stage: BfPublishingSettings
+        },
+        props: true
+      },
+      {
+        name: 'integrations-settings',
+        path: 'integrations-settings',
+        components: {
+          integration: Integrations,
+          stage: DatasetIntegrationsSettings
         },
         props: true
       },

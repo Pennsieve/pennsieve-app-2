@@ -135,7 +135,7 @@ export default {
       },
       /**
        * Set the value in the vuex store
-       * @param {Boolean} val 
+       * @param {Boolean} val
        */
       set(val) {
         this.updateIsLinkOrcidDialogVisible(val)
@@ -181,6 +181,7 @@ export default {
           this.fetchDatasets()
           this.fetchDatasetPublishedData()
           this.fetchCollections()
+          this.fetchIntegrations()
         }
 
         if (this.getDatasetTemplatesUrl && this.hasFeature('dataset_templates_feature')) {
@@ -230,6 +231,10 @@ export default {
 
     ...mapActions('collectionsModule', [
       'fetchCollections'
+    ]),
+
+    ...mapActions('integrationsModule', [
+      'fetchIntegrations'
     ]),
 
     /**
@@ -358,7 +363,10 @@ export default {
       frag.appendChild(div)
 
       const metaTag = frag.querySelector(`meta[name="PS.version"]`)
+
       const content = metaTag.content
+
+
       // replace unnecessary characters if content is available
       return content ? content.replace(/\W|T/g, '') : ''
     },
@@ -369,7 +377,7 @@ export default {
       * @returns {Promise}
       */
      getBfTermsOfService: function() {
-      return fetch('/static/files/tos.html')
+      return fetch('/static/files/tos_html.txt')
         .then(response => response.text())
         .then(text => {
           // set Pennsieve terms of service version

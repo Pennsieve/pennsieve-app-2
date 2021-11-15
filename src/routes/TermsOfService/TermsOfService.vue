@@ -195,7 +195,7 @@ export default {
      * Gets Terms of Service
      */
     getTermsOfService: function() {
-      fetch('/static/files/tos.html')
+      fetch('/static/files/tos_html.txt')
         .then(response => response.text())
         .then(text => {
           this.termsOfService = text
