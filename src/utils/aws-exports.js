@@ -5,6 +5,7 @@ const awsConfig = {
     region: config.awsConfig.region,
     userPoolId: config.awsConfig.userPoolId,
     userPoolWebClientId: config.awsConfig.userPoolWebClientId,
+    authenticationFlowType: config.awsConfig.authenticationFlowType,
   }
 }
 export default awsConfig
