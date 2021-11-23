@@ -54,32 +54,49 @@
               Forgot your password?
             </router-link>
           </el-form-item>
-          <p class="terms sign-up">Don't have an account?
-
-            <router-link
-              :to="{name: 'create-account'}"
-              >
-                Create one here
-            </router-link>
-          </p>
-
-          <p class="terms">
-            By signing in to Pennsieve you accept our <a
-              class="grey-link"
-              href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
-              target="_blank"
-            >
-              Terms of Use
-            </a>
-            and <a
-              class="grey-link"
-              href="https://docs.pennsieve.io/page/privacy-policy"
-              target="_blank"
-            >
-              Privacy Policy
-            </a>.
-          </p>
         </el-form>
+
+        <p class="centered-spaced">
+          <button
+            id="login-orcid-button"
+            @click="onLoginWithORCID"
+          >
+            <img
+              id="orcid-id-icon"
+              src="/static/images/orcid_24x24.png"
+              width="24"
+              height="24"
+              alt="Logo for ORCID"
+            >
+            Login with ORCID Id
+          </button>
+        </p>
+
+        <p class="terms sign-up">Don't have an account?
+
+          <router-link
+            :to="{name: 'create-account'}"
+            >
+              Create one here
+          </router-link>
+        </p>
+
+        <p class="terms">
+          By signing in to Pennsieve you accept our <a
+            class="grey-link"
+            href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
+            target="_blank"
+          >
+            Terms of Use
+          </a>
+          and <a
+            class="grey-link"
+            href="https://docs.pennsieve.io/page/privacy-policy"
+            target="_blank"
+          >
+            Privacy Policy
+          </a>.
+        </p>
         <!-- two factor form --->
         <el-form
           v-if="showToken"
@@ -126,8 +143,7 @@
 import Vue from 'vue'
 import { mapGetters, mapActions, mapState } from 'vuex'
 import { propOr, pathOr } from 'ramda'
-import Auth from '@aws-amplify/auth'
-
+import { Auth } from '@aws-amplify/auth'
 
 import BfButton from '../../components/shared/bf-button/BfButton.vue'
 import A11yKeys from '../../components/shared/a11y-keys/A11yKeys.vue'
@@ -175,7 +191,9 @@ export default Vue.component('bf-login', {
       tempSessionToken: '',
       showToken: false,
       isLoggingIn: false,
-      isLoadingTwoFactor: false
+      isLoadingTwoFactor: false,
+      oauthWindow: '',
+      oauthCode: '',
     }
   },
 
@@ -255,14 +273,22 @@ export default Vue.component('bf-login', {
      * @param {Object} response
      */
      handleLoginSuccess: function(user) {
-      const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
-      const userAttributes = propOr({}, 'attributes', user)
-      this.updateCognitoUser(user)
-      if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
-        this.showToken = true
-      } else {
-        EventBus.$emit('login', {token, userAttributes, user})
-      }
+       console.log("handleLoginSuccess() user:")
+       console.log(user)
+       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+       const userAttributes = propOr({}, 'attributes', user)
+       this.updateCognitoUser(user)
+       console.log("handleLoginSuccess() token:")
+       console.log(token)
+       console.log("handleLoginSuccess() userAttributes:")
+       console.log(userAttributes)
+       if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
+         console.log("handleLoginSuccess() SOFTWARE_TOKEN_MFA")
+         this.showToken = true
+       } else {
+         console.log("handleLoginSuccess() EventBus.$emit(...)")
+         EventBus.$emit('login', {token, userAttributes, user})
+       }
     },
 
     /**
@@ -337,6 +363,33 @@ export default Vue.component('bf-login', {
       this.loginForm.password = ''
       this.twoFactorForm.token = ''
       this.isLoggingIn = false
+    },
+
+    onLoginWithORCID: function(e) {
+      e.preventDefault()
+      console.log("onLoginWithORCID()")
+      this.sendFederatedLoginRequest('ORCID')
+    },
+
+    async sendFederatedLoginRequest(p) {
+      console.log("sendFederatedLoginRequest()")
+      this.isLoggingIn = true
+      try {
+        const cred = await Auth.federatedSignIn({customProvider: 'ORCID'})
+        console.log("sendFederatedLoginRequest() cred:")
+        console.log(cred)
+        const user = await Auth.currentAuthenticatedUser()
+        this.handleLoginSuccess(user)
+      } catch (error) {
+        // alert("sendFederatedLoginRequest() error:" + error)
+        console.log("sendFederatedLoginRequest() error: " + error)
+        //this.isLoggingIn = false
+        //EventBus.$emit('toast', {
+        //  detail: {
+        //    msg: `There was an error with your federated login attempt. Please try again.`
+        //  }
+        //})
+      }
     }
   }
 })
@@ -419,5 +472,36 @@ export default Vue.component('bf-login', {
       display: flex;
     }
   }
+
+  .centered-spaced {
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 30px;
+  }
+}
+#login-orcid-button {
+  border: 1px solid #d3d3d3;
+  padding: 0.3em;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 1px 1px 3px #999;
+  cursor: pointer;
+  color: #999;
+  font-weight: bold;
+  font-size: 0.8em;
+  line-height: 24px;
+  vertical-align: middle;
+}
+
+#login-orcid-button:hover {
+  border: 1px solid #338caf;
+  color: #338caf;
+}
+
+#orcid-id-icon {
+  display: block;
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  float: left;
 }
 </style>

@@ -19,7 +19,14 @@
     "authenticationFlowType": "USER_PASSWORD_AUTH",
     "region": "us-east-1",
     "userPoolId": "us-east-1_FVLhJ7CQA",
-    "userPoolWebClientId": "703lm5d8odccu21pagcfjkeaea"
+    "userPoolWebClientId": "703lm5d8odccu21pagcfjkeaea",
+    "oauth": {
+      "domain": "pennsieve-dev-users2.auth.us-east-1.amazoncognito.com",
+      "redirectSignIn": "",
+      "redirectSignOut": "",
+      "responseType": "token",
+      "scope": ["openid"]
+    }
   },
   "reCAPTCHASiteKey": "6Le2Wr0aAAAAAHouFUEmy7UwN6b9wa_PPRGrWxAG"
 }
