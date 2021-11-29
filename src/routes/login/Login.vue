@@ -197,6 +197,10 @@ export default Vue.component('bf-login', {
     }
   },
 
+  mounted: function() {
+    this.doneMounting()
+  },
+
   computed: {
     ...mapGetters([
       'config'
@@ -390,6 +394,24 @@ export default Vue.component('bf-login', {
         //  }
         //})
       }
+    },
+      
+    getFragmentParameterByName: function(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
+            results = regex.exec(window.location.hash);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    },
+      
+    doneMounting: async function() {
+        var access_token = this.getFragmentParameterByName('access_token')
+        if (access_token) {
+            const user = await Auth.currentAuthenticatedUser()
+            this.handleLoginSuccess(user)
+        }
+        else {
+            console.log("no checked directives present")
+        }
     }
   }
 })
