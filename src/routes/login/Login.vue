@@ -72,6 +72,11 @@
           </button>
         </p>
 
+        <p v-if="showOrcidError" 
+           class="orcid-error-text">
+            That ORCID Id is not associateed with a Pennsieve account. Please login with username/password, and then link the ORCID Id to your Pennsieve account.
+        </p>
+          
         <p class="terms sign-up">Don't have an account?
 
           <router-link
@@ -194,6 +199,7 @@ export default Vue.component('bf-login', {
       isLoadingTwoFactor: false,
       oauthWindow: '',
       oauthCode: '',
+      showOrcidError: false,
     }
   },
 
@@ -207,7 +213,8 @@ export default Vue.component('bf-login', {
     ]),
 
     ...mapState([
-      'cognitoUser'
+      'cognitoUser',
+      'federatedLoginInProgress'
     ]),
 
     loginUrl: function() {
@@ -407,7 +414,19 @@ export default Vue.component('bf-login', {
         var access_token = this.getFragmentParameterByName('access_token')
         if (access_token) {
             const user = await Auth.currentAuthenticatedUser()
-            this.handleLoginSuccess(user)
+            console.log("doneMounting() user:")
+            console.log(user)
+            var username = user.username
+            var usernameParts = username.split("_")
+            if ((usernameParts.length == 2) && (usernameParts[0] == "orcid") && (usernameParts[1].split("-").length == 4)) {
+                console.log("username looks like a federated ORCID Id, username: " + username)
+                //Auth.signOut()
+                this.showOrcidError = true
+            }
+            else {
+                console.log("username looks ok -- either an email, or Cognito Id")
+                this.handleLoginSuccess(user)
+            }
         }
         else {
             console.log("no checked directives present")
@@ -500,6 +519,9 @@ export default Vue.component('bf-login', {
     margin-bottom: 20px;
     margin-top: 30px;
   }
+  .orcid-error-text {
+    color: #fcb603;
+  }
 }
 #login-orcid-button {
   border: 1px solid #d3d3d3;
@@ -526,4 +548,5 @@ export default Vue.component('bf-login', {
   padding: 0;
   float: left;
 }
+
 </style>
