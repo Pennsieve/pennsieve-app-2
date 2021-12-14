@@ -74,7 +74,7 @@
 
         <p v-if="showOrcidError" 
            class="orcid-error-text">
-            That ORCID Id is not associateed with a Pennsieve account. Please login with username/password, and then link the ORCID Id to your Pennsieve account.
+            That ORCID Id is not associateed with a Pennsieve account. Please login with an email and password, and then link the ORCID Id to your Pennsieve account.
         </p>
           
         <p class="terms sign-up">Don't have an account?
@@ -203,10 +203,6 @@ export default Vue.component('bf-login', {
     }
   },
 
-  mounted: function() {
-    this.doneMounting()
-  },
-
   computed: {
     ...mapGetters([
       'config'
@@ -214,7 +210,6 @@ export default Vue.component('bf-login', {
 
     ...mapState([
       'cognitoUser',
-      'federatedLoginInProgress'
     ]),
 
     loginUrl: function() {
@@ -234,6 +229,15 @@ export default Vue.component('bf-login', {
       }
       return ''
     }
+  },
+
+  created: function() {
+    console.log("created")
+  },
+    
+  mounted: function() {
+    console.log("mounted")
+    this.doneMounting()
   },
 
   methods: {
@@ -289,15 +293,9 @@ export default Vue.component('bf-login', {
        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
        const userAttributes = propOr({}, 'attributes', user)
        this.updateCognitoUser(user)
-       console.log("handleLoginSuccess() token:")
-       console.log(token)
-       console.log("handleLoginSuccess() userAttributes:")
-       console.log(userAttributes)
        if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
-         console.log("handleLoginSuccess() SOFTWARE_TOKEN_MFA")
          this.showToken = true
        } else {
-         console.log("handleLoginSuccess() EventBus.$emit(...)")
          EventBus.$emit('login', {token, userAttributes, user})
        }
     },
@@ -378,28 +376,22 @@ export default Vue.component('bf-login', {
 
     onLoginWithORCID: function(e) {
       e.preventDefault()
-      console.log("onLoginWithORCID()")
       this.sendFederatedLoginRequest('ORCID')
     },
 
-    async sendFederatedLoginRequest(p) {
-      console.log("sendFederatedLoginRequest()")
+    async sendFederatedLoginRequest(provider) {
+      console.log("sendFederatedLoginRequest() provider: " + provider)
       this.isLoggingIn = true
       try {
-        const cred = await Auth.federatedSignIn({customProvider: 'ORCID'})
-        console.log("sendFederatedLoginRequest() cred:")
-        console.log(cred)
-        const user = await Auth.currentAuthenticatedUser()
-        this.handleLoginSuccess(user)
+        const cred = await Auth.federatedSignIn({customProvider: provider})
       } catch (error) {
-        // alert("sendFederatedLoginRequest() error:" + error)
         console.log("sendFederatedLoginRequest() error: " + error)
-        //this.isLoggingIn = false
-        //EventBus.$emit('toast', {
-        //  detail: {
-        //    msg: `There was an error with your federated login attempt. Please try again.`
-        //  }
-        //})
+        this.isLoggingIn = false
+        EventBus.$emit('toast', {
+          detail: {
+            msg: `There was an error with your federated login attempt. Please try again.`
+          }
+        })
       }
     },
       
@@ -411,25 +403,17 @@ export default Vue.component('bf-login', {
     },
       
     doneMounting: async function() {
+        console.log("doneMounting()")
         var access_token = this.getFragmentParameterByName('access_token')
         if (access_token) {
             const user = await Auth.currentAuthenticatedUser()
             console.log("doneMounting() user:")
             console.log(user)
-            var username = user.username
-            var usernameParts = username.split("_")
-            if ((usernameParts.length == 2) && (usernameParts[0] == "orcid") && (usernameParts[1].split("-").length == 4)) {
-                console.log("username looks like a federated ORCID Id, username: " + username)
-                //Auth.signOut()
-                this.showOrcidError = true
-            }
-            else {
-                console.log("username looks ok -- either an email, or Cognito Id")
-                this.handleLoginSuccess(user)
-            }
+            this.handleLoginSuccess(user)
         }
-        else {
-            console.log("no checked directives present")
+        var error = this.getFragmentParameterByName('error_description')
+        if (error) {
+            this.showOrcidError = true
         }
     }
   }
