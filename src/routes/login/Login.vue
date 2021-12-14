@@ -68,13 +68,13 @@
               height="24"
               alt="Logo for ORCID"
             >
-            Login with ORCID Id
+            Login with ORCiD Id
           </button>
         </p>
 
         <p v-if="showOrcidError" 
            class="orcid-error-text">
-            That ORCID Id is not associateed with a Pennsieve account. Please login with an email and password, and then link the ORCID Id to your Pennsieve account.
+            That ORCiD Id is not associateed with a Pennsieve account. Please login with an email and password, and then link the ORCiD Id to your Pennsieve account.
         </p>
           
         <p class="terms sign-up">Don't have an account?
@@ -288,8 +288,6 @@ export default Vue.component('bf-login', {
      * @param {Object} response
      */
      handleLoginSuccess: function(user) {
-       console.log("handleLoginSuccess() user:")
-       console.log(user)
        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
        const userAttributes = propOr({}, 'attributes', user)
        this.updateCognitoUser(user)
@@ -380,12 +378,10 @@ export default Vue.component('bf-login', {
     },
 
     async sendFederatedLoginRequest(provider) {
-      console.log("sendFederatedLoginRequest() provider: " + provider)
       this.isLoggingIn = true
       try {
         const cred = await Auth.federatedSignIn({customProvider: provider})
       } catch (error) {
-        console.log("sendFederatedLoginRequest() error: " + error)
         this.isLoggingIn = false
         EventBus.$emit('toast', {
           detail: {
@@ -396,19 +392,16 @@ export default Vue.component('bf-login', {
     },
       
     getFragmentParameterByName: function(name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
             results = regex.exec(window.location.hash);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     },
       
     doneMounting: async function() {
-        console.log("doneMounting()")
         var access_token = this.getFragmentParameterByName('access_token')
         if (access_token) {
             const user = await Auth.currentAuthenticatedUser()
-            console.log("doneMounting() user:")
-            console.log(user)
             this.handleLoginSuccess(user)
         }
         var error = this.getFragmentParameterByName('error_description')
