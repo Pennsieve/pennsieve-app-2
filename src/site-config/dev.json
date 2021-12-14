@@ -22,8 +22,8 @@
     "userPoolWebClientId": "703lm5d8odccu21pagcfjkeaea",
     "oauth": {
       "domain": "pennsieve-dev-users2.auth.us-east-1.amazoncognito.com",
-      "redirectSignIn": "http://localhost:3000",
-      "redirectSignOut": "http://localhost:3000",
+      "redirectSignIn": "https://app.pennsieve.net",
+      "redirectSignOut": "https://app.pennsieve.net",
       "responseType": "token",
       "scope": ["openid"]
     }
