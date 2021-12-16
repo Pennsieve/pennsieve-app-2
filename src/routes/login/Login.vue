@@ -230,13 +230,8 @@ export default Vue.component('bf-login', {
       return ''
     }
   },
-
-  created: function() {
-    console.log("created")
-  },
     
   mounted: function() {
-    console.log("mounted")
     this.doneMounting()
   },
 
