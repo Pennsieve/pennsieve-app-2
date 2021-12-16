@@ -387,8 +387,8 @@ export default {
      */
     onLogout: async function(payload) {
       try {
-        await Auth.signOut()
         this.handleLogout(payload)
+        await Auth.signOut()
       } catch (error) {
         this.handleXhrError()
       }
