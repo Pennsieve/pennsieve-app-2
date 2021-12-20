@@ -414,6 +414,19 @@
         <p>{{ eventDetail.detail.newStatus.displayName }}</p>
       </div>
     </div>
+
+    <div
+      v-if="eventDetail.eventType === 'CUSTOM_EVENT'"
+      class="dataset-activity-detail__info"
+    >
+      <div class="info-title">
+        <p>Message:</p>
+      </div>
+      <div class="dataset-activity-detail__info-link">
+        <p>{{ eventDetail.detail.message }}</p>
+      </div>
+    </div>
+
   </div>
 </template>
 

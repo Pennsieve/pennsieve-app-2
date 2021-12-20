@@ -197,9 +197,12 @@ export const ChangelogMessage = Object.freeze({
     plural: 'records deleted',
     singular: 'Record deleted'
   },
-
   CREATE_DATASET: {
     singular: 'Dataset created'
+  },
+  CUSTOM_EVENT: {
+    plural: 'custom events triggered',
+    singular: 'custom event triggered'
   },
 
   PUBLISHING: {
