@@ -222,7 +222,6 @@
             <div class="check-description">
               All stages of publishing process
             </div>
-
             <el-checkbox
               v-model="integration.eventTypeList.CUSTOM"
               class="input-property"
