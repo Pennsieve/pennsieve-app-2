@@ -5,14 +5,7 @@ const awsConfig = {
     region: config.awsConfig.region,
     userPoolId: config.awsConfig.userPoolId,
     userPoolWebClientId: config.awsConfig.userPoolWebClientId,
-    authenticationFlowType: config.awsConfig.authenticationFlowType,
-    oauth: {
-      domain: config.awsConfig.oauth.domain,
-      scope: config.awsConfig.oauth.scope,
-      redirectSignIn: config.awsConfig.oauth.redirectSignIn,
-      redirectSignOut: config.awsConfig.oauth.redirectSignOut,
-      responseType: config.awsConfig.oauth.responseType,
-    }
+    authenticationFlowType: config.awsConfig.authenticationFlowType
   }
 }
 export default awsConfig
