@@ -222,6 +222,14 @@
             <div class="check-description">
               All stages of publishing process
             </div>
+            <el-checkbox
+              v-model="integration.eventTypeList.CUSTOM"
+              class="input-property"
+              label="Custom"
+            />
+            <div class="check-description">
+              Custom events from users and integrations
+            </div>
           </el-form-item>
         </el-form>
       </div>
@@ -285,7 +293,8 @@ const defaultIntegration = () => (
       RECORDS_AND_MODELS: false,
       FILES: false,
       PERMISSIONS: false,
-      PUBLISHING: false
+      PUBLISHING: false,
+      CUSTOM: false
     }
   }
 )
@@ -457,7 +466,7 @@ export default {
 
       if (this.editingIntegration) {
         // set properties in local state to be referenced in createIntegration fn
-        var ei = this.integrationEdit
+        const ei = this.integrationEdit
         this.integration.displayName = ei.displayName
         this.integration.apiUrl = ei.apiUrl
         this.integration.name = ei.name
