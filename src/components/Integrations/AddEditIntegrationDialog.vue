@@ -83,8 +83,7 @@
           :model="integration"
           :rules="rules">
 
-          <el-form-item v-show=false
-                        prop="integrationType">
+          <el-form-item prop="integrationType">
             <template slot="label">
               Integration Type <span class="label-helper">
                 required
@@ -150,9 +149,6 @@
               Generate new secret
             </bf-button>
           </el-form-item>
-
-
-
 
         </el-form>
       </div>
@@ -365,8 +361,8 @@ export default {
           label: 'Viewer'
         },
         {
-          value: 'actor',
-          label: 'Actor'
+          value: 'manager',
+          label: 'Manager'
         }
       ],
     }
@@ -476,6 +472,7 @@ export default {
         this.integration.isDefault = ei.isDefault
         this.integration.isDisabled = ei.isDisabled
         this.integration.isPrivate = ei.isPrivate
+        this.integration.integrationType = ei.hasAccess? 'manager' : 'viewer'
         for (let target in ei.eventTargets) {
           this.integration.eventTypeList[ei.eventTargets[target]] = true
         }
@@ -573,7 +570,7 @@ export default {
     },
     validateType: function(rule, value, callback) {
       if (value === '') {
-        callback(new Error('Please select either "Viewer" or "Actor" as the integration type.'))
+        callback(new Error('Please select either "Viewer" or "Manager" as the integration type.'))
       }
       callback()
     },
