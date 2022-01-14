@@ -15,10 +15,10 @@
   "googleMapApi": "xxxxxxxxxxxxxx",
   "mapTiler": "xxxxx",
   "awsConfig": {
-    "authenticationFlowType": "USER_SRP_AUTH",
+    "authenticationFlowType": "USER_PASSWORD_AUTH",
     "region": "us-east-1",
-    "userPoolId": "us-east-1_Dzx1zcVSn",
-    "userPoolWebClientId": "6ef05ls57egbottu17s8ul804"
+    "userPoolId": "us-east-1_b1NyxYcr0",
+    "userPoolWebClientId": "670mo7si81pcc3sfub7o1914d8"
   },
   "reCAPTCHASiteKey": "6Le2Wr0aAAAAAHouFUEmy7UwN6b9wa_PPRGrWxAG"
 }
