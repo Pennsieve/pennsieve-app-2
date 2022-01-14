@@ -102,6 +102,7 @@ export const actions = {
       if (resp.ok) {
         const integration = await resp.json()
         commit('CREATE_INTEGRATION', integration)
+        return Promise.resolve(integration)
 
       } else {
         return Promise.reject(resp)
