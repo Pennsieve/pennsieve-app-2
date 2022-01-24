@@ -1,149 +1,282 @@
 <template>
   <div class="not-logged-in">
-    <div class="login-wrapper">
-      <div class="login-inner">
-        <div class="login-header">
-          <img
-            src="/static/images/pennsieve-logo-full.svg"
-            class="logo"
-          >
+
+    <!-- Header   -->
+    <pennsieve-header
+      :is-search-visible="false"
+      @onLogin="handleLoginSuccess"/>
+
+    <!-- Image call-out   -->
+    <div class="body-content-wrap">
+      <div class="header-feature">
+        <div class="discover-content container-fluid">
+          <div class="row">
+            <div class="col-xs-12">
+              <h1>Scientific Data Management, Integration and Publishing.</h1>
+              <p>
+                Organize, visualize and link scientific data, and publish high quality datasets with the Pennsieve Platform.
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 col-sm-10">
+              <dataset-search />
+            </div>
+          </div>
         </div>
-        <!-- login form -->
-        <el-form
-          v-if="!showToken"
-          id="login-form"
-          ref="loginForm"
-          :model="loginForm"
-          :rules="loginRules"
-          @submit.native.prevent="onFormSubmit"
-        >
-          <el-form-item prop="email">
-            <el-input
-              v-model="loginForm.email"
-              placeholder="Your email address"
-              autofocus
-              class="email-input"
-            />
-          </el-form-item>
-          <el-form-item
-            class="password"
-            prop="password"
-          >
-            <a11y-keys @key-pressed="onHandleKeyPressed">
-              <el-input
-                v-model="loginForm.password"
-                type="password"
-                placeholder="Your Password"
-                class="password-input"
-              />
-            </a11y-keys>
-          </el-form-item>
-          <el-form-item class="signin-form-item">
-            <bf-button
-              class="sign-in"
-              :processing="isLoggingIn"
-              processing-text="Logging In"
-              @click="onFormSubmit"
-            >
-              Sign in
-            </bf-button>
-            <router-link
-              :to="{ name: 'password' }"
-              class="forgot-password"
-            >
-              Forgot your password?
-            </router-link>
-          </el-form-item>
-        </el-form>
-
-<!-- Login with ORCiD
-        <p class="centered-spaced">
-          <button
-            id="login-orcid-button"
-            @click="onLoginWithORCID"
-          >
-            <img
-              id="orcid-id-icon"
-              src="/static/images/orcid_24x24.png"
-              width="24"
-              height="24"
-              alt="Logo for ORCID"
-            >
-            Login with ORCiD Id
-          </button>
-        </p>
--->
-
-        <p v-if="showOrcidError" 
-           class="orcid-error-text">
-            That ORCiD Id is not associateed with a Pennsieve account. Please login with an email and password, and then link the ORCiD Id to your Pennsieve account.
-        </p>
-          
-        <p class="terms sign-up">Don't have an account?
-
-          <router-link
-            :to="{name: 'create-account'}"
-            >
-              Create one here
-          </router-link>
-        </p>
-
-        <p class="terms">
-          By signing in to Pennsieve you accept our <a
-            class="grey-link"
-            href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
-            target="_blank"
-          >
-            Terms of Use
-          </a>
-          and <a
-            class="grey-link"
-            href="https://docs.pennsieve.io/page/privacy-policy"
-            target="_blank"
-          >
-            Privacy Policy
-          </a>.
-        </p>
-        <!-- two factor form --->
-        <el-form
-          v-if="showToken"
-          ref="twoFactorForm"
-          :model="twoFactorForm"
-          :rules="twoFactorRules"
-          @submit.native.prevent="onTwoFactorFormSubmit"
-        >
-          <el-form-item prop="token">
-            <a11y-keys @key-pressed="onHandleTwoFactorKeyPressed">
-              <el-input
-                ref="twoFactor"
-                v-model="twoFactorForm.token"
-                maxlength="6"
-                placeholder="Two-factor token"
-                autofocus
-              />
-            </a11y-keys>
-          </el-form-item>
-          <el-form-item>
-            <bf-button
-              :processing="isLoadingTwoFactor"
-              processing-text="Submitting"
-              @click="onTwoFactorFormSubmit"
-            >
-              Submit
-            </bf-button>
-            <a
-              href="#"
-              class="token-cancel"
-              @click.prevent="handleTokenCancel"
-            >
-              Cancel
-            </a>
-          </el-form-item>
-        </el-form>
+        <img
+          src="/static/images/illustrations/illo-neuron-mural.svg"
+          alt="Neuron Mural Image"
+        />
       </div>
-      <bf-footer />
     </div>
+
+    <div class="highlight-wrapper">
+      <div class="highlight-image">
+        <img
+          src="/static/images/illustrations/research-platform.svg"
+          class="highlight"
+        >
+      </div>
+      <div class="highlight-text">
+        <p>The Pennsieve Data Management Platform provides a scalable cloud-based solution for managing, analyzing and sharing scientific datasets. The platform enables graph based data and metadata integration, supporting meaningful curation of data in context. Using he platform, scientists can publish high quality datasets, cite, and make them available to the larger scientific community.  </p>
+      </div>
+    </div>
+
+    <div class="highlight-wrapper2">
+      <div class="highlight-text">
+        <p class="larger">
+          "What if all you have to do is ask the right scientific question?"
+        </p>
+        <p>
+          Integrate files and complex metadata and annotations in a meaningful way.
+        </p>
+      </div>
+      <div class="highlight-image">
+        <img
+          src="/static/images/illustrations/illo-dr_azumi_1.svg"
+          class="highlight"
+        >
+      </div>
+
+    </div>
+
+    <div class="featureSection">
+      <div class="feature"
+           v-for="feature in features"
+      >
+        <img
+          ref="img"
+          :src=feature.img
+          alt="Dataset Banner Image"
+        />
+        <div class="content">
+          <div class="header">{{feature.header}}</div>
+          <div class="text">{{feature.text}}</div>
+        </div>
+
+
+      </div>
+
+    </div>
+
+    <div class="discover-section">
+      <div class="header">Discover Public Datasets</div>
+      <div class="subheader">Private datasets can be published to Pennsieve Discover</div>
+      <PublicDatasetsGrid/>
+      <div class="browseAllButton">
+        <bf-button :class="submitButtonType" type="submit" @click="directToDiscover">
+          More Public Data
+        </bf-button>
+      </div>
+    </div>
+
+
+
+
+    <div class="org-section">
+      <img
+        ref="img"
+        src="/static/logos/psom_logo_blue.svg"
+        alt="Perelman School of Medicine at the University of Pennsylvania"
+        class="logo"
+      />
+      <img
+        ref="img"
+        src="/static/logos/ibi-logo.png"
+        alt="Institute for Biomedical Informatics"
+        class="logo"
+      />
+      <img
+        ref="img"
+        src="/static/logos/cropped-CNT-logo.png"
+        alt="Center for Translational Bioengineering  & Therapeutics"
+        class="logo"
+      />
+      <img
+        ref="img"
+        src="/static/logos/DataCite-Logos_primary.svg"
+        alt="Datacite.org"
+        class="logo"
+      />
+      <img
+        ref="img"
+        src="/static/logos/ORCID_Member_CMYK.svg"
+        alt="Orcid.org"
+        class="logo"
+      />
+    </div>
+
+    <PennsieveFooter/>
+
+
   </div>
+
+
+<!--    <div class="login-wrapper">-->
+<!--      <div class="login-inner">-->
+<!--        <div class="login-header">-->
+<!--          <img-->
+<!--            src="/static/images/pennsieve-logo-full.svg"-->
+<!--            class="logo"-->
+<!--          >-->
+<!--        </div>-->
+<!--        &lt;!&ndash; login form &ndash;&gt;-->
+<!--        <el-form-->
+<!--          v-if="!showToken"-->
+<!--          id="login-form"-->
+<!--          ref="loginForm"-->
+<!--          :model="loginForm"-->
+<!--          :rules="loginRules"-->
+<!--          @submit.native.prevent="onFormSubmit"-->
+<!--        >-->
+<!--          <el-form-item prop="email">-->
+<!--            <el-input-->
+<!--              v-model="loginForm.email"-->
+<!--              placeholder="Your email address"-->
+<!--              autofocus-->
+<!--              class="email-input"-->
+<!--            />-->
+<!--          </el-form-item>-->
+<!--          <el-form-item-->
+<!--            class="password"-->
+<!--            prop="password"-->
+<!--          >-->
+<!--            <a11y-keys @key-pressed="onHandleKeyPressed">-->
+<!--              <el-input-->
+<!--                v-model="loginForm.password"-->
+<!--                type="password"-->
+<!--                placeholder="Your Password"-->
+<!--                class="password-input"-->
+<!--              />-->
+<!--            </a11y-keys>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item class="signin-form-item">-->
+<!--            <bf-button-->
+<!--              class="sign-in"-->
+<!--              :processing="isLoggingIn"-->
+<!--              processing-text="Logging In"-->
+<!--              @click="onFormSubmit"-->
+<!--            >-->
+<!--              Sign in-->
+<!--            </bf-button>-->
+<!--            <router-link-->
+<!--              :to="{ name: 'password' }"-->
+<!--              class="forgot-password"-->
+<!--            >-->
+<!--              Forgot your password?-->
+<!--            </router-link>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+
+<!--&lt;!&ndash; Login with ORCiD-->
+<!--        <p class="centered-spaced">-->
+<!--          <button-->
+<!--            id="login-orcid-button"-->
+<!--            @click="onLoginWithORCID"-->
+<!--          >-->
+<!--            <img-->
+<!--              id="orcid-id-icon"-->
+<!--              src="/static/images/orcid_24x24.png"-->
+<!--              width="24"-->
+<!--              height="24"-->
+<!--              alt="Logo for ORCID"-->
+<!--            >-->
+<!--            Login with ORCiD Id-->
+<!--          </button>-->
+<!--        </p>-->
+<!--&ndash;&gt;-->
+
+<!--        <p v-if="showOrcidError"-->
+<!--           class="orcid-error-text">-->
+<!--            That ORCiD Id is not associateed with a Pennsieve account. Please login with an email and password, and then link the ORCiD Id to your Pennsieve account.-->
+<!--        </p>-->
+
+<!--        <p class="terms sign-up">Don't have an account?-->
+
+<!--          <router-link-->
+<!--            :to="{name: 'create-account'}"-->
+<!--            >-->
+<!--              Create one here-->
+<!--          </router-link>-->
+<!--        </p>-->
+
+<!--        <p class="terms">-->
+<!--          By signing in to Pennsieve you accept our <a-->
+<!--            class="grey-link"-->
+<!--            href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"-->
+<!--            target="_blank"-->
+<!--          >-->
+<!--            Terms of Use-->
+<!--          </a>-->
+<!--          and <a-->
+<!--            class="grey-link"-->
+<!--            href="https://docs.pennsieve.io/page/privacy-policy"-->
+<!--            target="_blank"-->
+<!--          >-->
+<!--            Privacy Policy-->
+<!--          </a>.-->
+<!--        </p>-->
+<!--        &lt;!&ndash; two factor form -&ndash;&gt;-->
+<!--        <el-form-->
+<!--          v-if="showToken"-->
+<!--          ref="twoFactorForm"-->
+<!--          :model="twoFactorForm"-->
+<!--          :rules="twoFactorRules"-->
+<!--          @submit.native.prevent="onTwoFactorFormSubmit"-->
+<!--        >-->
+<!--          <el-form-item prop="token">-->
+<!--            <a11y-keys @key-pressed="onHandleTwoFactorKeyPressed">-->
+<!--              <el-input-->
+<!--                ref="twoFactor"-->
+<!--                v-model="twoFactorForm.token"-->
+<!--                maxlength="6"-->
+<!--                placeholder="Two-factor token"-->
+<!--                autofocus-->
+<!--              />-->
+<!--            </a11y-keys>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <bf-button-->
+<!--              :processing="isLoadingTwoFactor"-->
+<!--              processing-text="Submitting"-->
+<!--              @click="onTwoFactorFormSubmit"-->
+<!--            >-->
+<!--              Submit-->
+<!--            </bf-button>-->
+<!--            <a-->
+<!--              href="#"-->
+<!--              class="token-cancel"-->
+<!--              @click.prevent="handleTokenCancel"-->
+<!--            >-->
+<!--              Cancel-->
+<!--            </a>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+<!--      </div>-->
+<!--      <bf-footer />-->
+<!--    </div>-->
+<!--  </div>-->
 </template>
 
 <script>
@@ -155,6 +288,10 @@ import { Auth } from '@aws-amplify/auth'
 import BfButton from '../../components/shared/bf-button/BfButton.vue'
 import A11yKeys from '../../components/shared/a11y-keys/A11yKeys.vue'
 import BfFooter from '../../components/shared/bf-footer/BfFooter.vue'
+import PennsieveHeader from '../../components/shared/PennsieveHeader/PennsieveHeader.vue'
+import DatasetSearch from '../../components/DatasetSearch/DatasetSearch'
+import PennsieveFooter from '../../components/shared/PennsieveFooter/PennsieveFooter.vue'
+import PublicDatasetsGrid from "../../components/PublicDatasets/PublicDatasetsGrid";
 
 import EventBus from '../../utils/event-bus'
 import AutoFocus from '../../mixins/auto-focus'
@@ -165,7 +302,11 @@ export default Vue.component('bf-login', {
   components: {
     BfButton,
     A11yKeys,
-    BfFooter
+    BfFooter,
+    PennsieveHeader,
+    DatasetSearch,
+    PennsieveFooter,
+    PublicDatasetsGrid
   },
 
   mixins: [
@@ -175,6 +316,38 @@ export default Vue.component('bf-login', {
 
   data() {
     return {
+      features: [
+        {
+          img: '/static/images/icons/collaboration.svg',
+          header: 'Easy sharing between collaborators',
+          text: 'An easy, cloud-based solution to manage and share data with your team.'
+        },
+        {
+          img: '/static/images/icons/analyze.svg',
+          header: 'Explore your data',
+          text: 'Open API access and Python client to programmatically interact with data on the platform.'
+        },
+        {
+          img: '/static/images/icons/log-forms.svg',
+          header: 'Advanced metdata mangement',
+          text: 'Create advanced metadata schemas and link metadata to files through a knowledge graph.'
+        },
+        {
+          img: '/static/images/icons/eeg-data.svg',
+          header: 'Interactive viewers',
+          text: 'Directly interact with microscopy, timeseries and other scientific data modalities in the app.'
+        },
+        {
+          img: '/static/images/icons/security.svg',
+          header: 'Secure data management',
+          text: 'Secure encrypted storage in the cloud, SSL data transfer, and flexible user permissions.'
+        },
+        {
+          img: '/static/images/icons/storage.svg',
+          header: 'FAIR publishing of data',
+          text: 'Publish your data, make your data findable, and cite your data using a DOI'
+        },
+      ],
       loginForm: {
         email: '',
         password: ''
@@ -232,7 +405,7 @@ export default Vue.component('bf-login', {
       return ''
     }
   },
-    
+
   mounted: function() {
     this.doneMounting()
   },
@@ -253,6 +426,12 @@ export default Vue.component('bf-login', {
           }
           this.sendLoginRequest()
         })
+    },
+
+    directToDiscover: function() {
+      const discoverUrl = propOr('', 'discoverAppUrl', this.config)
+
+      window.location.href = `${discoverUrl}`;
     },
 
     /**
@@ -387,14 +566,14 @@ export default Vue.component('bf-login', {
         })
       }
     },
-      
+
     getFragmentParameterByName: function(name) {
         var name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
             results = regex.exec(window.location.hash);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     },
-      
+
     doneMounting: async function() {
         var access_token = this.getFragmentParameterByName('access_token')
         if (access_token) {
@@ -414,7 +593,7 @@ export default Vue.component('bf-login', {
 @import '../../assets/variables.scss';
 
 .not-logged-in {
-  background: $purple_1;
+  background: $gray_1;
   display: block;
 
   .login-wrapper {
@@ -497,6 +676,125 @@ export default Vue.component('bf-login', {
     color: #fcb603;
   }
 }
+
+.org-section {
+  background: $gray-2;
+  min-height: 80px;
+  margin-top: 80px;
+  display:flex;
+  flex-direction: row;
+  .logo:first-child {
+    margin-left: 32px;
+  }
+  .logo {
+    padding: 8px;
+    height: 40px;
+    width: auto;
+    align-self: center;
+    color: $gray_6;
+  }
+}
+
+.highlight-wrapper {
+  display: flex;
+  flex-direction: row;
+  .highlight-image {
+    .highlight {
+      margin: 0 32px;
+      display: block;
+      height: 400px;
+      width: 400px;
+    }
+  }
+  .highlight-text {
+    margin-right: 24px;
+    font-size: 24px;
+    color: $gray_3;
+    line-height: 1.5em;
+    align-self: center;
+  }
+}
+
+.highlight-wrapper2 {
+  display: flex;
+  flex-direction: row;
+  margin: 0 40px;
+  align-items: center;
+  justify-content: end;
+  border-radius: 16px;
+  .highlight-image {
+    .highlight {
+      margin: 8px;
+      display: block;
+      height: 64px;
+      width: 64px;
+    }
+  }
+  .highlight-text {
+    color: $gray_3;
+    margin: 0 24px;
+    font-size: 16px;
+
+    .larger {
+      color: $gray_4;
+      font-size: 24px
+    }
+  }
+
+}
+
+.featureSection {
+  margin: 80px 8px;
+  padding: 24px;
+  flex-direction: row;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  max-width: 1200px;
+  .feature {
+    display: flex;
+    flex-direction: row;
+    max-width: 350px;
+    align-items: center;
+    .content {
+      margin-left: 8px;
+      .header {
+        color: $gray_5;
+        font-weight: 500;
+        font-size: 16px;
+      }
+      .text {
+        color: $gray_4;
+        line-height: 1.1em;
+        font-weight: 300;
+        font-size: 14px;
+      }
+    }
+    img {
+      display: block;
+      width: 86px;
+      height: 86px;
+    }
+  }
+}
+
+.discover-section  {
+  .header {
+    font-weight: 500;
+    font-size: 32px;
+    text-align: center;
+    color: $gray_4;
+    margin-bottom: 8px;
+  }
+  .subheader {
+    font-weight: 300;
+    font-size: 16px;
+    text-align: center;
+    color: $gray_4;
+    margin-bottom: 16px;
+  }
+}
+
 #login-orcid-button {
   border: 1px solid #d3d3d3;
   padding: 0.3em;
@@ -521,6 +819,108 @@ export default Vue.component('bf-login', {
   margin: 0 0.5em 0 0;
   padding: 0;
   float: left;
+}
+
+img {
+  //position: absolute;
+  top: -381px;
+  right: -575px;
+  width: 1397px;
+  z-index: 1;
+}
+
+.browseAllButton {
+  display: flex;
+  justify-content: center;
+  margin: 16px;
+}
+
+.header-feature {
+  width: 100%;
+  background-color: $gray_4;
+  box-sizing: border-box;
+  padding: 64px 0 64px;
+  position: relative;
+  overflow: hidden;
+  @media only screen and (max-width: 550px) {
+    padding-top: 40px;
+  }
+
+  .discover-content {
+    margin: 0 24px;
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
+    max-width: calc(936px + 4rem);
+
+  }
+
+  h1 {
+    color: #ffffff;
+    font-size: 48px;
+    font-weight: 200;
+    margin-bottom: 16px;
+    max-width: 600px;
+    line-height: 56px;
+  }
+
+  p {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 200;
+    line-height: 32px;
+    margin-bottom: 24px;
+    max-width: 616px;
+  }
+
+  a {
+    text-decoration: none;
+    color: #fafafa;
+    button {
+      border-radius: 3px;
+      border: 2px solid #fafafa;
+      height: 48px;
+      width: 252px;
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 32px;
+      color: #fafafa;
+
+      &:hover {
+        background-color: #2760ff;
+        border: 2px solid #2760ff;
+      }
+
+      &:focus {
+        background-color: #1c46bd;
+        border: 2px solid #1c46bd;
+      }
+    }
+  }
+
+  .copy {
+    z-index: 1;
+  }
+
+  img {
+    position: absolute;
+    top: -381px;
+    right: -575px;
+    width: 1397px;
+    z-index: 1;
+  }
+
+  @media only screen and (min-width: 1024px) and (max-width: 1430px) {
+    img {
+      right: -787px;
+    }
+  }
+
+  @media only screen and (min-width: 320px) and (max-width: 1020px) {
+    img {
+      right: -998px;
+    }
+  }
 }
 
 </style>
