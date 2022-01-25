@@ -688,6 +688,7 @@ export default Vue.component('bf-login', {
   flex-wrap:wrap;
   justify-content: space-between;
   padding: 0 24px;
+
   .logo {
     padding: 8px;
     height: 40px;
