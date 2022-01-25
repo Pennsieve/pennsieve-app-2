@@ -5,9 +5,11 @@
         <dataset-banner-image :src="dataset.banner" />
       </div>
       <div class="dataset-content-wrap">
-        <a v-bind:href="config.discoverAppUrl + '/datasets/' + dataset.id ">
-            {{ dataset.name }}
-        </a>
+        <div class="content-header">
+          <a v-bind:href="config.discoverAppUrl + '/datasets/' + dataset.id ">
+            {{ visibleName }}
+          </a>
+        </div>
         <div class="subtitle">
           {{ dataset.description }}
         </div>
@@ -105,6 +107,23 @@ export default {
     ...mapGetters([
       'config'
     ]),
+    visibleName() {
+
+      const maxLength = 100
+
+      //trim the string to the maximum length
+      let trimmedString = this.dataset.name.substr(0, maxLength);
+
+
+
+      if (trimmedString.length < this.dataset.name.length) {
+        //re-trim if we are in the middle of a word
+        trimmedString = trimmedString.substr(0, Math.min(trimmedString.length, trimmedString.lastIndexOf(" ")))
+        return trimmedString + '...'
+      } else {
+        return trimmedString
+      }
+    },
     /** Formats the embargoed release date
      * @returns {String}
      */
@@ -180,9 +199,13 @@ export default {
 
 .dataset-content-wrap {
   flex: 1;
+  overflow: hidden;
+  .content-header {
+    text-overflow: ellipsis;
+  }
   a {
     font-weight: 500;
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 h3 {
@@ -200,6 +223,9 @@ h3 {
   font-weight: normal;
   line-height: 24px;
   margin-bottom: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .dataset-details-wrap {
   display: flex;

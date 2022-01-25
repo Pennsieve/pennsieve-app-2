@@ -1,4 +1,4 @@
-## 35.0.0 (2022-01-25)
+### 35.1.0 (2022-01-25)
 
 ##### New Features
 
@@ -13,4 +13,3 @@
 *  comment out Login with ORCiD button (f0a22d00)
 *  update Cognito user pool id, client id, auth flow type (8b50bc26)
 *  post-authentication handling of redirect with access token (812365ab)
-
