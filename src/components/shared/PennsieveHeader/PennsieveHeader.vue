@@ -1,28 +1,10 @@
 <template>
   <div class="pennsieve-header">
     <div class="logo-wrap">
-<!--      <button id="btn-home">-->
-<!--        <nuxt-link-->
-<!--          :to="{-->
-<!--            name: 'index'-->
-<!--          }"-->
-<!--        >-->
-<!--          <svg-icon name="pennsieve-logo" width="35" height="35" color="#fff" />-->
-<!--        </nuxt-link>-->
-<!--      </button>-->
       <img
         src="/static/images/pennsieve-logo-white.svg"
         class="logo"
       >
-      <nuxt-link
-        v-if="!isSearchVisible"
-        :to="{
-          name: 'index'
-        }"
-        class="header-title"
-      >
-<!--        <span class="blackfynn-title">Pennsieve</span>-->
-      </nuxt-link>
     </div>
 
     <div
@@ -57,6 +39,19 @@
           color="#fff"
         />{{ helpLinkCopy }}
       </a>
+      <router-link
+        tag="a"
+        class="mr-16"
+        :to="signupRoute"
+      >
+        <svg-icon
+          :class="iconSpacing"
+          icon="icon-upload"
+          height="22"
+          width="22"
+          color="#fff"
+        />{{ createAccountCopy }}
+      </router-link>
       <bf-user-dropdown-menu
         :is-mobile="isMobile"
         :icon-spacing="iconSpacing"
@@ -135,13 +130,29 @@ export default {
       return this.isMobile ? '' : 'Documentation'
     },
 
+    createAccountCopy() {
+      return this.isMobile ? '' : 'Create Account'
+    },
     /**
      * Conditional icon spacing for mobile
      * @returns {String}
      */
     iconSpacing() {
       return this.isMobile ? 'mr-4' : 'mr-8'
-    }
+    },
+
+    /**
+     * Compute what route the logo should
+     * take the user based on their organization
+     * @returns {Object}
+     */
+    signupRoute: function() {
+      let routeName = 'create-account'
+
+      return {
+        name: routeName, params: { }
+      }
+    },
   },
 
   beforeMount() {
