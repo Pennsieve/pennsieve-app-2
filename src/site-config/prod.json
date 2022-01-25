@@ -1,6 +1,8 @@
 {
   "apiUrl": "https://api.pennsieve.io",
   "zipitUrl": "https://api.pennsieve.io/zipit",
+  "discoverUrl": "https://api.pennsieve.io/discover",
+  "discoverAppUrl": "https://discover.pennsieve.io",
   "docsUrl": "https://docs.pennsieve.io",
   "maxDownloadSize": 15000000000,
   "environment": "prod",
