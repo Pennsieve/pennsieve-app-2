@@ -375,6 +375,7 @@ export default Vue.component('bf-login', {
       oauthWindow: '',
       oauthCode: '',
       showOrcidError: false,
+      windowWidth: 0
     }
   },
 
@@ -412,6 +413,7 @@ export default Vue.component('bf-login', {
 
   methods: {
     ...mapActions(['updateCognitoUser']),
+
     /**
      * Handles submit event
      * @param {Object} e
@@ -683,9 +685,10 @@ export default Vue.component('bf-login', {
   margin-top: 80px;
   display:flex;
   flex-direction: row;
-  .logo:first-child {
-    margin-left: 32px;
-  }
+  flex-wrap:wrap;
+  justify-content: space-between;
+  padding: 0 24px;
+
   .logo {
     padding: 8px;
     height: 40px;
@@ -698,20 +701,22 @@ export default Vue.component('bf-login', {
 .highlight-wrapper {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+  flex-wrap:wrap;
   .highlight-image {
     .highlight {
-      margin: 0 32px;
       display: block;
       height: 400px;
       width: 400px;
     }
   }
   .highlight-text {
-    margin-right: 24px;
+    margin: 24px;
     font-size: 24px;
     color: $gray_3;
     line-height: 1.5em;
     align-self: center;
+    max-width: 600px;
   }
 }
 
@@ -720,8 +725,9 @@ export default Vue.component('bf-login', {
   flex-direction: row;
   margin: 0 40px;
   align-items: center;
-  justify-content: end;
+  justify-content: center;
   border-radius: 16px;
+  margin-top: 48px;
   .highlight-image {
     .highlight {
       margin: 8px;
@@ -737,14 +743,15 @@ export default Vue.component('bf-login', {
 
     .larger {
       color: $gray_4;
-      font-size: 24px
+      font-size: 24px;
+      line-height: 1.1em;
     }
   }
 
 }
 
 .featureSection {
-  margin: 80px 8px;
+  margin: 80px auto;
   padding: 24px;
   flex-direction: row;
   display: flex;
