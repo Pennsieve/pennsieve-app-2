@@ -21,12 +21,12 @@ export default {
     PublicDataset
   },
 
-  props: {
-    datasets: {
-      type: Array,
-      default: () => []
-    }
-  },
+  // props: {
+  //   datasets: {
+  //     type: Array,
+  //     default: () => []
+  //   }
+  // },
 
   computed: {
     ...mapGetters([
@@ -65,8 +65,8 @@ export default {
   data: function() {
     return {
       pageSize: 16,
-      datasets: [],
-      windowWidth: 0
+      windowWidth: 0,
+      datasets:[]
     }
   },
 
