@@ -320,7 +320,7 @@ export default Vue.component('bf-login', {
         {
           img: '/static/images/icons/collaboration.svg',
           header: 'Easy sharing between collaborators',
-          text: 'An easy, cloud-based solution to manage and share data with your team.'
+          text: 'An easy, cloud-based solution for managing and sharing data with your team.'
         },
         {
           img: '/static/images/icons/analyze.svg',
@@ -329,13 +329,13 @@ export default Vue.component('bf-login', {
         },
         {
           img: '/static/images/icons/log-forms.svg',
-          header: 'Advanced metdata mangement',
+          header: 'Advanced metadata management',
           text: 'Create advanced metadata schemas and link metadata to files through a knowledge graph.'
         },
         {
           img: '/static/images/icons/eeg-data.svg',
           header: 'Interactive viewers',
-          text: 'Directly interact with microscopy, timeseries and other scientific data modalities in the app.'
+          text: 'Directly interact with microscopy, timeseries and other scientific data modalities in the browser.'
         },
         {
           img: '/static/images/icons/security.svg',
