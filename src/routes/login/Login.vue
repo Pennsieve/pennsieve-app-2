@@ -39,7 +39,7 @@
         >
       </div>
       <div class="highlight-text">
-        <p>The Pennsieve Data Management Platform provides a scalable cloud-based solution for managing, analyzing and sharing scientific datasets. The platform enables graph based data and metadata integration, supporting meaningful curation of data in context. Using he platform, scientists can publish high quality datasets, cite, and make them available to the larger scientific community.  </p>
+        <p>The Pennsieve Data Management Platform provides a scalable cloud-based solution for managing, analyzing, and sharing scientific datasets. The platform enables graph based data and metadata integration, supporting meaningful curation of data in context. Using the platform, scientists can publish high quality datasets, cite, and make them available to the larger scientific community.  </p>
       </div>
     </div>
 
