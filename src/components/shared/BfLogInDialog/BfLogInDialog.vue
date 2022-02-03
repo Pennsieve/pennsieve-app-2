@@ -466,8 +466,21 @@ export default {
       this.isLoggingIn = false
     },
     
-    initiateFederatedLogin(provider) {
+    async initiateFederatedLogin(provider) {
       console.log("initiateFederatedLogin() provider: " + provider)
+      this.isLoggingIn = true
+      this.closeLogInDialog()
+      try {
+        const cred = await Auth.federatedSignIn({customProvider: provider})
+      } catch (error) {
+        console.log("initiateFederatedLogin() error: " + error)
+        this.isLoggingIn = false
+        EventBus.$emit('toast', {
+          detail: {
+            msg: `There was an error with your federated login attempt. Please try again.`
+          }
+        })
+      }
     },
 
     /**
