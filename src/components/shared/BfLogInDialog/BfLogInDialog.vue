@@ -47,6 +47,12 @@
               >
             </el-form-item>
           </el-form>
+          <bf-button
+            class="log-in-dialog__container--federated-login-button"
+            :processing="isLoggingIn"
+            processing-text="Signing In"
+            @click="initiateFederatedLogin('ORCID')"
+            ><img src="/static/images/orcid_24x24.png" alt="iD" width="24" height="24" style="display: block; margin-left: auto; margin-right: auto; width: 24px; height: 24px">Sign In with your ORCID iD</bf-button>
           <div class="log-in-dialog__container--actions" :class="actionsClass">
             <a href="#" @click.prevent="toForgotPasswordState"
               >Forgot Password?</a
@@ -459,6 +465,10 @@ export default {
       }
       this.isLoggingIn = false
     },
+    
+    initiateFederatedLogin(provider) {
+      console.log("initiateFederatedLogin() provider: " + provider)
+    },
 
     /**
      * Handle a successful login: set vuex state
@@ -621,8 +631,17 @@ export default {
       margin-bottom: 16px;
     }
 
+    &--federated-login-button {
+      height: 36px;
+      width: 298px;
+      color: black;
+      background-color: whitesmoke;
+      border-color: darkgray;
+    }
+
     &--actions {
       &.log-in {
+        margin-top: 32px;
         margin-bottom: 32px;
         @media (max-width: 48em) {
           margin-bottom: 22px;
