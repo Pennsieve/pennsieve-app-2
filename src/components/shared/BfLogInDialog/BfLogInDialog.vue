@@ -467,7 +467,6 @@ export default {
     },
     
     async initiateFederatedLogin(provider) {
-      console.log("initiateFederatedLogin() provider: " + provider)
       this.isLoggingIn = true
       this.closeLogInDialog()
       try {
