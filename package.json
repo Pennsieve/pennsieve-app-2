@@ -62,6 +62,7 @@
     "moment-range": "^4.0.2",
     "moment-timezone": "^0.5.33",
     "pdfjs-dist": "2.0.943",
+    "protobufjs": "^6.11.2",
     "ramda": "^0.25.0",
     "striptags": "^3.2.0",
     "tributejs": "^3.5.1",
