@@ -1,9 +1,0 @@
-/build/
-/config/
-/dist/
-/*.js
-/test/unit/coverage/
-/src/components/blackfynn/viewers/**/lib/*
-/src/components/blackfynn/viewers2/**/lib/*
-/src/components/blackfynn/analytics/*
-/**/test/*
