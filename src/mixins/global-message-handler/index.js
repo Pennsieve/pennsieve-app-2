@@ -47,16 +47,6 @@ export default {
     EventBus.$on('open-external-file-modal', this.onOpenExternalFileModal.bind(this))
     EventBus.$on('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$on('set-default-route', this.setDefaultRoute.bind(this))
-
-    // Polymer event listeners
-    document.addEventListener('login', this.onLogin.bind(this))
-    document.addEventListener('logout', this.onLogout.bind(this))
-    document.addEventListener('toast', this.onToast.bind(this))
-    document.addEventListener('ajaxError', this.onToast.bind(this))
-    document.addEventListener('open-viewer', this.onOpenViewer.bind(this))
-    document.addEventListener('set-vue-route', this.onSetVueRoute.bind(this))
-    document.addEventListener('replace-vue-route', this.onReplaceVueRoute.bind(this))
-    document.addEventListener('get-vuex-state', this.onGetVuexState.bind(this))
   },
 
   beforeDestroy() {
@@ -76,15 +66,6 @@ export default {
     EventBus.$off('open-external-file-modal', this.onOpenExternalFileModal.bind(this))
     EventBus.$off('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$off('set-default-route', this.onSetDefaultRoute.bind(this))
-
-    // Polymer event listeners
-    document.removeEventListener('login', this.onLogin.bind(this))
-    document.removeEventListener('logout', this.onLogout.bind(this))
-    document.removeEventListener('toast', this.onToast.bind(this))
-    document.removeEventListener('ajaxError', this.onToast.bind(this))
-    document.removeEventListener('open-viewer', this.onOpenViewer.bind(this))
-    document.removeEventListener('set-vue-route', this.onSetVueRoute.bind(this))
-    document.removeEventListener('replace-vue-route', this.onReplaceVueRoute.bind(this))
   },
 
   computed: {
@@ -631,31 +612,6 @@ export default {
           isAddingFiles: true
         }
       })
-    },
-    /**
-     * Update Vue Router from Polymer
-     * @param {Object} evt
-     */
-    onSetVueRoute: function(evt) {
-      const { name, params } = evt.detail
-      this.$router.push({ name, params })
-    },
-
-    /**
-     * Set Vuex state for polymer components
-     * @param {Object} evt
-     */
-    onGetVuexState: function(evt) {
-      evt.detail.initStore(this.$store)
-    },
-
-    /**
-     * Replace Vue Router from Polymer
-     * @param {Object} evt
-     */
-    onReplaceVueRoute: function(evt) {
-      const { name, params } = evt.detail
-      this.$router.replace({ name, params })
     },
 
     /**

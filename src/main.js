@@ -7,7 +7,6 @@ import { sync } from 'vuex-router-sync'
 import store from './vuex/store'
 import Clipboard from 'v-clipboard'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
-// import VueContentLoader from 'vue-content-loader'
 import {
   Dialog,
   Form,
@@ -88,7 +87,6 @@ Vue.config.ignoredElements = [
   'bf-viewer-side-panel',
   'bf-viewer-package-title',
   'paper-icon-button',
-  'polymer-helper',
   'paper-tooltip',
   'blackfynn-data-info-panel',
   'bf-palette-discussion',

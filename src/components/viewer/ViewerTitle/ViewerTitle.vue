@@ -35,7 +35,6 @@
     data: function() {
       return {
         cmpViewer: '',
-        showPolymerViewer: false
       }
     },
 
