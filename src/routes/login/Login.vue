@@ -49,7 +49,7 @@
           "What if all you have to do is ask the right scientific question?"
         </p>
         <p>
-          Integrate files and complex metadata and annotations in a meaningful way.
+          Integrate files, complex metadata and annotations in a meaningful way.
         </p>
       </div>
       <div class="highlight-image">
@@ -129,154 +129,9 @@
 
     <PennsieveFooter/>
 
-
   </div>
 
 
-<!--    <div class="login-wrapper">-->
-<!--      <div class="login-inner">-->
-<!--        <div class="login-header">-->
-<!--          <img-->
-<!--            src="/static/images/pennsieve-logo-full.svg"-->
-<!--            class="logo"-->
-<!--          >-->
-<!--        </div>-->
-<!--        &lt;!&ndash; login form &ndash;&gt;-->
-<!--        <el-form-->
-<!--          v-if="!showToken"-->
-<!--          id="login-form"-->
-<!--          ref="loginForm"-->
-<!--          :model="loginForm"-->
-<!--          :rules="loginRules"-->
-<!--          @submit.native.prevent="onFormSubmit"-->
-<!--        >-->
-<!--          <el-form-item prop="email">-->
-<!--            <el-input-->
-<!--              v-model="loginForm.email"-->
-<!--              placeholder="Your email address"-->
-<!--              autofocus-->
-<!--              class="email-input"-->
-<!--            />-->
-<!--          </el-form-item>-->
-<!--          <el-form-item-->
-<!--            class="password"-->
-<!--            prop="password"-->
-<!--          >-->
-<!--            <a11y-keys @key-pressed="onHandleKeyPressed">-->
-<!--              <el-input-->
-<!--                v-model="loginForm.password"-->
-<!--                type="password"-->
-<!--                placeholder="Your Password"-->
-<!--                class="password-input"-->
-<!--              />-->
-<!--            </a11y-keys>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item class="signin-form-item">-->
-<!--            <bf-button-->
-<!--              class="sign-in"-->
-<!--              :processing="isLoggingIn"-->
-<!--              processing-text="Logging In"-->
-<!--              @click="onFormSubmit"-->
-<!--            >-->
-<!--              Sign in-->
-<!--            </bf-button>-->
-<!--            <router-link-->
-<!--              :to="{ name: 'password' }"-->
-<!--              class="forgot-password"-->
-<!--            >-->
-<!--              Forgot your password?-->
-<!--            </router-link>-->
-<!--          </el-form-item>-->
-<!--        </el-form>-->
-
-<!--&lt;!&ndash; Login with ORCiD-->
-<!--        <p class="centered-spaced">-->
-<!--          <button-->
-<!--            id="login-orcid-button"-->
-<!--            @click="onLoginWithORCID"-->
-<!--          >-->
-<!--            <img-->
-<!--              id="orcid-id-icon"-->
-<!--              src="/static/images/orcid_24x24.png"-->
-<!--              width="24"-->
-<!--              height="24"-->
-<!--              alt="Logo for ORCID"-->
-<!--            >-->
-<!--            Login with ORCiD Id-->
-<!--          </button>-->
-<!--        </p>-->
-<!--&ndash;&gt;-->
-
-<!--        <p v-if="showOrcidError"-->
-<!--           class="orcid-error-text">-->
-<!--            That ORCiD Id is not associateed with a Pennsieve account. Please login with an email and password, and then link the ORCiD Id to your Pennsieve account.-->
-<!--        </p>-->
-
-<!--        <p class="terms sign-up">Don't have an account?-->
-
-<!--          <router-link-->
-<!--            :to="{name: 'create-account'}"-->
-<!--            >-->
-<!--              Create one here-->
-<!--          </router-link>-->
-<!--        </p>-->
-
-<!--        <p class="terms">-->
-<!--          By signing in to Pennsieve you accept our <a-->
-<!--            class="grey-link"-->
-<!--            href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"-->
-<!--            target="_blank"-->
-<!--          >-->
-<!--            Terms of Use-->
-<!--          </a>-->
-<!--          and <a-->
-<!--            class="grey-link"-->
-<!--            href="https://docs.pennsieve.io/page/privacy-policy"-->
-<!--            target="_blank"-->
-<!--          >-->
-<!--            Privacy Policy-->
-<!--          </a>.-->
-<!--        </p>-->
-<!--        &lt;!&ndash; two factor form -&ndash;&gt;-->
-<!--        <el-form-->
-<!--          v-if="showToken"-->
-<!--          ref="twoFactorForm"-->
-<!--          :model="twoFactorForm"-->
-<!--          :rules="twoFactorRules"-->
-<!--          @submit.native.prevent="onTwoFactorFormSubmit"-->
-<!--        >-->
-<!--          <el-form-item prop="token">-->
-<!--            <a11y-keys @key-pressed="onHandleTwoFactorKeyPressed">-->
-<!--              <el-input-->
-<!--                ref="twoFactor"-->
-<!--                v-model="twoFactorForm.token"-->
-<!--                maxlength="6"-->
-<!--                placeholder="Two-factor token"-->
-<!--                autofocus-->
-<!--              />-->
-<!--            </a11y-keys>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item>-->
-<!--            <bf-button-->
-<!--              :processing="isLoadingTwoFactor"-->
-<!--              processing-text="Submitting"-->
-<!--              @click="onTwoFactorFormSubmit"-->
-<!--            >-->
-<!--              Submit-->
-<!--            </bf-button>-->
-<!--            <a-->
-<!--              href="#"-->
-<!--              class="token-cancel"-->
-<!--              @click.prevent="handleTokenCancel"-->
-<!--            >-->
-<!--              Cancel-->
-<!--            </a>-->
-<!--          </el-form-item>-->
-<!--        </el-form>-->
-<!--      </div>-->
-<!--      <bf-footer />-->
-<!--    </div>-->
-<!--  </div>-->
 </template>
 
 <script>
