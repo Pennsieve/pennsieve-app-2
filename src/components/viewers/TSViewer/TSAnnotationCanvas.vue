@@ -887,7 +887,7 @@
                         ctx.lineTo(curAnnStartRounded + 3, firstOffset + halfAnnotationHeight - 3);
                         ctx.stroke();
                     } else {
-                      console.log(this.pointerMode)
+                      // console.log(this.pointerMode)
                     }
 
                     // fill text

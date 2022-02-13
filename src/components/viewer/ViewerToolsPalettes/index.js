@@ -114,11 +114,11 @@ export default {
           icon: 'icon-discussion',
           tooltip: 'Discussions'
         },
-        {
-          eventName: 'fileBrowser',
-          icon: 'icon-file-explorer',
-          tooltip: 'File Explorer'
-        }
+        // {
+        //   eventName: 'fileBrowser',
+        //   icon: 'icon-file-explorer',
+        //   tooltip: 'File Explorer'
+        // }
       ],
       isMppVisible: false
     }

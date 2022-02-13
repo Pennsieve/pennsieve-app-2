@@ -67,15 +67,16 @@
               :annotation="annotation"
             />
 
-            <bf-annotation
-              v-else
-              :id="`ann-${annotation.id}`"
-              :key="annotation.id"
-              :layer-id="layer.id"
-              :annotation="JSON.stringify(annotation)"
-              :can-crud-annotation="getPermission('editor')"
-              @click="onAnnTap(annotation)"
-            />
+<!--            TODO Bring Back Support for Image annotations.-->
+<!--            <bf-annotation-->
+<!--              v-else-->
+<!--              :id="`ann-${annotation.id}`"-->
+<!--              :key="annotation.id"-->
+<!--              :layer-id="layer.id"-->
+<!--              :annotation="JSON.stringify(annotation)"-->
+<!--              :can-crud-annotation="getPermission('editor')"-->
+<!--              @click="onAnnTap(annotation)"-->
+<!--            />-->
           </template>
         </div>
       </accordion>
@@ -162,13 +163,15 @@ export default {
   mounted: function() {
 
     // bf-annotation
-    this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation.html')
+    // this.importHref('/web-components/src/components/blackfynn/palettes/annotations/bf-annotation.html')
 
   },
 
   watch: {
     activeAnnotation: function() {
-      this.viewAnnotation(this.activeAnnotation.id)
+      if (this.activeAnnotation) {
+        this.viewAnnotation(this.activeAnnotation.id)
+      }
     }
   },
 
@@ -193,19 +196,22 @@ export default {
     viewAnnotation: function(id) {
       const annotation = this.$store.getters['viewer/getAnnotationById'](id)
       const layerId = propOr('', 'layer_id', annotation)
-      const layer = head(this.$refs[`accordion-${layerId}`])
+      if (layerId){
+        const layer = head(this.$refs[`accordion-${layerId}`])
 
 
-      this.onLayerSelected(layerId)
-      layer.open = true
+        this.onLayerSelected(layerId)
+        layer.open = true
 
-      // Select annotation and scroll it into view
-      this.$nextTick(() => {
-        const annotationEl = this.$refs[`ann-${id}`][0].$el
-        if (annotationEl) {
-          annotationEl.scrollIntoView()
-        }
-      })
+        // Select annotation and scroll it into view
+        this.$nextTick(() => {
+          const annotationEl = this.$refs[`ann-${id}`][0].$el
+          if (annotationEl) {
+            annotationEl.scrollIntoView()
+          }
+        })
+      }
+
     },
 
     /**

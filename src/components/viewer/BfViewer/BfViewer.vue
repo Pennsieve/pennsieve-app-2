@@ -126,7 +126,6 @@ export default {
   data: function() {
     return {
       isPackageLoading: false,
-      paperTooltipLoaded: false, // Used to prevent flashing for polymer import
       isMontageDialogOpen: false
     }
   },
@@ -204,17 +203,12 @@ export default {
   },
   /**
    * Vue lifecycle method
-   * Import required Polymer components
    */
   mounted: function() {
-    // Event listener for Polymer palettes
-    this.$el.addEventListener('active-viewer-action', this.onActiveViewerAction.bind(this))
     EventBus.$on('active-viewer-action', this.onActiveViewerAction.bind(this))
     EventBus.$on('data-changed', this.onDataChanged.bind(this))
   },
   beforeDestroy() {
-    // Event listener for Polymer palettes
-    this.$el.removeEventListener('active-viewer-action', this.onActiveViewerAction.bind(this))
     EventBus.$off('active-viewer-action', this.onActiveViewerAction.bind(this))
     EventBus.$off('data-changed', this.onDataChanged.bind(this))
   },
@@ -250,10 +244,8 @@ export default {
      * @param {Object} evt
      */
     onActiveViewerAction: function(evt) {
-      // Account for Polymer fire event sending a detail object
       if (this.$refs.viewerPane) {
-        const _evt = defaultTo(evt, prop('detail', evt))
-        this.$refs.viewerPane.activeViewerAction(_evt)
+        this.$refs.viewerPane.activeViewerAction(evt)
       }
     },
     /**

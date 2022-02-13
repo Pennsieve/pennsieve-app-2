@@ -27,14 +27,16 @@
             :validate-on-rule-change="false"
             @submit.native.prevent="onFormSubmit('logInForm')"
           >
-            <el-form-item prop="email">
-              <el-input v-model="logInForm.email" placeholder="Email Address" />
+            <el-form-item prop="email" >
+              <el-input v-model="logInForm.email" placeholder="Email Address" @keyup.enter.native="onEnter"/>
             </el-form-item>
             <el-form-item prop="password">
               <el-input
+                ref="pwdField"
                 v-model="logInForm.password"
                 type="password"
                 placeholder="Password"
+                @keyup.enter.native="onEnter"
               />
             </el-form-item>
             <el-form-item>
@@ -47,6 +49,12 @@
               >
             </el-form-item>
           </el-form>
+<!--          <bf-button-->
+<!--            class="log-in-dialog__container&#45;&#45;federated-login-button"-->
+<!--            :processing="isLoggingIn"-->
+<!--            processing-text="Signing In"-->
+<!--            @click="initiateFederatedLogin('ORCID')"-->
+<!--            ><img src="/static/images/orcid_24x24.png" alt="iD" width="24" height="24" style="display: block; margin-left: auto; margin-right: auto; width: 24px; height: 24px">Sign In with your ORCID iD</bf-button>-->
           <div class="log-in-dialog__container--actions" :class="actionsClass">
             <a href="#" @click.prevent="toForgotPasswordState"
               >Forgot Password?</a
@@ -338,6 +346,14 @@ export default {
   methods: {
     ...mapActions(['updateUserToken', 'updateProfile']),
 
+    onEnter(event) {
+      if (event.currentTarget.__vue__ === this.$refs.pwdField) {
+        this.onFormSubmit('logInForm')
+      } else {
+        this.$refs.pwdField.focus()
+      }
+
+    },
     /**
      * Reset all values and validation for
      * login form
@@ -458,6 +474,22 @@ export default {
         })
       }
       this.isLoggingIn = false
+    },
+
+    async initiateFederatedLogin(provider) {
+      this.isLoggingIn = true
+      this.closeLogInDialog()
+      try {
+        const cred = await Auth.federatedSignIn({customProvider: provider})
+      } catch (error) {
+        console.log("initiateFederatedLogin() error: " + error)
+        this.isLoggingIn = false
+        EventBus.$emit('toast', {
+          detail: {
+            msg: `There was an error with your federated login attempt. Please try again.`
+          }
+        })
+      }
     },
 
     /**
@@ -621,8 +653,17 @@ export default {
       margin-bottom: 16px;
     }
 
+    &--federated-login-button {
+      height: 36px;
+      width: 298px;
+      color: black;
+      background-color: whitesmoke;
+      border-color: darkgray;
+    }
+
     &--actions {
       &.log-in {
+        margin-top: 32px;
         margin-bottom: 32px;
         @media (max-width: 48em) {
           margin-bottom: 22px;

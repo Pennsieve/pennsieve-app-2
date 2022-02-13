@@ -21,7 +21,7 @@ node('executor') {
                     yarn build-${buildEnv}"""
 
                 stash includes: "**/dist/**", name: 'dist'
-                stash includes: "**/web-components/build/**", name: 'buildComponents'
+//                 stash includes: "**/web-components/build/**", name: 'buildComponents'
             } catch (e) {
                 slackSend(color: '#b20000', message: "FAILED: Build! '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName}")
                 throw e
@@ -43,11 +43,11 @@ node('executor') {
 
                     try {
                         unstash 'dist'
-                        unstash 'buildComponents'
+//                         unstash 'buildComponents'
                         sh "aws s3 --region us-east-1 rm --recursive s3://$bucketName/"
                         sh "aws s3 --region us-east-1 cp --recursive dist s3://$bucketName"
                         sh "aws s3 --region us-east-1 cp --cache-control 0 dist/index.html s3://$bucketName/"
-                        sh "aws s3 --region us-east-1 cp --recursive web-components/build s3://$bucketName/web-components"
+//                         sh "aws s3 --region us-east-1 cp --recursive web-components/build s3://$bucketName/web-components"
                         def distributionId = sh(
                             script: "aws cloudfront list-distributions --query \"DistributionList.Items[?contains(Origins.Items[0].DomainName, '${bucketName}.s3.amazonaws.com')].Id\" --output text",
                             returnStdout: true
