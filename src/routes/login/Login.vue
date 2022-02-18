@@ -439,7 +439,11 @@ export default Vue.component('bf-login', {
         }
         var error = this.getFragmentParameterByName('error_description')
         if (error) {
-            this.showOrcidError = true
+          EventBus.$emit('toast', {
+            detail: {
+              msg: `ORCID Login Error: please login with your Pennsieve account and verify your ORCID iD is linked.`
+            }
+          })
         }
     }
   }
