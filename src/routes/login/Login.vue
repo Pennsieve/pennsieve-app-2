@@ -437,13 +437,22 @@ export default Vue.component('bf-login', {
             const user = await Auth.currentAuthenticatedUser()
             this.handleLoginSuccess(user)
         }
+
         var error = this.getFragmentParameterByName('error_description')
-        if (error) {
-          EventBus.$emit('toast', {
-            detail: {
-              msg: `ORCID Login Error: please login with your Pennsieve account and verify your ORCID iD is linked.`
-            }
-          })
+        if (error.includes("Already found an entry for username orcid", 0)) {
+            // try federated login again (workaround for known AWS/Cognito issue)
+            this.sendFederatedLoginRequest("ORCID")
+        }
+        else if (error.includes("PreSignUp failed with error", 0)) {
+            EventBus.$emit('toast', {
+              detail: {
+                msg: `ORCID Login Error: please login with your Pennsieve account and verify your ORCID iD is linked.`
+              }
+            })
+        }
+        else if (error) {
+            // TODO: present the error on the login page
+            console.log("doneMounting() error: " + error)
         }
     }
   }
