@@ -11,7 +11,7 @@
     "site-config-local": "cp ./src/site-config/local.json ./src/site-config/site.json",
     "site-config-dev": "cp ./src/site-config/dev.json ./src/site-config/site.json",
     "site-config-prod": "cp ./src/site-config/prod.json ./src/site-config/site.json",
-    "start-dev": "yarn site-config-dev && yarn config-dev && yarn dev",
+    "start-dev": "yarn site-config-dev && yarn dev",
     "start-local": "yarn site-config-local && yarn dev",
     "start-prod": "yarn site-config-prod && yarn config-prod && yarn dev",
     "unit": "cross-env NODE_ENV=test jest --config test/unit/jest.conf.js --no-cache --coverage",
