@@ -341,10 +341,12 @@ export default {
   beforeMount() {
     // Start on login dialog
     this.toLogInState()
+    this.resetFederatedLoginState()
   },
 
   methods: {
-    ...mapActions(['updateUserToken', 'updateProfile']),
+    ...mapActions(['updateUserToken', 'updateProfile',
+                   'resetFederatedLoginState', 'startFederatedLogin']),
 
     onEnter(event) {
       if (event.currentTarget.__vue__ === this.$refs.pwdField) {
@@ -478,12 +480,14 @@ export default {
 
     async initiateFederatedLogin(provider) {
       this.isLoggingIn = true
+      this.startFederatedLogin()
       this.closeLogInDialog()
       try {
         const cred = await Auth.federatedSignIn({customProvider: provider})
       } catch (error) {
         console.log("initiateFederatedLogin() error: " + error)
         this.isLoggingIn = false
+        this.resetFederatedLoginState()
         EventBus.$emit('toast', {
           detail: {
             msg: `There was an error with your federated login attempt. Please try again.`
