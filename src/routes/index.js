@@ -582,8 +582,8 @@ const routes = [
         }
       },
       {
-        name: 'first-time-federated-login',
-        path: 'first-time-federated-login',
+        name: 'federated-sign-up',
+        path: 'federated-sign-up',
         components: {
           stage: SetupFederatedLogin
         }
