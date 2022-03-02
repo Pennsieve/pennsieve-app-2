@@ -77,6 +77,7 @@ export default {
       'profile',
       'hasFeature',
       'publisherTeam',
+      'isFederatedLoginInProgress',
     ]),
 
     ...mapState([
@@ -328,7 +329,12 @@ export default {
           const isSubscribed = this.checkIsSubscribed(activeOrg)
 
           if (!isSubscribed) {
-            this.$router.replace(`/${orgId}/welcome/terms-of-service`)
+            if (this.profile.email.split("@")[1] === "pennsieve-nonexistent.email") {
+              console.log("federatedLogin: " + this.profile.email + " => " + this.profile.email.split("@")[1])
+              this.$router.replace(`/${orgId}/welcome/federated-sign-up`)
+            } else {
+              this.$router.replace(`/${orgId}/welcome/terms-of-service`)
+            }
           } else {
             this.setDefaultRoute(orgId)
           }
