@@ -112,8 +112,7 @@ export const state = {
   cognitoUser: {},
   onboardingEvents: [],
   shouldShowLinkOrcidDialog: false,
-  isLinkOrcidDialogVisible: false,
-  federatedLoginInProgress: false
+  isLinkOrcidDialogVisible: false
 }
 
 const initialFilterState = state.datasetFilters
@@ -189,7 +188,6 @@ export const mutations = {
     Vue.set(state, 'shouldShowLinkOrcidDialog', false)
     Vue.set(state, 'isLinkOrcidDialogVisible', false)
     Vue.set(state, 'gettingStartedOpen', false)
-    Vue.set(state, 'federatedLoginInProgress', false)
 
   },
   UPDATE_CUR_DATASET (state, dataset) {
@@ -601,10 +599,6 @@ export const mutations = {
 
   UPDATE_IS_LINK_ORCID_DIALOG_VISIBLE(state, isLinkOrcidDialogVisible) {
     state.isLinkOrcidDialogVisible = isLinkOrcidDialogVisible
-  },
-
-  SET_FEDERATED_LOGIN_STATE(state, data) {
-    Vue.set(state, 'federatedLoginInProgress', data)
   }
 }
 
@@ -747,11 +741,7 @@ export const actions = {
   removeDataUseAgreement: ({ commit }, evt) => commit('REMOVE_DATA_USE_AGREEMENT', evt),
   updateDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DATA_USE_AGREEMENT', evt),
   updateDefaultDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DEFAULT_DATA_USE_AGREEMENT', evt),
-  updateShouldShowLinkOrcidDialog: ({ commit }, evt) => commit('UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG', evt),
-  setFederatedLoginState: ({ commit }, evt ) => commit('SET_FEDERATED_LOGIN_STATE', evt),
-  resetFederatedLoginState: ({ commit }) => commit('SET_FEDERATED_LOGIN_STATE', false),
-  startFederatedLogin: ({ commit }) => commit('SET_FEDERATED_LOGIN_STATE', true),
-  completeFederatedLogin: ({ commit }) => commit('SET_FEDERATED_LOGIN_STATE', false)
+  updateShouldShowLinkOrcidDialog: ({ commit }, evt) => commit('UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG', evt)
 }
 
 // getters
@@ -916,9 +906,6 @@ export const getters = {
   },
   hasOrcidOnboardingEvent: state => {
     return state.onboardingEvents.includes('AddedOrcid') || false
-  },
-  isFederatedLoginInProgress: state => {
-    return state.federatedLoginInProgress
   },
 }
 
