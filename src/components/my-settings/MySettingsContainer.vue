@@ -720,44 +720,45 @@ export default {
       this.oauthWindow = window.open(this.getORCIDUrl, "_blank", "toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500");
       const self = this
       window.addEventListener('message', function(event) {
-        this.oauthCode = event.data
-        if (this.oauthCode !== '') {
+          if (event.data && event.data.source && event.data.source === 'orcid-redirect-response' && event.data.code) {
+            this.oauthCode = event.data.code
+            if (this.oauthCode !== '') {
 
-          // @NOTE - Ignore this for now. Will delete once we verify that API works on dev
-          // const response = {
-          //   name: 'Nathan Vecchiarelli',
-          //   orcid: '0000-0001-7257-2030'
-          // }
+              // @NOTE - Ignore this for now. Will delete once we verify that API works on dev
+              // const response = {
+              //   name: 'Nathan Vecchiarelli',
+              //   orcid: '0000-0001-7257-2030'
+              // }
 
-           if (!self.getORCIDApiUrl) {
-            return
-          }
-
-          self.sendXhr(self.getORCIDApiUrl, {
-            method: 'POST',
-            body: {
-                "authorizationCode": this.oauthCode
+              if (!self.getORCIDApiUrl) {
+                return
               }
-            })
-            .then((response) => {
-              // response logic goes here
-              self.oauthInfo = response
 
-              self.updateProfile({
-                ...self.profile,
-                orcid: self.oauthInfo
-              })
-
-              EventBus.$emit('toast', {
-                detail: {
-                  type: 'success',
-                  msg: 'Your ORCID has been successfully added'
+              self.sendXhr(self.getORCIDApiUrl, {
+                method: 'POST',
+                body: {
+                  "authorizationCode": this.oauthCode
                 }
               })
-            })
-            .catch(self.handleXhrError.bind(this))
+                .then((response) => {
+                  // response logic goes here
+                  self.oauthInfo = response
 
-        }
+                  self.updateProfile({
+                    ...self.profile,
+                    orcid: self.oauthInfo
+                  })
+
+                  EventBus.$emit('toast', {
+                    detail: {
+                      type: 'success',
+                      msg: 'Your ORCID has been successfully added'
+                    }
+                  })
+                })
+                .catch(self.handleXhrError.bind(this))
+            }
+          }
       })
     },
 

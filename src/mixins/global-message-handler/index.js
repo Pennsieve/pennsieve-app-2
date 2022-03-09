@@ -16,7 +16,8 @@ export default {
   data() {
     return {
       minCompletedEvents: 2,
-      datasetStatusList: []
+      datasetStatusList: [],
+      oauthInfo: ''
     }
   },
 
@@ -47,6 +48,7 @@ export default {
     EventBus.$on('open-external-file-modal', this.onOpenExternalFileModal.bind(this))
     EventBus.$on('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$on('set-default-route', this.setDefaultRoute.bind(this))
+    EventBus.$on('finalize-orcid-integration', this.finalizeOrcidIntegration.bind(this))
   },
 
   beforeDestroy() {
@@ -65,7 +67,8 @@ export default {
     EventBus.$off('get-file-proxy-id', this.getFilesProxyId.bind(this))
     EventBus.$off('open-external-file-modal', this.onOpenExternalFileModal.bind(this))
     EventBus.$off('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
-    EventBus.$off('set-default-route', this.onSetDefaultRoute.bind(this))
+    EventBus.$off('set-default-route', this.setDefaultRoute.bind(this))
+    EventBus.$off('finalize-orcid-integration', this.finalizeOrcidIntegration.bind(this))
   },
 
   computed: {
@@ -115,7 +118,20 @@ export default {
         return
       }
       return `${this.config.apiUrl}/contributors?api_key=${this.userToken}`
-    }
+    },
+
+    /**
+     * Retrieves the API URL for adding ORCID
+     */
+    getORCIDApiUrl: function() {
+      const url = pathOr('', ['config', 'apiUrl'])(this)
+
+      if (!url) {
+        return ''
+      }
+
+      return `${url}/user/orcid`
+    },
   },
 
   methods: {
@@ -677,6 +693,40 @@ export default {
         .catch(() =>  {
           return this.updateDataUseAgreements([])
         })
+    },
+
+    finalizeOrcidIntegration: function(event) {
+      console.log("finalizeOrcidIntegration()")
+      const oauthCode = pathOr('', ['oauthCode'], event)
+      if (oauthCode !== '') {
+        console.log("oauthCode:")
+        console.log(oauthCode)
+        const url = this.getORCIDApiUrl
+
+        this.sendXhr(url, {
+          method: 'POST',
+          header: {
+            'Authorization': `bearer ${this.userToken}`
+          },
+          body: {
+            "authorizationCode": oauthCode
+          }
+        })
+          .then(response => {
+            this.oauthInfo = response
+            this.updateProfile({
+              ...this.profile,
+              orcid: this.oauthInfo
+            })
+            EventBus.$emit('toast', {
+              detail: {
+                type: 'success',
+                  msg: 'Your ORCID has been successfully added'
+              }
+            })
+          })
+          .catch(this.handleXhrError.bind(this))
+      }
     },
   },
 }

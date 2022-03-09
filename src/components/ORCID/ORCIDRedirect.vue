@@ -7,6 +7,8 @@
 </template>
 
 <script>
+import EventBus from "../../utils/event-bus";
+
   export default {
     name: 'ORCIDRedirect',
     data() {
@@ -23,10 +25,11 @@
      * this redirect window
      */
     mounted() {
+      console.log("ORCIDRedirect.mounted()")
       const search = window.location.search.substring(1)
       const code = search.substring(5, search.length)
       const parentWindow = window.opener
-      parentWindow.postMessage(code.toString(), '*',)
+      parentWindow.postMessage({ source: 'orcid-redirect-response', code: code.toString() }, '*',)
       window.close()
     },
   }

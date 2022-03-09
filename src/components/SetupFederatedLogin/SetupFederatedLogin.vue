@@ -336,25 +336,13 @@ export default {
         return ''
       }
       return url
-    },
-
-    /**
-     * Retrieves the API URL for adding ORCID
-     */
-    getORCIDApiUrl: function() {
-      const url = pathOr('', ['config', 'apiUrl'])(this)
-
-      if (!url) {
-        return ''
-      }
-
-      return `${url}/user/orcid?api_key=${this.userToken}`
-    },
+    }
   },
 
   methods: {
     ...mapGetters(['userToken']),
     ...mapActions(['updateProfile']),
+    ...mapState(['profile']),
 
     clearEmailForm: function() {
       this.emailForm.emailAddress = ''
@@ -363,7 +351,6 @@ export default {
     clearProfileForm: function() {
       this.profileForm.firstName = ''
       this.profileForm.lastName = ''
-      this.profileForm.jobTitle = ''
     },
 
     clearPasswordForm: function() {
@@ -378,7 +365,7 @@ export default {
     },
 
     toAskForEmailAddress: function() {
-      this.clearAllForms()
+      this.clearEmailForm()
       this.internalState = this.internalStates.askingForEmail
     },
 
@@ -401,6 +388,11 @@ export default {
       this.internalState = this.internalStates.done
     },
 
+    startOver: function() {
+      this.clearAllForms()
+      this.toAskForEmailAddress()
+    },
+
     onSubmitLookupEmailAddress: function() {
       console.log("onSubmitLookupEmailAddress()")
       // TODO: validate form
@@ -408,7 +400,6 @@ export default {
     },
 
     lookupEmailAddress: function(email) {
-      // TODO: implement
       console.log("lookupEmailAddress()")
       const url = `${this.getUserByEmailRequest}${email}`
       console.log("url:")
@@ -425,11 +416,17 @@ export default {
           console.log(user)
           this.toAskToMergeAccounts()
         })
-        .catch(err => {
-          // if response is a 404, then email does not exist, else there was some other failure
-          console.log("error:")
-          console.log(err)
-          this.toAskForProfileInfo()
+        .catch(error => {
+          if (error.status === 404) {
+            console.log("404 - email address not found")
+            this.updateUserEmailAddress()
+            this.toAskForProfileInfo()
+          } else {
+            console.log("error:")
+            console.log(err)
+            this.toast("Error looking up email address: " + error)
+            this.startOver()
+          }
         })
     },
 
@@ -438,21 +435,20 @@ export default {
       // TODO: validate form
 
       try {
-        const updatedEmail = this.updateUserEmailAddress()
-        const updatedProfile = this.updateUserProfile()
-        this.updateProfile({
-          ...this.profile,
-          ...updatedProfile
-        })
-        this.toFinalizeIntegration()
+        this.updateUserProfile()
       }
-      catch (e) {
+      catch (error) {
         // something went wrong...
         // TODO: alert user of failure, and transition to ... ???
+        console.log("error:")
+        console.log(error)
+        this.toast("Error updating profile: " + error)
       }
+      this.toFinalizeIntegration()
     },
 
     updateUserEmailAddress: function() {
+      console.log("updateUserEmailAddress()")
       const url = `${this.updateUserEmailUrl}`
       this.sendXhr(url, {
         method: 'PUT',
@@ -464,17 +460,20 @@ export default {
         }
       })
         .then(user => {
-          return user
+          console.log("user:")
+          console.log(user)
+          this.updateProfile({
+            ...this.profile,
+            ...user
+          })
         })
-        .catch(err => {
-          console.log("error:")
-          console.log(err)
-          throw(err)
-        })
+        .catch(error => {throw error})
     },
 
     updateUserProfile: function() {
-      this.sendXhr(this.updateUserProfileUrl, {
+      console.log("updateUserProfile()")
+      const url = this.updateUserProfileUrl
+      this.sendXhr(url, {
         method: 'PUT',
         header: {
           'Authorization': `bearer ${this.userToken()}`
@@ -488,42 +487,47 @@ export default {
         }
       })
         .then(user => {
-          return user
+          console.log("user:")
+          console.log(user)
+          this.updateProfile({
+            ...this.profile,
+            ...user
+          })
         })
-        .catch(err => {
-          console.log("error:")
-          console.log(err)
-          throw(err)
-        })
+        .catch(error => {throw error})
     },
 
     onSubmitMergeAccounts: function() {
       console.log("onSubmitMergeAccounts()")
       try {
         const authenticatedToken = this.authenticateUser()
-        const mergedProfile = this.mergeUserAccounts(authenticatedToken)
-        this.updateProfile(mergedProfile)
-        this.toFinalizeIntegration()
+        this.mergeUserAccounts(authenticatedToken)
       }
-      catch (e) {
+      catch (error) {
         // something went wrong...
         // TODO: alert user of failure, and transition to ... ???
+        console.log("error:")
+        console.log(error)
+        this.toast("Error during account merge: " + error)
       }
-
+      this.toFinalizeIntegration()
     },
 
     authenticateUser: function() {
+      console.log("authenticateUser()")
       Auth.signIn(this.passwordForm.emailAddress, this.passwordForm.password)
         .then(authenticatedUser => {
           const authenticatedToken = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], authenticatedUser)
           return authenticatedToken
         })
         .catch(error => {
+          this.toast("Error authenticating user")
           throw(error)
         })
     },
 
     mergeUserAccounts: function(authenticatedToken) {
+      console.log("mergeUserAccounts()")
       this.sendXhr(this.mergeUserAccountsUrl, {
         method: 'PUT',
         header: {
@@ -534,10 +538,16 @@ export default {
           newUserToken: authenticatedToken
         }
       })
-      .then(response => {
-        return response
+      .then(user => {
+        console.log("user:")
+        console.log(user)
+        this.updateProfile({
+          ...this.profile,
+          ...user
+        })
       })
       .catch(error => {
+        this.toast("Error merging accounts")
         throw(error)
       })
     },
@@ -550,6 +560,7 @@ export default {
     onClickFinalizeIntegration: function() {
       console.log("onClickFinalizeIntegration()")
       this.openORCID()
+      this.toAllDone()
     },
 
     /**
@@ -557,50 +568,40 @@ export default {
      */
     openORCID: function() {
       this.oauthWindow = window.open(this.getORCIDUrl, "_blank", "toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500");
-      const self = this
       window.addEventListener('message', function(event) {
-        this.oauthCode = event.data
-        if (this.oauthCode !== '') {
-
-          // @NOTE - Ignore this for now. Will delete once we verify that API works on dev
-          // const response = {
-          //   name: 'Nathan Vecchiarelli',
-          //   orcid: '0000-0001-7257-2030'
-          // }
-
-          if (!self.getORCIDApiUrl) {
-            return
-          }
-
-          self.sendXhr(self.getORCIDApiUrl, {
-            method: 'POST',
-            body: {
-              "authorizationCode": this.oauthCode
+        console.log("window-event-listener")
+        console.log(event)
+        if (event.data && event.data.source && event.data.source === 'orcid-redirect-response' && event.data.code) {
+          console.log("window-event-listener - sending event: " + event.data.code)
+          EventBus.$emit('finalize-orcid-integration', {
+              oauthCode: event.data.code
             }
-          })
-            .then((response) => {
-              // response logic goes here
-              self.oauthInfo = response
-
-              self.updateProfile({
-                ...self.profile,
-                orcid: self.oauthInfo
-              })
-
-              EventBus.$emit('toast', {
-                detail: {
-                  type: 'success',
-                  msg: 'Your ORCID has been successfully added'
-                }
-              })
-            })
-            .catch(self.handleXhrError.bind(this))
+          )
         }
       })
     },
 
     onClickProceedToPennsieve: function() {
       console.log("onClickProceedToPennsieve()")
+      Auth.currentAuthenticatedUser()
+      .then(user => {
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+        const userAttributes = propOr({}, 'attributes', user)
+        EventBus.$emit('login', {token, userAttributes, user})
+      })
+      .catch(error => {
+        console.log("onClickProceedToPennsieve() error: " + error)
+        this.toast("Error getting authenticated user: " + error)
+        this.$router.replace('/')
+      })
+    },
+
+    toast: function(message) {
+      EventBus.$emit('toast', {
+        detail: {
+          msg: message
+        }
+      })
     }
   }
 }
