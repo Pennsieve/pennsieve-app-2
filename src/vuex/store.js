@@ -741,7 +741,7 @@ export const actions = {
   removeDataUseAgreement: ({ commit }, evt) => commit('REMOVE_DATA_USE_AGREEMENT', evt),
   updateDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DATA_USE_AGREEMENT', evt),
   updateDefaultDataUseAgreement: ({ commit }, evt) => commit('UPDATE_DEFAULT_DATA_USE_AGREEMENT', evt),
-  updateShouldShowLinkOrcidDialog: ({ commit }, evt) => commit('UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG', evt),
+  updateShouldShowLinkOrcidDialog: ({ commit }, evt) => commit('UPDATE_SHOULD_SHOW_LINK_ORCID_DIALOG', evt)
 }
 
 // getters
@@ -906,7 +906,7 @@ export const getters = {
   },
   hasOrcidOnboardingEvent: state => {
     return state.onboardingEvents.includes('AddedOrcid') || false
-  }
+  },
 }
 
 // vuex store instance
