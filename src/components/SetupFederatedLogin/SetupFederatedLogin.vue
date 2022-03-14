@@ -112,20 +112,21 @@
 
 
     <div
-      v-if="this.askingToMerge"
+      v-if="this.askingForPassword"
       class="login-wrap"
       >
       <h2 class="sharp-sans">
-        Would you like to merge accounts?
+        We found an existing account
       </h2>
-      <p>A Pennsieve account exists with the email address {{emailForm.emailAddress}}. Merging these accounts will give you a single account accessible by logging in with your email address or ORCID iD. You will need to provide the password for the email account in order to merge.</p>
+      <p>A Pennsieve account exists with the email address <strong>{{emailForm.emailAddress}}</strong>. Connecting your accounts will allow you to sign-in with your email address or ORCID iD.</p>
+      <p>Please enter the password for the Pennsieve account associated with your email address.</p>
       <el-form
         id="password-form"
         ref="passwordForm"
         :model="passwordForm"
         :rules="passwordRules"
         status-icon
-        @submit.native.prevent="onSubmitMergeAccounts"
+        @submit.native.prevent="onSubmitAuthenticate"
       >
         <el-form-item
           label="Email Address"
@@ -135,7 +136,7 @@
             v-model="passwordForm.emailAddress"
             required
             class="email-address-input"
-            readonly=true
+            readonly
           />
         </el-form-item>
         <el-form-item
@@ -146,7 +147,7 @@
           <el-input
             v-model="passwordForm.password"
             type="password"
-            @enter="onSubmitMergeAccounts"
+            @enter="onSubmitAuthenticate"
           />
         </el-form-item>
         <el-form-item>
@@ -154,9 +155,9 @@
             class="saveProfile"
             :processing="isSavingProfile"
             processing-text="Merging accounts"
-            @click="onSubmitMergeAccounts"
+            @click="onSubmitAuthenticate"
           >
-            Merge My Accounts
+            Authenticate Pennsieve email account
           </bf-button>
           <bf-button
             class="saveProfile"
@@ -164,10 +165,30 @@
             processing-text="Merging accounts"
             @click="onClickEnterDifferentEmailAddress"
           >
-            Enter Different Email Address
+            Enter a Different Email Address
           </bf-button>
         </el-form-item>
       </el-form>
+    </div>
+
+
+
+    <div
+      v-if="this.askingToConnect"
+      class="login-wrap"
+      >
+      <h2 class="sharp-sans">
+        Authentication successful
+      </h2>
+      <p>Your Pennsieve email account has been authenticated. Now let's connect your Pennsieve and ORCID accounts.</p>
+      <bf-button
+        class="completeLogin"
+        :processing="isSavingProfile"
+        processing-text="Connecting Accounts"
+        @click="onClickConnectAccounts"
+      >
+        Connect Accounts
+      </bf-button>
     </div>
 
 
@@ -179,9 +200,14 @@
       <h2 class="sharp-sans">
         Let's finalize ORCID iD integration.
       </h2>
-      <p>Clicking <strong>Finalize Integration</strong> will initiate a process whereby we will link your ORCID iD to your Pennsieve account. A pop-up window will appear asking you to grant or deny access to read and write to your ORCID record.
-        Granting read access permits the Pennsieve platform to retrieve personal details from your ORCID record.
-        Granting write access permits the Pennsieve platform to send dataset publication details to ORCID. </p>
+      <p>Clicking <strong>Finalize Integration</strong> initiates a process that allows the Pennsieve platform to access your ORCID record.</p
+      <p>A pop-up window will appear asking you to grant access to read and write to your ORCID record.<p>
+      <p>
+      <ul>
+      <li>Granting read access permits the Pennsieve platform to retrieve information from your ORCID record: ORCID iD, email address, and your name.</li>
+      <li>Granting write access permits the Pennsieve platform to send dataset publication details to ORCID.</li>
+      </ul>
+      </p>
       <bf-button
         class="completeLogin"
         :processing="isSavingProfile"
@@ -241,9 +267,10 @@ export default {
         initial: 0,
         askingForEmail: 0,
         askingForProfileInfo: 1,
-        askingToMerge: 2,
-        askingToFinalize: 3,
-        done: 4
+        askingForPassword: 2,
+        askingToConnect: 3,
+        askingToFinalize: 4,
+        done: 5
       },
       emailForm: {
         emailAddress: ''
@@ -272,9 +299,28 @@ export default {
         emailAddress: '',
         password: ''
       },
+      passwordRules: {
+        emailAddress: [
+          { required: true, message: 'Please add your Email', trigger: 'submit' }
+        ],
+        password: [
+          { required: true, message: 'Please add your Password', trigger: 'submit' }
+        ]
+      },
       isSavingProfile: false,
       isPasswordFormValid: false,
       isUserSignInFailed: false,
+      currentAuthentication: {
+        user: '',
+        token: '',
+        userAttributes: ''
+      },
+      currentCognitoUser: {},
+      currentProfile: {},
+      authenticatedUser: {
+        emailAddress: '',
+        token: ''
+      },
       oauthWindow: '',
       oauthCode: '',
       oauthInfo: ''
@@ -283,7 +329,9 @@ export default {
 
   computed: {
     ...mapState([
-      'config'
+      'config',
+      'profile',
+      'cognitoUser'
     ]),
 
     askingForEmail: function() {
@@ -294,8 +342,12 @@ export default {
       return this.internalState == this.internalStates.askingForProfileInfo
     },
 
-    askingToMerge: function() {
-      return this.internalState == this.internalStates.askingToMerge
+    askingForPassword: function() {
+      return this.internalState == this.internalStates.askingForPassword
+    },
+
+    askingToConnect: function() {
+      return this.internalState == this.internalStates.askingToConnect
     },
 
     askingToFinalize: function() {
@@ -339,10 +391,28 @@ export default {
     }
   },
 
+  mounted () {
+    console.log("mounted()")
+    this.currentCognitoUser = this.cognitoUser
+    this.currentProfile = this.profile
+    Auth.currentAuthenticatedUser()
+      .then(user => {
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+        const userAttributes = propOr({}, 'attributes', user)
+        this.currentAuthentication.user = user
+        this.currentAuthentication.token = token
+        this.currentAuthentication.userAttributes = userAttributes
+      })
+      .catch(error => {})
+  },
+
   methods: {
     ...mapGetters(['userToken']),
     ...mapActions(['updateProfile']),
-    ...mapState(['profile']),
+    ...mapState([
+      'profile',
+      'cognitoUser'
+    ]),
 
     clearEmailForm: function() {
       this.emailForm.emailAddress = ''
@@ -354,6 +424,10 @@ export default {
     },
 
     clearPasswordForm: function() {
+      this.authenticatedUser = {
+        emailAddress: '',
+        token: ''
+      }
       this.passwordForm.emailAddress = ''
       this.passwordForm.password = ''
     },
@@ -374,10 +448,14 @@ export default {
       this.internalState = this.internalStates.askingForProfileInfo
     },
 
-    toAskToMergeAccounts: function() {
+    toAskForPassword: function() {
       this.clearPasswordForm()
       this.passwordForm.emailAddress = this.emailForm.emailAddress
-      this.internalState = this.internalStates.askingToMerge
+      this.internalState = this.internalStates.askingForPassword
+    },
+
+    toAskToConnectAccounts: function() {
+      this.internalState = this.internalStates.askingToConnect
     },
 
     toFinalizeIntegration: function() {
@@ -411,13 +489,14 @@ export default {
         }
       })
         .then(user => {
-          // email exists
+          // email exists, next ask for password
           console.log("user:")
           console.log(user)
-          this.toAskToMergeAccounts()
+          this.toAskForPassword()
         })
         .catch(error => {
           if (error.status === 404) {
+            // email address does not exist, next ask for profile info
             console.log("404 - email address not found")
             this.updateUserEmailAddress()
             this.toAskForProfileInfo()
@@ -497,58 +576,52 @@ export default {
         .catch(error => {throw error})
     },
 
-    onSubmitMergeAccounts: function() {
-      console.log("onSubmitMergeAccounts()")
-      try {
-        const authenticatedToken = this.authenticateUser()
-        this.mergeUserAccounts(authenticatedToken)
-      }
-      catch (error) {
-        // something went wrong...
-        // TODO: alert user of failure, and transition to ... ???
-        console.log("error:")
-        console.log(error)
-        this.toast("Error during account merge: " + error)
-      }
-      this.toFinalizeIntegration()
-    },
+    onSubmitAuthenticate: function() {
+      console.log("onSubmitAuthenticate()")
 
-    authenticateUser: function() {
-      console.log("authenticateUser()")
+      this.authenticatedUser.emailAddress = this.passwordForm.emailAddress
       Auth.signIn(this.passwordForm.emailAddress, this.passwordForm.password)
         .then(authenticatedUser => {
-          const authenticatedToken = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], authenticatedUser)
-          return authenticatedToken
+          console.log("onSubmitAuthenticate() authenticatedUser:")
+          console.log(authenticatedUser)
+          this.authenticatedUser.token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], authenticatedUser)
+          console.log("onSubmitAuthenticate() this.authenticatedUser.token:")
+          console.log(this.authenticatedUser.token)
+          this.toAskToConnectAccounts()
         })
         .catch(error => {
+          console.log("Error while trying to authenticate user: " + error)
           this.toast("Error authenticating user")
-          throw(error)
+          this.toAskForPassword()
         })
     },
 
-    mergeUserAccounts: function(authenticatedToken) {
-      console.log("mergeUserAccounts()")
-      this.sendXhr(this.mergeUserAccountsUrl, {
+    onClickConnectAccounts: function() {
+      console.log("onClickConnectAccounts()")
+
+      const url = `${this.mergeUserAccountsUrl}/${this.currentProfile.intId}`
+      console.log("url: " + url)
+      this.sendXhr(url, {
         method: 'PUT',
         header: {
-          'Authorization': `bearer ${this.userToken()}`
+          'Authorization': `bearer ${this.authenticatedUser.token}`
         },
         body: {
-          oldUserToken: this.userToken(),
-          newUserToken: authenticatedToken
+          email: this.authenticatedUser.emailAddress,
+          cognitoId: this.currentCognitoUser.username
         }
       })
       .then(user => {
-        console.log("user:")
-        console.log(user)
         this.updateProfile({
           ...this.profile,
           ...user
         })
+        this.toFinalizeIntegration()
       })
       .catch(error => {
-        this.toast("Error merging accounts")
-        throw(error)
+        console.log("Error while trying to merge accounts: " + error)
+        this.toast("Error connecting accounts")
+        this.toAskForPassword()
       })
     },
 
@@ -583,17 +656,10 @@ export default {
 
     onClickProceedToPennsieve: function() {
       console.log("onClickProceedToPennsieve()")
-      Auth.currentAuthenticatedUser()
-      .then(user => {
-        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
-        const userAttributes = propOr({}, 'attributes', user)
-        EventBus.$emit('login', {token, userAttributes, user})
-      })
-      .catch(error => {
-        console.log("onClickProceedToPennsieve() error: " + error)
-        this.toast("Error getting authenticated user: " + error)
-        this.$router.replace('/')
-      })
+      const token = this.currentAuthentication.token
+      const user = this.currentAuthentication.user
+      const userAttributes = this.currentAuthentication.userAttributes
+      EventBus.$emit('login', {token, userAttributes, user})
     },
 
     toast: function(message) {
