@@ -118,7 +118,8 @@
       <h2 class="sharp-sans">
         We found an existing account
       </h2>
-      <p>A Pennsieve account exists with the email address {{emailForm.emailAddress}}. Connecting your accounts will give you a single account accessible by logging in with your email address and passowrd or ORCID iD. Please enter your password for the Pennsieve account created with your email address.</p>
+      <p>A Pennsieve account exists with the email address <strong>{{emailForm.emailAddress}}</strong>. Connecting your accounts will allow you to sign-in with your email address or ORCID iD.</p>
+      <p>Please enter the password for the Pennsieve account associated with your email address.</p>
       <el-form
         id="password-form"
         ref="passwordForm"
@@ -177,9 +178,9 @@
       class="login-wrap"
       >
       <h2 class="sharp-sans">
-        Authentication succeeded
+        Authentication successful
       </h2>
-      <p>Great! Your Pennsieve email account has been authenticated. Now let's connect your Pennsieve and ORCID accounts.</p>
+      <p>Your Pennsieve email account has been authenticated. Now let's connect your Pennsieve and ORCID accounts.</p>
       <bf-button
         class="completeLogin"
         :processing="isSavingProfile"
@@ -199,9 +200,14 @@
       <h2 class="sharp-sans">
         Let's finalize ORCID iD integration.
       </h2>
-      <p>Clicking <strong>Finalize Integration</strong> will initiate a process whereby we will link your ORCID iD to your Pennsieve account. A pop-up window will appear asking you to grant or deny access to read and write to your ORCID record.
-        Granting read access permits the Pennsieve platform to retrieve personal details from your ORCID record.
-        Granting write access permits the Pennsieve platform to send dataset publication details to ORCID. </p>
+      <p>Clicking <strong>Finalize Integration</strong> initiates a process that allows the Pennsieve platform to access your ORCID record.</p
+      <p>A pop-up window will appear asking you to grant access to read and write to your ORCID record.<p>
+      <p>
+      <ul>
+      <li>Granting read access permits the Pennsieve platform to retrieve information from your ORCID record: ORCID iD, email address, and your name.</li>
+      <li>Granting write access permits the Pennsieve platform to send dataset publication details to ORCID.</li>
+      </ul>
+      </p>
       <bf-button
         class="completeLogin"
         :processing="isSavingProfile"
