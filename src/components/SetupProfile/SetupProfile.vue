@@ -7,7 +7,7 @@
       <h2 class="sharp-sans">
         Let's set up your profile.
       </h2>
-      <p>Complete your profile so members of your team can easily idenitfy you. <strong>All fields are required</strong>.</p>
+      <p>Complete your profile so members of your team can easily identify you. <strong>All fields are required</strong>.</p>
       <el-form
         id="profile-form"
         ref="profileForm"

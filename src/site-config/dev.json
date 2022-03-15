@@ -6,7 +6,7 @@
   "docsUrl": "https://docs.pennsieve.io",
   "maxDownloadSize": 15000000000,
   "environment": "dev",
-  "ORCIDUrl": "https://sandbox.orcid.org/oauth/authorize?client_id=APP-4FK9BTFUGZITFOAJ&response_type=code&scope=/activities/update&redirect_uri=https://app.pennsieve.net/orcid-redirect",
+  "ORCIDUrl": "https://sandbox.orcid.org/oauth/authorize?client_id=APP-4FK9BTFUGZITFOAJ&response_type=code&scope=/read-limited%20/activities/update&redirect_uri=https://app.pennsieve.net/orcid-redirect",
   "conceptsUrl": "https://api.pennsieve.net/models",
   "mockApiUrl": "http://localhost:9000",
   "timeSeriesUrl": "wss://api.pennsieve.net/streaming/ts/query",
