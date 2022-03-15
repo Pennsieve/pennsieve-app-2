@@ -638,6 +638,16 @@ export default {
         : ''
     },
 
+    /*
+    *Placeholder for changelog URL function
+    */
+    datasetChangelogUrl: function() {
+      return this.userToken
+        ? `${this.config.apiUrl}/datasets/${this.datasetId}/changelog?api_key=${
+            this.userToken
+          }`
+        : ''
+    },
     /**
      * Compute dataset intId
      * @returns {Number}
@@ -766,6 +776,40 @@ export default {
             })
           } else if (response.status === 412) {
             this.isSavingMarkdown = false
+            this.$refs.staleUpdateDialog.dialogVisible = true
+          } else {
+            throw response
+          }
+        })
+        .catch(this.handleXhrError.bind(this))
+    },
+
+    /**
+     * On changelog save funciton placeholder, emitted from committing publish (MUST TAKE INTO ACCOUNT VERSION)
+     * Make a request to the API to save the changelog
+     * @params {String} markdown
+     */
+    onPublishSaveChangelog: function(input) {
+      fetch(this.datasetChangelogUrl, {
+        body: JSON.stringify({
+          changelog: input
+        }),
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'If-Match': this.datasetChangelog,
+        }
+      })
+        .then(response => {
+          if (response.ok) {
+            //need to investigate this function: setDatasetDescriptionEtag
+            this.setDatasetChangelogEtag(response.headers.get('etag'))
+            this.setDatasetChangelog(input).finally(() => {
+              this.isSavingChangelog = false
+              this.isEditingChangelog = false
+            })
+          } else if (response.status === 412) {
+            this.isSavingChangelog = false
             this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
