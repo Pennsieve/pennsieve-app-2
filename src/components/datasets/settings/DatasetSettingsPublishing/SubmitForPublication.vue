@@ -3,10 +3,15 @@
     <bf-button
       class="primary"
       :disabled="!canPublish || datasetLocked || isRequested"
-      @click="submitForPublication"
+      <!--check syntax -->
+      @click="submitForPublication", "deployChangelogPopup"
     >
       Request to Publish
     </bf-button>
+    <changelog-popup
+       <!-- :visible.sync="isLoginModalVisible" -->
+       <!-- @close-login-dialog="isLoginModalVisible = false" -->
+     />
     <submit-dataset-dialog
       :visible.sync="isSubmitDatasetDialogVisible"
       :dataset-id="datasetId"
@@ -21,6 +26,7 @@ import { PublicationTabs } from '@/utils/constants'
 import BfButton from '@/components/shared/bf-button/BfButton';
 import SubmitDatasetDialog from '@/components/Publishing/SubmitDatasetDialog/SubmitDatasetDialog.vue'
 import { mapGetters } from 'vuex';
+import ChangelogPopup from '@/components/datasets/settings/DataSettingsPublishing/ChangelogPopup.vue';
 export default {
   components: {
     BfButton,
@@ -60,7 +66,10 @@ export default {
    */
     submitForPublication: function() {
      this.isSubmitDatasetDialogVisible = true
-    }
+   },
+   deployChangelogPopup: function() {
+     //
+   }
   },
 }
 </script>
