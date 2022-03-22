@@ -23,6 +23,57 @@
         </a>
       </p>
     </div>
+    <!-- insert markdown editor here -->
+    <data-card
+      ref="descriptionDataCard"
+      class="grey compact"
+      title="Changelog"
+      :is-expandable="true"
+      :padding="false"
+    >
+      <template slot="title-aux">
+        <button
+          v-if="isEditingMarkdown"
+          class="linked mr-8"
+          @click="isEditingMarkdown = false"
+        >
+          Cancel
+        </button>
+        <button
+          v-if="isEditingMarkdown"
+          class="linked"
+          :disabled="datasetLocked"
+          @click="isSavingMarkdown = true"
+        >
+          Save
+        </button>
+        <button
+          v-else
+          slot="title-aux"
+          class="linked"
+          :disabled="datasetLocked"
+          @click="isEditingMarkdown = true"
+        >
+          Update
+        </button>
+      </template>
+      <markdown-editor
+        ref="markdownEditor"
+        :value="datasetDescription"
+        :is-editing="isEditingMarkdown"
+        :is-saving="isSavingMarkdown"
+        :empty-state="datasetDescriptionEmptyState"
+        :is-loading="isLoadingDatasetDescription"
+        <!--check syntax -->
+        @save="onChangelogSave", "proceedWithSubmit"
+      />
+    </data-card>
+    <div v-if="hasCompletedChangelog">
+      <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
+    </div>
+    <div v-else>
+      <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file.</p>
+    </div>
     <div class="published-btn-wrap mb-16">
       <submit-for-publication
         :has-dataset="true"
@@ -46,6 +97,8 @@
 <script>
 import SubmitForPublication from './SubmitForPublication'
 import { PublicationTabs } from '../../../../utils/constants'
+#may need to change file path
+import MarkdownEditor from 'src/components/shared/MarkdownEditor/MarkdownEditor.vue'
 
 export default {
   components: {
@@ -61,6 +114,10 @@ export default {
       required: true,
     },
     canPublish: {
+      type: Boolean,
+      required: true,
+    },
+    hasCompletedChangelog: {
       type: Boolean,
       required: true,
     },
@@ -85,6 +142,45 @@ export default {
     PublicationTabs: function() {
       return PublicationTabs
     }
+  },
+  methods: {
+    /**
+     * On Changelog save, emitted from the MarkdownEditor
+     * Make a request to the API to save the changelog. TO DO
+     * @params {String} markdown
+     */
+    onChangelogSave: function(markdown) {
+      fetch(this.datasetReadmeUrl, {
+        body: JSON.stringify({
+          readme: markdown
+        }),
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'If-Match': this.datasetDescriptionEtag,
+        }
+      })
+        .then(response => {
+          if (response.ok) {
+            this.setDatasetDescriptionEtag(response.headers.get('etag'))
+            this.setDatasetDescription(markdown).finally(() => {
+              this.isSavingMarkdown = false
+              this.isEditingMarkdown = false
+            })
+          } else if (response.status === 412) {
+            this.isSavingMarkdown = false
+            this.$refs.staleUpdateDialog.dialogVisible = true
+          } else {
+            throw response
+          }
+        })
+        .catch(this.handleXhrError.bind(this))
+    },
+
+    proceedWithSubmit: function(){
+      "hasCompletedChangelog" = true;
+    }
+
   }
 }
 </script>
