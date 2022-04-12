@@ -24,8 +24,15 @@
       </p>
     </div>
     <!-- insert markdown editor here -->
+    <div v-if="hasCompletedChangelog">
+      <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
+    </div>
+    <div v-else>
+      <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file.</p>
+    </div>
+
     <data-card
-      ref="descriptionDataCard"
+      ref="changelogDataCard"
       class="grey compact"
       title="Changelog"
       :is-expandable="true"
@@ -42,7 +49,6 @@
         <button
           v-if="isEditingMarkdown"
           class="linked"
-          :disabled="datasetLocked"
           @click="isSavingMarkdown = true"
         >
           Save
@@ -51,29 +57,22 @@
           v-else
           slot="title-aux"
           class="linked"
-          :disabled="datasetLocked"
           @click="isEditingMarkdown = true"
         >
           Update
         </button>
       </template>
-      <markdown-editor
-        ref="markdownEditor"
-        :value="datasetDescription"
-        :is-editing="isEditingMarkdown"
-        :is-saving="isSavingMarkdown"
-        :empty-state="datasetDescriptionEmptyState"
-        :is-loading="isLoadingDatasetDescription"
-        <!--check syntax -->
-        @save="onChangelogSave", "proceedWithSubmit"
-      />
+    <markdown-editor
+      ref="markdownEditor"
+      :value="changelogText"
+      :is-editing="isEditingMarkdown"
+      :is-saving="isSavingMarkdown"
+      :empty-state="changelogTextEmptyState"
+      :is-loading="isLoadingChangelog"
+      @save="onChangelogSave"
+    />
     </data-card>
-    <div v-if="hasCompletedChangelog">
-      <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
-    </div>
-    <div v-else>
-      <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file.</p>
-    </div>
+    <br>
     <div class="published-btn-wrap mb-16">
       <submit-for-publication
         :has-dataset="true"
@@ -97,12 +96,15 @@
 <script>
 import SubmitForPublication from './SubmitForPublication'
 import { PublicationTabs } from '../../../../utils/constants'
-#may need to change file path
-import MarkdownEditor from 'src/components/shared/MarkdownEditor/MarkdownEditor.vue'
+ // may need to change file path
+import DataCard from '../../../shared/DataCard/DataCard.vue'
+import MarkdownEditor from '../../../shared/MarkdownEditor/MarkdownEditor'
 
 export default {
   components: {
     SubmitForPublication,
+    DataCard,
+    MarkdownEditor,
   },
   props: {
     datasetId: {
@@ -114,10 +116,6 @@ export default {
       required: true,
     },
     canPublish: {
-      type: Boolean,
-      required: true,
-    },
-    hasCompletedChangelog: {
       type: Boolean,
       required: true,
     },
@@ -138,6 +136,16 @@ export default {
       required: true,
     }
   },
+  data() {
+    return {
+      hasCompletedChangelog: false,
+      changelogText: 'this is a changelog',
+      isEditingMarkdown: false,
+      isSavingMarkdown: false,
+      changelogTextEmptyState: '',
+      isLoadingChangelog: false
+    }
+  },
   computed: {
     PublicationTabs: function() {
       return PublicationTabs
@@ -150,19 +158,17 @@ export default {
      * @params {String} markdown
      */
     onChangelogSave: function(markdown) {
-      fetch(this.datasetReadmeUrl, {
+      fetch(this.datasetChangelogUrl, {
         body: JSON.stringify({
-          readme: markdown
+          changelog: markdown
         }),
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'If-Match': this.datasetDescriptionEtag,
         }
       })
         .then(response => {
           if (response.ok) {
-            this.setDatasetDescriptionEtag(response.headers.get('etag'))
             this.setDatasetDescription(markdown).finally(() => {
               this.isSavingMarkdown = false
               this.isEditingMarkdown = false
@@ -178,7 +184,7 @@ export default {
     },
 
     proceedWithSubmit: function(){
-      "hasCompletedChangelog" = true;
+      this.hasCompletedChangelog = true;
     }
 
   }
