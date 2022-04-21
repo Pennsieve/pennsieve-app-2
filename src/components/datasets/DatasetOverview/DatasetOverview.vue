@@ -84,6 +84,19 @@
                   View on Discover
                 </a>
             </div>
+
+            <div class="sharing-status">
+
+              Last published Changelog:
+              <changelog-item
+                :key="changelogComponent.id"
+                :changelog-component="changelogComponent"
+                @make-default="makeDataUseAgreementDefault"
+              />
+                  Open Changelog
+                </a>
+            </div>
+
             <div class="sharing-status">
               Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
             </div>
@@ -353,6 +366,9 @@
   import StaleUpdateDialog from "../stale-update-dialog/StaleUpdateDialog";
   import LockedBanner from '../LockedBanner/LockedBanner';
 
+  import ChangelogItem from '../../Publishing/ChangelogItem.vue';
+  import ChangelogDialog from '../../Publishing/ChangelogDialog.vue';
+
   const replaceLineBreaks = str => {
   return Object.prototype.toString.call(str) === '[object String]'
     ? str.replace(/(\r\n|\n|\r)/g, '<br>')
@@ -422,11 +438,22 @@ export default {
       'datasetDoi',
       'datasetRole',
       'isLoadingDatasetDescription',
-      'datasetContributors'
+      'datasetContributors',
+      'activeOrganization',
+      'changelogComponent'
     ]),
 
     doiUrl: function(){
       return "https://doi.org/" + this.datasetDoi.doi
+    },
+
+    /**
+     * Compute changelog URL
+     * @returns {String}
+     */
+    changelogUrl: function() {
+      //NOTE: need to go into datasets, and get the changelog
+      return `${this.config.apiUrl}/organizations/${this.activeOrganization.organization.id}/datasets/${this.activeDataset.dataset.id}/changelog-component`
     },
 
     /**
