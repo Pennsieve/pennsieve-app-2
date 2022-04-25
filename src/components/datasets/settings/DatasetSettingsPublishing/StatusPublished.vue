@@ -23,13 +23,12 @@
         </a>
       </p>
     </div>
-    <!-- insert markdown editor here -->
     <div v-if="hasCompletedChangelog">
       <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
     </div>
     <div v-else>
       <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file.</p>
-    </div>
+
 
     <data-card
       ref="changelogDataCard"
@@ -72,6 +71,7 @@
       @save="onChangelogSave"
     />
     </data-card>
+    </div>
     <br>
     <div class="published-btn-wrap mb-16">
       <submit-for-publication
@@ -139,7 +139,7 @@ export default {
   data() {
     return {
       hasCompletedChangelog: false,
-      changelogText: 'this is a changelog',
+      changelogText: '',
       isEditingMarkdown: false,
       isSavingMarkdown: false,
       changelogTextEmptyState: '',
@@ -149,12 +149,17 @@ export default {
   computed: {
     PublicationTabs: function() {
       return PublicationTabs
+    },
+    datasetChangelogUrl: function() {
+      //need to fetch this properly
+      return `${this.config.apiUrl}/organizations/${this.activeOrganization.organization.id}/datasets/${this.datasetId}/changelog-component/?api_key=${this.userToken}`
     }
   },
   methods: {
     /**
      * On Changelog save, emitted from the MarkdownEditor
-     * Make a request to the API to save the changelog. TO DO
+     * Make a request to the API to save the changelog
+     * PUT request: URL, but it has a body with one element: changelog
      * @params {String} markdown
      */
     onChangelogSave: function(markdown) {
@@ -162,16 +167,18 @@ export default {
         body: JSON.stringify({
           changelog: markdown
         }),
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         }
       })
+      //LEFT OFF HERE
         .then(response => {
           if (response.ok) {
             this.setDatasetDescription(markdown).finally(() => {
               this.isSavingMarkdown = false
               this.isEditingMarkdown = false
+              this.hasCompletedChangelog = true
             })
           } else if (response.status === 412) {
             this.isSavingMarkdown = false
@@ -181,12 +188,7 @@ export default {
           }
         })
         .catch(this.handleXhrError.bind(this))
-    },
-
-    proceedWithSubmit: function(){
-      this.hasCompletedChangelog = true;
     }
-
   }
 }
 </script>

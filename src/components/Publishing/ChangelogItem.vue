@@ -5,26 +5,12 @@
         type="button"
         @click="isDialogVisible = true"
       >
-        <span
-          v-if="changelogComponent.isDefault"
-          class="default-dot"
-        />
-        {{ changelogComponent.name }}
+        Open Changelog
       </button>
-      <p>{{ changelogComponent.description }}</p>
     </div>
-    <el-dropdown
-      v-if="!changelogComponent.isDefault"
-      slot="info"
-      class="ml-16"
-      trigger="click"
-      placement="bottom-end"
-      @command="onMenuSelect"
-    >
-
     <changelog-dialog
       :visible.sync="isDialogVisible"
-      :changelogComponent="changelogComponent"
+      :changelog-component="changelogComponent"
     />
 </template>
 
@@ -43,11 +29,10 @@ export default {
       type: Object,
       default: () => {
         return {
-          name: '',
-          description: '',
+          //name: '',
+          //description: '',
           body: '',
-          id: '',
-          isDefault: false
+          id: ''
         }
       }
     }

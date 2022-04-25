@@ -91,10 +91,7 @@
               <changelog-item
                 :key="changelogComponent.id"
                 :changelog-component="changelogComponent"
-                @make-default="makeDataUseAgreementDefault"
               />
-                  Open Changelog
-                </a>
             </div>
 
             <div class="sharing-status">
@@ -393,6 +390,7 @@ export default {
     ContributorItem,
     BfRafter,
     BfButton,
+    ChangelogItem,
     StaleUpdateDialog
   },
 
@@ -412,6 +410,7 @@ export default {
       isSavingMarkdown: false,
       datasetDescriptionEmptyState,
       packageTypeCount: 0,
+      isDialogVisible: false
     }
   },
 
