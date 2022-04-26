@@ -640,6 +640,7 @@ export default {
     /**
      * Compute label for total records
      */
+
     totalRecordsCountLabel: function() {
       return this.totalRecordsCount === 1 ? 'Record' : 'Records'
     },

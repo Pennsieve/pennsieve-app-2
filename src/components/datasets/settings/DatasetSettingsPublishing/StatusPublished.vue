@@ -153,6 +153,14 @@ export default {
     datasetChangelogUrl: function() {
       //need to fetch this properly
       return `${this.config.apiUrl}/organizations/${this.activeOrganization.organization.id}/datasets/${this.datasetId}/changelog-component/?api_key=${this.userToken}`
+    },
+    //USE THIS ONE INSTEAD
+    datasetChangelogUrl: function() {
+      return this.userToken
+        ? `${this.config.apiUrl}/datasets/${this.datasetId}/changelog?api_key=${
+            this.userToken
+          }`
+        : ''
     }
   },
   methods: {
@@ -175,6 +183,7 @@ export default {
       //LEFT OFF HERE
         .then(response => {
           if (response.ok) {
+            //CHANGE THIS... set the changelog.body here
             this.setDatasetDescription(markdown).finally(() => {
               this.isSavingMarkdown = false
               this.isEditingMarkdown = false
@@ -191,6 +200,7 @@ export default {
     }
   }
 }
+//TO UPDATE, need to perform a GET and modify with a PUT
 </script>
 
 <style scoped lang="scss">
