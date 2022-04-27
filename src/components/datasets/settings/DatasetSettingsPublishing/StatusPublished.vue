@@ -27,7 +27,7 @@
       <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
     </div>
     <div v-else>
-      <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file.</p>
+      <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file below.</p>
 
 
     <data-card
@@ -99,6 +99,7 @@ import { PublicationTabs } from '../../../../utils/constants'
  // may need to change file path
 import DataCard from '../../../shared/DataCard/DataCard.vue'
 import MarkdownEditor from '../../../shared/MarkdownEditor/MarkdownEditor'
+import changelogDescriptionEmptyState from './changelog-description-empty-state'
 
 export default {
   components: {
@@ -164,6 +165,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['setChangelog']),
     /**
      * On Changelog save, emitted from the MarkdownEditor
      * Make a request to the API to save the changelog
@@ -175,7 +177,7 @@ export default {
         body: JSON.stringify({
           changelog: markdown
         }),
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         }
@@ -184,7 +186,7 @@ export default {
         .then(response => {
           if (response.ok) {
             //CHANGE THIS... set the changelog.body here
-            this.setDatasetDescription(markdown).finally(() => {
+            this.setChangelog(markdown).finally(() => {
               this.isSavingMarkdown = false
               this.isEditingMarkdown = false
               this.hasCompletedChangelog = true

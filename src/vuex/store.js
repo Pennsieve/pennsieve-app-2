@@ -46,6 +46,7 @@ export const state = {
   isLoadingDatasetBanner: true,
   isLoadingDatasetDoi: true,
   isLoadingDatasetDescription: true,
+  isLoadingChangelog: true,
   isLoadingDatasetContributors: true,
   isLoadingDatasetIgnoreFiles: true,
   datasets: [],
@@ -54,6 +55,7 @@ export const state = {
   datasetBanner: '',
   datasetDoi: {},
   datasetDescription: '',
+  changelogText: '',
   datasetDescriptionEtag: '',
   datasetIgnoreFiles: [],
   datasetFilters: {
@@ -183,6 +185,7 @@ export const mutations = {
     Vue.set(state, 'datasets', [])
     Vue.set(state, 'datasetPublishedData', [])
     Vue.set(state, 'datasetDescription', '')
+    Vue.set(state, 'changelogText', '')
     Vue.set(state, 'datasetDoi', '')
     Vue.set(state, 'searchModalVisible', false)
     Vue.set(state, 'shouldShowLinkOrcidDialog', false)
@@ -399,6 +402,11 @@ export const mutations = {
     Vue.set(state, 'isLoadingDatasetDescription', isLoading)
   },
 
+  SET_IS_LOADING_CHANGELOG (state, data) {
+    const isLoading = defaultTo(false, data)
+    Vue.set(state, 'isLoadingChangelog', isLoading)
+  },
+
   SET_IS_LOADING_DATASET_CONTRIBUTORS (state, data) {
     const isLoading = defaultTo(false, data)
     Vue.set(state, 'isLoadingDatasetContributors', isLoading)
@@ -486,6 +494,10 @@ export const mutations = {
 
   SET_DATASET_DESCRIPTION(state, data) {
     Vue.set(state, 'datasetDescription', data)
+  },
+
+  SET_CHANGELOG_TEXT(state, data) {
+    Vue.set(state, 'changelogText', data)
   },
 
   SET_DATASET_DESCRIPTION_ETAG(state, etag) {
@@ -686,6 +698,7 @@ export const actions = {
   setIsLoadingDatasetsError: ({commit}, evt) => commit('SET_IS_LOADING_DATASETS_ERROR', evt),
   setIsLoadingDatasetBanner: ({commit}, evt) => commit('SET_IS_LOADING_DATASET_BANNER', evt),
   setIsLoadingDatasetDescription: ({commit}, evt) => commit('SET_IS_LOADING_DATASET_DESCRIPTION', evt),
+  setIsLoadingChangelog: ({commit}, evt) => commit('SET_IS_LOADING_CHANGELOG', evt),
   setIsLoadingDatasetContributors: ({commit}, evt) => commit('SET_IS_LOADING_DATASET_CONTRIBUTORS', evt),
   setIsLoadingDatasetIgnoreFiles: ({commit}, evt) => commit('SET_IS_LOADING_DATASET_IGNORE_FILES', evt),
   setRelationshipTypes: ({commit}, evt) => commit('SET_RELATIONSHIP_TYPES', evt),
@@ -707,6 +720,7 @@ export const actions = {
   setBfTermsOfServiceVersion: ({commit}, evt) => commit('SET_BF_TERMS_OF_SERVICE_VERSION', evt),
   setBulkEditingChannels: ({ commit }, evt) => commit('SET_BULK_EDITING_CHANNELS', evt),
   setDatasetDescription: ({commit}, evt) => commit('SET_DATASET_DESCRIPTION', evt),
+  setChangelogText: ({commit}, evt) => commit('SET_CHANGELOG_TEXT', evt),
   setDatasetDescriptionEtag: ({commit}, evt) => commit('SET_DATASET_DESCRIPTION_ETAG', evt),
   setDatasetIgnoreFiles: ({commit}, evt) => commit('SET_DATASET_IGNORE_FILES', evt),
   setDatasetDoi: ({commit}, evt) => commit('SET_DATASET_DOI', evt),

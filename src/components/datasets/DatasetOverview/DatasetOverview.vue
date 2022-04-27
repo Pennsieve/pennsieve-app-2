@@ -86,15 +86,6 @@
             </div>
 
             <div class="sharing-status">
-
-              Last published Changelog:
-              <changelog-item
-                :key="changelogComponent.id"
-                :changelog-component="changelogComponent"
-              />
-            </div>
-
-            <div class="sharing-status">
               Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
             </div>
 
@@ -336,6 +327,40 @@
           @save="onReadmeSave"
         />
       </data-card>
+
+      <data-card
+        ref="changelogDataCard"
+        class="grey compact"
+        title="Changelog"
+        :is-expandable="true"
+        :padding="false"
+      >
+        <template slot="title-aux">
+          <button
+            v-if="isEditingMarkdown"
+            class="linked mr-8"
+            @click="isEditingMarkdown = false"
+          >
+            Cancel
+          </button>
+          <button
+            v-if="isEditingMarkdown"
+            class="linked"
+            @click="isSavingMarkdown = true"
+          >
+            Save
+          </button>
+        </template>
+      <markdown-editor
+        ref="markdownEditor"
+        :value="changelogText"
+        :is-editing="isEditingMarkdown"
+        :is-saving="isSavingMarkdown"
+        :empty-state="changelogDescriptionEmptyState"
+        :is-loading="isLoadingChangelog"
+      />
+      </data-card>
+
     </bf-stage>
     <stale-update-dialog ref="staleUpdateDialog" />
   </bf-page>
@@ -357,14 +382,13 @@
   import DatasetPublishedData from '../../../mixins/dataset-published-data'
 
   import datasetDescriptionEmptyState from './dataset-description-empty-state'
+  import changelogDescriptionEmptyState from './changelog-description-empty-state'
   import ContributorItem from '../ContributorItem/ContributorItem.vue'
   import BfRafter from "../../shared/bf-rafter/BfRafter";
   import BfButton from "../../shared/bf-button/BfButton";
   import StaleUpdateDialog from "../stale-update-dialog/StaleUpdateDialog";
   import LockedBanner from '../LockedBanner/LockedBanner';
 
-  import ChangelogItem from '../../Publishing/ChangelogItem.vue';
-  import ChangelogDialog from '../../Publishing/ChangelogDialog.vue';
 
   const replaceLineBreaks = str => {
   return Object.prototype.toString.call(str) === '[object String]'
@@ -390,7 +414,6 @@ export default {
     ContributorItem,
     BfRafter,
     BfButton,
-    ChangelogItem,
     StaleUpdateDialog
   },
 
@@ -409,6 +432,7 @@ export default {
       isEditingMarkdown: false,
       isSavingMarkdown: false,
       datasetDescriptionEmptyState,
+      changelogDescriptionEmptyState,
       packageTypeCount: 0,
       isDialogVisible: false
     }
@@ -433,27 +457,21 @@ export default {
       'userToken',
       'config',
       'datasetDescription',
+      'changelogText',
       'datasetDescriptionEtag',
       'datasetDoi',
       'datasetRole',
       'isLoadingDatasetDescription',
       'datasetContributors',
       'activeOrganization',
-      'changelogComponent'
+      'changelogComponent',
+      'isLoadingChangelog'
     ]),
 
     doiUrl: function(){
       return "https://doi.org/" + this.datasetDoi.doi
     },
 
-    /**
-     * Compute changelog URL
-     * @returns {String}
-     */
-    changelogUrl: function() {
-      //NOTE: need to go into datasets, and get the changelog
-      return `${this.config.apiUrl}/organizations/${this.activeOrganization.organization.id}/datasets/${this.activeDataset.dataset.id}/changelog-component`
-    },
 
     /**
      * Return corresponding contributor details
@@ -550,6 +568,13 @@ export default {
      */
     hasDescription: function() {
       return this.datasetDescription !== ''
+    },
+    /**
+     * Compute if the dataset has a changelog
+     * @returns {Boolean}
+     */
+    hasChangelog: function() {
+      return this.changelogText !== ''
     },
 
     /**
@@ -666,7 +691,7 @@ export default {
     },
 
     /*
-    *Placeholder for changelog URL function
+    *compute changelog endpoint
     */
     datasetChangelogUrl: function() {
       return this.userToken
@@ -803,40 +828,6 @@ export default {
             })
           } else if (response.status === 412) {
             this.isSavingMarkdown = false
-            this.$refs.staleUpdateDialog.dialogVisible = true
-          } else {
-            throw response
-          }
-        })
-        .catch(this.handleXhrError.bind(this))
-    },
-
-    /**
-     * On changelog save funciton placeholder, emitted from committing publish (MUST TAKE INTO ACCOUNT VERSION)
-     * Make a request to the API to save the changelog
-     * @params {String} markdown
-     */
-    onPublishSaveChangelog: function(input) {
-      fetch(this.datasetChangelogUrl, {
-        body: JSON.stringify({
-          changelog: input
-        }),
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'If-Match': this.datasetChangelog,
-        }
-      })
-        .then(response => {
-          if (response.ok) {
-            //need to investigate this function: setDatasetDescriptionEtag
-            this.setDatasetChangelogEtag(response.headers.get('etag'))
-            this.setDatasetChangelog(input).finally(() => {
-              this.isSavingChangelog = false
-              this.isEditingChangelog = false
-            })
-          } else if (response.status === 412) {
-            this.isSavingChangelog = false
             this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
