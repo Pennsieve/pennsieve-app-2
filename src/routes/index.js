@@ -21,6 +21,7 @@ const CreateOrg = () => import('./CreateOrg/CreateOrg.vue')
 const Welcome = () => import('./welcome/Welcome.vue')
 const TermsOfService = () => import('./TermsOfService/TermsOfService.vue')
 const SetupProfile = () => import('../components/SetupProfile/SetupProfile.vue')
+const SetupFederatedLogin = () => import('../components/SetupFederatedLogin/SetupFederatedLogin.vue')
 const InvitePeople = () => import('../components/onboarding/InvitePeople/InvitePeople.vue')
 const FinalizeAccount = () => import('../components/FinalizeAccount/FinalizeAccount.vue')
 
@@ -578,6 +579,13 @@ const routes = [
         path: 'setup-profile',
         components: {
           stage: SetupProfile
+        }
+      },
+      {
+        name: 'federated-sign-up',
+        path: 'federated-sign-up',
+        components: {
+          stage: SetupFederatedLogin
         }
       },
       {

@@ -158,7 +158,8 @@ export default {
       const { id } = dataUseAgreement
 
       this.sendXhr(`${this.dataUseAgreementUrl}/${id}?api_key=${this.userToken}`, {
-        method: 'PUT'
+        method: 'PUT',
+        body: dataUseAgreement
       })
         .then(() => {
           this.updateDataUseAgreement({ ...dataUseAgreement })

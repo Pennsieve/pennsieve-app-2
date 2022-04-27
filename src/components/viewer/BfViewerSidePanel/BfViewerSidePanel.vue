@@ -12,10 +12,10 @@
       :ref="viewerSidePanelTypes.DISCUSSION"
     />
 
-    <bf-file-browser
-      v-show="sidePanelView === viewerSidePanelTypes.FILE_BROWSER"
-      :id="viewerSidePanelTypes.FILE_BROWSER"
-    />
+<!--    <bf-file-browser-->
+<!--      v-show="sidePanelView === viewerSidePanelTypes.FILE_BROWSER"-->
+<!--      :id="viewerSidePanelTypes.FILE_BROWSER"-->
+<!--    />-->
 
     <palette-annotations
       v-show="sidePanelView === viewerSidePanelTypes.ANNOTATIONS"
@@ -85,25 +85,13 @@ export default {
    * Import required Polymer components
    */
   mounted: function() {
-    this.$el.addEventListener('view-discussion', this.goToDiscussion.bind(this))
-    this.$el.addEventListener('start-discussion', this.goToDiscussion.bind(this))
     window.addEventListener('resize', this.onResize)
-
-
-    // bf-file-browser
-    this.importHref('/web-components/src/components/blackfynn/palettes/bf-file-browser/bf-file-browser.html')
-
     EventBus.$on('view-annotation', this.onViewAnnotation.bind(this))
-
     this.window_height = window.innerHeight - 85;
   },
 
   beforeDestroy: function() {
-    this.$el.removeEventListener('view-discussion', this.goToDiscussion.bind(this))
-    this.$el.removeEventListener('start-discussion', this.goToDiscussion.bind(this))
     window.removeEventListener('resize', this.onResize)
-
-
     EventBus.$off('view-annotation', this.onViewAnnotation.bind(this))
   },
 

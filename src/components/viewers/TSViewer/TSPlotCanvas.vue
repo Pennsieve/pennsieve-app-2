@@ -17,17 +17,12 @@
 </template>
 <script>
     import {
-        mapActions,
-        mapGetters,
         mapState
     } from 'vuex'
 
     import {
         compose,
-        defaultTo,
-        find,
         head,
-        pathOr,
         propEq,
         propOr,
         path,
@@ -39,9 +34,7 @@
         prop
     } from 'ramda'
 
-    import "./lib/long.min.js"
-    import "./lib/ByteBufferAB.min.js"
-    import "./lib/protobuf.min.js"
+    import protobuf from 'protobufjs'
 
     export default {
         name: 'TimeseriesPlotCanvas',
@@ -313,11 +306,11 @@
                 }
             }
 
-            const protobuf = self.protobuf.Root.fromJSON(this.proto)
-            this.segment = protobuf.Segment;
-            this.timeSeriesMessage = protobuf.TimeSeriesMessage
-            this.timeSeriesError = protobuf.TimeSeriesError
-            this.channelsList = protobuf.ChannelsList
+            const protobufInstance = protobuf.Root.fromJSON(this.proto)
+            this.segment = protobufInstance.Segment;
+            this.timeSeriesMessage = protobufInstance.TimeSeriesMessage
+            this.timeSeriesError = protobufInstance.TimeSeriesError
+            this.channelsList = protobufInstance.ChannelsList
 
             this.requestedPages = new Map();
             this.openWebsocket()
@@ -1493,9 +1486,9 @@
                   this.$store.dispatch('viewer/setViewerErrors', { error: 'JSON Parse Error' })
                 }
 
-                if (data.virtualChannels) {
+                if (data.channelDetails) {
                   const baseChannels = this.activeViewer.channels
-                  const virtualChannels = data.virtualChannels.map(({ id, name }) => {
+                  const virtualChannels = data.channelDetails.map(({ id, name }) => {
                     const baseChannel = baseChannels.find(ch => (ch.content.id === id))
                     const content = {
                       id,

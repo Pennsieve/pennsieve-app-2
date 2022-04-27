@@ -17,7 +17,7 @@
                         :height="_cpCanvasScaler(viewportHeight-2, pixelRatio,0)"
                         :style="canvasStyle"></canvas>
                     <canvas id="iCanvas" class="canvas" ref="iCanvas" :width="_cpCanvasScaler(cWidth, pixelRatio, 0)" :height="_cpCanvasScaler(viewportHeight, pixelRatio,0)"
-                        v-on:tap="_onTap"
+                        @click="_onTap"
                         v-on:mousemove="_onMouseMove"
                         v-on:mousedown="_onMouseDown"
                         v-on:mouseup="_onMouseUp"
@@ -183,7 +183,7 @@
             // ------- Mouse Interactions -------
             _onTap: function(e) {
                 const cCoord = this.$refs.iCanvas.getBoundingClientRect();
-                const cClickOffset = e.detail.x - cCoord.left;
+                const cClickOffset = e.clientX - cCoord.left;
                 const realStart = ( cClickOffset/this.scrubberCWidth ) * (this.ts_end - this.ts_start );
                 this.$emit('setStart', realStart + this.ts_start)
             },
@@ -346,7 +346,7 @@
                 }
                 this.sendXhr(url)
                 .then(resp => {
-                    console.log(resp)
+                    // console.log(resp)
                     this.annotations = resp;
                     this.render();
                 })
