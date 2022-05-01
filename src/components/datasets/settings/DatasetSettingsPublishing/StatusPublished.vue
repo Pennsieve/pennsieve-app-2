@@ -27,7 +27,7 @@
       <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
     </div>
     <div v-else>
-      <p>You have not yet saved a changelog file. Please consider completing and saving a changelog file below.</p>
+      <p>NOTE: You have not yet saved a changelog file. Please consider completing and saving a changelog file below.</p>
 
 
     <data-card
@@ -94,6 +94,7 @@
 </template>
 
 <script>
+import {mapActions, mapGetters, mapState} from 'vuex'
 import SubmitForPublication from './SubmitForPublication'
 import { PublicationTabs } from '../../../../utils/constants'
  // may need to change file path
@@ -152,11 +153,6 @@ export default {
       return PublicationTabs
     },
     datasetChangelogUrl: function() {
-      //need to fetch this properly
-      return `${this.config.apiUrl}/organizations/${this.activeOrganization.organization.id}/datasets/${this.datasetId}/changelog-component/?api_key=${this.userToken}`
-    },
-    //USE THIS ONE INSTEAD
-    datasetChangelogUrl: function() {
       return this.userToken
         ? `${this.config.apiUrl}/datasets/${this.datasetId}/changelog?api_key=${
             this.userToken
@@ -165,7 +161,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setChangelog']),
+    ...mapActions(['setChangelogText']),
     /**
      * On Changelog save, emitted from the MarkdownEditor
      * Make a request to the API to save the changelog
@@ -177,7 +173,7 @@ export default {
         body: JSON.stringify({
           changelog: markdown
         }),
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         }
@@ -186,7 +182,7 @@ export default {
         .then(response => {
           if (response.ok) {
             //CHANGE THIS... set the changelog.body here
-            this.setChangelog(markdown).finally(() => {
+            this.setChangelogText(markdown).finally(() => {
               this.isSavingMarkdown = false
               this.isEditingMarkdown = false
               this.hasCompletedChangelog = true

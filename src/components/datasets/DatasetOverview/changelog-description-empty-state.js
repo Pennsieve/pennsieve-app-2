@@ -1,4 +1,4 @@
-export default `# Description
+export default `
 
 Please log most recent changes to your dataset in the publishing menu.
 

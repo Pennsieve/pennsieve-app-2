@@ -293,41 +293,43 @@
       >
         <template slot="title-aux">
           <button
-            v-if="isEditingMarkdown"
+            v-if="isEditingMarkdown1"
             class="linked mr-8"
-            @click="isEditingMarkdown = false"
+            @click="isEditingMarkdown1 = false"
           >
             Cancel
           </button>
           <button
-            v-if="isEditingMarkdown"
+            v-if="isEditingMarkdown1"
             class="linked"
             :disabled="datasetLocked"
             @click="isSavingMarkdown = true"
           >
             Save
           </button>
+
           <button
             v-else
             slot="title-aux"
-            class="linked"
+            class="linked-9"
             :disabled="datasetLocked"
-            @click="isEditingMarkdown = true"
+            @click="isEditingMarkdown1 = true"
           >
             Update
           </button>
         </template>
+
         <markdown-editor
           ref="markdownEditor"
           :value="datasetDescription"
-          :is-editing="isEditingMarkdown"
+          :is-editing="isEditingMarkdown1"
           :is-saving="isSavingMarkdown"
           :empty-state="datasetDescriptionEmptyState"
           :is-loading="isLoadingDatasetDescription"
           @save="onReadmeSave"
         />
       </data-card>
-
+      <br> </br>
       <data-card
         ref="changelogDataCard"
         class="grey compact"
@@ -337,14 +339,14 @@
       >
         <template slot="title-aux">
           <button
-            v-if="isEditingMarkdown"
+            v-if="isEditingMarkdown2"
             class="linked mr-8"
-            @click="isEditingMarkdown = false"
+            @click="isEditingMarkdown2 = false"
           >
             Cancel
           </button>
           <button
-            v-if="isEditingMarkdown"
+            v-if="isEditingMarkdown2"
             class="linked"
             @click="isSavingMarkdown = true"
           >
@@ -354,10 +356,10 @@
       <markdown-editor
         ref="markdownEditor"
         :value="changelogText"
-        :is-editing="isEditingMarkdown"
+        :is-editing="isEditingMarkdown2"
         :is-saving="isSavingMarkdown"
         :empty-state="changelogDescriptionEmptyState"
-        :is-loading="isLoadingChangelog"
+
       />
       </data-card>
 
@@ -429,7 +431,8 @@ export default {
   data() {
     return {
       isChecklistDimissed: false,
-      isEditingMarkdown: false,
+      isEditingMarkdown1: false,
+      isEditingMarkdown2: false,
       isSavingMarkdown: false,
       datasetDescriptionEmptyState,
       changelogDescriptionEmptyState,
@@ -465,7 +468,7 @@ export default {
       'datasetContributors',
       'activeOrganization',
       'changelogComponent',
-      'isLoadingChangelog'
+      //'isLoadingChangelog'
     ]),
 
     doiUrl: function(){
@@ -775,7 +778,7 @@ export default {
      * Set edit description and scroll to description
      */
     setEditDescription: function() {
-      this.isEditingMarkdown = true
+      this.isEditingMarkdown1 = true
       this.$nextTick(() => {
         this.$refs.descriptionDataCard.$el.scrollIntoView()
         this.$refs.markdownEditor.focus()
@@ -824,7 +827,7 @@ export default {
             this.setDatasetDescriptionEtag(response.headers.get('etag'))
             this.setDatasetDescription(markdown).finally(() => {
               this.isSavingMarkdown = false
-              this.isEditingMarkdown = false
+              this.isEditingMarkdown1 = false
             })
           } else if (response.status === 412) {
             this.isSavingMarkdown = false
@@ -834,6 +837,26 @@ export default {
           }
         })
         .catch(this.handleXhrError.bind(this))
+    },
+
+    getChangelog: function(datasetId) {
+      //this.setIsLoadingDatasetDescription(true)
+      const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
+      fetch(url)
+        .then(response => {
+          if (response.ok) {
+            response.json().then(data => {
+              const changelog = propOr('', 'changelog', data)
+              this.setChangelogText(changelog)
+            })
+          } else {
+            throw response
+          }
+        })
+        .catch(this.handleXhrError.bind(this))
+        .finally(() => {
+          //this.setIsLoadingChangelog(false)
+        })
     },
 
     /**
