@@ -152,16 +152,24 @@ export default {
     PublicationTabs: function() {
       return PublicationTabs
     },
-    datasetChangelogUrl: function() {
-      return this.userToken
-        ? `${this.config.apiUrl}/datasets/${this.datasetId}/changelog?api_key=${
-            this.userToken
-          }`
-        : ''
-    }
   },
   methods: {
     ...mapActions(['setChangelogText']),
+    ...mapState([
+      'config',
+      'userToken'
+    ]),
+
+    datasetChangelogUrl: function() {
+      console.log("apiUrl")
+      console.log(this.config.apiUrl)
+      return this.userToken
+        ? `${this.config().apiUrl}/datasets/${this.datasetId}/changelog?api_key=${
+          this.userToken()
+        }`
+        : ''
+    },
+
     /**
      * On Changelog save, emitted from the MarkdownEditor
      * Make a request to the API to save the changelog
@@ -169,11 +177,11 @@ export default {
      * @params {String} markdown
      */
     onChangelogSave: function(markdown) {
-      fetch(this.datasetChangelogUrl, {
+      fetch(this.datasetChangelogUrl(), {
         body: JSON.stringify({
           changelog: markdown
         }),
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         }
@@ -196,7 +204,7 @@ export default {
         })
         .catch(this.handleXhrError.bind(this))
     }
-  }
+  },
 }
 //TO UPDATE, need to perform a GET and modify with a PUT
 </script>
