@@ -135,7 +135,8 @@
         'setIsLoadingDatasetDescription',
         'setIsLoadingDatasetContributors',
         'setDatasetContributors',
-        'updateScientificUnits'
+        'updateScientificUnits',
+        'setChangelogText'
       ]),
 
 
@@ -204,6 +205,7 @@
         this.getDatasetDescription(datasetId)
         this.getDatasetDoi(datasetId)
         this.getDatasetContributors(datasetId)
+        this.getDatasetChangelog(datasetId)
       },
 
       /**
@@ -243,6 +245,27 @@
           .catch(this.handleXhrError.bind(this))
           .finally(() => {
             this.setIsLoadingDatasetDescription(false)
+          })
+      },
+
+      getDatasetChangelog: function(datasetId) {
+        //this.setIsLoadingDatasetDescription(true)
+        const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
+        fetch(url)
+          .then(response => {
+            if (response.ok) {
+              response.json().then(data => {
+                const changelog = propOr('', 'changelog', data)
+                //this.setDatasetDescriptionEtag(response.headers.get('etag'))
+                this.setChangelogText(changelog)
+              })
+            } else {
+              throw response
+            }
+          })
+          .catch(this.handleXhrError.bind(this))
+          .finally(() => {
+            //this.setIsLoadingDatasetDescription(false)
           })
       },
 
