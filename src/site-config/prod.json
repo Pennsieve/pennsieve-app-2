@@ -6,6 +6,7 @@
   "docsUrl": "https://docs.pennsieve.io",
   "maxDownloadSize": 15000000000,
   "environment": "prod",
+  "ORCIDpubUrl": "https://pub.orcid.org/v2.1",
   "ORCIDUrl": "https://orcid.org/oauth/authorize?client_id=APP-DRQCE0GUWKTRCWY2&response_type=code&scope=/read-limited%20/activities/update&redirect_uri=https://app.pennsieve.io/orcid-redirect",
   "timeSeriesUrl": "wss://api.pennsieve.io/streaming/ts/query",
   "timeSeriesApi": "https://api.pennsieve.io/streaming",

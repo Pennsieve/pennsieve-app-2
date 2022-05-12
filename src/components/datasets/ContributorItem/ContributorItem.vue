@@ -61,6 +61,7 @@ import {
   pathOr,
   propOr
 } from 'ramda'
+import * as site from '@/site-config/site.json'
 import Request from '@/mixins/request'
 import { displayNameAndDegree } from '@/utils/displayNameAndDegree'
 
@@ -173,7 +174,7 @@ export default {
       })
 
       if (this.hasOrcid && Object.keys(this.orcidData).length === 0) {
-        this.sendXhr(`https://pub.orcid.org/v2.1/${this.orcidId}`)
+        this.sendXhr(`${site.ORCIDpubUrl}/${this.orcidId}`)
           .then(response => {
             this.orcidData = response
           })
