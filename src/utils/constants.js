@@ -244,6 +244,11 @@ export const ChangelogMessage = Object.freeze({
       singular: 'Overview added'
     },
 
+    CREATE_CHANGELOG: {
+      plural: 'Changelogs added',
+      singular: 'Changelog added'
+    },
+
     UPDATE_README: {
       plural: 'Overview changes',
       singular: 'Overview changed'
