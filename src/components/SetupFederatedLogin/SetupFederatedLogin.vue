@@ -580,7 +580,8 @@ export default {
         },
         body: {
           email: this.authenticatedUser.emailAddress,
-          cognitoId: this.currentCognitoUser.username
+          cognitoId: this.currentCognitoUser.username,
+	  password: this.passwordForm.password
         }
       })
       .then(user => {
