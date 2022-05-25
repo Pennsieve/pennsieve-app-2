@@ -573,6 +573,7 @@ export default {
 
     onClickConnectAccounts: function() {
       const url = `${this.mergeUserAccountsUrl}/${this.currentProfile.intId}`
+      // include password in order to pass it on to new Cognito user
       this.sendXhr(url, {
         method: 'PUT',
         header: {
@@ -581,7 +582,7 @@ export default {
         body: {
           email: this.authenticatedUser.emailAddress,
           cognitoId: this.currentCognitoUser.username,
-	  password: this.passwordForm.password
+          password: this.passwordForm.password
         }
       })
       .then(user => {
