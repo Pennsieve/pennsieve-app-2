@@ -22,7 +22,7 @@ export default {
      * @param {String} packageType
      * @returns {String}
      */
-    fileIcon: function(icon, packageType) {
+    fileIcon: function (icon, packageType) {
       if (packageType === 'Collection') {
         return '/static/file-icons/icon-folder.svg'
       }
@@ -33,6 +33,7 @@ export default {
 
       const list = Array.isArray(files) ? files : files.default
       return getSvgIcon(icon, list)
-    }
+    },
+
   }
 }

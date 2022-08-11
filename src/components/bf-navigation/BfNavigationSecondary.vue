@@ -153,7 +153,7 @@
       />
 
       <bf-navigation-item
-          :link="{ name: 'dataset-activity' }"
+          :link="{ name: 'activity' }"
           icon="icon-activity"
           label="Activity"
           class="secondary"

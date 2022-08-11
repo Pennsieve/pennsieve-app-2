@@ -39,6 +39,13 @@ const getQueryParams = (params, apiKey) => {
   })
 }
 
+const getManifestQueryParams = (params, dataset_id) => {
+
+  return toQueryParams({
+    dataset_id: dataset_id
+  })
+}
+
 const initialState = () => ({
   datasetSearchParams: {
     limit: 25,
@@ -59,8 +66,14 @@ const initialState = () => ({
     dateRange: DATASET_ACTIVITY_DATE_RANGE_30,
     userId: DATASET_ACTIVITY_ALL_CONTRIBUTORS
   },
+  datasetManifestParams: {
+
+
+  },
   isLoadingDatasetActivity: false,
-  datasetActivity: []
+  isLoadingManifestsActivity: false,
+  datasetActivity: [],
+  datasetManifests: []
 })
 
 export const state = initialState()
@@ -78,6 +91,7 @@ export const mutations = {
 
     const clearedState = {
       isLoadingDatasetActivity: _initialState.isLoadingDatasetActivity,
+      isLoadingManifestsActivity: _initialState.isLoadingManifestsActivity,
       datasetActivity: _initialState.datasetActivity,
       datasetActivityParams: _initialState.datasetActivityParams
     }
@@ -152,6 +166,16 @@ export const mutations = {
   UPDATE_DATASET_ACTIVITY(state, activity) {
     state.datasetActivity = activity
   },
+
+  UPDATE_DATASET_MANIFESTS(state, manifests) {
+    state.datasetManifests = manifests
+  },
+
+  UPDATE_IS_LOADING_MANIFESTS(state, isLoading) {
+    state.isLoadingManifestsActivity = isLoading
+  },
+
+
 }
 
 export const actions = {
@@ -230,6 +254,38 @@ export const actions = {
     commit('UPDATE_DATASET_ACTIVITY_CURSOR', '')
     commit('UPDATE_DATASET_ACTIVITY_DATE_RANGE', dateRange)
     dispatch('fetchDatasetActivity')
+  },
+
+  fetchDatasetManifests: async ({state, commit, rootState}) => {
+
+    commit('UPDATE_IS_LOADING_MANIFESTS', true)
+
+    const datasetId = rootState.route.params.datasetId
+    const endpoint = `${rootState.config.api2Url}/manifest`
+
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const queryParams = getManifestQueryParams(state.datasetManifestParams, datasetId)
+
+    const url = `${endpoint}?${queryParams}`
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    try {
+      const resp = await fetch(url, { headers: myHeaders })
+      if (resp.ok) {
+        const { manifests } = await resp.json()
+        commit('UPDATE_DATASET_MANIFESTS', manifests)
+
+      } else {
+        commit('UPDATE_DATASET_MANIFESTS', [])
+        throw new Error(resp.statusText)
+      }
+      commit('UPDATE_IS_LOADING_MANIFESTS', false)
+    } catch (err) {
+      EventBus.$emit('ajaxError', err)
+      commit('UPDATE_IS_LOADING_MANIFESTS', false)
+      commit('UPDATE_DATASET_MANIFESTS', [])
+    }
   },
 
   fetchDatasetActivity: async ({state, commit, rootState}) => {
