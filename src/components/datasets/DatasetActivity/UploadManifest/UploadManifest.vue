@@ -11,6 +11,7 @@
         class="member-col info"
       >
           <svg-icon
+            class="toggle-files"
             name="icon-arrow-down"
             height="12"
             width="12"
@@ -226,6 +227,10 @@ export default {
 }
 
 .el-dropdown-link {
+  cursor: pointer;
+}
+
+.toggle-files {
   cursor: pointer;
 }
 
