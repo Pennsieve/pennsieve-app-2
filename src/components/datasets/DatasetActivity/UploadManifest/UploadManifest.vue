@@ -24,7 +24,7 @@
         class="member-col info"
       >
         <avatar
-          :user="getOrgMemberByIntId(item.user.id)"
+          :user="getOrgMemberByIntId(item.user)"
           :tooltip="true"
         />
       </el-col>
