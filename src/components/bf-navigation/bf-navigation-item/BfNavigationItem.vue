@@ -117,7 +117,7 @@
     &.secondary {
       .svg-icon {
         color: inherit;
-      } 
+      }
       &:hover, &:focus, &.active {
           color: $purple_1;
       }

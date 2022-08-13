@@ -54,14 +54,8 @@ export default {
       default: () => {
         return [
           "All",
-          "Initialized",
-          "Synced",
-          "Imported",
-          "Finalized",
-          "Verified",
+          "In Progress",
           "Failed",
-          "Removed",
-          "Unknown"
         ]
       }
     }
@@ -84,9 +78,9 @@ export default {
     statusLabel: function() {
       switch (this.statusFilter) {
         case "All":
-          return "any status"
+          return "All Files"
         default:
-          return "all " + this.statusFilter
+          return this.statusFilter
       }
       return "hello"
     }

@@ -11,6 +11,7 @@
         class="member-col info"
       >
           <svg-icon
+            class="toggle-files"
             name="icon-arrow-down"
             height="12"
             width="12"
@@ -24,7 +25,7 @@
         class="member-col info"
       >
         <avatar
-          :user="getOrgMemberByIntId(item.user.id)"
+          :user="getOrgMemberByIntId(item.user)"
           :tooltip="true"
         />
       </el-col>
@@ -226,6 +227,10 @@ export default {
 }
 
 .el-dropdown-link {
+  cursor: pointer;
+}
+
+.toggle-files {
   cursor: pointer;
 }
 
