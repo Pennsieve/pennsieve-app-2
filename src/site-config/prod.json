@@ -1,5 +1,6 @@
 {
   "apiUrl": "https://api.pennsieve.io",
+  "api2Url": "https://api2.pennsieve.io",
   "zipitUrl": "https://api.pennsieve.io/zipit",
   "discoverUrl": "https://api.pennsieve.io/discover",
   "discoverAppUrl": "https://discover.pennsieve.io",
