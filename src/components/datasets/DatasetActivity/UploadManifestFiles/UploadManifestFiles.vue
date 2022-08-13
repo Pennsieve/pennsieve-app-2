@@ -27,9 +27,25 @@
         </el-col>
         <el-col
           :sm="8"
+          class="refresh-col"
         >
+          <el-tooltip
+            ref="tooltip"
+            placement="top-start"
+            content="Refresh list"
+          >
+            <svg-icon
+              name="icon-try-again"
+              width="24"
+              height="24"
+              color="#5039F7"
+              class="svg-icon svg-fill icon-main"
+              @click="refreshItems"
+            />
+          </el-tooltip>
         </el-col>
       </el-row>
+
     </div>
     <div class>
       <upload-manifest-file
@@ -59,6 +75,7 @@ import {mapGetters} from "vuex";
 import Request from "../../../../mixins/request";
 import UploadManifestFile from "./UploadManifestFile.vue"
 import ManifestStatusMenu from "./ManifestFileFilterMenu";
+import FileIcon from '../../../../mixins/file-icon/index'
 
 export default {
   name: 'UploadManifestFiles',
@@ -69,7 +86,8 @@ export default {
   },
 
   mixins: [
-    Request
+    Request,
+    FileIcon
   ],
 
   props: {
@@ -112,8 +130,12 @@ export default {
   },
 
   methods: {
+    refreshItems: function() {
+      this.loadFiles()
+    },
     loadFiles: function() {
       // Get initial list of manifest files.
+      this.manifestFiles = []
       const url = this.getManifestFilesUrl()
       if (!url) {
         return
@@ -153,14 +175,14 @@ export default {
 
       var url = `${this.config.api2Url}/manifest/files?api_key=${this.userToken}&manifest_id=${this.item.id}&limit=${pageLimit}`
       if (this.statusFilter != "All") {
-        url = url + `&status=${this.statusFilter}`
+        url = url + `&status=${this.statusFilter.replace(/\s/g, "")}`
       }
 
       return url
     },
     updateStatusFilter: function(event) {
 
-      this.statusFilter =  event
+      this.statusFilter = event
       this.loadFiles()
     }
   }
@@ -192,6 +214,10 @@ export default {
 .no-files {
   margin-left: 16px;
   margin: 8px;
+}
+.refresh-col {
+  text-align: right;
+  cursor: pointer;
 }
 
 </style>
