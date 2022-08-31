@@ -53,7 +53,7 @@
     "marked": "^0.7.0",
     "moment": "^2.20.1",
     "moment-range": "^4.0.2",
-    "moment-timezone": "^0.5.33",
+    "moment-timezone": "^0.5.35",
     "pdfjs-dist": "2.0.943",
     "protobufjs": "^6.11.2",
     "ramda": "^0.25.0",
