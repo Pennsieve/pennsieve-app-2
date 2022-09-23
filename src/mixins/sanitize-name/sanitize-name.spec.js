@@ -45,5 +45,10 @@ describe('Sanitize Name Mixin', () => {
     const sanitizedStr5 = cmp.vm.sanitizeName(str5)
     expect('').toBe(sanitizedStr5)
     expect(cmp.vm.containsReservedChars(str5)).toBe(true)
+
+    const str6 = 'a,b,c'
+    const santizedStr6 = cmp.vm.sanitizeName(str6)
+    expect(santizedStr6).toBe(orig)
+    expect(cmp.vm.containsReservedChars(str6)).toBe(true)
   })
 })
