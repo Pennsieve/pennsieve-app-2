@@ -11,14 +11,14 @@
           Learn More
         </a>
       </p>
-      <bf-button
-        id="connect-orcid-button"
-        class="secondary"
-        @click="$emit('open-orcid')"
+      <router-link
+        class="bf-menu-item"
+        :to="{ name: 'my-settings-container', params: {orgId: activeOrganizationId} }"
       >
-        Connect with ORCID iD
-      </bf-button>
+        Connect ORCID iD in user profile menu
+      </router-link>
     </div>
+
     <div v-else>
       <div>
         <p class="orcid-success-text blurb">

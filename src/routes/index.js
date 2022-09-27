@@ -76,10 +76,13 @@ const BfDatasetSettings = () => import('../components/datasets/settings/BfDatase
 const BfPublishingSettings = () => import('../components/datasets/settings/BfPublishingSettings.vue')
 const DatasetIntegrationsSettings = () => import('../components/datasets/settings/DatasetIntegrationsSettings.vue')
 const DatasetOverview = () => import('../components/datasets/DatasetOverview/DatasetOverview.vue')
+const DatasetManifests = () => import('../components/datasets/DatasetActivity/DatasetManifests.vue')
+const DatasetActivityLog = () => import('../components/datasets/DatasetActivity/DatasetActivityLog')
 
 /**
  * Explore Components
  */
+const ActivityRoute = () => import('./activity/Activity')
 const ExploreRoute = () => import('./explore/Explore.vue')
 const DatasetRecords = () => import('../components/datasets/records/DatasetRecords/DatasetRecords.vue')
 const RecordsOverview = () => import('../components/datasets/records/RecordsOverview/RecordsOverview.vue')
@@ -304,14 +307,48 @@ const routes = [
         }
       },
       {
-        name: 'dataset-activity',
         path: 'activity',
         components: {
-          stage: DatasetActivity
+          stage: ActivityRoute
         },
-        props: {
-          stage: true
-        }
+        props: true,
+        children: [
+          {
+            path: '',
+            name: 'activity',
+            props: {
+              stage: true
+            },
+            components: {
+              stage: DatasetActivity
+            },
+            redirect: {
+              name: 'activity-log'
+            },
+            children: [
+              {
+                name: 'activity-log',
+                path: 'logs',
+                components: {
+                  stage: DatasetActivityLog
+                },
+                props: {
+                  stage: true
+                }
+              },
+              {
+                name: 'upload-manifests',
+                path: 'manifests',
+                components: {
+                  stage: DatasetManifests
+                },
+                props: {
+                  stage: true
+                }
+              },
+            ]
+          },
+        ]
       },
       {
         name: 'dataset-permissions',
