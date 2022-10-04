@@ -41,6 +41,15 @@
               <el-input v-model="ruleForm.email" />
             </a11y-keys>
           </el-form-item>
+          <el-form-item
+            label="User type:"
+            prop="role"
+          >
+            <el-radio-group v-model="ruleForm.role">
+              <el-radio id="roleNormal" name="roleNormal" label="Normal"/>
+              <el-radio id="roleGuest" name="roleGuest" label="Guest"/>
+            </el-radio-group>
+          </el-form-item>
         </el-form>
       </dialog-body>
 
@@ -123,7 +132,8 @@ export default {
       ruleForm: {
         firstName: '',
         lastName: '',
-        email: ''
+        email: '',
+        role: 'Normal'
       },
       rules: {
         firstName: [
@@ -219,8 +229,19 @@ export default {
     /**
      * Sends XHR request to submit invitation
      */
+    getRole: function() {
+      if (this.ruleForm.role === 'Guest') {
+        return 'guest'
+      }
+      else {
+        return ''
+      }
+    },
+
     sendRequest: function() {
-      let role = ''
+      let role = this.getRole()
+      let userInvite = this.ruleForm
+      delete userInvite.role
       if (this.blindReviewerInvitation) {
         role = 'blind_reviewer'
       }
@@ -229,7 +250,7 @@ export default {
         method: 'POST',
         body: {
           invites: [
-            this.ruleForm
+            userInvite
           ],
           role: role
         }
