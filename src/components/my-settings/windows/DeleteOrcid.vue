@@ -123,14 +123,16 @@ export default {
         }
       })
 
-      this.$emit('orcid-deleted', { orcid: 'orcid', type: 'DELETED' })
+      this.$emit('orcid-deleted-success', { orcid: 'orcid', type: 'DELETED' })
     },
 
     /**
      * Closes the dialog
      */
     closeDialog: function() {
-      this.$emit('update:dialogVisible', false)
+      this.$emit('orcid-close')
+      //this.$emit('update:deleteOrcidDialog.dialogVisible', false)
+      //dialogVisible
     }
   }
 }

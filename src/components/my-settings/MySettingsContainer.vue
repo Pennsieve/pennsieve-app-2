@@ -318,7 +318,8 @@
       <delete-orcid
         ref="deleteOrcidDialog"
         :visible.sync="isDeleteOrcidDialogVisible"
-        @orcid-deleted="updateORCID"
+        @orcid-deleted-success="updateORCID"
+        @orcid-close="updateORCID2"
       />
     </bf-stage>
   </bf-page>
@@ -693,6 +694,9 @@ export default {
         ...this.profile,
         orcid: {}
       })
+    },
+    updateORCID2: function(){
+      this.isDeleteOrcidDialogVisible = false
     },
 
     /**
