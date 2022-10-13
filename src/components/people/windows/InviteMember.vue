@@ -42,12 +42,12 @@
             </a11y-keys>
           </el-form-item>
           <el-form-item
-            label="User type:"
-            prop="role"
+            label="User Type"
           >
-            <el-radio-group v-model="ruleForm.role">
-              <el-radio id="roleNormal" name="roleNormal" label="Normal"/>
-              <el-radio id="roleGuest" name="roleGuest" label="Guest"/>
+            <p></p>
+            <el-radio-group v-model="ruleForm.inviteRole">
+              <el-radio label="1">Normal</el-radio>
+              <el-radio label="2">Guest</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-form>
@@ -133,7 +133,7 @@ export default {
         firstName: '',
         lastName: '',
         email: '',
-        role: 'Normal'
+        inviteRole: '1'
       },
       rules: {
         firstName: [
@@ -230,7 +230,7 @@ export default {
      * Sends XHR request to submit invitation
      */
     getRole: function() {
-      if (this.ruleForm.role === 'Guest') {
+      if (this.ruleForm.inviteRole === '2') {
         return 'guest'
       }
       else {
@@ -308,6 +308,7 @@ export default {
      * Closes the dialog
      */
     closeDialog: function() {
+      this.ruleForm.inviteRole = '1'
       this.$emit('close-invite-dialog')
       this.$refs.invitationForm.resetFields()
     }
