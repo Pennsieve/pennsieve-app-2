@@ -294,7 +294,7 @@ export default {
      */
     handleSucessfulInvite: function(response) {
       const memberExtras = {
-        role: this.getInvitedRole(),
+        role: this.getInvitedRole().toLowerCase(),
         storage: 0,
         pending: true
       }
