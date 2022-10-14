@@ -238,6 +238,15 @@ export default {
       }
     },
 
+    getInvitedRole: function() {
+      if (this.ruleForm.inviteRole === '2') {
+        return 'Guest'
+      }
+      else {
+        return 'Collaborator'
+      }
+    },
+
     sendRequest: function() {
       let role = this.getRole()
       let userInvite = this.ruleForm
@@ -265,10 +274,12 @@ export default {
      */
     getNewMemberInfo: function(response) {
       const email = this.ruleForm.email
+      // invited an existing Pennsieve user
       const newMember = path([email, 'user'], response)
       if (newMember) {
         return newMember
       }
+      // invited a new user to the Pennsieve platform
       const invitedUser = {
         firstName: this.ruleForm.firstName,
         lastName: this.ruleForm.lastName,
@@ -283,7 +294,7 @@ export default {
      */
     handleSucessfulInvite: function(response) {
       const memberExtras = {
-        role: 'Collaborator',
+        role: this.getInvitedRole(),
         storage: 0,
         pending: true
       }

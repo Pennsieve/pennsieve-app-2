@@ -315,7 +315,7 @@ export default {
           pending: true,
           lastName: '',
           storage: 0,
-          role: 'Collaborator'
+          role: member.permission
         }
         return Object.assign({}, newFields, member)
       })
