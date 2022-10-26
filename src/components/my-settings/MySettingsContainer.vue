@@ -82,6 +82,39 @@
       <div
         class="divider"
       />
+      <!-- email reset -->
+      <el-row>
+      <el-col :span="12">
+        <h2>Email</h2>
+        <el-row class="mb-20">
+          <p>We'll send you an email to confirm your new preferred address.</p>
+        </el-row>
+          <!-- change div info -->
+          <el-form
+            id="update-profile-form"
+            ref="updateProfileForm"
+            :model="ruleForm"
+            :rules="rules"
+            @submit.native.prevent="handleUpdateProfileSubmit"
+          >
+            <el-form-item
+              prop="newEmail"
+            >
+              <el-input
+                v-model="ruleForm.newEmail"
+              />
+            </el-form-item>
+            <el-form-item>
+              <bf-button @click="handleUpdateEmailSubmit">
+                Update Email
+              </bf-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <div
+        class="divider"
+      />
       <!-- two-factor auth -->
       <el-row>
         <el-col :span="12">
