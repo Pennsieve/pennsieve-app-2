@@ -92,16 +92,16 @@
           <!-- change div info -->
           <el-form
             id="update-profile-form"
-            ref="updateProfileForm"
-            :model="ruleForm"
-            :rules="rules"
-            @submit.native.prevent="handleUpdateProfileSubmit"
+            ref="updateEmailForm"
+            :model="emailForm"
+            :rules="emailRules"
+            @submit.native.prevent="handleUpdateEmailSubmit"
           >
             <el-form-item
               prop="newEmail"
             >
               <el-input
-                v-model="ruleForm.newEmail"
+                v-model="emailForm.newEmail"
               />
             </el-form-item>
             <el-form-item>
@@ -423,6 +423,16 @@ export default {
           }
         ]
       },
+      emailForm: {
+        newEmail: ''
+      },
+      emailRules: {
+        newEmail: [{
+          required: true,
+          message: 'Please provide your new email address',
+          trigger: false
+        }]
+      },
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
@@ -474,7 +484,14 @@ export default {
 
       return `${url}/user?api_key=${userToken}`
     },
-
+    updateEmailUrl: function() {
+      const url = pathOr('', ['config', 'apiUrl'])(this)
+      const userToken = prop('userToken', this)
+      if (!url || !userToken) {
+        return ''
+      }
+      return `${url}/user/email?api_key=${userToken}`
+    },
     /**
      * Retrieves the API URL for adding ORCID
      */
@@ -537,6 +554,7 @@ export default {
 
   mounted() {
     this.setRuleFormData(this.profile)
+    this.setEmailFormData()
     this.getApiKeys()
     this.scrollToElement()
     this.getCognitoUser()
@@ -610,6 +628,12 @@ export default {
         middleInitial
       }
     },
+    setEmailFormData: function() {
+      const email = newEmail
+      this.emailForm = {
+        newEmail
+      }
+    },
     /**
      * Validates user profile form
      */
@@ -620,6 +644,17 @@ export default {
         }
 
         this.submitUpdateProfileRequest()
+      })
+    },
+
+    //validate email form
+    handleUpdateEmailSubmit: function() {
+      this.$refs.updateEmailForm.validate(valid => {
+        if (!valid){
+          return
+        }
+
+        this.submitUpdateEmailRequest()
       })
     },
     /**
@@ -639,6 +674,21 @@ export default {
         .then(this.handleUpdateProfileXhrSuccess.bind(this))
         .catch(this.handleXhrError.bind(this))
     },
+    //XHR call to update email address
+    submitUpdateEmailRequest: function() {
+      this.sendXhr(this.updateEmailUrl,{
+        method: 'PUT',
+        body: {
+          organization: this.profile.preferredOrganization,
+          url: this.profile.url,
+          color: this.profile.color,
+          ...this.emailForm,
+          ...this.ruleForm
+        }
+      })
+      .then(this.handleUpdateEmailXhrSuccess.bind(this))
+      .catch(this.handleXhrError.bind(this))
+    },
     /**
      * Handles successful two factor xhr response
      * @param {Object} response
@@ -654,6 +704,25 @@ export default {
         ...this.profile,
         ...response
       })
+    },
+    /**
+     * Handles successful two factor xhr response
+     * @param {Object} response
+     */
+    handleUpdateEmailiXhrSuccess: function(response) {
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'success',
+          msg: 'Email Updated'
+        }
+      })
+      /*
+      NOTE: Should update profile with email update
+      this.updateProfile({
+        ...this.profile,
+        ...response
+      })
+      */
     },
     /**
      * Makes XHR call to reset a user's password
