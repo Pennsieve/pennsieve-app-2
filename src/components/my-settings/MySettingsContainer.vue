@@ -98,10 +98,10 @@
             @submit.native.prevent="handleUpdateEmailSubmit"
           >
             <el-form-item
-              prop="newEmail"
+              prop="email"
             >
               <el-input
-                v-model="emailForm.newEmail"
+                v-model="emailForm.email"
               />
             </el-form-item>
             <el-form-item>
@@ -424,10 +424,10 @@ export default {
         ]
       },
       emailForm: {
-        newEmail: ''
+        email: ''
       },
       emailRules: {
-        newEmail: [{
+        email: [{
           required: true,
           message: 'Please provide your new email address',
           trigger: false
@@ -554,7 +554,7 @@ export default {
 
   mounted() {
     this.setRuleFormData(this.profile)
-    this.setEmailFormData()
+    this.setEmailFormData(this.profile.email)
     this.getApiKeys()
     this.scrollToElement()
     this.getCognitoUser()
@@ -628,10 +628,10 @@ export default {
         middleInitial
       }
     },
-    setEmailFormData: function() {
+    setEmailFormData: function(newEmail) {
       const email = newEmail
       this.emailForm = {
-        newEmail
+        email
       }
     },
     /**
@@ -649,6 +649,8 @@ export default {
 
     //validate email form
     handleUpdateEmailSubmit: function() {
+      var temp = this.$refs.updateEmailForm;
+      console.log("The new email is: ",temp)
       this.$refs.updateEmailForm.validate(valid => {
         if (!valid){
           return
@@ -716,13 +718,13 @@ export default {
           msg: 'Email Updated'
         }
       })
-      /*
-      NOTE: Should update profile with email update
+
+      //NOTE: Should update profile with email update
       this.updateProfile({
         ...this.profile,
         ...response
       })
-      */
+
     },
     /**
      * Makes XHR call to reset a user's password
