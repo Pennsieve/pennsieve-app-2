@@ -57,7 +57,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         :link="{ name: 'people-list', params: {orgId: activeOrganizationId} }"
         label="People"
         icon="icon-person"
@@ -65,7 +65,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         :link="{ name: 'teams-list', params: {orgId: activeOrganizationId} }"
         label="Teams"
         icon="icon-team"
@@ -73,7 +73,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         id="nav-publishing"
         :link="{ name: 'publishing', params: {orgId: activeOrganizationId} }"
         label="Publishing"
@@ -82,7 +82,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         id="nav-integrations"
         :link="{ name: 'integrations-list', params: {orgId: activeOrganizationId} }"
         label="Integrations"
@@ -91,7 +91,7 @@
       />
 
       <bf-navigation-item
-        v-if="hasAdminRights && !pageNotFound"
+        v-if="hasAdminRights && !pageNotFound && !isWorkspaceGuest"
         :link="{ name: 'settings', params: {orgId: activeOrganizationId} }"
         label="Settings"
         icon="icon-settings"
@@ -170,6 +170,11 @@
         const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
         const isOwner = propOr(false, 'isOwner', this.activeOrganization)
         return isAdmin || isOwner
+      },
+
+      isWorkspaceGuest: function() {
+        const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+        return isGuest
       },
 
       /**
