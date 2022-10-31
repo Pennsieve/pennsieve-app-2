@@ -9,7 +9,7 @@
         class="buttons"
       >
         <bf-button
-          v-if="hasDatasets"
+          v-if="hasDatasets && !isWorkspaceGuest"
           @click="openNewDatasetDialog"
         >
           New Dataset
@@ -284,7 +284,8 @@
         'isLoadingDatasetsError',
         'onboardingEvents',
         'datasetFilters',
-        'gettingStartedOpen'
+        'gettingStartedOpen',
+        'activeOrganization'
       ]),
 
       ...mapState('integrationsModule', [
@@ -363,6 +364,11 @@
        */
       pageHeading: function() {
         return 'Datasets'
+      },
+
+      isWorkspaceGuest: function() {
+        const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+        return isGuest
       }
     },
 
