@@ -465,15 +465,24 @@ export default {
           this.logInForm.password
         )
         // this.handleLoginSuccess(user)
+        EventBus.$emit('toast', {
+          detail: {
+            type: 'info',
+            msg: `Login successful. Loading Workspace, please wait.`,
+            duration: 5000
+          }
+        })
         this.$emit('succesfulLogin', user)
       } catch (error) {
         EventBus.$emit('toast', {
           detail: {
-            msg: `There was an error with your login attempt. Please try again.`
+            type: 'error',
+            msg: `Incorrect username or password. Please try again.`
           }
         })
       }
       this.isLoggingIn = false
+      this.closeLogInDialog()
     },
 
     async initiateFederatedLogin(provider) {
@@ -486,6 +495,7 @@ export default {
         this.isLoggingIn = false
         EventBus.$emit('toast', {
           detail: {
+            type: 'error',
             msg: `There was an error with your federated login attempt. Please try again.`
           }
         })
