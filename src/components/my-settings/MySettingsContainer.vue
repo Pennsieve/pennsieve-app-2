@@ -651,6 +651,8 @@ export default {
     handleUpdateEmailSubmit: function() {
       var temp = this.$refs.updateEmailForm;
       console.log("The new email is: ",temp)
+      //UNCOMMENT AFTER DEBUGGING:
+      /*
       this.$refs.updateEmailForm.validate(valid => {
         if (!valid){
           return
@@ -658,6 +660,8 @@ export default {
 
         this.submitUpdateEmailRequest()
       })
+      */
+      this.submitUpdateEmailRequest()
     },
     /**
      * Makes XHR call to update a user profile
