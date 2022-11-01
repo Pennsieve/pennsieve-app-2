@@ -105,7 +105,7 @@
               />
             </el-form-item>
             <el-form-item>
-              <bf-button @click="handleUpdateEmailSubmit">
+              <bf-button :disabled='isEmailButtonDisabled' @click="handleUpdateEmailSubmit">
                 Update Email
               </bf-button>
             </el-form-item>
@@ -437,7 +437,8 @@ export default {
       oauthCode: '',
       orcidInfo: {},
       loading: false,
-      isDeleteOrcidDialogVisible: false
+      isDeleteOrcidDialogVisible: false,
+      prevEmail: ''
     }
   },
 
@@ -536,6 +537,10 @@ export default {
         return ''
       }
       return `${url}/account/${email}/reset?api_key=${userToken}`
+    },
+
+    isEmailButtonDisabled: function(){
+      return this.emailButtonDisabled
     }
   },
 
@@ -558,6 +563,7 @@ export default {
     this.getApiKeys()
     this.scrollToElement()
     this.getCognitoUser()
+    this.prevEmail = this.profile.email
   },
 
   methods: {
@@ -682,6 +688,7 @@ export default {
     },
     //XHR call to update email address
     submitUpdateEmailRequest: function() {
+      this.emailButtonDisabled = true;
       this.sendXhr(this.updateEmailUrl,{
         method: 'PUT',
         body: {
@@ -693,13 +700,14 @@ export default {
         }
       })
       .then(this.handleUpdateEmailXhrSuccess.bind(this))
-      .catch(this.handleXhrError.bind(this))
+      .catch(this.handleXhrEmailError.bind(this))
     },
     /**
      * Handles successful two factor xhr response
      * @param {Object} response
      */
     handleUpdateProfileXhrSuccess: function(response) {
+      this.emailButtonDisabled = false;
       EventBus.$emit('toast', {
         detail: {
           type: 'success',
@@ -715,11 +723,11 @@ export default {
      * Handles successful two factor xhr response
      * @param {Object} response
      */
-    handleUpdateEmailiXhrSuccess: function(response) {
+    handleUpdateEmailXhrSuccess: function(response) {
       EventBus.$emit('toast', {
         detail: {
           type: 'success',
-          msg: 'Email Updated'
+          msg: 'Email Successfully Updated'
         }
       })
 
@@ -729,6 +737,15 @@ export default {
         ...response
       })
 
+    },
+
+    handleXhrEmailError: function(response){
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'error',
+          msg: 'ERROR: Email was not successfully updated. Please try again or use another email.'
+        }
+      })
     },
     /**
      * Makes XHR call to reset a user's password
