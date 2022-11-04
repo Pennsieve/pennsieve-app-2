@@ -473,6 +473,7 @@ export default {
           }
         })
         this.$emit('succesfulLogin', user)
+        this.closeLogInDialog()
       } catch (error) {
         EventBus.$emit('toast', {
           detail: {
@@ -480,9 +481,9 @@ export default {
             msg: `Incorrect username or password. Please try again.`
           }
         })
+        this.logInForm.password = ''
       }
       this.isLoggingIn = false
-      this.closeLogInDialog()
     },
 
     async initiateFederatedLogin(provider) {
