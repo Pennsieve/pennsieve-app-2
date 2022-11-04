@@ -695,6 +695,7 @@ export default {
           organization: this.profile.preferredOrganization,
           url: this.profile.url,
           color: this.profile.color,
+          userRequestedChange: true,
           ...this.emailForm,
           ...this.ruleForm
         }
