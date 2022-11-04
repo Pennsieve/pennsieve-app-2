@@ -30,7 +30,7 @@
               Welcome to Pennsieve! We are thrilled to have you back on the platform. A lot of work has gone into migrating the platform from Blackfynn to Pennsieve at the University of Pennsylvania!
             </p>
             <p class="mb-16">
-              For security reasons, you need to reset your password and follow the instructions in the email that follows. 
+              For security reasons, you need to reset your password and follow the instructions in the email that follows.
             </p>
             <p class="mb-16">
               In addition, after you login the platform, you will need to re-associate your user with an ORCID account if you have one. This is required in order to publish datasets.
