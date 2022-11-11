@@ -404,7 +404,7 @@
           this.permissionForm.item = {
             id: this.externalPerson.id,
             label: this.externalPerson.email,
-            type: 'email'
+            type: 'external'
           }
         }
       }
