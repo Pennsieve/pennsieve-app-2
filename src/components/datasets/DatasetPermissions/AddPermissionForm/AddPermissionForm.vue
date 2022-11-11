@@ -1,11 +1,14 @@
 <template>
-  <form class="add-permission-form">
+  <form id="addPermissionForm" class="add-permission-form">
     <el-select
       ref="select"
       v-model="permissionForm.item"
       class="mr-16 select-member"
+      clearable
+      @clear="clearForm"
       required
       filterable
+      allow-create
       :default-first-option="true"
       value-key="id"
       placeholder="Find individuals, teams, or everyone..."
@@ -21,6 +24,24 @@
         height="24"
         width="24"
       />
+
+      <el-option-group label="External Person">
+        <el-option
+          v-if="externalProvided"
+          class="add-permission-form-option"
+          :label="externalPerson.email"
+          :value="{
+            type: 'email',
+            id: externalPerson.id,
+            label: externalPerson.email
+          }"
+        >
+          <div class="name">
+            <!-- eslint-disable-next-line --><!-- highlight sanitizes -->
+            <span v-html="highlight(searchText, externalPerson.email)" />
+          </div>
+        </el-option>
+      </el-option-group>
 
       <el-option-group label="Organization">
         <el-option
@@ -80,6 +101,7 @@
           </div>
         </el-option>
       </el-option-group>
+
     </el-select>
 
     <el-select
@@ -188,7 +210,9 @@
             value: 'viewer'
           }
         ],
-        confirmDialogVisible: false
+        confirmDialogVisible: false,
+        externalProvided: false,
+        externalPerson: {}
       }
     },
 
@@ -344,9 +368,45 @@
        * @param {Object} item
        */
       onChange: function(item) {
+        console.log(`onChange() item:`)
+        console.log(item)
+        if (item && typeof(item) === 'string') {
+          this.checkForExternal(item)
+        }
         this.$nextTick(() => {
           this.$refs.permissionSelect.focus()
         })
+      },
+
+      clearForm: function() {
+        console.log("clearForm()")
+        this.externalProvided = false
+        this.externalPerson = {}
+      },
+
+      validateEmail: function(email) {
+        return String(email)
+          .toLowerCase()
+          .match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          );
+      },
+
+      checkForExternal: function(input) {
+        console.log(`checkForExternal() input: ${input}`)
+        if (this.validateEmail(input) !== null) {
+          console.log(`checkForExternal() ${input} is a valid email`)
+          this.externalPerson = {
+            email: input,
+            id: 'N:email:00000000-0000-0000-0000-000000000000'
+          }
+          this.externalProvided = true
+          this.permissionForm.item = {
+            id: this.externalPerson.id,
+            label: this.externalPerson.email,
+            type: 'email'
+          }
+        }
       }
     }
   }
