@@ -41,6 +41,7 @@
               <el-input v-model="ruleForm.email" />
             </a11y-keys>
           </el-form-item>
+          <!--
           <el-form-item
             label="User Type"
           >
@@ -50,6 +51,7 @@
               <el-radio label="2">Guest</el-radio>
             </el-radio-group>
           </el-form-item>
+          -->
         </el-form>
       </dialog-body>
 
