@@ -132,6 +132,14 @@
       :role="permissionForm.role"
       @confirm="addPermission"
     />
+    <el-input
+      v-if="inviteeSelected"
+      v-model="permissionForm.message"
+      :rows="4"
+      type="textarea"
+      placeholder="Enter a custom invite message..."
+    />
+
   </form>
 </template>
 
@@ -163,7 +171,8 @@
       label: '',
       type: ''
     },
-    role: ''
+    role: '',
+    message: ''
   }
 
   export default {
@@ -236,6 +245,11 @@
         const role = propOr('', 'role', this.permissionForm)
 
         return id === '' || role === ''
+      },
+
+      inviteeSelected: function() {
+        const id = pathOr('', ['item', 'id'], this.permissionForm)
+        return id !== ''
       },
 
       /**
@@ -425,6 +439,7 @@
   @import '../../../../assets/_variables.scss';
   .add-permission-form {
     display: flex;
+    flex-wrap: wrap;
     .el-input__prefix {
       display: flex !important;
       .svg-icon {
