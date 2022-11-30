@@ -1057,7 +1057,7 @@ export default {
 }
 
 .enable-chart-wrapper {
-  align-items: center;
+  align-items: start;
   display: flex;
   height: 100%;
   justify-content: center;
@@ -1097,6 +1097,7 @@ export default {
 	background-color: $purple_1;
   cursor: pointer;
   padding: 10px 18px;
+  margin:8px;
 	width: auto;
 
   .enable-chart-message {

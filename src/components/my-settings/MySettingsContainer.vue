@@ -82,6 +82,39 @@
       <div
         class="divider"
       />
+      <!-- email reset -->
+      <el-row>
+      <el-col :span="12">
+        <h2>Email</h2>
+        <el-row class="mb-20">
+          <p>We'll send you an email to confirm your new preferred address.</p>
+        </el-row>
+          <!-- change div info -->
+          <el-form
+            id="update-profile-form"
+            ref="updateEmailForm"
+            :model="emailForm"
+            :rules="emailRules"
+            @submit.native.prevent="handleUpdateEmailSubmit"
+          >
+            <el-form-item
+              prop="email"
+            >
+              <el-input
+                v-model="emailForm.email"
+              />
+            </el-form-item>
+            <el-form-item>
+              <bf-button :disabled='isEmailButtonDisabled' @click="handleUpdateEmailSubmit">
+                Update Email
+              </bf-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <div
+        class="divider"
+      />
       <!-- two-factor auth -->
       <el-row>
         <el-col :span="12">
@@ -318,7 +351,8 @@
       <delete-orcid
         ref="deleteOrcidDialog"
         :visible.sync="isDeleteOrcidDialogVisible"
-        @orcid-deleted="updateORCID"
+        @orcid-deleted-success="updateORCID"
+        @orcid-close="updateORCID2"
       />
     </bf-stage>
   </bf-page>
@@ -389,11 +423,22 @@ export default {
           }
         ]
       },
+      emailForm: {
+        email: ''
+      },
+      emailRules: {
+        email: [{
+          required: true,
+          message: 'Please provide your new email address',
+          trigger: false
+        }]
+      },
       oauthWindow: '',
       oauthCode: '',
       orcidInfo: {},
       loading: false,
-      isDeleteOrcidDialogVisible: false
+      isDeleteOrcidDialogVisible: false,
+      prevEmail: ''
     }
   },
 
@@ -440,7 +485,14 @@ export default {
 
       return `${url}/user?api_key=${userToken}`
     },
-
+    updateEmailUrl: function() {
+      const url = pathOr('', ['config', 'apiUrl'])(this)
+      const userToken = prop('userToken', this)
+      if (!url || !userToken) {
+        return ''
+      }
+      return `${url}/user/email?api_key=${userToken}`
+    },
     /**
      * Retrieves the API URL for adding ORCID
      */
@@ -485,6 +537,10 @@ export default {
         return ''
       }
       return `${url}/account/${email}/reset?api_key=${userToken}`
+    },
+
+    isEmailButtonDisabled: function(){
+      return this.emailButtonDisabled
     }
   },
 
@@ -503,9 +559,11 @@ export default {
 
   mounted() {
     this.setRuleFormData(this.profile)
+    this.setEmailFormData(this.profile.email)
     this.getApiKeys()
     this.scrollToElement()
     this.getCognitoUser()
+    this.prevEmail = this.profile.email
   },
 
   methods: {
@@ -576,6 +634,12 @@ export default {
         middleInitial
       }
     },
+    setEmailFormData: function(newEmail) {
+      const email = newEmail
+      this.emailForm = {
+        email
+      }
+    },
     /**
      * Validates user profile form
      */
@@ -587,6 +651,23 @@ export default {
 
         this.submitUpdateProfileRequest()
       })
+    },
+
+    //validate email form
+    handleUpdateEmailSubmit: function() {
+      var temp = this.$refs.updateEmailForm;
+      console.log("The new email is: ",temp)
+      //UNCOMMENT AFTER DEBUGGING:
+      /*
+      this.$refs.updateEmailForm.validate(valid => {
+        if (!valid){
+          return
+        }
+
+        this.submitUpdateEmailRequest()
+      })
+      */
+      this.submitUpdateEmailRequest()
     },
     /**
      * Makes XHR call to update a user profile
@@ -605,11 +686,29 @@ export default {
         .then(this.handleUpdateProfileXhrSuccess.bind(this))
         .catch(this.handleXhrError.bind(this))
     },
+    //XHR call to update email address
+    submitUpdateEmailRequest: function() {
+      this.emailButtonDisabled = true;
+      this.sendXhr(this.updateEmailUrl,{
+        method: 'PUT',
+        body: {
+          organization: this.profile.preferredOrganization,
+          url: this.profile.url,
+          color: this.profile.color,
+          userRequestedChange: true,
+          ...this.emailForm,
+          ...this.ruleForm
+        }
+      })
+      .then(this.handleUpdateEmailXhrSuccess.bind(this))
+      .catch(this.handleXhrEmailError.bind(this))
+    },
     /**
      * Handles successful two factor xhr response
      * @param {Object} response
      */
     handleUpdateProfileXhrSuccess: function(response) {
+      this.emailButtonDisabled = false;
       EventBus.$emit('toast', {
         detail: {
           type: 'success',
@@ -619,6 +718,34 @@ export default {
       this.updateProfile({
         ...this.profile,
         ...response
+      })
+    },
+    /**
+     * Handles successful two factor xhr response
+     * @param {Object} response
+     */
+    handleUpdateEmailXhrSuccess: function(response) {
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'success',
+          msg: 'Email Successfully Updated'
+        }
+      })
+
+      //NOTE: Should update profile with email update
+      this.updateProfile({
+        ...this.profile,
+        ...response
+      })
+
+    },
+
+    handleXhrEmailError: function(response){
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'error',
+          msg: 'ERROR: Email was not successfully updated. Please try again or use another email.'
+        }
       })
     },
     /**
@@ -693,6 +820,9 @@ export default {
         ...this.profile,
         orcid: {}
       })
+    },
+    updateORCID2: function(){
+      this.isDeleteOrcidDialogVisible = false
     },
 
     /**
