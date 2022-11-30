@@ -333,10 +333,19 @@
         const url = `${this.config.apiUrl}/datasets/${this.datasetId}/collaborators/${endpointType}?api_key=${this.userToken}`
 
         const itemId = pathOr('', ['item', 'id'], item)
+        const label = pathOr('', ['item', 'label'], item)
 
+        // if the entity is in the organization, then itemId is the Node Id of that object
+        // if the entity is external, then label is their email address
         const body = {
-          id: itemId,
+          id: entity === "external" ? label : itemId,
           role: item.role
+        }
+
+        // include custom invite message if one was provided
+        const message = pathOr('', ['message'], item)
+        if (message !== '') {
+          body.message = message
         }
 
         this.sendXhr(url, {
