@@ -230,7 +230,7 @@ export default {
 
       // TODO: Refactor to take both token and profile
       // add logic to only make organizations request if profile is defined
-
+      let currentPath = this.$router.currentRoute.path
       const orgPromise = this.sendXhr(this.getActiveOrgUrl(token))
       const profilePromise = this.sendXhr(this.getProfileUrl(token))
 
@@ -251,7 +251,7 @@ export default {
           const activeOrg = orgs.organizations[activeOrgIndex]
 
           // handle org switch
-          return this.handleRedirects(activeOrg, activeOrgId, preferredOrgId)
+          return this.handleRedirects(activeOrg, activeOrgId, preferredOrgId, currentPath)
         })
         .then(this.getOrgMembers.bind(this))
         .then(this.getTeams.bind(this))
@@ -429,8 +429,8 @@ export default {
           this.updateProfile(response)
 
           // Reset state of menu
-          this.togglePrimaryNav(true)
-          this.toggleSecondaryNav(false)
+          // this.togglePrimaryNav(true)
+          // this.toggleSecondaryNav(false)
 
           // Reset state of dataset templates
           this.setDatasetTemplates([])
