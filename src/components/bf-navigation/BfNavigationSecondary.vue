@@ -12,66 +12,7 @@
               :content="datasetName"
               :disabled="!datasetNameTruncated"
             >
-              <div class="dataset-name">
-                {{ datasetNameDisplay }}
-              </div>
             </el-tooltip>
-            <el-dropdown
-              class="dataset-status-dropdown"
-              trigger="click"
-              placement="bottom-start"
-              @command="updateDatasetStatus"
-              @visible-change="datasetFilterOpen = $event"
-            >
-              <button
-                class="dataset-filter-dropdown el-dropdown-link"
-                :disabled="!(getPermission('manager'))"
-              >
-                <span class="dataset-info">
-                  <div
-                    :style="{ 'background-color': checkStatusColor }"
-                    class="dot main-status"
-                  />
-                  <div class="dataset-status">
-                    {{ formatDatasetStatus }}
-                  </div>
-                </span>
-                <svg-icon
-                  v-if="getPermission('manager')"
-                  name="icon-arrow-up"
-                  :dir="datasetFilterArrowDir"
-                  height="7"
-                  width="7"
-                  color="#404554"
-                />
-              </button>
-              <el-dropdown-menu
-                slot="dropdown"
-                class="bf-menu auto-height"
-                :offset="14"
-                :arrow-offset="150"
-              >
-                <el-dropdown-item
-                  v-for="status in filterOrgStatusList"
-                  :key="status.id"
-                  class="status-item"
-                  :command="getStatusCommand(status)"
-                >
-                  <span
-                    class="status-dot"
-                    :style="getDotColor(status)"
-                  />
-                  {{ status.displayName }}
-                  <svg-icon
-                    v-if="formatDatasetStatus === `${status.displayName}`"
-                    icon="icon-check"
-                    class="dataset-filter-status-check"
-                    width="20"
-                    height="20"
-                  />
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
           </div>
           <button
             class="btn-expand-collapse"

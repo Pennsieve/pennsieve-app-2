@@ -6,6 +6,11 @@
       isEditing ? 'editing' : ''
     ]"
   >
+  <div>
+    <div class="dataset-name">
+      {{ datasetNameDisplay() }}
+    </div>
+  </div>
     <div
       class="row bf-rafter-breadcrumb"
       :class="[ this.$slots['breadcrumb'] ? 'has-breadcrumb' : 'no-breadcrumb' ]"
@@ -162,9 +167,16 @@
   .bf-rafter-stats {
     display: flex;
   }
+  .dataset-name {
+    font-weight: bold;
+    font-size: 20px;
+    color: $gray_6;
+    margin-left: 4px;
+  }
 </style>
 
 <script>
+import  { mapState } from 'vuex';
   export default {
     name: 'BfRafter',
 
@@ -181,6 +193,33 @@
         type: Boolean,
         default: false
       }
+    },
+  data: function() {
+    return {
+      datasetNameTruncated: false,
+      datasetname: ''
     }
+  }
+
+    ,
+  computed: {
+    ...mapState(['dataset']),
+    datasetNameDisplay: function() {
+      const name = this.datasetName
+
+      if (name.length > 20) {
+        this.datasetNameTruncated = true
+        return `${name.slice(0, 17)}...`
+      } else {
+        this.datasetNameTruncated = false
+      }
+      return name
+    }
+  },
+  methods: {
+    datasetName: function() {
+      return pathOr('', ['content', 'name'], this.dataset)
+    },
+  }
   }
 </script>
