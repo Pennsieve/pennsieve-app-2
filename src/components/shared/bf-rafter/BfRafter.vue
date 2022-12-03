@@ -8,8 +8,60 @@
   >
   <div>
     <div class="dataset-name">
-      {{ datasetNameDisplay() }}
+      {{ datasetNameDisplay }}
     </div>
+     <div class="position-absolute bottom-0 start-0">
+     <el-dropdown
+            class="dataset-status-dropdown"
+            trigger="click"
+            placement="bottom-start"
+            @command="updateDatasetStatus"
+            @visible-change="datasetFilterOpen = $event"
+          >
+          <button
+               class="dataset-filter-dropdown el-dropdown-link"
+               :disabled="!(getPermission('manager'))"
+          >
+          <span class="dataset-info">
+            <div
+              :style="{ 'background-color': checkStatusColor }"
+              class="dot main-status"
+              />
+            <div class="dataset-status">
+              {{ formatDatasetStatus }}
+            </div>
+          </span>
+          <svg-icon
+              v-if="getPermission('manager')"
+              name="icon-arrow-up"
+              :dir="datasetFilterArrowDir"
+              height="7"
+              width="7"
+              color="#404554"
+           />
+           </button>
+           <el-dropdown-item
+              v-for="status in filterOrgStatusList"
+              :key="status.id"
+              class="status-item"
+              :command="getStatusCommand(status)"
+            >
+            <span
+                class="status-dot"
+                :style="getDotColor(status)"
+            />
+              {{ status.displayName }}
+              <svg-icon
+                  v-if="formatDatasetStatus === `${status.displayName}`"
+                  icon="icon-check"
+                  class="dataset-filter-status-check"
+                  width="20"
+                  height="20"
+              />
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+     </div>
   </div>
     <div
       class="row bf-rafter-breadcrumb"
@@ -72,6 +124,7 @@
 
 <style lang="scss">
   @import '../../../assets/_variables.scss';
+  @import '../../assets/components/_dataset-status.scss';
 
   .bf-rafter {
     padding: 9px 31px 1px 31px;
@@ -167,12 +220,37 @@
   .bf-rafter-stats {
     display: flex;
   }
+  .dataset-filter-status-check {
+    margin: -2px 0;
+    float: right;
+  }
   .dataset-name {
     font-weight: bold;
     font-size: 20px;
     color: $gray_6;
     margin-left: 4px;
   }
+  .dataset-status {
+    color: $gray_4;
+    font-size: 12px;
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    margin-right: 5px;
+    margin-left: 4px;
+  }
+  .dataset-info {
+    display: flex;
+    align-items: center;
+    .dataset {
+      color: $gray_4;
+      font-size: 12px;
+    }
+    .dataset-filter-dropdown {
+      display: flex;
+      align-items: center;
+    }
 </style>
 
 <script>
@@ -197,13 +275,35 @@ import  { mapState } from 'vuex';
   data: function() {
     return {
       datasetNameTruncated: false,
-      datasetname: ''
+      datasetname: '',
+      datasetFilterOpen: false,
     }
   }
 
     ,
   computed: {
-    ...mapState(['dataset']),
+    ...mapState(['dataset', 'orgDatasetStatuses']),
+    ...mapGetters([
+      'getPermission',
+      'userToken',
+      'config'
+    ]),
+    /**
+     * Filters empty status names from orgDatasetStatuses
+     * @returns {Array}
+     */
+    filterOrgStatusList: function() {
+      return this.orgDatasetStatuses.filter(status => {
+        return status.displayName !== ''
+    })
+  },
+  /**
+   * Returns the dataset status displayName
+   * @returns {String}
+   */
+  formatDatasetStatus: function() {
+    return pathOr('', ['status', 'displayName'], this.dataset)
+  },
     datasetNameDisplay: function() {
       const name = this.datasetName
 
@@ -214,12 +314,102 @@ import  { mapState } from 'vuex';
         this.datasetNameTruncated = false
       }
       return name
+    },
+
+    /**
+     * Returns the dataset status displayName
+     * @returns {String}
+     */
+    formatDatasetStatus: function() {
+      return pathOr('', ['status', 'displayName'], this.dataset)
+    },
+
+    getDatasetUpdateUrl: function() {
+      const url = pathOr('', ['config', 'apiUrl'])(this)
+      const datasetId = path(['content', 'id'], this.dataset)
+
+      if (!url) {
+        return ''
+      }
+
+      return `${url}/datasets/${datasetId}?api_key=${this.userToken}`
+    },
+    /**
+     * Returns dataset filter arrow direction
+     * @returns {String}
+     */
+    datasetFilterArrowDir: function() {
+      return this.datasetFilterOpen ? 'up' : 'down'
+    },
+    /**
+     * Returns color for dataset status
+     * @returns {String}
+     */
+    checkStatusColor: function() {
+      return pathOr('', ['status', 'color'], this.dataset)
     }
   },
   methods: {
+    ...mapActions([
+      'updateDataset',
+      'setDataset'
+    ]),
+
     datasetName: function() {
       return pathOr('', ['content', 'name'], this.dataset)
     },
+    /**
+     * Returns dataset status name based on command selection in menu
+     * @returns {String}
+     */
+    getStatusCommand: function(status) {
+      return status.displayName
+    },
+    /**
+     * Returns dataset status dot styling based on status color
+     * @returns {Object}
+     */
+    getDotColor: function(status) {
+      const obj = {
+        backgroundColor: `${status.color}`
+      }
+
+      return obj
+    },
+    /**
+     * Updates a dataset's status based on
+     * status menu selection
+     * @param {String}
+     */
+    updateDatasetStatus: function(command) {
+      const status = this.orgDatasetStatuses.find(status => {
+        return status.displayName === command
+      })
+
+      if (!this.getDatasetUpdateUrl) {
+        return
+      }
+
+      // API request to update the status
+      this.sendXhr(this.getDatasetUpdateUrl, {
+        method: 'PUT',
+        body: {
+          status: status.name
+        }
+      })
+        .then(response => {
+          EventBus.$emit('toast', {
+            detail: {
+              msg: 'Your status has been saved'
+            }
+          })
+
+          this.updateDataset(response)
+          this.setDataset(response)
+
+        })
+        .catch(this.handleXhrError.bind(this))
+    }
   }
   }
 </script>
