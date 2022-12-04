@@ -10,6 +10,7 @@
     <div class="dataset-name">
       {{ datasetNameDisplay }}
     </div>
+    <!--
      <div class="position-absolute bottom-0 start-0">
      <el-dropdown
             class="dataset-status-dropdown"
@@ -62,6 +63,7 @@
           </el-dropdown-menu>
         </el-dropdown>
      </div>
+     -->
   </div>
     <div
       class="row bf-rafter-breadcrumb"
@@ -124,7 +126,7 @@
 
 <style lang="scss">
   @import '../../../assets/_variables.scss';
-  @import '../../assets/components/_dataset-status.scss';
+  @import '../../../assets/components/_dataset-status.scss';
 
   .bf-rafter {
     padding: 9px 31px 1px 31px;
@@ -251,6 +253,7 @@
       display: flex;
       align-items: center;
     }
+  }
 </style>
 
 <script>
