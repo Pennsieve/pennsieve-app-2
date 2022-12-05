@@ -6,64 +6,67 @@
       isEditing ? 'editing' : ''
     ]"
   >
-  <div>
-    <div class="dataset-name">
-      {{ datasetNameDisplay }}
+  <div class="grid-parent-top
+    v-if="hasDataset">
+    <div class="flex-child-top" >
+      <div class="dataset-name" >
+        {{ datasetNameDisplay }}
+      </div>
     </div>
-    <!--
-     <div class="position-absolute bottom-0 start-0">
-     <el-dropdown
-            class="dataset-status-dropdown"
-            trigger="click"
-            placement="bottom-start"
-            @command="updateDatasetStatus"
-            @visible-change="datasetFilterOpen = $event"
-          >
-          <button
-               class="dataset-filter-dropdown el-dropdown-link"
-               :disabled="!(getPermission('manager'))"
-          >
-          <span class="dataset-info">
-            <div
-              :style="{ 'background-color': checkStatusColor }"
-              class="dot main-status"
-              />
-            <div class="dataset-status">
-              {{ formatDatasetStatus }}
-            </div>
-          </span>
-          <svg-icon
-              v-if="getPermission('manager')"
-              name="icon-arrow-up"
-              :dir="datasetFilterArrowDir"
-              height="7"
-              width="7"
-              color="#404554"
-           />
-           </button>
-           <el-dropdown-item
-              v-for="status in filterOrgStatusList"
-              :key="status.id"
-              class="status-item"
-              :command="getStatusCommand(status)"
+    <div class="grid-child-top">
+       <div class="status-dropdown">
+       <el-dropdown
+              class="dataset-status-dropdown"
+              trigger="click"
+              placement="bottom-start"
+              @command="updateDatasetStatus"
+              @visible-change="datasetFilterOpen = $event"
             >
-            <span
-                class="status-dot"
-                :style="getDotColor(status)"
-            />
-              {{ status.displayName }}
-              <svg-icon
-                  v-if="formatDatasetStatus === `${status.displayName}`"
-                  icon="icon-check"
-                  class="dataset-filter-status-check"
-                  width="20"
-                  height="20"
+            <button
+                 class="dataset-filter-dropdown el-dropdown-link"
+                 :disabled="!(getPermission('manager'))"
+            >
+            <span class="dataset-info">
+              <div
+                :style="{ 'background-color': checkStatusColor }"
+                class="dot main-status"
+                />
+              <div class="dataset-status">
+                {{ formatDatasetStatus }}
+              </div>
+            </span>
+            <svg-icon
+                v-if="getPermission('manager')"
+                name="icon-arrow-up"
+                :dir="datasetFilterArrowDir"
+                height="7"
+                width="7"
+                color="#404554"
+             />
+             </button>
+             <el-dropdown-item
+                v-for="status in filterOrgStatusList"
+                :key="status.id"
+                class="status-item"
+                :command="getStatusCommand(status)"
+              >
+              <span
+                  class="status-dot"
+                  :style="getDotColor(status)"
               />
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-     </div>
-     -->
+                {{ status.displayName }}
+                <svg-icon
+                    v-if="formatDatasetStatus === `${status.displayName}`"
+                    icon="icon-check"
+                    class="dataset-filter-status-check"
+                    width="20"
+                    height="20"
+                />
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+       </div>
+    </div>
   </div>
     <div
       class="row bf-rafter-breadcrumb"
@@ -254,10 +257,20 @@
       align-items: center;
     }
   }
+  .grid-parent-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    width: 50%;
+  }
+  .grid-child-top {
+    margin: 10px;
+  }
 </style>
 
 <script>
-import  { mapState } from 'vuex';
+import  { mapState, mapGetters, mapActions } from 'vuex';
+import { path, pathOr } from 'ramda'
   export default {
     name: 'BfRafter',
 
@@ -357,7 +370,15 @@ import  { mapState } from 'vuex';
       'updateDataset',
       'setDataset'
     ]),
-
+    hasDataset: function() {
+      console.log(datasetNameDisplay)
+      if (this.datasetNameDisplay == '' ){
+        return False
+      }
+      else {
+        return True
+      }
+    },
     datasetName: function() {
       return pathOr('', ['content', 'name'], this.dataset)
     },
