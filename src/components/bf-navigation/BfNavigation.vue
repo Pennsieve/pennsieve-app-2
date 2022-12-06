@@ -54,6 +54,7 @@
         label="Datasets"
         icon="icon-datasets"
         :condensed="primaryNavCondensed"
+        @click="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -62,6 +63,7 @@
         label="People"
         icon="icon-person"
         :condensed="primaryNavCondensed"
+        @click="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -70,6 +72,7 @@
         label="Teams"
         icon="icon-team"
         :condensed="primaryNavCondensed"
+        @click="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -79,6 +82,7 @@
         label="Publishing"
         icon="icon-public"
         :condensed="primaryNavCondensed"
+        @click="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -88,6 +92,7 @@
         label="Integrations"
         icon="icon-integrations"
         :condensed="primaryNavCondensed"
+        @click="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -135,7 +140,8 @@
         'config',
         'secondaryNavOpen',
         'primaryNavCondensed',
-        'pageNotFound'
+        'pageNotFound',
+
       ]),
 
       PublicationTabs: function() {
@@ -193,8 +199,15 @@
       ...mapActions([
         'togglePrimaryNav',
         'condensePrimaryNav',
+        'toggleDatasetVis'
       ]),
-
+      /*
+       * Sets the dataset name visibility flag to false
+       */
+      setDatasetVis: function() {
+        console.log("SETTING VISIBILITY TO FALSE")
+        this.toggleDatasetVis(false)
+      },
       /**
        * Toggles primary nav open and closed
        */

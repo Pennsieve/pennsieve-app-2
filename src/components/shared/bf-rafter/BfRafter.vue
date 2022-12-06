@@ -6,15 +6,12 @@
       isEditing ? 'editing' : ''
     ]"
   >
-  <div class="grid-parent-top
-    v-if="hasDataset">
-    <div class="grid-child-top" >
+  <template
+    v-if="datasetNameVisible"
+    >
       <div class="dataset-name" >
-        {{ datasetNameDisplay }}
+        {{ datasetNameDisplay() }}
       </div>
-    </div>
-    <div class="grid-child-top">
-       <div class="status-dropdown">
        <el-dropdown
               class="dataset-status-dropdown"
               trigger="click"
@@ -44,6 +41,12 @@
                 color="#404554"
              />
              </button>
+             <el-dropdown-menu
+               slot="dropdown"
+               class="bf-menu auto-height"
+               :offset="14"
+               :arrow-offset="150"
+             >
              <el-dropdown-item
                 v-for="status in filterOrgStatusList"
                 :key="status.id"
@@ -65,9 +68,7 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-       </div>
-    </div>
-  </div>
+  </template>
     <div
       class="row bf-rafter-breadcrumb"
       :class="[ this.$slots['breadcrumb'] ? 'has-breadcrumb' : 'no-breadcrumb' ]"
@@ -257,20 +258,14 @@
       align-items: center;
     }
   }
-  .grid-parent-top {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
-    width: 50%;
-  }
-  .grid-child-top {
-    margin: 10px;
-  }
+
 </style>
 
 <script>
 import  { mapState, mapGetters, mapActions } from 'vuex';
 import { path, pathOr } from 'ramda'
+import EventBus from '@/utils/event-bus'
+import Request from '../../../mixins/request/index'
   export default {
     name: 'BfRafter',
 
@@ -288,6 +283,9 @@ import { path, pathOr } from 'ramda'
         default: false
       }
     },
+
+  mixins: [Request],
+
   data: function() {
     return {
       datasetNameTruncated: false,
@@ -298,12 +296,14 @@ import { path, pathOr } from 'ramda'
 
     ,
   computed: {
-    ...mapState(['dataset', 'orgDatasetStatuses']),
+    ...mapState(['dataset', 'orgDatasetStatuses','datasetRafterVisStatus']),
+
     ...mapGetters([
       'getPermission',
       'userToken',
       'config'
     ]),
+
     /**
      * Filters empty status names from orgDatasetStatuses
      * @returns {Array}
@@ -320,24 +320,13 @@ import { path, pathOr } from 'ramda'
   formatDatasetStatus: function() {
     return pathOr('', ['status', 'displayName'], this.dataset)
   },
+
     datasetNameDisplay: function() {
       const name = this.datasetName
+      this.toggleDatasetVis(true);
+      this.datasetNameTruncated = false
 
-      if (name.length > 20) {
-        this.datasetNameTruncated = true
-        return `${name.slice(0, 17)}...`
-      } else {
-        this.datasetNameTruncated = false
-      }
       return name
-    },
-
-    /**
-     * Returns the dataset status displayName
-     * @returns {String}
-     */
-    formatDatasetStatus: function() {
-      return pathOr('', ['status', 'displayName'], this.dataset)
     },
 
     getDatasetUpdateUrl: function() {
@@ -365,18 +354,23 @@ import { path, pathOr } from 'ramda'
       return pathOr('', ['status', 'color'], this.dataset)
     }
   },
+
   methods: {
     ...mapActions([
       'updateDataset',
-      'setDataset'
+      'setDataset',
+      'toggleDatasetVis'
     ]),
-    hasDataset: function() {
+
+    datasetNameVisible: function() {
       console.log(datasetNameDisplay)
-      if (this.datasetNameDisplay == '' ){
-        return False
+      if (this.datasetRafterVisStatus == True ){
+        console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
+        return True
       }
       else {
-        return True
+        console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
+        return False
       }
     },
     datasetName: function() {
