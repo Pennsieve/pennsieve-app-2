@@ -8,7 +8,7 @@
   >
   <div class="grid-parent-top
     v-if="hasDataset">
-    <div class="flex-child-top" >
+    <div class="grid-child-top" >
       <div class="dataset-name" >
         {{ datasetNameDisplay }}
       </div>
