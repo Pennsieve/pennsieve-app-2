@@ -298,7 +298,7 @@ import Request from '../../../mixins/request/index'
 
     ,
   computed: {
-    ...mapState(['dataset', 'orgDatasetStatuses','datasetRafterVisStatus']),
+    ...mapState(['dataset', 'orgDatasetStatuses','datasetRafterVisStatus','datasetRafterVisStatus2']),
 
     ...mapGetters([
       'getPermission',
@@ -357,23 +357,23 @@ import Request from '../../../mixins/request/index'
     },
 
     datasetNameVisible: function() {
-      console.log(datasetNameDisplay)
+      console.log(this.datasetNameDisplay())
       if (this.datasetRafterVisStatus){
         console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
-        return True
+        return true
       }
       else {
         console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
-        return False
+        return false
       }
     },
 
     datasetNameVisible2: function() {
       if (this.datasetRafterVisStatus2) {
-        return True
+        return true
       }
       else {
-        return False
+        return false
       }
     }
   },
