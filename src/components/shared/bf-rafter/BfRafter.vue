@@ -354,19 +354,11 @@ import Request from '../../../mixins/request/index'
      */
     checkStatusColor: function() {
       return pathOr('', ['status', 'color'], this.dataset)
-    }
-  },
-
-  methods: {
-    ...mapActions([
-      'updateDataset',
-      'setDataset',
-      'toggleDatasetVis'
-    ]),
+    },
 
     datasetNameVisible: function() {
       console.log(datasetNameDisplay)
-      if (this.datasetRafterVisStatus == True ){
+      if (this.datasetRafterVisStatus){
         console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
         return True
       }
@@ -377,13 +369,22 @@ import Request from '../../../mixins/request/index'
     },
 
     datasetNameVisible2: function() {
-      if (this.datasetRafterVisStatus2 == True ) {
+      if (this.datasetRafterVisStatus2) {
         return True
       }
       else {
         return False
       }
-    },
+    }
+  },
+
+  methods: {
+    ...mapActions([
+      'updateDataset',
+      'setDataset',
+      'toggleDatasetVis'
+    ]),
+
 
     datasetName: function() {
       return pathOr('', ['content', 'name'], this.dataset)
