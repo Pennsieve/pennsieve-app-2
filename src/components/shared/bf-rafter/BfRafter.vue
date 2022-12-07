@@ -11,9 +11,9 @@
     >
 
       <div v-if="datasetNameVisible2" class="dataset-name" >
-        {{ datasetNameDisplay() }}
+        {{datasetNameDisplay()}}
       </div>
-
+      <br>
        <el-dropdown
               class="dataset-status-dropdown"
               trigger="click"
@@ -71,6 +71,8 @@
             </el-dropdown-menu>
           </el-dropdown>
   </template>
+  <br>
+  <br>
     <div
       class="row bf-rafter-breadcrumb"
       :class="[ this.$slots['breadcrumb'] ? 'has-breadcrumb' : 'no-breadcrumb' ]"
