@@ -159,6 +159,7 @@
         users: [],
         teams: [],
         organizations: [],
+        external: [],
         sortBy: 'lastName',
         processingForm: false,
         sortDirection: 'asc',
@@ -263,6 +264,15 @@
           }
         },
         immediate: true
+      },
+
+      orgMembers: {
+        handler: function(val) {
+          if (val) {
+            this.getUsers()
+          }
+        },
+        immediate: true
       }
     },
 
@@ -355,6 +365,12 @@
           if (isAdding) {
             // Add to the proper list based on entity
             this[entity].push(body)
+
+            // if the added entity is 'external' then a user was added to the organization
+            // as a guest, and we need to re-fetch the organization users
+            if (entity === 'external') {
+              EventBus.$emit('update-organization-members', {})
+            }
 
             // Clear form
             this.$refs.addPermissionForm.reset()
