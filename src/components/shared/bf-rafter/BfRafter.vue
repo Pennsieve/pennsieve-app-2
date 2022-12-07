@@ -28,7 +28,7 @@
             <span class="dataset-info">
               <div
                 :style="{ 'background-color': checkStatusColor }"
-                class="dot main-status"
+                class="status-dot main-status"
                 />
               <div class="dataset-status">
                 {{ formatDatasetStatus }}
