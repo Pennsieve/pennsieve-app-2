@@ -8,6 +8,8 @@
         v-if="!pageNotFound"
         tag="button"
         :to="logoRoute"
+        @click.native="setDatasetVis()"
+
       >
         <svg-icon
           v-show="!primaryNavCondensed || secondaryNavOpen"
@@ -54,7 +56,7 @@
         label="Datasets"
         icon="icon-datasets"
         :condensed="primaryNavCondensed"
-        @click="setDatasetVis()"
+        @click.native="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -63,7 +65,7 @@
         label="People"
         icon="icon-person"
         :condensed="primaryNavCondensed"
-        @click="setDatasetVis()"
+        @click.native="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -72,7 +74,7 @@
         label="Teams"
         icon="icon-team"
         :condensed="primaryNavCondensed"
-        @click="setDatasetVis()"
+        @click.native="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -82,7 +84,7 @@
         label="Publishing"
         icon="icon-public"
         :condensed="primaryNavCondensed"
-        @click="setDatasetVis()"
+        @click.native="setDatasetVis()"
       />
 
       <bf-navigation-item
@@ -92,7 +94,7 @@
         label="Integrations"
         icon="icon-integrations"
         :condensed="primaryNavCondensed"
-        @click="setDatasetVis()"
+        @click.native="setDatasetVis()"
       />
 
       <bf-navigation-item

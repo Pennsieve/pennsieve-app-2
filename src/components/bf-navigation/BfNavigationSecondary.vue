@@ -53,6 +53,7 @@
         class="secondary"
         :condensed="secondaryNavCondensed"
         :secondary=true
+        @click.native="setDatasetVisFalse()"
       />
 
       <bf-navigation-item
@@ -61,6 +62,7 @@
         label="Records"
         class="secondary"
         :condensed="secondaryNavCondensed"
+        @click.native="setDatasetVisFalse()"
       />
 
       <bf-navigation-item
@@ -69,6 +71,7 @@
         label="Files"
         class="secondary"
         :condensed="secondaryNavCondensed"
+        @click.native="setDatasetVisTrue()"
       >
         <bf-waiting-icon
           v-if="uploading"
@@ -83,6 +86,7 @@
         label="Models"
         class="secondary"
         :condensed="secondaryNavCondensed"
+        @click.native="setDatasetVisTrue()"
       />
 
       <bf-navigation-item
@@ -91,6 +95,7 @@
         label="Permissions"
         :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
         :condensed="secondaryNavCondensed"
+        @click.native="setDatasetVisTrue()"
       />
 
       <bf-navigation-item
@@ -99,6 +104,7 @@
           label="Activity"
           class="secondary"
           :condensed="secondaryNavCondensed"
+          @click.native="setDatasetVisTrue()"
         />
 
       <bf-navigation-item
@@ -108,6 +114,7 @@
         label="Settings"
         class="secondary"
         :condensed="secondaryNavCondensed"
+        @click.native="setDatasetVisTrue()"
       />
     </div>
 
@@ -283,8 +290,22 @@ export default {
       'togglePrimaryNav',
       'condenseSecondaryNav',
       'updateDataset',
-      'setDataset'
+      'setDataset',
+      'toggleDatasetVis2'
     ]),
+
+    /*
+     * Sets the dataset name visibility flag to false
+     */
+    setDatasetVisFalse: function() {
+      console.log("SETTING VISIBILITY TO FALSE")
+      this.toggleDatasetVis2(false)
+    },
+
+    setDatasetVisTrue: function() {
+      console.log("SETTING VISIBILITY TO TRUE")
+      this.toggleDatasetVis2(true)
+    },
 
     /**
      * Returns dataset status name based on command selection in menu

@@ -204,7 +204,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import { propOr, pathOr } from 'ramda'
 
 import BfNavigationItem from '../bf-navigation-item/BfNavigationItem.vue'
@@ -344,7 +344,6 @@ export default {
       console.log("SETTING VISIBILITY TO FALSE")
       this.toggleDatasetVis(false)
     },
-
     /**
      * Close all menus
      */

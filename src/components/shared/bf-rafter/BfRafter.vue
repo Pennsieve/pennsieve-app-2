@@ -9,9 +9,11 @@
   <template
     v-if="datasetNameVisible"
     >
-      <div class="dataset-name" >
+
+      <div v-if="datasetNameVisible2" class="dataset-name" >
         {{ datasetNameDisplay() }}
       </div>
+
        <el-dropdown
               class="dataset-status-dropdown"
               trigger="click"
@@ -373,6 +375,16 @@ import Request from '../../../mixins/request/index'
         return False
       }
     },
+
+    datasetNameVisible2: function() {
+      if (this.datasetRafterVisStatus2 == True ) {
+        return True
+      }
+      else {
+        return False
+      }
+    },
+
     datasetName: function() {
       return pathOr('', ['content', 'name'], this.dataset)
     },

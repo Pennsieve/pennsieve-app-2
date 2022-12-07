@@ -79,6 +79,7 @@ export const state = {
   primaryNavOpen: true,
   primaryNavCondensed: false,
   datasetRafterVisStatus: false,
+  datasetRafterVisStatus2: true,
   secondaryNavOpen: false,
   secondaryNavCondensed: false,
   editingInstance: false,
@@ -237,6 +238,9 @@ export const mutations = {
   },
   SET_DATASET_VIS_TO_FALSE (state, datasetRafterVisibility) {
     Vue.set(state, 'datasetRafterVisStatus', datasetRafterVisibility)
+  },
+  SET_DATASET_VIS_TO_FALSE_2 (state, datasetRafterVisibility2) {
+    Vue.set(state, 'datasetRafterVisStatus2', datasetRafterVisibility2)
   },
   CONDENSE_SECONDARY_NAV (state, condensed) {
     Vue.set(state, 'secondaryNavCondensed', condensed)
@@ -667,6 +671,7 @@ export const actions = {
   togglePrimaryNav: ({ commit }, evt) => commit('TOGGLE_PRIMARY_NAV', evt),
   condensePrimaryNav: ({ commit }, evt) => commit('CONDENSE_PRIMARY_NAV', evt),
   toggleDatasetVis: ({ commit }, evt) => commit('SET_DATASET_VIS_TO_FALSE', evt),
+  toggleDatasetVis2: ({ commit }, evt) => commit('SET_DATASET_VIS_TO_FALSE_2', evt),
   toggleSecondaryNav: ({ commit }, evt) => commit('TOGGLE_SECONDARY_NAV', evt),
   condenseSecondaryNav: ({ commit }, evt) => commit('CONDENSE_SECONDARY_NAV', evt),
   updateHasGravatar: ({ commit }, evt) => commit('UPDATE_HAS_GRAVATAR', evt),
