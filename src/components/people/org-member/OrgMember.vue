@@ -107,28 +107,21 @@
               command="make-collaborator"
               class="bf-menu-item"
             >
-              Set to Collaborator
+              Promote to Collaborator
             </el-dropdown-item>
             <el-dropdown-item
-              v-if="getRole(item.role) !== 'Guest'"
-              command="make-guest"
-              class="bf-menu-item"
-            >
-              Set as Guest
-            </el-dropdown-item>
-            <el-dropdown-item
-              v-if="getRole(item.role) !== 'Administrator'"
+              v-if="getRole(item.role) !== 'Administrator' && getRole(item.role) !== 'Guest'"
               command="promote-admin"
               class="bf-menu-item"
             >
-              Promote to Admin
+              Add Admin Privileges
             </el-dropdown-item>
             <el-dropdown-item
               v-if="getRole(item.role) === 'Administrator'"
               command="demote-admin"
               class="bf-menu-item"
             >
-              Demote Admin
+              Remove Admin Privileges
             </el-dropdown-item>
             <el-dropdown-item
               command="reset-password"
