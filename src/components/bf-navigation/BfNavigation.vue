@@ -8,7 +8,7 @@
         v-if="!pageNotFound"
         tag="button"
         :to="logoRoute"
-        @click.native="setDatasetVis()"
+
 
       >
         <svg-icon
@@ -56,7 +56,7 @@
         label="Datasets"
         icon="icon-datasets"
         :condensed="primaryNavCondensed"
-        @click.native="setDatasetVis()"
+
       />
 
       <bf-navigation-item
@@ -65,7 +65,7 @@
         label="People"
         icon="icon-person"
         :condensed="primaryNavCondensed"
-        @click.native="setDatasetVis()"
+
       />
 
       <bf-navigation-item
@@ -74,7 +74,7 @@
         label="Teams"
         icon="icon-team"
         :condensed="primaryNavCondensed"
-        @click.native="setDatasetVis()"
+
       />
 
       <bf-navigation-item
@@ -84,7 +84,7 @@
         label="Publishing"
         icon="icon-public"
         :condensed="primaryNavCondensed"
-        @click.native="setDatasetVis()"
+
       />
 
       <bf-navigation-item
@@ -94,7 +94,7 @@
         label="Integrations"
         icon="icon-integrations"
         :condensed="primaryNavCondensed"
-        @click.native="setDatasetVis()"
+
       />
 
       <bf-navigation-item
@@ -200,16 +200,9 @@
     methods: {
       ...mapActions([
         'togglePrimaryNav',
-        'condensePrimaryNav',
-        'toggleDatasetVis'
+        'condensePrimaryNav'
       ]),
-      /*
-       * Sets the dataset name visibility flag to false
-       */
-      setDatasetVis: function() {
-        console.log("SETTING VISIBILITY TO FALSE")
-        this.toggleDatasetVis(false)
-      },
+      
       /**
        * Toggles primary nav open and closed
        */

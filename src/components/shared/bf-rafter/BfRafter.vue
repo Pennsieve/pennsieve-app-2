@@ -9,11 +9,13 @@
   <template
     v-if="datasetNameVisible"
     >
-
+    <div class="parent">
       <div v-if="datasetNameVisible2" class="dataset-name" >
         {{datasetNameDisplay()}}
       </div>
+
       <br>
+
        <el-dropdown
               class="dataset-status-dropdown"
               trigger="click"
@@ -70,6 +72,7 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+    </div>
   </template>
   <br>
   <br>
@@ -235,10 +238,19 @@
     float: right;
   }
   .dataset-name {
+    position: absolute;
     font-weight: bold;
     font-size: 20px;
     color: $gray_6;
     margin-left: 4px;
+  }
+  .dataset-status-dropdown {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+  }
+  .parent {
+    position: relative;
   }
   .dataset-status {
     color: $gray_4;
@@ -295,6 +307,7 @@ import Request from '../../../mixins/request/index'
       datasetNameTruncated: false,
       datasetname: '',
       datasetFilterOpen: false,
+      datasetPageList: [ 'dataset-overview', 'records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings'],
     }
   }
 
@@ -327,7 +340,6 @@ import Request from '../../../mixins/request/index'
 
     datasetNameDisplay: function() {
       const name = this.datasetName
-      this.toggleDatasetVis(true);
       this.datasetNameTruncated = false
 
       return name
@@ -359,23 +371,23 @@ import Request from '../../../mixins/request/index'
     },
 
     datasetNameVisible: function() {
-      console.log(this.datasetNameDisplay())
-      if (this.datasetRafterVisStatus){
-        console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
+      console.log(this.$route.name)
+      let routeName = this.$route.name
+      if (this.datasetPageList.includes(routeName)) {
         return true
       }
       else {
-        console.log("IS THE DATASET NAME VISIBLE?", this.datasetRafterVisStatus)
         return false
       }
     },
 
     datasetNameVisible2: function() {
-      if (this.datasetRafterVisStatus2) {
-        return true
-      }
-      else {
+      let routeName = this.$route.name
+      if (routeName == 'records-overview' ) {
         return false
+      }
+      else  {
+        return true
       }
     }
   },
@@ -383,8 +395,7 @@ import Request from '../../../mixins/request/index'
   methods: {
     ...mapActions([
       'updateDataset',
-      'setDataset',
-      'toggleDatasetVis'
+      'setDataset'
     ]),
 
 
