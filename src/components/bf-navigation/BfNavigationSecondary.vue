@@ -53,7 +53,7 @@
         class="secondary"
         :condensed="secondaryNavCondensed"
         :secondary=true
-        @click.native="setDatasetVisFalse()"
+        @click.native="setDatasetVisTrue()"
       />
 
       <bf-navigation-item
