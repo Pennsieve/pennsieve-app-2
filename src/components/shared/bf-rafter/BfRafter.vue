@@ -6,76 +6,13 @@
       isEditing ? 'editing' : ''
     ]"
   >
-  <template
-    v-if="datasetNameVisible"
-    >
+  <template v-if="datasetNameVisible">
     <div class="parent">
-      <div v-if="datasetNameVisible2" class="dataset-name" >
+      <div class="dataset-name" >
         {{datasetNameDisplay()}}
       </div>
-
-      <br>
-
-       <el-dropdown
-              class="dataset-status-dropdown"
-              trigger="click"
-              placement="bottom-start"
-              @command="updateDatasetStatus"
-              @visible-change="datasetFilterOpen = $event"
-            >
-            <button
-                 class="dataset-filter-dropdown el-dropdown-link"
-                 :disabled="!(getPermission('manager'))"
-            >
-            <span class="dataset-info">
-              <div
-                :style="{ 'background-color': checkStatusColor }"
-                class="status-dot main-status"
-                />
-              <div class="dataset-status">
-                {{ formatDatasetStatus }}
-              </div>
-            </span>
-            <svg-icon
-                v-if="getPermission('manager')"
-                name="icon-arrow-up"
-                :dir="datasetFilterArrowDir"
-                height="7"
-                width="7"
-                color="#404554"
-             />
-             </button>
-             <el-dropdown-menu
-               slot="dropdown"
-               class="bf-menu auto-height"
-               :offset="14"
-               :arrow-offset="150"
-             >
-             <el-dropdown-item
-                v-for="status in filterOrgStatusList"
-                :key="status.id"
-                class="status-item"
-                :command="getStatusCommand(status)"
-              >
-              <span
-                  class="status-dot"
-                  :style="getDotColor(status)"
-              />
-                {{ status.displayName }}
-                <svg-icon
-                    v-if="formatDatasetStatus === `${status.displayName}`"
-                    icon="icon-check"
-                    class="dataset-filter-status-check"
-                    width="20"
-                    height="20"
-                />
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
     </div>
   </template>
-  <br>
-  <br>
     <div
       class="row bf-rafter-breadcrumb"
       :class="[ this.$slots['breadcrumb'] ? 'has-breadcrumb' : 'no-breadcrumb' ]"
@@ -238,17 +175,16 @@
     float: right;
   }
   .dataset-name {
-    position: absolute;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 20px;
-    color: $gray_6;
-    margin-left: 4px;
+    color: $purple_2;
+    padding-top: 12px;
   }
-  .dataset-status-dropdown {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-  }
+  //.dataset-status-dropdown {
+  //  position: absolute;
+  //  right: 0px;
+  //  top: 0px;
+  //}
   .parent {
     position: relative;
   }
@@ -307,7 +243,7 @@ import Request from '../../../mixins/request/index'
       datasetNameTruncated: false,
       datasetname: '',
       datasetFilterOpen: false,
-      datasetPageList: [ 'dataset-overview', 'records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings'],
+      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings'],
     }
   }
 
@@ -320,23 +256,28 @@ import Request from '../../../mixins/request/index'
       'userToken',
       'config'
     ]),
+    currentRouteName: function() {
+      return this.$route.name;
+    },
 
     /**
      * Filters empty status names from orgDatasetStatuses
      * @returns {Array}
      */
     filterOrgStatusList: function() {
-      return this.orgDatasetStatuses.filter(status => {
-        return status.displayName !== ''
-    })
-  },
-  /**
-   * Returns the dataset status displayName
-   * @returns {String}
-   */
-  formatDatasetStatus: function() {
-    return pathOr('', ['status', 'displayName'], this.dataset)
-  },
+        return this.orgDatasetStatuses.filter(status => {
+          return status.displayName !== ''
+      })
+    },
+
+
+    /**
+     * Returns the dataset status displayName
+     * @returns {String}
+     */
+    formatDatasetStatus: function() {
+      return pathOr('', ['status', 'displayName'], this.dataset)
+    },
 
     datasetNameDisplay: function() {
       const name = this.datasetName
@@ -371,23 +312,11 @@ import Request from '../../../mixins/request/index'
     },
 
     datasetNameVisible: function() {
-      console.log(this.$route.name)
-      let routeName = this.$route.name
-      if (this.datasetPageList.includes(routeName)) {
+      if ( this.datasetPageList.includes(this.currentRouteName) ) {
         return true
-      }
-      else {
-        return false
-      }
-    },
-
-    datasetNameVisible2: function() {
-      let routeName = this.$route.name
-      if (routeName == 'records-overview' ) {
-        return false
       }
       else  {
-        return true
+        return false
       }
     }
   },
