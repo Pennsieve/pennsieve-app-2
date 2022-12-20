@@ -41,6 +41,16 @@
               <el-input v-model="ruleForm.email" />
             </a11y-keys>
           </el-form-item>
+          <el-form-item
+            label="Message (Optional)"
+            prop="customMessage"
+          >
+            <el-input
+              type="textarea"
+              :rows="4"
+              placeholder="Enter a custom invite message..."
+              v-model="ruleForm.customMessage" />
+          </el-form-item>
         </el-form>
       </dialog-body>
 
@@ -123,7 +133,8 @@ export default {
       ruleForm: {
         firstName: '',
         lastName: '',
-        email: ''
+        email: '',
+        customMessage: ''
       },
       rules: {
         firstName: [

@@ -41,6 +41,11 @@ export default [
         label: 'Creative Commons Attribution-ShareAlike (CC-BY-SA)',
         value: 'Creative Commons Attribution - ShareAlike',
         link:  'https://creativecommons.org/licenses/by-sa/4.0/'
+      },
+      {
+        label: 'Creative Commons Attribution-NonCommercial-ShareAlike (CC BY-NC-SA)',
+        value: 'Creative Commons Attribution - NonCommercial-ShareAlike',
+        link:  'https://creativecommons.org/licenses/by-nc-sa/4.0/'
       }
     ]
   },

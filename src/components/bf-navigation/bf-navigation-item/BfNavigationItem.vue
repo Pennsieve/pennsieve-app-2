@@ -66,6 +66,25 @@
         default: ''
       }
     }
+    /*
+    methods: {
+      ...mapActions([
+        'toggleDatasetVis'
+      ]),
+
+      handler: function() {
+        $emit(item)
+        this.setDatasetVis
+      },
+
+      setDatasetVis: function() {
+        if (label == "Datasets" || "People" || "Teams" || "Publishing" || "Integrations"){
+        console.log("SETTING VISIBILITY TO FALSE")
+        this.toggleDatasetVis(false)
+      }
+      },
+    }
+    */
   }
 </script>
 
