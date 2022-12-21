@@ -50,7 +50,7 @@
     "lodash": "^4.17.4",
     "lodash.snakecase": "^4.1.1",
     "long": "^4.0.0",
-    "marked": "^0.7.0",
+    "marked": "^4.0.10",
     "moment": "^2.20.1",
     "moment-range": "^4.0.2",
     "moment-timezone": "^0.5.35",
