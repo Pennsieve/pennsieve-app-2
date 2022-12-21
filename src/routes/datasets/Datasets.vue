@@ -41,13 +41,15 @@
         'dataset',
         'isDatasetOwner',
         'activeOrganization',
-        'datasetRole'
+        'datasetRole',
+        'activeOrgSynced'
       ]),
 
       ...mapGetters([
         'getActiveOrganization',
         'hasFeature',
-        'getPermission'
+        'getPermission',
+        'isOrgSynced'
       ]),
 
        /**
@@ -65,7 +67,7 @@
        */
       getDatasetUrl: function() {
         const datasetId = pathOr('', ['params', 'datasetId'], this.$route)
-        return this.config.apiUrl && this.userToken && datasetId
+        return this.config.apiUrl && this.userToken && datasetId && this.isOrgSynced
           ? `${this.config.apiUrl}/datasets/${datasetId}?api_key=${this.userToken}&includePublishedDataset=true&includeCollaboratorCounts=true`
           : ''
       },
@@ -90,6 +92,8 @@
     },
 
     watch: {
+
+
 
       /**
        * Watch to compute dataset
