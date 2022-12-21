@@ -8,12 +8,16 @@
         slot="heading"
         class="flex-heading"
       >
-        {{ datasetName }}
-      </h1>
-
-      <span slot="breadcrumb">
+        <svg-icon
+          v-if="datasetLocked"
+          class="mr-8"
+          color="#71747C"
+          name="icon-lock-filled"
+          height="24"
+          width="24"
+        />
         Records
-      </span>
+      </h1>
 
       <ul
         slot="tabs"
@@ -91,7 +95,9 @@
 
       ...mapGetters([
         'modelsCount',
-        'totalRecordsCount'
+        'totalRecordsCount',
+        'datasetLocked'
+
       ]),
 
       /**
