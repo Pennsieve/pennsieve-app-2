@@ -48,12 +48,16 @@
       </div>
       &nbsp;
       <template v-if="onFilesPage">
-        <bf-button
-         class="secondary"
-         @click="NavToDelete"
-        >
-          Deleted Files
-        </bf-button>
+      <router-link
+        to="{ name: 'dataset-files-deleted' }"
+      >
+          <bf-button
+           class="secondary"
+           @click="NavToDelete"
+          >
+            Deleted Files
+          </bf-button>
+        </router-link>
       </template >
     </div>
 
@@ -410,16 +414,10 @@ import BfButton from '../bf-button/BfButton.vue'
     },
     //Navigates to dataset trash bin
     NavToDelete: function() {
-      //this.$emit('click-file-label', file)
+      //CONSIDER DOING SOMETHING LIKE FETCHFILES()
       console.log('NAVIGATING TO DELETED FILES')
       /*
-      this.$router.push({
-        name: 'file-record',
-        params: {
-          conceptId: this.filesProxyId,
-          instanceId: id
-        }
-      })
+      this.$router.push({name: 'collection-files', params: {fileId: id}})
       */
     },
   }
