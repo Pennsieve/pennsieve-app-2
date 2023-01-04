@@ -39,12 +39,22 @@
           <slot name="description" />
         </div>
       </div>
+
       <div
         v-if="$slots['buttons']"
         class="col bf-rafter-buttons"
       >
         <slot name="buttons" />
       </div>
+      &nbsp;
+      <template v-if="onFilesPage">
+        <bf-button
+         class="secondary"
+         @click="NavToDelete"
+        >
+          Deleted Files
+        </bf-button>
+      </template >
     </div>
 
     <div
@@ -218,6 +228,7 @@ import  { mapState, mapGetters, mapActions } from 'vuex';
 import { path, pathOr } from 'ramda'
 import EventBus from '@/utils/event-bus'
 import Request from '../../../mixins/request/index'
+import BfButton from '../bf-button/BfButton.vue'
   export default {
     name: 'BfRafter',
 
@@ -236,6 +247,10 @@ import Request from '../../../mixins/request/index'
       }
     },
 
+    components: {
+      BfButton
+    },
+
   mixins: [Request],
 
   data: function() {
@@ -243,7 +258,7 @@ import Request from '../../../mixins/request/index'
       datasetNameTruncated: false,
       datasetname: '',
       datasetFilterOpen: false,
-      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings'],
+      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings']
     }
   }
 
@@ -318,6 +333,16 @@ import Request from '../../../mixins/request/index'
       else  {
         return false
       }
+    },
+
+    onFilesPage: function() {
+      let filesTable = 'dataset-files';
+      if ( filesTable.includes(this.currentRouteName) ) {
+        return true
+      }
+      else  {
+        return false
+      }
     }
   },
 
@@ -382,7 +407,21 @@ import Request from '../../../mixins/request/index'
 
         })
         .catch(this.handleXhrError.bind(this))
-    }
+    },
+    //Navigates to dataset trash bin
+    NavToDelete: function() {
+      //this.$emit('click-file-label', file)
+      console.log('NAVIGATING TO DELETED FILES')
+      /*
+      this.$router.push({
+        name: 'file-record',
+        params: {
+          conceptId: this.filesProxyId,
+          instanceId: id
+        }
+      })
+      */
+    },
   }
   }
 </script>
