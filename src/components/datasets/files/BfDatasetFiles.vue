@@ -333,6 +333,7 @@ export default {
     EventBus.$on('dismiss-upload-info', this.onDismissUploadInfo.bind(this))
     EventBus.$on('update-uploaded-file-state', this.onUpdateUploadedFileState.bind(this))
     EventBus.$on('update-external-file', this.onFileRenamed)
+    EventBus.$on('fetchDeletedFiles',this.fetchFiles())
   },
 
   destroyed: function () {
@@ -356,6 +357,10 @@ export default {
   },
 
   methods: {
+
+    fetchDeleted: function() {
+
+    },
     /**
      * Set selected files
      * @param {Array} selection
@@ -402,6 +407,7 @@ export default {
      * Send API request to get files for item
      */
     fetchFiles: function () {
+      console.log('calling again')
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.file = response

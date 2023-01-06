@@ -31,15 +31,15 @@
         >
           <slot name="heading" />
         </div>
-
+    
         <div
           v-if="$slots['description']"
           class="bf-rafter-description"
         >
           <slot name="description" />
         </div>
-      </div>
 
+      </div>
       <div
         v-if="$slots['buttons']"
         class="col bf-rafter-buttons"
@@ -48,16 +48,12 @@
       </div>
       &nbsp;
       <template v-if="onFilesPage">
-      <router-link
-        to="{ name: 'dataset-files-deleted' }"
-      >
           <bf-button
            class="secondary"
            @click="NavToDelete"
           >
             Deleted Files
           </bf-button>
-        </router-link>
       </template >
     </div>
 
@@ -233,6 +229,7 @@ import { path, pathOr } from 'ramda'
 import EventBus from '@/utils/event-bus'
 import Request from '../../../mixins/request/index'
 import BfButton from '../bf-button/BfButton.vue'
+
   export default {
     name: 'BfRafter',
 
@@ -416,6 +413,7 @@ import BfButton from '../bf-button/BfButton.vue'
     NavToDelete: function() {
       //CONSIDER DOING SOMETHING LIKE FETCHFILES()
       console.log('NAVIGATING TO DELETED FILES')
+      EventBus.$emit('fetchDeletedFiles')
       /*
       this.$router.push({name: 'collection-files', params: {fileId: id}})
       */
