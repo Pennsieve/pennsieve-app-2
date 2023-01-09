@@ -135,6 +135,12 @@
       @folder-created="onFolderCreated"
     />
 
+    <deleted-files
+        :open.sync="deletedDialogOpen"
+        @close-upload-dialog = "closeDeletedDialog"
+
+    />
+
     <bf-move-dialog
       ref="moveDialog"
       :file="file"
@@ -184,6 +190,7 @@ import BfDropInfo from './bf-drop-info/BfDropInfo.vue'
 import BfUploadInfo from './bf-upload-info/BfUploadInfo.vue'
 import FilesTable from '../../FilesTable/FilesTable.vue'
 import BfUploadMenu from './bf-upload-menu/BfUploadMenu.vue'
+import DeletedFiles from '../../DeletedFiles/DeletedFiles.vue'
 
 import Sorter from '../../../mixins/sorter/index'
 import Request from '../../../mixins/request/index'
@@ -333,7 +340,10 @@ export default {
     EventBus.$on('dismiss-upload-info', this.onDismissUploadInfo.bind(this))
     EventBus.$on('update-uploaded-file-state', this.onUpdateUploadedFileState.bind(this))
     EventBus.$on('update-external-file', this.onFileRenamed)
-    EventBus.$on('fetchDeletedFiles',this.fetchFiles())
+    EventBus.$on('openDeletedModal', (data) => {
+      this.deletedDialogOpen = data;
+      this.fetchDeleted()
+    })
   },
 
   destroyed: function () {
@@ -358,6 +368,14 @@ export default {
 
   methods: {
 
+    fetchDeleted: function() {
+      EventBus.$emit('fetchDeleted',true)
+    },
+
+    closeDeletedDialog: function () {
+      this.deletedDialogOpen = false;
+    },
+    //funciton will retrieve all files in a dataset marked as deleted.
     fetchDeleted: function() {
 
     },

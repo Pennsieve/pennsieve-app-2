@@ -31,7 +31,7 @@
         >
           <slot name="heading" />
         </div>
-    
+
         <div
           v-if="$slots['description']"
           class="bf-rafter-description"
@@ -50,7 +50,7 @@
       <template v-if="onFilesPage">
           <bf-button
            class="secondary"
-           @click="NavToDelete"
+           @click="NavToDeleted"
           >
             Deleted Files
           </bf-button>
@@ -409,14 +409,12 @@ import BfButton from '../bf-button/BfButton.vue'
         })
         .catch(this.handleXhrError.bind(this))
     },
-    //Navigates to dataset trash bin
-    NavToDelete: function() {
+    //Navigates to dataset trash bin modal
+    NavToDeleted: function() {
       //CONSIDER DOING SOMETHING LIKE FETCHFILES()
       console.log('NAVIGATING TO DELETED FILES')
-      EventBus.$emit('fetchDeletedFiles')
-      /*
-      this.$router.push({name: 'collection-files', params: {fileId: id}})
-      */
+      EventBus.$emit('openDeletedModal',true)
+
     },
   }
   }
