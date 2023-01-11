@@ -137,7 +137,7 @@
 
     <deleted-files
         :open.sync="deletedDialogOpen"
-        @close-upload-dialog = "closeDeletedDialog"
+        @close-deleted-dialog = "closeDeletedDialog"
 
     />
 
@@ -191,7 +191,6 @@ import BfUploadInfo from './bf-upload-info/BfUploadInfo.vue'
 import FilesTable from '../../FilesTable/FilesTable.vue'
 import BfUploadMenu from './bf-upload-menu/BfUploadMenu.vue'
 import DeletedFiles from '../../DeletedFiles/DeletedFiles.vue'
-
 import Sorter from '../../../mixins/sorter/index'
 import Request from '../../../mixins/request/index'
 import EventBus from '../../../utils/event-bus'
@@ -215,7 +214,8 @@ export default {
     BreadcrumbNavigation,
     BfUploadMenu,
     FilesTable,
-    LockedBanner
+    LockedBanner,
+    DeletedFiles
   },
 
   mixins: [
@@ -239,7 +239,8 @@ export default {
       showDropInfo: false,
       showUploadInfo: false,
       sortDirection: 'asc',
-      singleFile: {}
+      singleFile: {},
+      deletedDialogOpen: false
     }
   },
 
@@ -375,10 +376,7 @@ export default {
     closeDeletedDialog: function () {
       this.deletedDialogOpen = false;
     },
-    //funciton will retrieve all files in a dataset marked as deleted.
-    fetchDeleted: function() {
 
-    },
     /**
      * Set selected files
      * @param {Array} selection
