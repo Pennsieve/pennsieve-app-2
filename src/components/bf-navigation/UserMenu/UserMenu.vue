@@ -169,6 +169,9 @@
         <span id="organization-name">
           {{ organizationName }}
         </span>
+        <span v-if="isWorkspaceGuest" id="workspace-guest">
+          (workspace guest)
+        </span>
       </div>
 
       <svg-icon
@@ -305,6 +308,11 @@ export default {
      */
     organizationName: function() {
       return pathOr('----', ['organization', 'name'], this.activeOrganization)
+    },
+
+    isWorkspaceGuest: function() {
+      const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+      return isGuest
     },
 
     /**
@@ -517,6 +525,10 @@ export default {
   }
   #organization-name {
     font-size: 12px
+  }
+  #workspace-guest {
+    font-size: 10px;
+    color: #999999;
   }
   .icon-caret {
     flex-shrink: none;

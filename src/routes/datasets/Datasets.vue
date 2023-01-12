@@ -411,22 +411,22 @@
        * Get model templates
        */
       getModelTemplates: function(){
-        if (!this.getModelTemplatesUrl) {
-          return
-        }
-        this.sendXhr(this.getModelTemplatesUrl, {
-          header: {
-            'Authorization': `bearer ${this.userToken}`
-          },
-        })
-          .then(resp => {
-            const updatedTemplates = resp.map(template => {
-              template.isDisabled = this.templateInUse(template.name)
-              return template
-            })
-            this.updateModelTemplates(updatedTemplates)
-          })
-          .catch(this.handleXhrError.bind(this))
+        // if (!this.getModelTemplatesUrl) {
+        //   return
+        // }
+        // this.sendXhr(this.getModelTemplatesUrl, {
+        //   header: {
+        //     'Authorization': `bearer ${this.userToken}`
+        //   },
+        // })
+        //   .then(resp => {
+        //     const updatedTemplates = resp.map(template => {
+        //       template.isDisabled = this.templateInUse(template.name)
+        //       return template
+        //     })
+        //     this.updateModelTemplates(updatedTemplates)
+        //   })
+        //   .catch(this.handleXhrError.bind(this))
       },
 
       /**
