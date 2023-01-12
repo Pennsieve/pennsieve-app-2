@@ -78,7 +78,8 @@ export default {
       'config',
       'userToken',
       'hasFeature',
-      'hasOrcidOnboardingEvent'
+      'hasOrcidOnboardingEvent',
+      'isOrgSynced'
     ]),
 
     /**
@@ -115,7 +116,7 @@ export default {
      * @returns {String}
      */
     getDatasetStatusUrl: function() {
-      if (this.config.apiUrl && this.userToken) {
+      if (this.config.apiUrl && this.userToken && this.isOrgSynced) {
         const orgId = pathOr('', ['organization', 'id'], this.activeOrganization)
         return `${this.config.apiUrl}/organizations/${orgId}/dataset-status?api_key=${this.userToken}`
       }
@@ -222,7 +223,8 @@ export default {
       'setIsLoadingDatasetsError',
       'updateOrgDatasetStatuses',
       'updateShouldShowLinkOrcidDialog',
-      'updateIsLinkOrcidDialogVisible'
+      'updateIsLinkOrcidDialogVisible',
+      'setActiveOrgSynced'
     ]),
 
     ...mapActions('datasetModule', [
@@ -344,8 +346,10 @@ export default {
      * @returns {Promise}
      */
     bootUp: function(userToken) {
+      console.log("BOOTUP")
       return this.getBfTermsOfService()
         .then(() => this.getProfileAndOrg(userToken))
+        .then(() => {this.setActiveOrgSynced()})
         .then(() => this.getOnboardingEventStates(userToken))
     },
 

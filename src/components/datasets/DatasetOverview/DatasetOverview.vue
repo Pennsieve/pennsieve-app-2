@@ -447,7 +447,8 @@ export default {
       'getPermission',
       'datasetOwner',
       'datasetOwnerHasOrcidId',
-      'datasetLocked'
+      'datasetLocked',
+      'isOrgSynced'
     ]),
 
     ...mapState([
@@ -524,7 +525,7 @@ export default {
      * @returns {String}
      */
     getPackageTypeCountsUrl: function() {
-      return this.userToken
+      return this.userToken && this.isOrgSynced
         ? `${this.config.apiUrl}/datasets/${
             this.datasetId
           }/packageTypeCounts?api_key=${this.userToken}`

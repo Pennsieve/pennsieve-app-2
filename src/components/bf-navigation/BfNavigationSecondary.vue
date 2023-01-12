@@ -6,27 +6,19 @@
     <div class="menu-wrap">
       <div class="heading-wrap">
         <template v-if="!secondaryNavCondensed">
-          <div>
-            <el-tooltip
-              placement="right"
-              :content="datasetName"
-              :disabled="!datasetNameTruncated"
-            >
-              <div class="dataset-name">
-                {{ datasetNameDisplay }}
-              </div>
-            </el-tooltip>
-            <el-dropdown
-              class="dataset-status-dropdown"
-              trigger="click"
-              placement="bottom-start"
-              @command="updateDatasetStatus"
-              @visible-change="datasetFilterOpen = $event"
-            >
-              <button
-                class="dataset-filter-dropdown el-dropdown-link"
-                :disabled="!(getPermission('manager'))"
+
+            <div>
+              <el-dropdown
+                class="dataset-status-dropdown"
+                trigger="click"
+                placement="bottom-start"
+                @command="updateDatasetStatus"
+                @visible-change="datasetFilterOpen = $event"
               >
+                <button
+                  class="dataset-filter-dropdown el-dropdown-link"
+                  :disabled="!(getPermission('manager'))"
+                >
                 <span class="dataset-info">
                   <div
                     :style="{ 'background-color': checkStatusColor }"
@@ -36,53 +28,57 @@
                     {{ formatDatasetStatus }}
                   </div>
                 </span>
-                <svg-icon
-                  v-if="getPermission('manager')"
-                  name="icon-arrow-up"
-                  :dir="datasetFilterArrowDir"
-                  height="7"
-                  width="7"
-                  color="#404554"
-                />
-              </button>
-              <el-dropdown-menu
-                slot="dropdown"
-                class="bf-menu auto-height"
-                :offset="14"
-                :arrow-offset="150"
-              >
-                <el-dropdown-item
-                  v-for="status in filterOrgStatusList"
-                  :key="status.id"
-                  class="status-item"
-                  :command="getStatusCommand(status)"
+                  <svg-icon
+                    v-if="getPermission('manager')"
+                    name="icon-arrow-up"
+                    :dir="datasetFilterArrowDir"
+                    height="7"
+                    width="7"
+                    color="#404554"
+                  />
+                </button>
+                <el-dropdown-menu
+                  slot="dropdown"
+                  class="bf-menu auto-height"
+                  :offset="14"
+                  :arrow-offset="150"
                 >
+                  <el-dropdown-item
+                    v-for="status in filterOrgStatusList"
+                    :key="status.id"
+                    class="status-item"
+                    :command="getStatusCommand(status)"
+                  >
                   <span
                     class="status-dot"
                     :style="getDotColor(status)"
                   />
-                  {{ status.displayName }}
-                  <svg-icon
-                    v-if="formatDatasetStatus === `${status.displayName}`"
-                    icon="icon-check"
-                    class="dataset-filter-status-check"
-                    width="20"
-                    height="20"
-                  />
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </div>
-          <button
-            class="btn-expand-collapse"
-            name="Collapse Secondary Menu"
-            @click="toggleMenu"
-          >
-            <svg-icon
-              name="icon-nav-collapse"
-              color="#71747C"
-            />
-          </button>
+                    {{ status.displayName }}
+                    <svg-icon
+                      v-if="formatDatasetStatus === `${status.displayName}`"
+                      icon="icon-check"
+                      class="dataset-filter-status-check"
+                      width="20"
+                      height="20"
+                    />
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </div>
+            <div>
+              <button
+                class="btn-expand-collapse"
+                name="Collapse Secondary Menu"
+                @click="toggleMenu"
+              >
+                <svg-icon
+                  name="icon-nav-collapse"
+                  color="#71747C"
+                />
+              </button>
+            </div>
+
+
         </template>
         <template v-else>
           <button
@@ -112,6 +108,7 @@
         class="secondary"
         :condensed="secondaryNavCondensed"
         :secondary=true
+
       />
 
       <bf-navigation-item
@@ -120,6 +117,7 @@
         label="Records"
         class="secondary"
         :condensed="secondaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -128,6 +126,7 @@
         label="Files"
         class="secondary"
         :condensed="secondaryNavCondensed"
+
       >
         <bf-waiting-icon
           v-if="uploading"
@@ -142,6 +141,7 @@
         label="Models"
         class="secondary"
         :condensed="secondaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -150,6 +150,7 @@
         label="Permissions"
         :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
         :condensed="secondaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -158,6 +159,7 @@
           label="Activity"
           class="secondary"
           :condensed="secondaryNavCondensed"
+
         />
 
       <bf-navigation-item
@@ -167,6 +169,7 @@
         label="Settings"
         class="secondary"
         :condensed="secondaryNavCondensed"
+
       />
     </div>
 
@@ -345,6 +348,7 @@ export default {
       'setDataset'
     ]),
 
+
     /**
      * Returns dataset status name based on command selection in menu
      * @returns {String}
@@ -436,11 +440,13 @@ hr {
 .heading-wrap {
   box-sizing: border-box;
   color: $gray_6;
-  padding: 14px 24px 8px;
+  padding: 21px 24px 0px;
+  border-bottom: 1px solid $purple_1;
   display: flex;
   justify-content: space-between;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 14px;
+  align-items: baseline;
 
   .condensed & {
     background: $purple_1;
@@ -469,7 +475,7 @@ hr {
 
   .dataset-status {
     color: $gray_4;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: normal;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -487,8 +493,8 @@ hr {
 }
 
 .dot {
-  height: 8px;
-  width: 8px;
+  height: 12px;
+  width: 12px;
   margin-right: 4px;
   border-radius: 50%;
   display: inline-block;
@@ -517,5 +523,10 @@ hr {
 .el-popper[x-placement^='bottom'] {
   margin-top: 5px;
   margin-left: -13px;
+}
+
+.status-wrap {
+  display: flex;
+  flex-direction: row;
 }
 </style>

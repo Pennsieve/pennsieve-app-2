@@ -207,7 +207,7 @@ router.beforeEach((to, from, next) => {
   // ensure user is authorized to use the app
   isAuthorized(to, from, next)
 
-  // Store the last route for history
+    // Store the last route for history
   if (from.name && from.name !== 'viewer') {
     store.dispatch('setLastRoute', from)
   }

@@ -8,6 +8,8 @@
         v-if="!pageNotFound"
         tag="button"
         :to="logoRoute"
+
+
       >
         <svg-icon
           v-show="!primaryNavCondensed || secondaryNavOpen"
@@ -54,6 +56,7 @@
         label="Datasets"
         icon="icon-datasets"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -62,6 +65,7 @@
         label="People"
         icon="icon-person"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -70,6 +74,7 @@
         label="Teams"
         icon="icon-team"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -79,6 +84,7 @@
         label="Publishing"
         icon="icon-public"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -88,6 +94,7 @@
         label="Integrations"
         icon="icon-integrations"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
@@ -135,7 +142,8 @@
         'config',
         'secondaryNavOpen',
         'primaryNavCondensed',
-        'pageNotFound'
+        'pageNotFound',
+
       ]),
 
       PublicationTabs: function() {
@@ -197,9 +205,9 @@
     methods: {
       ...mapActions([
         'togglePrimaryNav',
-        'condensePrimaryNav',
+        'condensePrimaryNav'
       ]),
-
+      
       /**
        * Toggles primary nav open and closed
        */
