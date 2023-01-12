@@ -11,7 +11,7 @@
       allow-create
       :default-first-option="true"
       value-key="id"
-      placeholder="Find individuals, teams, or everyone..."
+      placeholder="Find individuals, teams, or enter email address..."
       popper-class="add-permission-form-dropdown"
       :no-match-text="`Can't find '${searchText}'`"
       @visible-change="setDisplayValue"
