@@ -15,6 +15,41 @@
         {{ selectionCountLabel }}
       </span>
       <ul class="selection-actions unstyled">
+      <!-- <template v-if='inDeleted'> 
+      <li class="mr-24">
+        <button
+          v-if="!searchAllDataMenu"
+          class="linked btn-selection-action"
+          :disabled="datasetLocked"
+          @click="$emit('delete')"
+        >
+          <svg-icon
+            class="mr-8"
+            icon="icon-trash"
+            height="16"
+            width="16"
+          />
+          Delete permenantly
+        </button>
+      </li>
+      <li class="mr-24">
+        <button
+          v-if="!searchAllDataMenu"
+          class="linked btn-selection-action"
+          :disabled="datasetLocked"
+          @click="$emit('move')"
+        >
+          <svg-icon
+            class="mr-8"
+            icon="icon-move-file"
+            height="16"
+            width="16"
+          />
+          Remove from delete stage
+        </button>
+      </li>
+      </template> -->
+      <!-- <template v-else> -->
         <li class="mr-24">
           <button
             v-if="!searchAllDataMenu"
@@ -47,6 +82,7 @@
             Move to&hellip;
           </button>
         </li>
+        <!-- </template> -->
         <li>
           <button
             class="linked btn-selection-action"

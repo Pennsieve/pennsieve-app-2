@@ -3,7 +3,7 @@
     class="deleted-files"
   >
     <bf-dialog
-      :title="TEST: Files Staged for Permanent deletion "
+      :title="Files Staged for Permanent deletion after <lifecycle>"
       :open="open"
       @close="onClose"
       @overlay-click="onOverlayClick"
@@ -20,6 +20,7 @@
                 :multiple-selected="multipleSelected"
                 :within-delete-menu="true"
                 :enable-download="false"
+                :
                 @move="moveBackToFiles"
                 @delete="showDelete"
                 @process="deleteProcessFile"
@@ -154,7 +155,7 @@ methods: {
   onOverlayClick: function() {
     this.$emit('close-deleted-dialog')
   },
-  //deletes files permenantly
+  //deletes files permenantly. NOTE: should have toast message that confirms
   showDelete: function(){
     const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
@@ -169,7 +170,6 @@ methods: {
     .catch(response => {
       this.handleXhrError(response)
     })
-  }
   },
   //method moves selection(s) back to the datasets file storage (unmarked as deleted)
   moveBackToFiles: function(){
@@ -209,7 +209,7 @@ methods: {
       : defaultType
   },
 
-//will fetch all files that are marked deleted for a given dataset
+//will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
  fetchDeletedFunc: function() {
    console.log('calling again')
    this.sendXhr(this.getFilesUrl)
