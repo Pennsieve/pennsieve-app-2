@@ -1,4 +1,4 @@
-<template>
+\<template>
   <bf-page class="bf-dataset-files">
     <locked-banner
       slot="banner"
@@ -342,6 +342,7 @@ export default {
     EventBus.$on('update-uploaded-file-state', this.onUpdateUploadedFileState.bind(this))
     EventBus.$on('update-external-file', this.onFileRenamed)
     EventBus.$on('openDeletedModal', (data) => {
+      console.log("view deleted called from Rafter")
       this.deletedDialogOpen = data;
       this.fetchDeleted()
     })
@@ -370,6 +371,7 @@ export default {
   methods: {
 
     fetchDeleted: function() {
+      console.log("fetch deleted called")
       EventBus.$emit('fetchDeleted',true)
     },
 

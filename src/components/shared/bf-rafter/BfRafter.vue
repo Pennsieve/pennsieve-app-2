@@ -414,6 +414,7 @@ import BfButton from '../bf-button/BfButton.vue'
       //CONSIDER DOING SOMETHING LIKE FETCHFILES()
       console.log('NAVIGATING TO DELETED FILES')
       EventBus.$emit('openDeletedModal',true)
+      EventBus.$emit('activateInDeleted',true)
 
     },
   }
