@@ -293,8 +293,13 @@ methods: {
 <style lang="scss">
   @import '../../assets/_variables.scss';
   .deleted-files .bf-dialog .bf-dialog-wrap {
-    height: 590px;
+    height: 700px;
     margin: -295px 0 0 -350px;
     width: 700px;
+    overflow-y: scroll;
+  }
+  bf-upload-body {
+    height: 200px;
+    overflow-y: scroll;
   }
 </style>
