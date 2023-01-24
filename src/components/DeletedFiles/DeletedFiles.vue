@@ -11,44 +11,41 @@
       <div
         slot="body"
         class="bf-upload-body"
-
       >
-
-              <files-table
-                v-if="hasFiles"
-                :data="files"
-                :multiple-selected="multipleSelected"
-                :within-delete-menu="true"
-                :enable-download="false"
-                @move="moveBackToFiles"
-                @delete="showDelete"
-                @selection-change="deleteSetSelectedFiles"
-                @click-file-label="onClickLabelDelete">
-              </files-table>
-            </div>
-
-
+        <files-table
+          v-if="hasFiles"
+          :data="files"
+          :multiple-selected="multipleSelected"
+          :within-delete-menu="true"
+          :enable-download="false"
+          @move="moveBackToFiles"
+          @delete="showDelete"
+          @selection-change="deleteSetSelectedFiles"
+          @click-file-label="onClickLabelDelete">
+        </files-table>
+      </div>
+      <div
+        slot="footer"
+      >
         <bf-button
           class="secondary"
           @click="cancelModal"
         >
           Cancel
         </bf-button>
-
         <bf-button
           :disabled="files.size === 0"
           @click="moveBackToFiles"
         >
           Remove from trash
         </bf-button>
-
         <bf-button
           class="secondary"
           @click="onClose"
         >
           Hide
         </bf-button>
-
+      </div>
     </bf-dialog>
   </div>
 </template>
@@ -191,11 +188,11 @@ methods: {
     //want to refresh displayed files after upload executes
     //this.sendRefreshMessage()
     //this.clearUploadedFiles()
-    this.$emit('close-deleted-dialog')
+    this.isOpen = false
   },
 
   onOverlayClick: function() {
-    this.$emit('close-deleted-dialog')
+    this.onClose()
   },
   //deletes files permenantly. NOTE: should have toast message that confirms
   showDelete: function(){
