@@ -16,7 +16,7 @@
           v-if="hasFiles"
           :data="files"
           :multiple-selected="multipleSelected"
-          :within-delete-menu="true"
+          within-delete-menu
           :enable-download="false"
           @move="moveBackToFiles"
           @delete="showDelete"
@@ -90,7 +90,6 @@ data: function(){
 },
 
 mounted: function(){
-
  EventBus.$on('fetchDeleted', (data) => {
    this.fetchDeletedFunc()
  })

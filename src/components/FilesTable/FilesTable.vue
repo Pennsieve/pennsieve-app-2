@@ -15,7 +15,7 @@
         {{ selectionCountLabel }}
       </span>
       <ul class="selection-actions unstyled">
-       <template v-if='inDeletedCheck'>
+       <template v-if='withinDeleteMenu'>
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
@@ -258,6 +258,10 @@ export default {
     nonSortableColumns: {
       type: Array,
       default: () => []
+    },
+    withinDeleteMenu: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -266,8 +270,7 @@ export default {
       activeRow: {},
       selection: [],
       sortOrders: ['ascending', 'descending'],
-      checkAll: false,
-      inDeleted: false
+      checkAll: false
     }
   },
 
@@ -281,10 +284,6 @@ export default {
       'dataset',
       'filesProxyId'
     ]),
-
-    inDeletedCheck: function(){
-      return this.inDeleted;
-    },
     /**
      * Compute if the checkbox is indeterminate
      * @returns {Boolean}
@@ -304,12 +303,6 @@ export default {
         : 'files'
       return `${selectionCount} ${fileWord} selected`
     }
-  },
-
-  mounted: function() {
-    EventBus.$on('activateInDeleted', (data) => {
-      this.inDeleted = data;
-    })
   },
 
   methods: {
