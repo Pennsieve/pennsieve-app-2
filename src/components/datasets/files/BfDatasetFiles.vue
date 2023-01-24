@@ -1,4 +1,4 @@
-\<template>
+<template>
   <bf-page class="bf-dataset-files">
     <locked-banner
       slot="banner"
@@ -345,6 +345,10 @@ export default {
       console.log("view deleted called from Rafter")
       this.deletedDialogOpen = data;
       this.fetchDeleted()
+    })
+    EventBus.$on('refreshAfterDeleteModal', (data) => {
+      var temp = data;
+      this.fetchFiles()
     })
   },
 

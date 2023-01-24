@@ -29,7 +29,7 @@
             height="16"
             width="16"
           />
-          Delete permenantly
+          Delete permanently
         </button>
       </li>
       <li class="mr-24">

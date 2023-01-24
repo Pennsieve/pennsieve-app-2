@@ -19,7 +19,7 @@
           within-delete-menu
           :enable-download="false"
           @move="moveBackToFiles"
-          @delete="showDelete"
+          @delete="showDelete2"
           @selection-change="deleteSetSelectedFiles"
           @click-file-label="onClickLabelDelete">
         </files-table>
@@ -27,6 +27,7 @@
       <div
         slot="footer"
       >
+        <!--
         <bf-button
           class="secondary"
           @click="cancelModal"
@@ -39,14 +40,21 @@
         >
           Remove from trash
         </bf-button>
+        -->
         <bf-button
           class="secondary"
           @click="onClose"
         >
-          Hide
+          Close
         </bf-button>
       </div>
     </bf-dialog>
+    <bf-delete-dialog
+      ref="deleteDialog"
+      calling-from-deleted
+      :selected-files="selectedDeletedFiles"
+      @file-delete="onDelete"
+    />
   </div>
 </template>
 
@@ -61,6 +69,7 @@ import FilesTable from '../FilesTable/FilesTable.vue'
 import Request from '../../mixins/request/index';
 import Sorter from '../../mixins/sorter/index';
 import GetFileProperty from '../../mixins/get-file-property';
+import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
 import { mapGetters } from 'vuex';
 import { pathOr } from 'ramda';
 export default {
@@ -71,7 +80,8 @@ components: {
   FilesTable,
   BfEmptyPageState,
   BfMoveDialog,
-  BreadcrumbNavigation
+  BreadcrumbNavigation,
+  BfDeleteDialog
 },
 
 mixins: [
@@ -96,6 +106,7 @@ mounted: function(){
  EventBus.$on('openDeletedModal', (data) => {
    this.isOpen = data;
  })
+ EventBus.$on()
 
  //EventBus.$on('fetchDeleted', this.fetchDeletedFunc())
 },
@@ -149,6 +160,43 @@ computed: {
   },
 },
 methods: {
+  /**
+   * Reset selected files state
+   */
+  resetSelectedFiles: function () {
+    this.selectedDeletedFiles = []
+    this.lastSelectedFile = {}
+  },
+  /**
+   * Sort table by column
+   * @param {String} path
+   * @param {String} dir
+   */
+  sortColumn: function (path, dir = '') {
+    this.sortedFiles = this.returnSort(path, this.files, dir)
+  },
+  /**
+   * Remove items from files list
+   * @param {Object} items
+   */
+  removeItems: function (items) {
+    // Remove all successfully deleted files
+    for (let i = 0; i < items.length; i++) {
+      const fileIndex = findIndex(pathEq(['content', 'id'], items[i]), this.files)
+      this.files.splice(fileIndex, 1)
+    }
+
+    // Resort files
+    this.sortColumn(this.sortBy, this.sortDirection)
+    this.resetSelectedFiles()
+  },
+  /**
+   * Handler for delete XHR
+   */
+  onDelete: function (response) {
+    const successItems = propOr([], 'success', response)
+    this.removeItems(successItems)
+  },
   cancelModal: function() {
     this.onClose()
   },
@@ -180,21 +228,22 @@ methods: {
    * Close dialog callback
    */
   onClose: function() {
-    //this.errorPreflight = ''
-    //this.showInfo = false
-    //this.modelId = ''
-    //this.recordId = ''
-    //want to refresh displayed files after upload executes
-    //this.sendRefreshMessage()
-    //this.clearUploadedFiles()
     this.isOpen = false
+    EventBus.$emit('refreshAfterDeleteModal',true)
   },
 
   onOverlayClick: function() {
     this.onClose()
   },
+  /**
+   * Show delete dialog
+   */
+  showDelete2: function () {
+    this.$refs.deleteDialog.visible = true
+  },
   //deletes files permenantly. NOTE: should have toast message that confirms
   showDelete: function(){
+    console.log("DELETING PERMANENTLY")
     const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
     this.sendXhr(this.deleteUrl, {
@@ -203,7 +252,14 @@ methods: {
     })
     .then(response => {
       this.$emit('file-delete', response)
-      //this.closeDialog()
+      const msg = 'File(s) permanently deleted.'
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'success',
+          msg
+        }
+      })
+      this.fetchDeletedFunc()
     })
     .catch(response => {
       this.handleXhrError(response)
@@ -211,6 +267,7 @@ methods: {
   },
   //method moves selection(s) back to the datasets file storage (unmarked as deleted)
   moveBackToFiles: function(){
+    console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
     //make promise (where you call undelete endpoint), on return call fetch deleted again to get updated list.
     const undeleteFilesMove = new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -218,7 +275,14 @@ methods: {
       }, 500);
     });
     undeleteFilesMove
-        .then(fetchDeletedFunc())
+        .then(fetchDeletedFunc(),
+        EventBus.$emit('toast', {
+          detail: {
+            type: 'success',
+            msg: 'File(s) moved back to parent directory.'
+          }
+        })
+        )
         .catch((err) => {
           console.error(err);
         });
@@ -258,7 +322,7 @@ methods: {
 
 //will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
  fetchDeletedFunc: function() {
-   console.log('calling again')
+   console.log('fetching deleted files')
    this.sendXhr(this.getFilesUrl)
      .then(response => {
        this.file = response
@@ -292,10 +356,10 @@ methods: {
     height: 700px;
     margin: -295px 0 0 -350px;
     width: 700px;
-    overflow-y: scroll;
   }
   bf-upload-body {
     height: 200px;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
+
 </style>
