@@ -8,6 +8,9 @@
       @close="onClose"
       @overlay-click="onOverlayClick"
     >
+    <div>
+      <p>Files will be permanently deleted after 30 days.</p>
+    </div>
       <div
         slot="body"
         class="bf-upload-body"
@@ -53,6 +56,7 @@
       ref="deleteDialog"
       calling-from-deleted
       :selected-files="selectedDeletedFiles"
+      <!-- file-delete-2 -->
       @file-delete="onDelete"
     />
   </div>
@@ -126,7 +130,7 @@ computed: {
   },
 
   dialogTitle: function() {
-    return  'Files staged for permanent deletion'
+    return  'Deleted Files'
   },
 
   /**

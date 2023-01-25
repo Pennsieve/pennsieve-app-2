@@ -40,7 +40,7 @@
       </template>
       <template v-else>
       <h2>Delete {{ totalFiles }} {{ headline }}</h2>
-      <p>This action will stage {{ copy }} for deletion and will be deleted premanently after X days. </p>
+      <p>{{ copy }} will be deleted permanently after 30 days. </p>
 
       <div class="dialog-simple-buttons">
         <bf-button

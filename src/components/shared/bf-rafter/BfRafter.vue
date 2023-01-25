@@ -48,12 +48,14 @@
       </div>
       &nbsp;
       <template v-if="onFilesPage">
+
           <bf-button
            class="secondary"
            @click="NavToDeleted"
           >
             Deleted Files
           </bf-button>
+
       </template >
     </div>
 
