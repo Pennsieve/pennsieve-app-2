@@ -11,10 +11,30 @@
     <div>
       <p>Files will be permanently deleted after 30 days.</p>
     </div>
+
       <div
         slot="body"
         class="bf-upload-body"
       >
+      <!--HERE we will add pagination header -->
+
+      <div class="file-pagination">
+          <div>
+            <pagination-page-menu
+              class="mr-24"
+              :page-size="100"
+            />
+          </div>
+          <el-pagination
+            :page-size="100"
+            :pager-count="5"
+            :current-page="curFileSearchPage"
+            layout="prev, pager, next"
+            :total="tableResultsTotalCount"
+            @current-change="onPaginationPageChange"
+          />
+        </div>
+        <!-- END pagination -->
         <files-table
           v-if="hasFiles"
           :data="files"
@@ -27,6 +47,7 @@
           @click-file-label="onClickLabelDelete">
         </files-table>
       </div>
+
       <div
         slot="footer"
       >
@@ -74,6 +95,7 @@ import Request from '../../mixins/request/index';
 import Sorter from '../../mixins/sorter/index';
 import GetFileProperty from '../../mixins/get-file-property';
 import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
+import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu.vue'
 import { mapGetters } from 'vuex';
 import { pathOr } from 'ramda';
 export default {
@@ -98,7 +120,8 @@ data: function(){
   return {
       selectedDeletedFiles: [],
       files: [],
-      isOpen: false
+      isOpen: false,
+      tableResultsTotalCount: 0,
 
   }
 },
@@ -121,6 +144,10 @@ computed: {
     'dataset',
     'filesProxyId'
   ]),
+  //
+  curFileSearchPage: function() {
+    return this.tableSearchParams.offset / this.tableSearchParams.limit + 1
+  },
 
   /**
    * Item has files
@@ -164,6 +191,14 @@ computed: {
   },
 },
 methods: {
+  /**
+   * Update pagination offset
+   */
+  onPaginationPageChange: async function(page) {
+    //const newOffset = (page - 1) * this.tableSearchParams.limit
+    //const newSearch = ...
+    await this.fetchDeletedFunc()
+  },
   /**
    * Reset selected files state
    */
@@ -324,7 +359,10 @@ methods: {
       : defaultType
   },
 
-//will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
+/*
+Will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
+and need to provide limit and offset in request
+*/
  fetchDeletedFunc: function() {
    console.log('fetching deleted files')
    this.sendXhr(this.getFilesUrl)
@@ -345,6 +383,7 @@ methods: {
        if (pkgId) {
          this.scrollToFile(pkgId)
        }
+       this.tableResultsTotalCount = this.files.length
      })
      .catch(response => {
        this.handleXhrError(response)

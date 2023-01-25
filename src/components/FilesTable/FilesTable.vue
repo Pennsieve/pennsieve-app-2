@@ -152,6 +152,7 @@
         :render-header="renderHeader"
         :sort-orders="sortOrders"
       />
+
       <el-table-column
         prop="storage"
         label="Size"
@@ -163,6 +164,7 @@
           {{ formatMetric(scope.row.storage) }}
         </template>
       </el-table-column>
+
       <el-table-column
         prop="content.createdAt"
         label="Date Created"
@@ -175,7 +177,24 @@
           {{ formatDate(scope.row.content.createdAt) }}
         </template>
       </el-table-column>
-
+      <template v-if='withinDeleteMenu'>
+        <el-table-column
+          prop="content.createdAt"
+          label="Date Deleted"
+          width="180"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        >
+          <template slot-scope="scope">
+            <!-- replace with .deletedAt -->
+            {{ formatDate(scope.row.content.createdAt) }}
+          </template>
+        </el-table-column>
+      </template>
+      <template v-else>
+        <!-- -->
+      </template>
       <el-table-column
         label=""
         fixed="right"
