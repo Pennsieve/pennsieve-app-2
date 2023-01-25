@@ -1,6 +1,6 @@
 <template>
   <div class="bf-navigation-tertiary">
-    <search-menu v-if="!pageNotFound" />
+    <search-menu v-if="!pageNotFound && !isWorkspaceGuest" />
     <help-menu />
     <user-menu />
   </div>
@@ -8,6 +8,7 @@
 
 <script>
   import { mapGetters, mapState } from 'vuex'
+  import {propOr} from "ramda";
   const HelpMenu = () => import('@/components/bf-navigation/HelpMenu/HelpMenu.vue')
   const UserMenu = () => import('@/components/bf-navigation/UserMenu/UserMenu.vue')
   const SearchMenu = () => import('@/components/bf-navigation/SearchMenu/SearchMenu.vue')
@@ -23,12 +24,18 @@
 
     computed: {
       ...mapGetters([
-        'hasFeature',
+        'hasFeature'
       ]),
 
       ...mapState([
-        'pageNotFound'
+        'pageNotFound',
+        'activeOrganization'
       ]),
+
+      isWorkspaceGuest: function() {
+        const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+        return isGuest
+      },
     }
   }
 </script>

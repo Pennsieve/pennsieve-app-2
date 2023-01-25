@@ -49,6 +49,7 @@ export default {
     EventBus.$on('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$on('set-default-route', this.setDefaultRoute.bind(this))
     EventBus.$on('finalize-orcid-integration', this.finalizeOrcidIntegration.bind(this))
+    EventBus.$on('update-organization-members', this.getOrgMembers.bind(this))
   },
 
   beforeDestroy() {
@@ -69,6 +70,7 @@ export default {
     EventBus.$off('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$off('set-default-route', this.setDefaultRoute.bind(this))
     EventBus.$off('finalize-orcid-integration', this.finalizeOrcidIntegration.bind(this))
+    EventBus.$off('update-organization-members', this.getOrgMembers.bind(this))
   },
 
   computed: {
@@ -230,7 +232,7 @@ export default {
 
       // TODO: Refactor to take both token and profile
       // add logic to only make organizations request if profile is defined
-
+      let currentPath = this.$router.currentRoute.path
       const orgPromise = this.sendXhr(this.getActiveOrgUrl(token))
       const profilePromise = this.sendXhr(this.getProfileUrl(token))
 
@@ -251,7 +253,7 @@ export default {
           const activeOrg = orgs.organizations[activeOrgIndex]
 
           // handle org switch
-          return this.handleRedirects(activeOrg, activeOrgId, preferredOrgId)
+          return this.handleRedirects(activeOrg, activeOrgId, preferredOrgId, currentPath)
         })
         .then(this.getOrgMembers.bind(this))
         .then(this.getTeams.bind(this))
@@ -429,8 +431,8 @@ export default {
           this.updateProfile(response)
 
           // Reset state of menu
-          this.togglePrimaryNav(true)
-          this.toggleSecondaryNav(false)
+          // this.togglePrimaryNav(true)
+          // this.toggleSecondaryNav(false)
 
           // Reset state of dataset templates
           this.setDatasetTemplates([])

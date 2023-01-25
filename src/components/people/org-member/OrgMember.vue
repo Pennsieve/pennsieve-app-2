@@ -103,18 +103,25 @@
               Update Member
             </el-dropdown-item>
             <el-dropdown-item
-              v-if="getRole(item.role) !== 'Administrator'"
+              v-if="getRole(item.role) === 'Guest'"
+              command="make-collaborator"
+              class="bf-menu-item"
+            >
+              Promote to Collaborator
+            </el-dropdown-item>
+            <el-dropdown-item
+              v-if="getRole(item.role) !== 'Administrator' && getRole(item.role) !== 'Guest'"
               command="promote-admin"
               class="bf-menu-item"
             >
-              Promote to Admin
+              Add Admin Privileges
             </el-dropdown-item>
             <el-dropdown-item
               v-if="getRole(item.role) === 'Administrator'"
               command="demote-admin"
               class="bf-menu-item"
             >
-              Demote Admin
+              Remove Admin Privileges
             </el-dropdown-item>
             <el-dropdown-item
               command="reset-password"
@@ -223,6 +230,7 @@ export default {
       return role === 'manager' ? 'Administrator'
       : role === 'owner' ? 'Owner'
       : role === 'blind_reviewer' ? 'Blind Reviewer'
+      : role === 'guest' ? 'Guest'
       : 'Collaborator'
     },
 
@@ -255,7 +263,9 @@ export default {
         'promote-admin': () => this.setAdminStatus(this.item, 'administer'),
         'demote-admin': () => this.setAdminStatus(this.item, 'delete'),
         'reset-password': () => this.resetPassword(this.item),
-        'edit-member': () => this.editMember(this.item)
+        'edit-member': () => this.editMember(this.item),
+        'make-collaborator': () => this.setAdminStatus(this.item, 'delete'),
+        'make-guest': () => this.setAdminStatus(this.item, 'guest')
       }
       if (typeof commands[command] === 'function') {
         commands[command]()

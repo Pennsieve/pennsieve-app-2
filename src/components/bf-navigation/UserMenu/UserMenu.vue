@@ -169,6 +169,9 @@
         <span id="organization-name">
           {{ organizationName }}
         </span>
+        <span v-if="isWorkspaceGuest" id="workspace-guest">
+          (workspace guest)
+        </span>
       </div>
 
       <svg-icon
@@ -204,7 +207,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import { propOr, pathOr } from 'ramda'
 
 import BfNavigationItem from '../bf-navigation-item/BfNavigationItem.vue'
@@ -307,6 +310,11 @@ export default {
       return pathOr('----', ['organization', 'name'], this.activeOrganization)
     },
 
+    isWorkspaceGuest: function() {
+      const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+      return isGuest
+    },
+
     /**
      * Compute if the filter should be shown
      * @returns {Boolean}
@@ -317,6 +325,9 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'toggleDatasetVis'
+    ]),
 
     /**
      * Open Create Organization Dialog
@@ -334,12 +345,20 @@ export default {
       this.isCreateOrgDialogVisible = false
     },
 
+    /*
+     * Sets the dataset name visibility flag to false
+     */
+    setDatasetVis: function() {
+      console.log("SETTING VISIBILITY TO FALSE")
+      this.toggleDatasetVis(false)
+    },
     /**
      * Close all menus
      */
     closeMenus: function() {
       this.orgMenuOpen = false
       this.menuOpen = false
+      this.setDatasetVis()
     },
 
     /**
@@ -506,6 +525,10 @@ export default {
   }
   #organization-name {
     font-size: 12px
+  }
+  #workspace-guest {
+    font-size: 10px;
+    color: #999999;
   }
   .icon-caret {
     flex-shrink: none;

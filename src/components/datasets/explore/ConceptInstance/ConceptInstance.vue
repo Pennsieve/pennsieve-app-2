@@ -938,7 +938,8 @@ export default {
       'getModelById',
       'hasFeature',
       'getPermission',
-      'datasetLocked'
+      'datasetLocked',
+      'isOrgSynced'
     ]),
 
     ...mapState(['onboardingEvents', 'conceptsHash', 'dataset']),
@@ -1273,7 +1274,7 @@ export default {
      * @returns {String}
      */
     recordUrl: function() {
-      if (!this.userToken) {
+      if (!this.userToken || !this.isOrgSynced) {
         return ''
       }
       const datasetId = this.$route.params.datasetId
@@ -1432,7 +1433,7 @@ export default {
     relationshipCountsUrl: function() {
       const { userToken, config, $route } = this
 
-      if (!userToken) {
+      if (!userToken || !this.isOrgSynced) {
         return
       }
 
@@ -2911,7 +2912,7 @@ export default {
      * GET url for record relationships tables
      */
     getRecordRelationshipsUrl: function(conceptName) {
-      if (!this.userToken) {
+      if (!this.userToken || !this.isOrgSynced) {
         return
       }
       const datasetId = this.$route.params.datasetId

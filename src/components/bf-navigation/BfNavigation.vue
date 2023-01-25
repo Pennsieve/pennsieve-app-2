@@ -8,6 +8,8 @@
         v-if="!pageNotFound"
         tag="button"
         :to="logoRoute"
+
+
       >
         <svg-icon
           v-show="!primaryNavCondensed || secondaryNavOpen"
@@ -54,44 +56,49 @@
         label="Datasets"
         icon="icon-datasets"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         :link="{ name: 'people-list', params: {orgId: activeOrganizationId} }"
         label="People"
         icon="icon-person"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         :link="{ name: 'teams-list', params: {orgId: activeOrganizationId} }"
         label="Teams"
         icon="icon-team"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         id="nav-publishing"
         :link="{ name: 'publishing', params: {orgId: activeOrganizationId} }"
         label="Publishing"
         icon="icon-public"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!pageNotFound && !isWorkspaceGuest"
         id="nav-integrations"
         :link="{ name: 'integrations-list', params: {orgId: activeOrganizationId} }"
         label="Integrations"
         icon="icon-integrations"
         :condensed="primaryNavCondensed"
+
       />
 
       <bf-navigation-item
-        v-if="hasAdminRights && !pageNotFound"
+        v-if="hasAdminRights && !pageNotFound && !isWorkspaceGuest"
         :link="{ name: 'settings', params: {orgId: activeOrganizationId} }"
         label="Settings"
         icon="icon-settings"
@@ -135,7 +142,8 @@
         'config',
         'secondaryNavOpen',
         'primaryNavCondensed',
-        'pageNotFound'
+        'pageNotFound',
+
       ]),
 
       PublicationTabs: function() {
@@ -172,6 +180,11 @@
         return isAdmin || isOwner
       },
 
+      isWorkspaceGuest: function() {
+        const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+        return isGuest
+      },
+
       /**
        * Compute active organization name
        * @returns {String}
@@ -192,9 +205,9 @@
     methods: {
       ...mapActions([
         'togglePrimaryNav',
-        'condensePrimaryNav',
+        'condensePrimaryNav'
       ]),
-
+      
       /**
        * Toggles primary nav open and closed
        */

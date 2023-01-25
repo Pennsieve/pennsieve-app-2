@@ -41,6 +41,7 @@ export const state = {
   hasGravatar: false,
   organizations: {},
   activeOrganization: {},
+  activeOrgSynced: false,
   isLoadingDatasets: true,
   isLoadingDatasetsError: false,
   isLoadingDatasetBanner: true,
@@ -121,6 +122,10 @@ const initialFilterState = state.datasetFilters
 
 // mutations
 export const mutations = {
+  SET_ACTIVE_ORG_SYNC (state) {
+    Vue.set(state, 'activeOrgSynced', true)
+  },
+
   UPDATE_COGNITO_USER (state, data) {
     Vue.set(state, 'cognitoUser', data)
   },
@@ -616,6 +621,7 @@ export const mutations = {
 
 // actions
 export const actions = {
+  setActiveOrgSynced:({commit}) => commit('SET_ACTIVE_ORG_SYNC'),
   updateIsLinkOrcidDialogVisible: ({commit}, evt) => commit('UPDATE_IS_LINK_ORCID_DIALOG_VISIBLE', evt),
   updateCognitoUser: ({commit}, evt) => commit('UPDATE_COGNITO_USER', evt),
   updatePageNotFound: ({ commit }, evt) => commit('SET_PAGE_NOT_FOUND', evt),
@@ -760,6 +766,7 @@ export const actions = {
 
 // getters
 export const getters = {
+  isOrgSynced: state => state.activeOrgSynced,
   config: state => state.config,
   profile: state => state.profile,
   userToken: state => state.userToken,
