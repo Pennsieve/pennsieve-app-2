@@ -9,7 +9,7 @@
       @overlay-click="onOverlayClick"
     >
     <div>
-      <p>Files will be permanently deleted after 30 days.</p>
+      <p>deleted permanently after 30 days.</p>
     </div>
 
       <div
@@ -35,6 +35,7 @@
           />
         </div>
         <!-- END pagination -->
+        &nbsp;
         <files-table
           v-if="hasFiles"
           :data="files"
@@ -122,6 +123,9 @@ data: function(){
       files: [],
       isOpen: false,
       tableResultsTotalCount: 0,
+      offset: 0,
+      limit: 10,
+      page: 1
 
   }
 },
@@ -146,7 +150,7 @@ computed: {
   ]),
   //
   curFileSearchPage: function() {
-    return this.tableSearchParams.offset / this.tableSearchParams.limit + 1
+    return this.offset / this.limit + 1
   },
 
   /**
@@ -157,7 +161,7 @@ computed: {
   },
 
   dialogTitle: function() {
-    return  'Deleted Files'
+    return  'Deleted Files (deleted permanently after 30 days)'
   },
 
   /**
@@ -195,9 +199,10 @@ methods: {
    * Update pagination offset
    */
   onPaginationPageChange: async function(page) {
-    //const newOffset = (page - 1) * this.tableSearchParams.limit
-    //const newSearch = ...
-    await this.fetchDeletedFunc()
+    //note... need to find a way to change the page (just use 'page')
+    this.offset = (this.page - 1) * this.limit
+    //NOTE: should pass offset and page into fetchDeleted
+    await this.fetchDeletedFunc(this.offset,this.limit)
   },
   /**
    * Reset selected files state
@@ -363,7 +368,7 @@ methods: {
 Will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
 and need to provide limit and offset in request
 */
- fetchDeletedFunc: function() {
+ fetchDeletedFunc: function(offset, limit) {
    console.log('fetching deleted files')
    this.sendXhr(this.getFilesUrl)
      .then(response => {
