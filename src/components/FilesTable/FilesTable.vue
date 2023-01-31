@@ -187,13 +187,11 @@
           :sort-orders="sortOrders"
         >
           <template slot-scope="scope">
-            <!-- replace with .deletedAt -->
-            {{ formatDate(scope.row.content.createdAt) }}
+            {{ formatDate(scope.row.content.updatedAt) }}
           </template>
         </el-table-column>
       </template>
       <template v-else>
-        <!-- -->
       </template>
       <el-table-column
         label=""

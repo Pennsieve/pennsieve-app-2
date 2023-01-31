@@ -312,24 +312,24 @@ methods: {
   //method moves selection(s) back to the datasets file storage (unmarked as deleted)
   moveBackToFiles: function(){
     console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
-    //make promise (where you call undelete endpoint), on return call fetch deleted again to get updated list.
-    const undeleteFilesMove = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve("");
-      }, 500);
-    });
-    undeleteFilesMove
-        .then(fetchDeletedFunc(),
+    let undeleteFilesMove = new Promise(function(resolve, reject) {
+      let req = //call new endpoint
+      if (req.status == 200) {
         EventBus.$emit('toast', {
           detail: {
             type: 'success',
             msg: 'File(s) moved back to parent directory.'
           }
         })
-        )
-        .catch((err) => {
-          console.error(err);
-        });
+        resolve(req.response);
+      } else {
+        reject("Error")
+      }
+    });
+    undeleteFilesMove.then(
+        function(value) {this.fetchDeletedFunc(this.limit,this.offset)},
+        function(error) {console.error(err);}
+      );
     },
   /**
    * Set selected files
@@ -366,7 +366,7 @@ methods: {
 
 /*
 Will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
-and need to provide limit and offset in request
+and need to provide limit and offset in request (getFilesUrl)
 */
  fetchDeletedFunc: function(offset, limit) {
    console.log('fetching deleted files')
