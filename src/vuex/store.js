@@ -9,6 +9,7 @@ import publishingModule from './modules/publishingModule'
 import collectionsModule from './modules/collectionsModule'
 import integrationsModule from './modules/integrationsModule'
 import filesModule from './modules/filesModule'
+import repositoryModule from './modules/repositoryModule'
 
 Vue.use(Vuex)
 
@@ -766,6 +767,10 @@ export const actions = {
 
 // getters
 export const getters = {
+  isWelcomeOrg: state => {
+    const featuresList = pathOr([], ['activeOrganization', 'organization', 'features'], state)
+    return contains('sandbox_org_feature', featuresList)
+  },
   isOrgSynced: state => state.activeOrgSynced,
   config: state => state.config,
   profile: state => state.profile,
@@ -942,6 +947,7 @@ export default new Vuex.Store({
     publishingModule,
     collectionsModule,
     integrationsModule,
-    filesModule
+    filesModule,
+    repositoryModule
   }
 })

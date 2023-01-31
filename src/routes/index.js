@@ -109,7 +109,34 @@ const Bf404 = () => import('../components/Bf-404/Bf-404.vue')
 const ORCIDRedirect = () => import('../components/ORCID/ORCIDRedirect.vue')
 const ORCID = () => import('../components/ORCID/ORCID.vue')
 
+/**
+ * WelcomeOrg
+ */
+const WelcomePage = () => import('./welcomePage/WelcomePage.vue')
+const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
+
 const routes = [
+
+  /**
+   * Welcome Org routes
+   */
+  {
+    path: '/:orgId/welcome',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'welcome',
+        path: '',
+        components: {
+          stage: WelcomeInfo
+        }
+      },
+    ],
+  },
 
   /**
    * Datasets routes
