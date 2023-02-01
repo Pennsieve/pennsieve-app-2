@@ -47,6 +47,7 @@
         <slot name="buttons" />
       </div>
       &nbsp;
+      <!-- DISABLED AND AWAITING API ENDPOINTS
       <template v-if="onFilesPage">
           <button
             class="linked btn-selection-action"
@@ -62,6 +63,7 @@
           </button>
 
       </template >
+      -->
     </div>
 
     <div

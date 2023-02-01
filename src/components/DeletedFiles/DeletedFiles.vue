@@ -313,7 +313,7 @@ methods: {
   moveBackToFiles: function(){
     console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
     let undeleteFilesMove = new Promise(function(resolve, reject) {
-      let req = //call new endpoint
+      //let req = call new endpoint
       if (req.status == 200) {
         EventBus.$emit('toast', {
           detail: {
