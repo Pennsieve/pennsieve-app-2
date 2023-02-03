@@ -38,7 +38,7 @@ const initialState = () => ({
   repositoryModalVisible: false,
   shouldCollapsePrimaryNav: false,
   repositoryDescription: '**This is a sample repository**',
-  isLoadingRepositoryDescription: true,
+  isLoadingRepositoryDescription: false,
 })
 
 export const state = initialState()

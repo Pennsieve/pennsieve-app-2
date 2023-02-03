@@ -73,7 +73,7 @@ export default {
      * @returns {String}
      */
     signInCopy() {
-      return this.isMobile ? '' : 'Sign in'
+      return this.isMobile ? '' : 'Access Platform'
     },
 
     /**

@@ -16,7 +16,8 @@
         class="log-in-dialog__container--logo"
       />
       <template v-if="logInState !== states.TWO_FACTOR">
-        <p class="log-in-dialog__container--top-copy">
+        <p
+             class="log-in-dialog__container--top-copy">
           {{ formTopCopy }}
         </p>
         <template v-if="isLogInState">
@@ -45,24 +46,27 @@
                 :processing="isLoggingIn"
                 processing-text="Signing In"
                 @click="onFormSubmit('logInForm')"
-                >Sign In</bf-button
+                >Sign in</bf-button
               >
             </el-form-item>
           </el-form>
+          <div class="option-divider">  - or - </div>
           <bf-button
             class="log-in-dialog__container--federated-login-button"
             :processing="isLoggingIn"
             processing-text="Signing In"
             @click="initiateFederatedLogin('ORCID')"
-            ><img src="/static/images/orcid_24x24.png" alt="iD" width="24" height="24" style="display: block; margin-left: auto; margin-right: auto; width: 24px; height: 24px">Sign In with your ORCID iD</bf-button>
+            ><img src="/static/images/orcid_24x24.png" alt="iD" width="24" height="24" style="display: block; margin-left: 0; margin-right: 32px; width: 24px; height: 24px">Sign in with your ORCID iD</bf-button>
           <div class="log-in-dialog__container--actions" :class="actionsClass">
-            <a href="#" @click.prevent="toForgotPasswordState"
-              >Forgot Password?</a
+            <router-link
+              tag="a"
+              class="ml-16"
+              :to="signupRoute"
             >
+              Create new account
+            </router-link>
             |
-            <a href="https://docs.pennsieve.io/" target="_blank"
-              >Learn More</a
-            >
+            <a class="mr-16" href="#" @click.prevent="toForgotPasswordState">Forgot password?</a>
           </div>
         </template>
         <template v-else-if="isForgotPasswordState">
@@ -247,6 +251,18 @@ export default {
 
   computed: {
     /**
+     * Compute what route the logo should
+     * take the user based on their organization
+     * @returns {Object}
+     */
+    signupRoute: function() {
+      let routeName = 'create-account'
+
+      return {
+        name: routeName, params: {}
+      }
+    },
+    /**
      * True if user is on login dialog
      * @returns {Boolean}
      */
@@ -313,7 +329,7 @@ export default {
       } else if (this.isResetPasswordState) {
         return "We've sent an email that contains a link to reset your password. Contact support if you have any issues or don't receive an email."
       } else {
-        return 'Sign in using your existing Pennsieve account.'
+        return 'Sign in with your email'
       }
     },
 
@@ -653,6 +669,8 @@ export default {
     &--top-copy {
       margin-bottom: 16px;
       line-height: 22px;
+      align-self: flex-start;
+      margin-left: 8px;
     }
 
     &--button,
@@ -670,6 +688,7 @@ export default {
       color: black;
       background-color: whitesmoke;
       border-color: darkgray;
+      justify-content: flex-start;
     }
 
     &--actions {
@@ -715,6 +734,11 @@ export default {
     padding: 0;
     border-bottom: none;
   }
+}
+
+.option-divider {
+  margin-bottom: 16px;
+  color: $gray_5;
 }
 
 .password-reset-height {
