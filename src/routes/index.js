@@ -114,6 +114,12 @@ const ORCID = () => import('../components/ORCID/ORCID.vue')
  */
 const WelcomePage = () => import('./welcomePage/WelcomePage.vue')
 const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
+const SubmitDatasets = () => import('../components/welcome/SubmitDatasets.vue')
+const PennsieveInfo = () => import('../components/welcome/Info.vue')
+
+
+
+
 
 const routes = [
 
@@ -133,6 +139,40 @@ const routes = [
         path: '',
         components: {
           stage: WelcomeInfo
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/submit',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'submit',
+        path: '',
+        components: {
+          stage: SubmitDatasets
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/info',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'info',
+        path: '',
+        components: {
+          stage: PennsieveInfo
         }
       },
     ],

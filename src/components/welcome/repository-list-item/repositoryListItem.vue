@@ -1,5 +1,5 @@
 <template>
-  <div class="repository-list-item">
+  <div class="repository-list-item" @click="openInfoPanel">
 
     <el-row
       type="flex"
@@ -12,7 +12,6 @@
         <el-row
           type="flex"
           align="middle"
-          class="info"
         >
           <div class="repository-type" >
             {{isPrivateStr}}
@@ -21,7 +20,7 @@
         </el-row>
 
         <el-row>
-          <div class="repository-title">
+          <div class="repository-title" >
             {{repository.displayName}}
           </div>
         </el-row>
@@ -110,6 +109,17 @@ export default {
   watch: {
   },
   methods: {
+    ...mapActions('repositoryModule',[
+        'updateModalVisible',
+        'setRepositoryDescription'
+      ]
+    ),
+    openInfoPanel: function(ev) {
+      console.log(ev)
+      this.setRepositoryDescription(this.repository.readme)
+
+      this.updateModalVisible(true)
+    }
 
   }
 }
@@ -125,6 +135,8 @@ export default {
   }
 }
 
+
+
 .repository-menu {
   width: 24px;
 }
@@ -132,10 +144,20 @@ export default {
 .repository-list-item {
   border: 1px solid $gray_3;
   margin: 0 0 16px 0;
-  padding:  16px 24px 8px 24px;
+  //padding:  16px 24px 8px 24px;
   background-color: white;
   display:flex;
   flex-direction: column;
+  cursor: pointer;
+
+  :hover {
+    background-color: $purple-tint;
+  }
+
+  .info {
+    padding:  16px 24px 8px 24px;
+  }
+
 }
 .repository-title {
   font-size: 16px;

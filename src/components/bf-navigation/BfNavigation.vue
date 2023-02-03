@@ -60,9 +60,9 @@
 
       <bf-navigation-item
         v-if="!(pageNotFound) && isWelcomeOrg"
-        :link="{ name: 'submit-datasets', params: {orgId: activeOrganizationId} }"
+        :link="{ name: 'submit', params: {orgId: activeOrganizationId} }"
         label="Submit Datasets"
-        icon="icon-add-template"
+        icon="icon-document"
         :condensed="primaryNavCondensed"
 
       />
@@ -70,7 +70,7 @@
 
       <bf-navigation-item
         v-if="!(pageNotFound) && isWelcomeOrg"
-        :link="{ name: 'pennsieve-information', params: {orgId: activeOrganizationId} }"
+        :link="{ name: 'info', params: {orgId: activeOrganizationId} }"
         label="More Information"
         icon="icon-help"
         :condensed="primaryNavCondensed"

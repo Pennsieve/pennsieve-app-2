@@ -47,7 +47,7 @@
 
                 @click.prevent="requestCreateOrganization"
               >
-                Request to Create New Organization
+                Request to Create Private Workspace
               </a>
             </li>
           </ul>
@@ -120,6 +120,17 @@
                 View My Profile
               </router-link>
             </li>
+
+
+            <li>
+              <a
+                href="#"
+                class="bf-menu-item"
+                @click.prevent="switchOrganization(welcomeOrganization)"
+              >
+                Submit to Public Repository
+              </a>
+            </li>
             <li>
               <a
                 v-popover:orgMenu
@@ -129,13 +140,18 @@
                 @mouseenter="onOrgMenuMouseenter"
                 @mouseleave="onOrgMenuMouseleave"
               >
-                Switch Organization <svg-icon
+                Switch to Private Workspace <svg-icon
                   icon="icon-arrow-right"
                   width="10"
                   height="10"
                 />
               </a>
             </li>
+          </ul>
+
+          <hr>
+
+          <ul>
             <li>
               <a
                 class="bf-menu-item"
@@ -285,11 +301,21 @@ export default {
         })
 
         return this.organizations.filter(organization => {
-          return organization.organization.name.toLowerCase().indexOf(this.orgFilterName.toLowerCase()) > -1
+          return organization.organization.name.toLowerCase().indexOf(this.orgFilterName.toLowerCase()) > -1 &&
+            organization.organization.name != "Welcome"
         })
       }
 
       return []
+    },
+    welcomeOrganization: function() {
+      if (this.organizations.length) {
+        let welcomeOrgs =  this.organizations.filter(org => {
+          return org.organization.name == 'Welcome'
+        })
+        return welcomeOrgs[0]
+
+      }
     },
 
     /**
@@ -325,9 +351,6 @@ export default {
   },
 
   methods: {
-    ...mapActions([
-      'toggleDatasetVis'
-    ]),
 
     /**
      * Open Create Organization Dialog
@@ -345,20 +368,12 @@ export default {
       this.isCreateOrgDialogVisible = false
     },
 
-    /*
-     * Sets the dataset name visibility flag to false
-     */
-    setDatasetVis: function() {
-      console.log("SETTING VISIBILITY TO FALSE")
-      this.toggleDatasetVis(false)
-    },
     /**
      * Close all menus
      */
     closeMenus: function() {
       this.orgMenuOpen = false
       this.menuOpen = false
-      this.setDatasetVis()
     },
 
     /**
