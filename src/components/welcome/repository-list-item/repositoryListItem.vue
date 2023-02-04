@@ -132,10 +132,9 @@ export default {
   justify-content: flex-end;
   .logo {
     height: 40px;
+    width: auto;
   }
 }
-
-
 
 .repository-menu {
   width: 24px;

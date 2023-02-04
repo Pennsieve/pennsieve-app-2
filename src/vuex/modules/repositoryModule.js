@@ -35,6 +35,46 @@ const initialState = () => ({
       readme: "PENN CNT Information"
     }
   ],
+  datasetProposals:[
+    {
+      id: 1,
+      name: "This is a sample dataset",
+      status: "SUBMITTED",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.",
+      repositoryId: 2,
+      userId: 19,
+      datasetNodeId: "",
+      organizationNodeId: "",
+      survey: [
+        { q: "How much data do you expect?",
+          a: "About 15GB"
+        },
+        {
+          q: "What file-types do you expext?",
+          a: "MRI, Timeseries, and others"
+        }
+      ]
+    },
+    {
+      id: 2,
+      name: "This is a second proposed dataset",
+      status: "ACCEPTED",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.",
+      repositoryId: 2,
+      userId: 19,
+      datasetNodeId: "N:Dataset:xxx",
+      organizationNodeId: "N:Organization:xxx",
+      survey: [
+        { q: "How much data do you expect?",
+          a: "About 15GB"
+        },
+        {
+          q: "What file-types do you expext?",
+          a: "MRI, Timeseries, and others"
+        }
+      ]
+    },
+  ],
   repositoryModalVisible: false,
   shouldCollapsePrimaryNav: false,
   repositoryDescription: '**This is a sample repository**',

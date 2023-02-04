@@ -6,8 +6,68 @@
       v-loading="isLoading"
       element-loading-background="transparent"
     >
+      <div class="logo-wrapper">
+        <img
+          src="../../../static/images/pennsieve-logo-full.svg"
+          class="logo"
+          alt="Logo for Pennsieve"
+        >
+      </div>
 
-      More Pennsieve Information
+
+      <data-card
+        ref="descriptionDataCard"
+        class="compact purple infocard"
+        title="Pennsieve Platform Information"
+        :is-expandable="true"
+        :padding="false"
+      >
+
+        <markdown-editor
+          ref="markdownEditor"
+          value="datasetDescription"
+          :is-editing="false"
+          :is-saving="false"
+          empty-state="datasetDescriptionEmptyState"
+          :is-loading="false"
+        />
+      </data-card>
+
+      <data-card
+        ref="descriptionDataCard"
+        class="compact purple infocard"
+        title="Funding"
+        :is-expandable="true"
+        :padding="false"
+      >
+
+        <markdown-editor
+          ref="markdownEditor"
+          value="datasetDescription"
+          :is-editing="false"
+          :is-saving="false"
+          empty-state="datasetDescriptionEmptyState"
+          :is-loading="false"
+        />
+      </data-card>
+
+      <data-card
+        ref="descriptionDataCard"
+        class="compact purple infocard"
+        title="Acknowledgements"
+        :is-expandable="true"
+        :padding="false"
+      >
+
+        <markdown-editor
+          ref="markdownEditor"
+          value="datasetDescription"
+          :is-editing="false"
+          :is-saving="false"
+          empty-state="datasetDescriptionEmptyState"
+          :is-loading="false"
+        />
+      </data-card>
 
 
     </bf-stage>
@@ -16,13 +76,16 @@
 
 <script>
 import { mapGetters, mapActions, mapState } from 'vuex'
-
+import DataCard from "@/components/shared/DataCard/DataCard.vue"
+import MarkdownEditor from '@/components/shared/MarkdownEditor/MarkdownEditor.vue'
 
 
 export default {
   name: 'Info',
 
   components: {
+    DataCard,
+    MarkdownEditor
   },
 
   mixins: [
@@ -67,6 +130,14 @@ p {
   max-width: 760px;
 }
 
+.infocard {
+  margin-bottom: 16px;
+}
+
+.logo {
+  margin-bottom: 24px;
+}
+
 .buttons {
   display: flex;
   flex-direction: row;
@@ -76,6 +147,11 @@ p {
 }
 .logo {
   width: 300px;
+}
+
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
 }
 
 .content {
