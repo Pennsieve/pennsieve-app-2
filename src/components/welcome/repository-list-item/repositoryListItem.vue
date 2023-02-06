@@ -111,13 +111,11 @@ export default {
   methods: {
     ...mapActions('repositoryModule',[
         'updateModalVisible',
-        'setRepositoryDescription'
+        'setSelectedRepo'
       ]
     ),
     openInfoPanel: function(ev) {
-      console.log(ev)
-      this.setRepositoryDescription(this.repository.readme)
-
+      this.setSelectedRepo(this.repository)
       this.updateModalVisible(true)
     }
 

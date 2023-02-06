@@ -17,7 +17,6 @@ import BfUpload from '../BfUpload/BfUpload.vue'
 import SearchAllData from '@/components/SearchAllData/SearchAllData.vue'
 import Office365Dialog from '@/components/datasets/files/Office365Dialog/Office365Dialog.vue'
 import LinkOrcidDialog from '@/components/LinkOrcidDialog/LinkOrcidDialog.vue'
-import RepositoryInfo from '@/components/welcome/repository-info/RepositoryInfo.vue'
 
 import globalMessageHandler from '../../mixins/global-message-handler'
 import Request from '../../mixins/request'
@@ -41,7 +40,6 @@ export default {
     SearchAllData,
     Office365Dialog,
     LinkOrcidDialog,
-    RepositoryInfo,
   },
 
   mixins: [
@@ -74,10 +72,7 @@ export default {
     ...mapState('datasetModule', [
       'datasetSearchParams'
     ]),
-    ...mapState('repositoryModule', [
-      'repositoryModalVisible',
-      'requestModalVisible'
-    ]),
+
     ...mapGetters([
       'activeOrganization',
       'getActiveOrganization',

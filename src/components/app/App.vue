@@ -40,9 +40,7 @@
       :visible.sync="searchModalVisible"
     />
 
-    <repository-info
-      :visible.sync="repositoryModalVisible"
-    />
+
 
     <office-365-dialog />
 

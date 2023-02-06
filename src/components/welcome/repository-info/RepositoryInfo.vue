@@ -10,10 +10,27 @@
       title="Repository Information"
     />
 
+    <div class="image-wrapper">
+      <img
+        :src=logoPath
+        class="logo"
+        alt="Logo for Pennsieve"
+      />
+      <div>
+        <a :href="selectedRepoForRequest.site">
+          <bf-button class="primary">
+            Visit Repository
+          </bf-button>
+        </a>
+      </div>
+
+    </div>
+
+
     <dialog-body>
       <markdown-editor
         ref="markdownEditor"
-        :value="repositoryDescription"
+        :value="selectedRepoForRequest.readme"
         :is-editing="false"
         :is-saving="false"
         :is-loading="isLoadingRepositoryDescription"/>
@@ -27,6 +44,7 @@
 import BfDialogHeader from '@/components/shared/bf-dialog-header/BfDialogHeader.vue'
 import DialogBody from '@/components/shared/dialog-body/DialogBody.vue'
 import MarkdownEditor from '@/components/shared/MarkdownEditor/MarkdownEditor.vue'
+import BfButton from '@/components/shared/bf-button/BfButton.vue'
 
 import {
   mapState,
@@ -38,6 +56,7 @@ export default {
     BfDialogHeader,
     DialogBody,
     MarkdownEditor,
+    BfButton
   },
   props: {
     visible: {
@@ -51,10 +70,16 @@ export default {
       'secondaryNavOpen',
     ]),
     ...mapState('repositoryModule',[
-      "repositoryDescription",
-      "isLoadingRepositoryDescription"
+      "isLoadingRepositoryDescription",
+      'selectedRepoForRequest'
     ]),
 
+    logoPath: function() {
+      if (this.selectedRepoForRequest) {
+        return "../../../../static/images/" + this.selectedRepoForRequest.logo
+      }
+      return ""
+    },
     /**
      * Calculate modal width based on navigation width
      * @returns {String}
@@ -81,6 +106,18 @@ export default {
 </script>
 
 <style lang="scss">
+
+.image-wrapper {
+  display: flex;
+  justify-content: space-between;
+  .logo {
+    max-width:240px;
+    padding-left: 16px;
+    margin: 24px 0;
+  }
+}
+
+
 .el-dialog {
   margin-top: 16px !important;
 }

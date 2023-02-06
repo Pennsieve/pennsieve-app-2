@@ -14,7 +14,24 @@ const initialState = () => ({
       isPublic: true,
       logo: "logo-sparc-wave-primary.svg",
       site: "https://sparc.science",
-      readme: "#The SPARC Data Repository\n Information about sparc.",
+      readme: "__Website__: https://sparc.science\n\n" +
+        "__Scope of repository__: Everything below the brainstem.\n\n" +
+        "__Impact Factor__: \n" +
+        "   - Dedicated landing page\n" +
+        "   - DOI for published dataset\n" +
+        "   - Indexed by Google Analytics\n" +
+        "   - Human Curation team support to ensure quality publication.\n" +
+        "\n" +
+        "__Cost:__ \n" +
+        "   - Free for accepted datasets\n" +
+        "   - Free download for datasets < 5GB.  (see more info for details for larger datasets)\n" +
+        "\n" +
+        "__Curation Support:__ \n\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.\n" +
+        "\n" +
+        "__Requirements:__ \n" +
+        "   - File structure in SPARC standard\n" +
+        "   - Curation team sign-off\n" +
+        "   - Protocols on protocols.io\n",
       survey: [
         {
           id: 1,

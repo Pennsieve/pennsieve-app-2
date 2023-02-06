@@ -43,6 +43,10 @@
 
 
     </bf-stage>
+    <repository-info
+      :visible.sync="repositoryModalVisible"
+      :repository="selectedRepoForRequest"
+    />
   </bf-page>
 </template>
 
@@ -51,6 +55,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 
 import BfRafter from '../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../shared/bf-button/BfButton.vue'
+import RepositoryInfo from '@/components/welcome/repository-info/RepositoryInfo.vue'
 
 import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu'
 import RepositoryListItem from './repository-list-item/RepositoryListItem'
@@ -62,7 +67,8 @@ export default {
     BfRafter,
     BfButton,
     PaginationPageMenu,
-    RepositoryListItem
+    RepositoryListItem,
+    RepositoryInfo
   },
 
   mixins: [
@@ -77,11 +83,15 @@ export default {
 
   data() {
     return {
-      isLoading: false
+      isLoading: false,
     }
   },
 
   computed: {
+    ...mapState('repositoryModule', [
+      'repositoryModalVisible',
+      'selectedRepoForRequest'
+    ]),
     ...mapGetters([
 
     ]),
