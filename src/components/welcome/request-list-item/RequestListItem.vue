@@ -14,21 +14,67 @@
           align="middle"
         >
           <div class="repository-type" >
-            {{isPrivateStr}}
+            {{statusStr}}
           </div>
 
         </el-row>
 
         <el-row>
           <div class="repository-title" >
-            {{repository.displayName}}
+            {{datasetRequest.name}}
           </div>
         </el-row>
         <el-row>
           <p class="repository-description">
-            {{repository.description}}
+            {{datasetRequest.description}}
           </p>
         </el-row>
+      </el-col>
+      <el-col
+        class = "option-col"
+        :sm="8"
+        >
+        <template v-if="datasetRequest.status === 'DRAFT'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+          >
+            Edit Request
+          </a>
+        </template>
+        <template v-if="datasetRequest.status === 'ACCEPTED'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+          >
+            Open Dataset
+          </a>
+        </template>
+        <template v-if="datasetRequest.status === 'SUBMITTED' || datasetRequest.status === 'REJECTED' ">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+          >
+            Retract Request
+          </a>
+        </template>
+        <template v-if="datasetRequest.status === 'REJECTED'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+          >
+            Resubmit To...
+          </a>
+        </template>
+        <template v-if="datasetRequest.status === 'DRAFT'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+          >
+            Remove Request
+          </a>
+        </template>
+
       </el-col>
       <el-col
         :sm="16">
@@ -60,18 +106,16 @@
 <script>
 
 import {
-  mapActions, mapState,
+  mapActions, mapGetters,
 } from 'vuex'
 import {find, propEq, propOr} from "ramda";
 import FormatDate from '@/mixins/format-date'
-import Avatar from '../../shared/avatar/Avatar.vue'
 import PsSwitch from '../../shared/PsSwitch/PsSwitch.vue'
 
 export default {
-  name: 'RepositoryListItem',
+  name: 'RequestListItem',
 
   components: {
-    Avatar,
     PsSwitch
   },
   mixins: [
@@ -79,24 +123,24 @@ export default {
   ],
 
   props: {
-    repository: {
+    datasetRequest: {
       type: Object,
       default: () => ({})
     },
   },
 
   computed: {
-    isPrivateStr: function() {
-      if (this.repository.isPublic) {
-        return "ACCEPTING DATASETS"
-      }
-      return  "PRIVATE"
-    },
+    ...mapGetters('repositoryModule',[
+      'getRepositoryById',
+    ]),
     logoPath: function() {
-      if (this.repository) {
-        return "../../../../static/images/" + this.repository.logo
+      if (this.datasetRequest) {
+        return "../../../../static/images/" + this.getRepositoryById(this.datasetRequest.repositoryId).logo
       }
       return ""
+    },
+    statusStr: function() {
+      return this.datasetRequest.status.toUpperCase();
     }
   },
 
@@ -110,15 +154,14 @@ export default {
   },
   methods: {
     ...mapActions('repositoryModule',[
-        'updateModalVisible',
-        'setRepositoryDescription'
+        'updateRequestModalVisible',
+        'setRepositoryDescription',
       ]
     ),
     openInfoPanel: function(ev) {
       console.log(ev)
-      this.setRepositoryDescription(this.repository.readme)
-
-      this.updateModalVisible(true)
+      this.$emit("open", ev)
+      // this.updateRequestModalVisible(true)
     }
 
   }
@@ -134,6 +177,13 @@ export default {
     height: 40px;
     width: auto;
   }
+}
+
+.option-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 24px;
 }
 
 .repository-menu {

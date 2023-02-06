@@ -1,21 +1,18 @@
 <template>
   <router-view
     name="stage"
-    :repositories="repositories"/>
+    :datasetProposals="datasetProposals"/>
 </template>
 
 <script>
 import {mapState} from "vuex";
 
 export default {
-  name: "WelcomePage",
+  name: "SubmitDatasetPage",
   computed: {
     ...mapState('repositoryModule', [
-      'repositories',
-      'requestModalVisible'
-
+      'datasetProposals'
     ]),
-
-  }
+  },
 }
 </script>

@@ -81,6 +81,10 @@ export default {
 </script>
 
 <style lang="scss">
+.el-dialog {
+  margin-top: 16px !important;
+}
+
 .default-nav-modal-width {
   width: calc(100vw - 32px - 230px);
   margin-left: 246px;

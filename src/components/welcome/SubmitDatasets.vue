@@ -7,56 +7,94 @@
       element-loading-background="transparent"
     >
 
-     Submit Datasets
+      <div class="content">
+        <div class="header-wrapper">
+          <h1>My Dataset Publication Requests</h1>
+          <div>
+            <bf-button class="primary">New Request</bf-button>
+          </div>
+        </div>
 
+        <p> Here, you can request to submit a dataset for a specific repository. The repository will review your request and either accept or reject your request based on the scope of the repository and your justfication for requesting to publish in the selected repository. If your request is rejected, you can request the dataset to be published in a different repository.</p>
+
+      </div>
+      <div
+        v-if="datasetProposals.length > 0"
+        class="integration-list"
+      >
+        <request-list-item
+          v-for="request in datasetProposals"
+          :key="request.id"
+          :datasetRequest="request"
+          @open="handleOpen"
+        />
+      </div>
+
+      <request-survey
+        :visible.sync="requestModalVisible"
+        :dataset-request="activeRequest"
+      />
 
     </bf-stage>
   </bf-page>
 </template>
 
 <script>
-import { mapGetters, mapActions, mapState } from 'vuex'
-
-
+import {mapState, mapActions} from "vuex";
+import BfButton from '../shared/bf-button/BfButton.vue'
+import RequestListItem from './request-list-item/RequestListItem'
+import RequestSurvey from './request-survey/RequestSurvey.vue'
 
 export default {
   name: 'SubmitDatasets',
 
   components: {
+    BfButton,
+    RequestListItem,
+    RequestSurvey
   },
-
-  mixins: [
-  ],
 
   props: {
-
+    datasetProposals: {
+      type: Array,
+      default: () => []
+    }
   },
-
+  computed: {
+    ...mapState('repositoryModule', [
+      'requestModalVisible',
+    ]),
+  },
   data() {
     return {
-      isLoading: false
+      isLoading: false,
+      activeRequest: {}
     }
   },
 
-  computed: {
-    ...mapGetters([
-
-    ]),
-  },
-
-
-  watch: {
-  },
-
-
   methods: {
-    ...mapActions([]),
+    ...mapActions('repositoryModule',[
+        'updateRequestModalVisible',
+      ]
+    ),
 
+    handleOpen: function(ev) {
+      this.activeRequest = this.datasetProposals[0]
+      this.updateRequestModalVisible(true)
+    }
   }
 }
 </script>
 
 <style scoped lang="scss">
+
+.header-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
 
 h1 {
   font-size: 22px;
@@ -79,7 +117,7 @@ p {
 }
 
 .content {
-  margin-top: 40px
+  margin-bottom: 42px;
 }
 
 .data-usage {

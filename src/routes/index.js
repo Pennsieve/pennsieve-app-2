@@ -113,6 +113,8 @@ const ORCID = () => import('../components/ORCID/ORCID.vue')
  * WelcomeOrg
  */
 const WelcomePage = () => import('./welcomePage/WelcomePage.vue')
+const SubmitDatastPage = () => import('./welcomePage/SubmitDatasetPage.vue')
+
 const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
 const SubmitDatasets = () => import('../components/welcome/SubmitDatasets.vue')
 const PennsieveInfo = () => import('../components/welcome/Info.vue')
@@ -146,7 +148,7 @@ const routes = [
   {
     path: '/:orgId/submit',
     components: {
-      page: WelcomePage,
+      page: SubmitDatastPage,
       navigation: BfNavigation
     },
     props: true,

@@ -1,3 +1,5 @@
+import { defaultTo, propEq,find } from 'ramda'
+
 const sortRepositories = (repositories) => {
   return repositories.sort((a, b) => a.displayName.localeCompare(b.name, 'en', { numeric: true}))
 }
@@ -12,7 +14,23 @@ const initialState = () => ({
       isPublic: true,
       logo: "logo-sparc-wave-primary.svg",
       site: "https://sparc.science",
-      readme: "#The SPARC Data Repository\n Information about sparc."
+      readme: "#The SPARC Data Repository\n Information about sparc.",
+      survey: [
+        {
+          id: 1,
+          question: "How much data do you expect?",
+          type: "string"
+        },
+        {
+          id: 2,
+          question: "What file-types do you expext?",
+          type: "string"
+        },
+        {
+          id: 3,
+          question: "How much data do you expect?",
+          type: "string"
+        }],
     },
     {
       id: 2,
@@ -22,7 +40,23 @@ const initialState = () => ({
       isPublic: true,
       logo: "pennsieve-logo-full.svg",
       site: "https://discover.pennsieve.io",
-      readme: "The Pennsieve Discover repository"
+      readme: "The Pennsieve Discover repository",
+      survey: [
+        {
+          id: 1,
+          question: "How much data do you expect?",
+          type: "string"
+        },
+        {
+          id: 2,
+          question: "What file-types do you expext?",
+          type: "string"
+        },
+        {
+          id: 3,
+          question: "How much data do you expect?",
+          type: "string"
+        }],
     },
     {
       id: 3,
@@ -32,7 +66,8 @@ const initialState = () => ({
       isPublic: false,
       logo: "cropped-CNT-logo.png",
       site: "https://cnt.upenn.edu/",
-      readme: "PENN CNT Information"
+      readme: "PENN CNT Information",
+      survey: []
     }
   ],
   datasetProposals:[
@@ -41,17 +76,18 @@ const initialState = () => ({
       name: "This is a sample dataset",
       status: "SUBMITTED",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.",
-      repositoryId: 2,
+      repositoryId: 1,
       userId: 19,
       datasetNodeId: "",
       organizationNodeId: "",
       survey: [
-        { q: "How much data do you expect?",
-          a: "About 15GB"
+        {
+          question: 1,
+          response: "About 15GB"
         },
         {
-          q: "What file-types do you expext?",
-          a: "MRI, Timeseries, and others"
+          question: 2,
+          response: "MRI, Timeseries, and others"
         }
       ]
     },
@@ -65,20 +101,23 @@ const initialState = () => ({
       datasetNodeId: "N:Dataset:xxx",
       organizationNodeId: "N:Organization:xxx",
       survey: [
-        { q: "How much data do you expect?",
-          a: "About 15GB"
+        {
+          question: 1,
+          response: "About 15GB"
         },
         {
-          q: "What file-types do you expext?",
-          a: "MRI, Timeseries, and others"
+          question: 2,
+          response: "MRI, Timeseries, and others"
         }
       ]
     },
   ],
   repositoryModalVisible: false,
+  requestModalVisible: false,
   shouldCollapsePrimaryNav: false,
   repositoryDescription: '**This is a sample repository**',
   isLoadingRepositoryDescription: false,
+  selectedRepoForRequest: {}
 })
 
 export const state = initialState()
@@ -96,6 +135,9 @@ export const mutations = {
   UPDATE_REPOSITORY_INFO_MODAL_VISIBLE (state, data) {
     state.repositoryModalVisible = data
   },
+  UPDATE_REQUEST_MODAL_VISIBLE (state, data) {
+    state.requestModalVisible = data
+  },
   UPDATE_SHOULD_COLLAPSE_PRIMARY_NAV (state, data) {
     state.shouldCollapsePrimaryNav = data
   },
@@ -106,24 +148,15 @@ export const mutations = {
   SET_REPOSITORY_DESCRIPTION(state, data) {
     state.repositoryDescription = data
   },
+  SET_SELECTED_REPO(state, data) {
+    state.selectedRepoForRequest = data
+  }
 }
 
 export const actions = {
   updateRepositories: ({commit}, data) => commit('UPDATE_REPOSITORIES', data),
   fetchRepositories: async({ commit, rootState }) => {
 
-    repos = [
-      {
-        name: "SPARC",
-        displayName: "SPARC",
-        description: "The SPARC repository is something else."
-      },
-      {
-        name: "SPARC",
-        displayName: "SPARC",
-        description: "The SPARC repository is something else."
-      }
-    ]
 
 
     // try {
@@ -165,14 +198,34 @@ export const actions = {
     }
 
   },
+  updateRequestModalVisible: ({ commit, rootState, state }, isModalVisible) => {
+    commit('UPDATE_REQUEST_MODAL_VISIBLE', isModalVisible)
+
+    /*
+     * Determine if the primary navigation should be uncollapsed
+     * when closing the search dialog. If the menu starts collapsed
+     * when the user opens search, do not uncollapsed it when search closes
+     */
+    if (isModalVisible) {
+      const shouldCollapsePrimaryNav = !rootState.primaryNavCondensed
+      commit('UPDATE_SHOULD_COLLAPSE_PRIMARY_NAV', shouldCollapsePrimaryNav)
+    }
+
+    if (state.shouldCollapsePrimaryNav) {
+      commit('CONDENSE_PRIMARY_NAV', isModalVisible, { root: true })
+    }
+
+  },
   setIsLoadingRepositoryDescription: ({commit}, evt) => commit('SET_IS_LOADING_REPOSITORY_DESCRIPTION', evt),
   setRepositoryDescription: ({commit}, evt) => commit('SET_REPOSITORY_DESCRIPTION', evt),
-
-
-
+  setSelectedRepo: ({commit}, evt) => commit('SET_SELECTED_REPO', evt),
 }
 
-export const getters = {}
+export const getters = {
+  getRepositoryById: state => (id) => {
+    return defaultTo({}, find(propEq('id', id), state.repositories))
+  }
+}
 
 const repositoryModule = {
   namespaced: true,

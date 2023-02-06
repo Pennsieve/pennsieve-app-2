@@ -41,7 +41,7 @@ export default {
     SearchAllData,
     Office365Dialog,
     LinkOrcidDialog,
-    RepositoryInfo
+    RepositoryInfo,
   },
 
   mixins: [
@@ -75,7 +75,8 @@ export default {
       'datasetSearchParams'
     ]),
     ...mapState('repositoryModule', [
-      'repositoryModalVisible'
+      'repositoryModalVisible',
+      'requestModalVisible'
     ]),
     ...mapGetters([
       'activeOrganization',
