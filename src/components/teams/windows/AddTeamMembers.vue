@@ -332,7 +332,8 @@ export default {
     getMembers: function() {
       const originalList = this.orgMembers.filter(orig => {
         const existingMember = find(propEq('id', orig.id), this.members)
-        return !existingMember
+        const guestUser = orig.role === 'guest'
+        return !existingMember && !guestUser
       })
       this.origMembers = this.returnSort('lastName', originalList)
       this.filteredMembers = this.origMembers

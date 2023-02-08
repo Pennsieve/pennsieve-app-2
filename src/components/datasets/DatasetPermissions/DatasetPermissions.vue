@@ -159,6 +159,7 @@
         users: [],
         teams: [],
         organizations: [],
+        external: [],
         sortBy: 'lastName',
         processingForm: false,
         sortDirection: 'asc',
@@ -263,6 +264,15 @@
           }
         },
         immediate: true
+      },
+
+      orgMembers: {
+        handler: function(val) {
+          if (val) {
+            this.getUsers()
+          }
+        },
+        immediate: true
       }
     },
 
@@ -333,10 +343,19 @@
         const url = `${this.config.apiUrl}/datasets/${this.datasetId}/collaborators/${endpointType}?api_key=${this.userToken}`
 
         const itemId = pathOr('', ['item', 'id'], item)
+        const label = pathOr('', ['item', 'label'], item)
 
+        // if the entity is in the organization, then itemId is the Node Id of that object
+        // if the entity is external, then label is their email address
         const body = {
-          id: itemId,
+          id: entity === "external" ? label : itemId,
           role: item.role
+        }
+
+        // include custom invite message if one was provided
+        const message = pathOr('', ['message'], item)
+        if (message !== '') {
+          body.message = message
         }
 
         this.sendXhr(url, {
@@ -346,6 +365,12 @@
           if (isAdding) {
             // Add to the proper list based on entity
             this[entity].push(body)
+
+            // if the added entity is 'external' then a user was added to the organization
+            // as a guest, and we need to re-fetch the organization users
+            if (entity === 'external') {
+              EventBus.$emit('update-organization-members', {})
+            }
 
             // Clear form
             this.$refs.addPermissionForm.reset()

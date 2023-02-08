@@ -5,13 +5,16 @@
       :user="user"
     />
     <div class="user-info">
-      <div class="name">
+      <div v-if="user.firstName !== '???' && user.lastName !== '???'" class="name">
         {{ user.firstName }} {{ user.lastName }} <span
           v-if="isOwner"
           class="dataset-owner"
         >
           Owner
         </span>
+      </div>
+      <div v-else class="name">
+        {{ user.email }}
       </div>
       <div
         v-if="showEmail"

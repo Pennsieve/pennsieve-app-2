@@ -134,7 +134,8 @@ export default {
         firstName: '',
         lastName: '',
         email: '',
-        customMessage: ''
+        customMessage: '',
+        inviteRole: '1'
       },
       rules: {
         firstName: [
@@ -230,8 +231,28 @@ export default {
     /**
      * Sends XHR request to submit invitation
      */
+    getRole: function() {
+      if (this.ruleForm.inviteRole === '2') {
+        return 'guest'
+      }
+      else {
+        return ''
+      }
+    },
+
+    getInvitedRole: function() {
+      if (this.ruleForm.inviteRole === '2') {
+        return 'Guest'
+      }
+      else {
+        return 'Collaborator'
+      }
+    },
+
     sendRequest: function() {
-      let role = ''
+      let role = this.getRole()
+      let userInvite = this.ruleForm
+      delete userInvite.role
       if (this.blindReviewerInvitation) {
         role = 'blind_reviewer'
       }
@@ -240,7 +261,7 @@ export default {
         method: 'POST',
         body: {
           invites: [
-            this.ruleForm
+            userInvite
           ],
           role: role
         }
@@ -255,10 +276,12 @@ export default {
      */
     getNewMemberInfo: function(response) {
       const email = this.ruleForm.email
+      // invited an existing Pennsieve user
       const newMember = path([email, 'user'], response)
       if (newMember) {
         return newMember
       }
+      // invited a new user to the Pennsieve platform
       const invitedUser = {
         firstName: this.ruleForm.firstName,
         lastName: this.ruleForm.lastName,
@@ -273,7 +296,7 @@ export default {
      */
     handleSucessfulInvite: function(response) {
       const memberExtras = {
-        role: 'Collaborator',
+        role: this.getInvitedRole().toLowerCase(),
         storage: 0,
         pending: true
       }
@@ -298,6 +321,7 @@ export default {
      * Closes the dialog
      */
     closeDialog: function() {
+      this.ruleForm.inviteRole = '1'
       this.$emit('close-invite-dialog')
       this.$refs.invitationForm.resetFields()
     }
