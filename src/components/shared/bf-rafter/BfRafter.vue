@@ -38,6 +38,7 @@
         >
           <slot name="description" />
         </div>
+
       </div>
       <div
         v-if="$slots['buttons']"
@@ -45,6 +46,24 @@
       >
         <slot name="buttons" />
       </div>
+      &nbsp;
+      <!-- DISABLED AND AWAITING API ENDPOINTS
+      <template v-if="onFilesPage">
+          <button
+            class="linked btn-selection-action"
+            @click="NavToDeleted"
+          >
+          <svg-icon
+            class="mr-8"
+            icon="icon-trash"
+            height="16"
+            width="16"
+          />
+            Deleted Files
+          </button>
+
+      </template >
+      -->
     </div>
 
     <div
@@ -218,6 +237,8 @@ import  { mapState, mapGetters, mapActions } from 'vuex';
 import { path, pathOr } from 'ramda'
 import EventBus from '@/utils/event-bus'
 import Request from '../../../mixins/request/index'
+import BfButton from '../bf-button/BfButton.vue'
+
   export default {
     name: 'BfRafter',
 
@@ -236,6 +257,10 @@ import Request from '../../../mixins/request/index'
       }
     },
 
+    components: {
+      BfButton
+    },
+
   mixins: [Request],
 
   data: function() {
@@ -243,7 +268,7 @@ import Request from '../../../mixins/request/index'
       datasetNameTruncated: false,
       datasetname: '',
       datasetFilterOpen: false,
-      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings'],
+      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings']
     }
   }
 
@@ -318,6 +343,16 @@ import Request from '../../../mixins/request/index'
       else  {
         return false
       }
+    },
+
+    onFilesPage: function() {
+      let filesTable = 'dataset-files';
+      if ( filesTable.includes(this.currentRouteName) ) {
+        return true
+      }
+      else  {
+        return false
+      }
     }
   },
 
@@ -382,7 +417,12 @@ import Request from '../../../mixins/request/index'
 
         })
         .catch(this.handleXhrError.bind(this))
-    }
+    },
+    //Navigates to dataset trash bin modal
+    NavToDeleted: function() {
+      //CONSIDER DOING SOMETHING LIKE FETCHFILES()
+      EventBus.$emit('openDeletedModal',true)
+    },
   }
   }
 </script>

@@ -16,8 +16,31 @@
         width="32"
         color="#e94b4b"
       />
+      <template v-if="callingFromDeleted"
+      >
       <h2>Delete {{ totalFiles }} {{ headline }}</h2>
-      <p>Deleting {{ copy }} cannot be undone.</p>
+      <p>Delete {{ copy }}. This action cannot be undone. </p>
+
+      <div class="dialog-simple-buttons">
+        <bf-button
+          class="secondary"
+          data-cy="closeDeleteDialog"
+          @click="closeDialog"
+        >
+          Cancel
+        </bf-button>
+        <bf-button
+          class="red"
+          data-cy="deleteFiles"
+          @click="deletePermanently"
+        >
+          Delete
+        </bf-button>
+      </div>
+      </template>
+      <template v-else>
+      <h2>Delete {{ totalFiles }} {{ headline }}</h2>
+      <p>{{ copy }} will be deleted permanently after 30 days. </p>
 
       <div class="dialog-simple-buttons">
         <bf-button
@@ -35,6 +58,7 @@
           Delete
         </bf-button>
       </div>
+      </template>
     </dialog-body>
   </el-dialog>
 </template>
@@ -64,6 +88,13 @@
 
     props: {
       selectedFiles: {
+        type: Array
+      },
+      callingFromDeleted: {
+        type: Boolean,
+        default: false
+      },
+      selectedDeletedFiles: {
         type: Array
       }
     },
@@ -127,6 +158,30 @@
     },
 
     methods: {
+      //deletes files permenantly. NOTE: should have toast message that confirms
+      deletePermanently: function(){
+        console.log("DELETING PERMANENTLY")
+        const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
+
+        this.sendXhr(this.deleteUrl, {
+          method: 'POST',
+          body: { things: fileIds }
+        })
+        .then(response => {
+          this.$emit('file-delete', response)
+          const msg = 'File(s) permanently deleted.'
+          EventBus.$emit('toast', {
+            detail: {
+              type: 'success',
+              msg
+            }
+          })
+          this.closeDialog()
+        })
+        .catch(response => {
+          this.handleXhrError(response)
+        })
+      },
       /**
        * Closes the dialog
        */
@@ -135,6 +190,7 @@
       },
 
       deleteFiles: function() {
+        //NOTE: This will be the function that marks files for deletion
         const fileIds = this.selectedFiles.map(item => item.content.id)
 
         this.sendXhr(this.deleteUrl, {
