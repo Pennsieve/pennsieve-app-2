@@ -441,8 +441,8 @@ hr {
   box-sizing: border-box;
   color: $gray_6;
   padding: 21px 24px 0px;
-  background-color: $gray2;
-  border-bottom: 1px solid $gray2;
+  background-color: $gray_2;
+  border-bottom: 1px solid $gray_2;
   display: flex;
   justify-content: space-between;
   white-space: nowrap;
