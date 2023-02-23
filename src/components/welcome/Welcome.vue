@@ -101,6 +101,8 @@ export default {
   watch: {
   },
 
+
+
   // beforeRouteEnter(to, from, next) {
   //   next(vm => {
   //     if (vm.hasFeature('sandbox_org_feature')) {
@@ -110,9 +112,7 @@ export default {
   // },
 
   methods: {
-    ...mapActions([]),
-
-  }
+  },
 }
 </script>
 

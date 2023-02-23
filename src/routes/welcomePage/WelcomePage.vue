@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapActions, mapState} from "vuex";
 
 export default {
   name: "WelcomePage",
@@ -15,7 +15,13 @@ export default {
       'requestModalVisible'
 
     ]),
+  },
+  mounted () {
+    this.fetchRepositories()
+  },
 
+  methods: {
+    ...mapActions('repositoryModule', ['fetchRepositories']),
   }
 }
 </script>

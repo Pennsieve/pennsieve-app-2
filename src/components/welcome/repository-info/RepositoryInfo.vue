@@ -30,7 +30,7 @@
     <dialog-body>
       <markdown-editor
         ref="markdownEditor"
-        :value="selectedRepoForRequest.readme"
+        :value="readmeText"
         :is-editing="false"
         :is-saving="false"
         :is-loading="isLoadingRepositoryDescription"/>
@@ -64,6 +64,11 @@ export default {
       default: false
     }
   },
+  data: function () {
+    return {
+      readmeText: "",
+    }
+  },
   computed: {
     ...mapState([
       'primaryNavCondensed',
@@ -76,7 +81,7 @@ export default {
 
     logoPath: function() {
       if (this.selectedRepoForRequest) {
-        return "../../../../static/images/" + this.selectedRepoForRequest.logo
+        return this.selectedRepoForRequest.logo
       }
       return ""
     },
@@ -90,11 +95,30 @@ export default {
         : 'default-nav-modal-width'
     },
   },
+  watch: {
+    selectedRepoForRequest: {
+      handler: function() {
+        this.getReadmeText()
+      }
+    }
+  },
   methods: {
     ...mapActions('repositoryModule',[
         'updateModalVisible'
       ]
     ),
+
+    getReadmeText: async function() {
+      let result = ""
+      if (this.selectedRepoForRequest) {
+        let response = await fetch(this.selectedRepoForRequest.readme)
+        if (response.ok) {
+          result = await response.text()
+        }
+      }
+      this.readmeText = result
+    },
+
     /**
      * Closes the Search Across All Datasets dialog
      */
