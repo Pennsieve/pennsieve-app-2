@@ -1,92 +1,12 @@
 import { defaultTo, propEq,find } from 'ramda'
+import Cookies from "js-cookie";
 
 const sortRepositories = (repositories) => {
   return repositories.sort((a, b) => a.displayName.localeCompare(b.name, 'en', { numeric: true}))
 }
 
 const initialState = () => ({
-  repositories: [
-    {
-      id: 1,
-      name: "SPARC",
-      displayName: "SPARC",
-      description: "The SPARC repository is developed as part of the NIH SPARC initiative and accepts high quality datasets related to the autonomic nervous system.",
-      isPublic: true,
-      logo: "logo-sparc-wave-primary.svg",
-      site: "https://sparc.science",
-      readme: "__Website__: https://sparc.science\n\n" +
-        "__Scope of repository__: Everything below the brainstem.\n\n" +
-        "__Impact Factor__: \n" +
-        "   - Dedicated landing page\n" +
-        "   - DOI for published dataset\n" +
-        "   - Indexed by Google Analytics\n" +
-        "   - Human Curation team support to ensure quality publication.\n" +
-        "\n" +
-        "__Cost:__ \n" +
-        "   - Free for accepted datasets\n" +
-        "   - Free download for datasets < 5GB.  (see more info for details for larger datasets)\n" +
-        "\n" +
-        "__Curation Support:__ \n\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.\n" +
-        "\n" +
-        "__Requirements:__ \n" +
-        "   - File structure in SPARC standard\n" +
-        "   - Curation team sign-off\n" +
-        "   - Protocols on protocols.io\n",
-      survey: [
-        {
-          id: 1,
-          question: "How much data do you expect?",
-          type: "string"
-        },
-        {
-          id: 2,
-          question: "What file-types do you expext?",
-          type: "string"
-        },
-        {
-          id: 3,
-          question: "How much data do you expect?",
-          type: "string"
-        }],
-    },
-    {
-      id: 2,
-      name: "Pennsieve_Discover",
-      displayName: "Pennsieve Discover",
-      description: "Find and access public scientific datasets. Explore scientific data from the world's leading institutions and researchers with Pennsieve Discover.",
-      isPublic: true,
-      logo: "pennsieve-logo-full.svg",
-      site: "https://discover.pennsieve.io",
-      readme: "The Pennsieve Discover repository",
-      survey: [
-        {
-          id: 1,
-          question: "How much data do you expect?",
-          type: "string"
-        },
-        {
-          id: 2,
-          question: "What file-types do you expext?",
-          type: "string"
-        },
-        {
-          id: 3,
-          question: "How much data do you expect?",
-          type: "string"
-        }],
-    },
-    {
-      id: 3,
-      name: "CNT",
-      displayName: "Center for Neuroengineering and Therapeutics",
-      description: "Penn’s Center for Neuroengineering & Therapeutics is working to develop and test new devices that can restore brain and nervous system function after it has been lost to disease or disability.",
-      isPublic: false,
-      logo: "cropped-CNT-logo.png",
-      site: "https://cnt.upenn.edu/",
-      readme: "PENN CNT Information",
-      survey: []
-    }
-  ],
+  repositories: [],
   datasetProposals:[
     {
       id: 1,
@@ -147,7 +67,7 @@ export const mutations = {
     Object.keys(_initialState).forEach(key => state[key] = _initialState[key])
   },
   UPDATE_REPOSITORIES(state, repositories) {
-    state.repositories = sortIntegrations(repositories)
+    state.repositories = sortRepositories(repositories)
   },
   UPDATE_REPOSITORY_INFO_MODAL_VISIBLE (state, data) {
     state.repositoryModalVisible = data
@@ -173,29 +93,39 @@ export const mutations = {
 export const actions = {
   updateRepositories: ({commit}, data) => commit('UPDATE_REPOSITORIES', data),
   fetchRepositories: async({ commit, rootState }) => {
-
-
-
-    // try {
-      // const url = `${rootState.config.apiUrl}/webhooks?api_key=${rootState.userToken}`
-
-      // const resp = await fetch(url, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   }
-      // })
-
-    //   if (resp.ok) {
-    //     const collections = await resp.json()
-    //     commit('UPDATE_INTEGRATIONS', collections)
-    //   } else {
-    //     return Promise.reject(resp)
-    //   }
-    // } catch (err) {
-    //   commit('UPDATE_INTEGRATIONS', [])
-    //   return Promise.reject(err)
-    // }
+    try {
+      let url = `${rootState.config.api2Url}/publishing/repositories`
+      const apiKey = rootState.userToken || Cookies.get('user_token')
+      const myHeaders = new Headers();
+      myHeaders.append('Authorization', 'Bearer ' + apiKey)
+      myHeaders.append('Accept', 'application/json')
+      const response = await fetch(url, { headers: myHeaders })
+      if (response.ok) {
+        const responseJson = await response.json()
+        let count = 0
+        let repositories = responseJson.map(r => {
+          return {
+          'id': ++count,
+          'organizationNodeId': r.OrganizationNodeId,
+          'name': r.Name,
+          'displayName': r.DisplayName,
+          'organizationId': r.WorkspaceId,
+          'isPublic': r.Type === "PUBLIC",
+          'description': r.Description,
+          'site': r.URL,
+          'readme': r.OverviewDocument,
+          'logo': r.LogoFile,
+          'survey': r.Questions,
+        } })
+        commit('UPDATE_REPOSITORIES', repositories)
+      } else {
+        commit('UPDATE_REPOSITORIES', [])
+        throw new Error(resp.statusText)
+      }
+    }
+    catch (err) {
+      commit('UPDATE_REPOSITORIES', [])
+    }
   },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {
     commit('UPDATE_REPOSITORY_INFO_MODAL_VISIBLE', isModalVisible)
