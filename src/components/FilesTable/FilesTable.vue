@@ -8,7 +8,7 @@
         id="check-all"
         v-model="checkAll"
         :indeterminate="isIndeterminate"
-        @change="onCheckAllChange"
+        @change="onCheckAllChange"x
       />
 
       <span id="selection-count-label">

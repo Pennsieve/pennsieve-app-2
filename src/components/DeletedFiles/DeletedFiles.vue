@@ -34,7 +34,6 @@
             @current-change="onPaginationPageChange"
           />
         </div>
-        <!-- END pagination -->
         &nbsp;
         <files-table
           v-if="hasFiles"
@@ -74,13 +73,14 @@
         </bf-button>
       </div>
     </bf-dialog>
+    <!--
     <bf-delete-dialog
       ref="deleteDialog"
       calling-from-deleted
       :selected-files="selectedDeletedFiles"
-      <!-- file-delete-2 -->
+      file-delete-2
       @file-delete="onDelete"
-    />
+    /> -->
   </div>
 </template>
 
@@ -125,7 +125,9 @@ data: function(){
       tableResultsTotalCount: 0,
       offset: 0,
       limit: 10,
-      page: 1
+      //page: 1,
+      //full path, i.e. move destination for 'restore' operation
+      origFilePath: ''
 
   }
 },
@@ -137,7 +139,7 @@ mounted: function(){
  EventBus.$on('openDeletedModal', (data) => {
    this.isOpen = data;
  })
- EventBus.$on()
+ //EventBus.$on()
 
  //EventBus.$on('fetchDeleted', this.fetchDeletedFunc())
 },
@@ -186,11 +188,14 @@ computed: {
    * @returns {String}
    */
   getFilesUrl: function () {
+    //https://api2.pennsieve.net/datasets/trashcan?dataset_id=Nxxx
     if (this.config.apiUrl && this.userToken) {
       const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
       const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
 
       return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${this.userToken}&includeAncestors=true`
+      //PAGE BREAKS WHEN BELOW EXECUTES
+      //return `https://api2.pennsieve.net/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}&api_key=${this.userToken}&includeAncestors=true`
     }
   },
 },
@@ -199,10 +204,12 @@ methods: {
    * Update pagination offset
    */
   onPaginationPageChange: async function(page) {
-    //note... need to find a way to change the page (just use 'page')
-    this.offset = (this.page - 1) * this.limit
+    //currFileSearchPage
+    const offset = (page - 1) * this.limit
+    this.offset = offset
     //NOTE: should pass offset and page into fetchDeleted
-    await this.fetchDeletedFunc(this.offset,this.limit)
+    this.fetchDeletedFunc(this.offset,this.limit)
+    
   },
   /**
    * Reset selected files state
@@ -310,27 +317,20 @@ methods: {
     })
   },
   //method moves selection(s) back to the datasets file storage (unmarked as deleted)
-  moveBackToFiles: function(){
-    console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
-    let undeleteFilesMove = new Promise(function(resolve, reject) {
-      //let req = call new endpoint
-      if (req.status == 200) {
-        EventBus.$emit('toast', {
-          detail: {
-            type: 'success',
-            msg: 'File(s) moved back to parent directory.'
-          }
-        })
-        resolve(req.response);
-      } else {
-        reject("Error")
-      }
-    });
-    undeleteFilesMove.then(
-        function(value) {this.fetchDeletedFunc(this.limit,this.offset)},
-        function(error) {console.error(err);}
-      );
-    },
+  moveBackToFiles: async function() {
+      console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
+  try {
+    //const move_response1 = await fetch('moveEndpoint');
+    if (response1.ok) {
+      await this.fetchDeletedFunc();
+      console.log('files moved back to original directory');
+    } else {
+      console.error('Error calling endpoint:', move_response.status);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+},
   /**
    * Set selected files
    * @param {Array} selection
@@ -367,12 +367,18 @@ methods: {
 /*
 Will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
 and need to provide limit and offset in request (getFilesUrl)
+https://api2.pennsieve.net/datasets/trashcan?dataset_id=Nxxx
+RETURNS: {"limit":50,"offset":0,"totalCount":0,"packages":null,"messages":["GetTrashcan not implemented yet"]}
+request limit defaults to 10 and must be < 100. offset defaults to 0
+path field is empty
 */
  fetchDeletedFunc: function(offset, limit) {
+  //NOTE: we will  want to make sure that this isnt a flat map
    console.log('fetching deleted files')
    this.sendXhr(this.getFilesUrl)
      .then(response => {
        this.file = response
+       this.tableResultsTotalCount = this.file.totalCount
        this.files = response.children.map(file => {
          if (!file.storage) {
            file.storage = 0
@@ -388,7 +394,7 @@ and need to provide limit and offset in request (getFilesUrl)
        if (pkgId) {
          this.scrollToFile(pkgId)
        }
-       this.tableResultsTotalCount = this.files.length
+       //this.tableResultsTotalCount = this.files.length
      })
      .catch(response => {
        this.handleXhrError(response)
