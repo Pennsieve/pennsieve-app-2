@@ -58,7 +58,7 @@ import BfButton from '../shared/bf-button/BfButton.vue'
 import RepositoryInfo from '@/components/welcome/repository-info/RepositoryInfo.vue'
 
 import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu'
-import RepositoryListItem from './repository-list-item/RepositoryListItem'
+import RepositoryListItem from './repository-list-item/repositoryListItem'
 
 export default {
   name: 'Welcome',
