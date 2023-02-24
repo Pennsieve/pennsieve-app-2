@@ -18,10 +18,11 @@ export default {
   },
   mounted () {
     this.fetchRepositories()
+    this.fetchProposals()
   },
 
   methods: {
-    ...mapActions('repositoryModule', ['fetchRepositories']),
+    ...mapActions('repositoryModule', ['fetchRepositories','fetchProposals']),
   }
 }
 </script>

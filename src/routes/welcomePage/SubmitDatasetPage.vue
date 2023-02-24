@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapActions, mapState} from "vuex";
 
 export default {
   name: "SubmitDatasetPage",
@@ -14,5 +14,14 @@ export default {
       'datasetProposals'
     ]),
   },
+  mounted () {
+    this.fetchRepositories()
+    this.fetchProposals()
+  },
+
+  methods: {
+    ...mapActions('repositoryModule', ['fetchRepositories','fetchProposals']),
+  }
+
 }
 </script>

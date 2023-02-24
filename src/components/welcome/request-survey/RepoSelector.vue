@@ -70,7 +70,7 @@ export default {
     },
     logoPath: function() {
       if (this.selectedRepoForRequest) {
-        return "../../../../static/images/" + this.selectedRepoForRequest.logo
+        return this.selectedRepoForRequest.logo
       }
       return ""
     },

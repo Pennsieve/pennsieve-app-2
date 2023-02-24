@@ -135,7 +135,10 @@ export default {
     ]),
     logoPath: function() {
       if (this.datasetRequest) {
-        return "../../../../static/images/" + this.getRepositoryById(this.datasetRequest.repositoryId).logo
+        let repository = this.getRepositoryById(this.datasetRequest.repositoryId)
+        if (repository) {
+          return repository.logo
+        }
       }
       return ""
     },

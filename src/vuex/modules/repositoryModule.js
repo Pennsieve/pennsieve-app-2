@@ -7,48 +7,7 @@ const sortRepositories = (repositories) => {
 
 const initialState = () => ({
   repositories: [],
-  datasetProposals:[
-    {
-      id: 1,
-      name: "This is a sample dataset",
-      status: "SUBMITTED",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.",
-      repositoryId: 1,
-      userId: 19,
-      datasetNodeId: "",
-      organizationNodeId: "",
-      survey: [
-        {
-          question: 1,
-          response: "About 15GB"
-        },
-        {
-          question: 2,
-          response: "MRI, Timeseries, and others"
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "This is a second proposed dataset",
-      status: "ACCEPTED",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt labore et dolore magna aliqua. Ut enim ada minim veniam, quis nostrud exercitation ullamco laboris consequat.",
-      repositoryId: 2,
-      userId: 19,
-      datasetNodeId: "N:Dataset:xxx",
-      organizationNodeId: "N:Organization:xxx",
-      survey: [
-        {
-          question: 1,
-          response: "About 15GB"
-        },
-        {
-          question: 2,
-          response: "MRI, Timeseries, and others"
-        }
-      ]
-    },
-  ],
+  datasetProposals: [],
   repositoryModalVisible: false,
   requestModalVisible: false,
   shouldCollapsePrimaryNav: false,
@@ -87,7 +46,11 @@ export const mutations = {
   },
   SET_SELECTED_REPO(state, data) {
     state.selectedRepoForRequest = data
-  }
+  },
+  UPDATE_PROPOSALS(state, datasetProposals) {
+    state.datasetProposals = datasetProposals
+  },
+
 }
 
 export const actions = {
@@ -120,11 +83,47 @@ export const actions = {
         commit('UPDATE_REPOSITORIES', repositories)
       } else {
         commit('UPDATE_REPOSITORIES', [])
-        throw new Error(resp.statusText)
+        throw new Error(response.statusText)
       }
     }
     catch (err) {
       commit('UPDATE_REPOSITORIES', [])
+    }
+  },
+  updateProposals: ({commit}, data) => commit('UPDATE_PROPOSALS', data),
+  fetchProposals: async({ commit, rootState }) => {
+    try {
+      let url = `${rootState.config.api2Url}/publishing/proposal`
+      const apiKey = rootState.userToken || Cookies.get('user_token')
+      const myHeaders = new Headers();
+      myHeaders.append('Authorization', 'Bearer ' + apiKey)
+      myHeaders.append('Accept', 'application/json')
+      const response = await fetch(url, { headers: myHeaders })
+      if (response.ok) {
+        const responseJson = await response.json()
+        let count = 0
+        let proposals = responseJson.map(p => {
+          return {
+            'id': ++count,
+            'userId': p.UserId,
+            'name': p.Name,
+            'description': p.Description,
+            'repositoryId': p.RepositoryId,
+            'organizationNodeId': p.OrganizationNodeId,
+            'datasetNodeId': p.DatasetNodeId,
+            'status': p.Status,
+            'survey': p.Survey,
+            'createdAt': p.CreatedAt,
+            'updatedAt': p.UpdatedAt,
+          } })
+        commit('UPDATE_PROPOSALS', proposals)
+      } else {
+        commit('UPDATE_PROPOSALS', [])
+        throw new Error(response.statusText)
+      }
+    }
+    catch (err) {
+      commit('UPDATE_PROPOSALS', [])
     }
   },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {
@@ -170,7 +169,7 @@ export const actions = {
 
 export const getters = {
   getRepositoryById: state => (id) => {
-    return defaultTo({}, find(propEq('id', id), state.repositories))
+    return defaultTo({}, find(propEq('organizationId', id), state.repositories))
   }
 }
 

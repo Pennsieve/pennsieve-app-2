@@ -39,7 +39,7 @@
       :padding="false"
     >
       <el-input
-        v-model="firstName"
+        v-model="proposedName"
       />
     </data-card>
 
@@ -64,14 +64,16 @@
     <div class="questions">
       <data-card
         v-for="(question, idx) in selectedRepoForRequest.survey"
-        :key="question.id"
+        :key="question.Id"
         ref="descriptionDataCard"
         class="compact purple question-card"
-        :title="question.question"
+        :title="question.Question"
         :is-expandable="true"
         :padding="false"
       >
-
+        <el-input
+          v-model="survey[question.Id]"
+        />
       </data-card>
 
     </div>
@@ -122,7 +124,8 @@ export default {
   },
   data: function() {
     return {
-      firstName: ""
+      proposedName: "",
+      survey: {},
     }
   },
   computed: {
