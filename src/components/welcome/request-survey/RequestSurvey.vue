@@ -63,7 +63,7 @@
 
     <div class="questions">
       <data-card
-        v-for="(question, idx) in selectedRepoForRequest.survey"
+        v-for="(question, idx) in repositoryQuestions"
         :key="question.Id"
         ref="descriptionDataCard"
         class="compact purple question-card"
@@ -144,7 +144,6 @@ export default {
         return this.datasetRequest.status.toUpperCase();
       }
       return ""
-
     },
     /**
      * Calculate modal width based on navigation width
@@ -155,6 +154,16 @@ export default {
         ? 'condensed-nav-modal-width'
         : 'default-nav-modal-width'
     },
+    /**
+     * If a repository has been selected, return the list of questions
+     * @returns {*[]}
+     */
+    repositoryQuestions: function() {
+      if (this.selectedRepoForRequest) {
+        return this.selectedRepoForRequest.survey
+      }
+      return []
+    }
   },
   methods: {
     ...mapActions('repositoryModule',[

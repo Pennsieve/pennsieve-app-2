@@ -66,7 +66,10 @@ export default {
       'selectedRepoForRequest'
     ]),
     hasSelectedRepo: function() {
-      return has("displayName", this.selectedRepoForRequest )
+      if (this.selectedRepoForRequest) {
+        return has("displayName", this.selectedRepoForRequest)
+      }
+      return false
     },
     logoPath: function() {
       if (this.selectedRepoForRequest) {

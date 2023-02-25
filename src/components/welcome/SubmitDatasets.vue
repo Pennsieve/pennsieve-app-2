@@ -11,7 +11,12 @@
         <div class="header-wrapper">
           <h1>My Dataset Publication Requests</h1>
           <div>
-            <bf-button class="primary">New Request</bf-button>
+            <bf-button
+              class="primary"
+              @click="startNewRequest"
+            >
+              New Request
+            </bf-button>
           </div>
         </div>
 
@@ -75,11 +80,18 @@ export default {
   methods: {
     ...mapActions('repositoryModule',[
         'updateRequestModalVisible',
+        'clearSelectedRepo'
       ]
     ),
 
     handleOpen: function(ev) {
       this.activeRequest = this.datasetProposals[0]
+      this.updateRequestModalVisible(true)
+    },
+
+    startNewRequest: function() {
+      this.activeRequest = {}
+      this.clearSelectedRepo()
       this.updateRequestModalVisible(true)
     }
   }

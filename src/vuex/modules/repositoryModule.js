@@ -47,6 +47,9 @@ export const mutations = {
   SET_SELECTED_REPO(state, data) {
     state.selectedRepoForRequest = data
   },
+  CLEAR_SELECTED_REPO(state) {
+    state.selectedRepoForRequest = {}
+  },
   UPDATE_PROPOSALS(state, datasetProposals) {
     state.datasetProposals = datasetProposals
   },
@@ -165,6 +168,7 @@ export const actions = {
   setIsLoadingRepositoryDescription: ({commit}, evt) => commit('SET_IS_LOADING_REPOSITORY_DESCRIPTION', evt),
   setRepositoryDescription: ({commit}, evt) => commit('SET_REPOSITORY_DESCRIPTION', evt),
   setSelectedRepo: ({commit}, evt) => commit('SET_SELECTED_REPO', evt),
+  clearSelectedRepo: ({commit}) => commit('SET_SELECTED_REPO',),
 }
 
 export const getters = {
