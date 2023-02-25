@@ -3,6 +3,7 @@
     :visible="visible"
     :custom-class="calculateModalWidth"
     :show-close="false"
+    @open="openDialog"
     @close="closeDialog"
   >
     <bf-dialog-header
@@ -28,57 +29,74 @@
       </div>
     </div>
 
-
-<!--    THESE ANSWERS SHOULD PROBABLY BE WRAPPED IN A FORM-->
-
-    <data-card
-      ref="titleDataCard"
-      class="compact purple question-card"
-      title="What is the proposed name for the dataset?"
-      :is-expandable="true"
-      :padding="false"
-    >
-      <el-input
-        v-model="proposedName"
-      />
-    </data-card>
-
-    <data-card
-      ref="titleDataCard"
-      class="compact purple question-card"
-      title="Please describe the proposed dataset"
-      :is-expandable="true"
-      :padding="false"
-    >
-      <markdown-editor
-        ref="markdownEditor"
-        value="datasetDescription"
-        :is-editing="true"
-        :is-saving="false"
-        empty-state="datasetDescriptionEmptyState"
-        :is-loading="false"
-      />
-    </data-card>
-
-
-    <div class="questions">
+    <el-form
+      id="proposal-request-survey"
+      ref="proposalRequestSurvey"
+      :model="proposal"
+      >
       <data-card
-        v-for="(question, idx) in repositoryQuestions"
-        :key="question.Id"
-        ref="descriptionDataCard"
+        ref="titleDataCard"
         class="compact purple question-card"
-        :title="question.Question"
+        title="What is the proposed name for the dataset?"
         :is-expandable="true"
         :padding="false"
       >
         <el-input
-          v-model="survey[question.Id]"
+          v-model="proposal.name"
         />
       </data-card>
 
-    </div>
+      <data-card
+        ref="descriptionDataCard"
+        class="compact purple question-card"
+        title="Please describe the proposed dataset"
+        :is-expandable="true"
+        :padding="false"
+      >
+        <template slot="title-aux">
+          <button
+            v-if="!isEditingMarkdown"
+            class="linked mr-8"
+            :disabled="proposalLocked"
+            @click="isEditingMarkdown = true"
+          >
+            Edit
+          </button>
+          <button
+            v-if="isEditingMarkdown"
+            class="linked"
+            @click="isSavingMarkdown = true"
+          >
+            Save
+          </button>
+        </template>
+        <markdown-editor
+          ref="proposalMarkdownEditor"
+          :value="proposal.description"
+          :is-editing="isEditingMarkdown"
+          :is-saving="isSavingMarkdown"
+          :empty-state="datasetProposalEmptyState"
+          :is-loading="isLoadingMarkdown"
+          @save="onSaveDescription"
+        />
+      </data-card>
 
-
+      <div class="questions">
+        <data-card
+          v-for="(question, idx) in repositoryQuestions"
+          :key="question.Id"
+          ref="surveyDataCard"
+          class="compact purple question-card"
+          :title="question.Question"
+          :is-expandable="true"
+          :padding="false"
+        >
+          <el-input
+            v-model="proposal.survey[question.Id]"
+          />
+        </data-card>
+      </div>
+    </el-form>
 
   </el-dialog>
 
@@ -91,12 +109,15 @@ import MarkdownEditor from '@/components/shared/MarkdownEditor/MarkdownEditor.vu
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import RepoSelector from '@/components/welcome/request-survey/RepoSelector.vue'
 import DataCard from "@/components/shared/DataCard/DataCard.vue"
-
+import datasetProposalEmptyState from './dataset-proposal-empty-state'
 
 import {
   mapState,
   mapActions
 } from 'vuex'
+
+
+
 export default {
   name: "RequestSurvey",
   components: {
@@ -124,8 +145,15 @@ export default {
   },
   data: function() {
     return {
-      proposedName: "",
-      survey: {},
+      proposal: {
+        name: '',
+        description: '',
+        survey: []
+      },
+      isEditingMarkdown: false,
+      isSavingMarkdown: false,
+      isLoadingMarkdown: false,
+      datasetProposalEmptyState
     }
   },
   computed: {
@@ -143,7 +171,10 @@ export default {
       if (this.datasetRequest.status) {
         return this.datasetRequest.status.toUpperCase();
       }
-      return ""
+      return "DRAFT"
+    },
+    proposalLocked: function() {
+      return this.statusStr !== "DRAFT"
     },
     /**
      * Calculate modal width based on navigation width
@@ -170,11 +201,42 @@ export default {
         'updateRequestModalVisible'
       ]
     ),
+    openDialog: function() {
+      // populate name
+      if (this.datasetRequest && this.datasetRequest.name) {
+        this.proposal.name = this.datasetRequest.name
+      }
+      // populate description
+      if (this.datasetRequest && this.datasetRequest.description) {
+        this.proposal.description = this.datasetRequest.description
+      }
+      // populate survey responses
+      if (this.datasetRequest && this.datasetRequest.survey) {
+        this.datasetRequest.survey.forEach(e => {
+          this.proposal.survey[e.QuestionId] = e.Response
+        })
+      }
+    },
     /**
      * Closes the Search Across All Datasets dialog
      */
     closeDialog: function() {
+      this.clearForm()
       this.updateRequestModalVisible(false)
+    },
+    clearForm: function() {
+      this.proposal = {
+        name: '',
+        description: '',
+        survey: []
+      }
+    },
+    onSaveDescription: function(markdown) {
+      console.log("onSaveDescription() markdown:")
+      console.log(markdown)
+      this.proposal.description = markdown
+      this.isEditingMarkdown = false
+      this.isSavingMarkdown = false
     },
   }
 }
