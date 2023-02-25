@@ -161,10 +161,8 @@ export default {
         'setRepositoryDescription',
       ]
     ),
-    openInfoPanel: function(ev) {
-      console.log(ev)
-      this.$emit("open", ev)
-      // this.updateRequestModalVisible(true)
+    openInfoPanel: function(event) {
+      this.$emit("open", this.datasetRequest)
     }
 
   }

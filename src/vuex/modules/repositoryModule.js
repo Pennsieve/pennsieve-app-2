@@ -13,7 +13,8 @@ const initialState = () => ({
   shouldCollapsePrimaryNav: false,
   repositoryDescription: '**This is a sample repository**',
   isLoadingRepositoryDescription: false,
-  selectedRepoForRequest: {}
+  selectedRepoForRequest: {},
+  selectedDatasetProposal: {},
 })
 
 export const state = initialState()
@@ -53,7 +54,9 @@ export const mutations = {
   UPDATE_PROPOSALS(state, datasetProposals) {
     state.datasetProposals = datasetProposals
   },
-
+  UPDATE_SELECTED_PROPOSAL(state, data) {
+    state.selectedDatasetProposal = data
+  },
 }
 
 export const actions = {
@@ -93,6 +96,7 @@ export const actions = {
       commit('UPDATE_REPOSITORIES', [])
     }
   },
+  setSelectedProposal: ({commit}, data) => commit('UPDATE_SELECTED_PROPOSAL', data),
   updateProposals: ({commit}, data) => commit('UPDATE_PROPOSALS', data),
   fetchProposals: async({ commit, rootState }) => {
     try {

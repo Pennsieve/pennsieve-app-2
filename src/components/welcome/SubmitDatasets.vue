@@ -31,7 +31,7 @@
           v-for="request in datasetProposals"
           :key="request.id"
           :datasetRequest="request"
-          @open="handleOpen"
+          @open="openDatasetProposal"
         />
       </div>
 
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import {mapState, mapActions} from "vuex";
+import {mapState, mapActions, mapGetters,} from "vuex";
 import BfButton from '../shared/bf-button/BfButton.vue'
 import RequestListItem from './request-list-item/RequestListItem'
 import RequestSurvey from './request-survey/RequestSurvey.vue'
@@ -69,6 +69,9 @@ export default {
     ...mapState('repositoryModule', [
       'requestModalVisible',
     ]),
+    ...mapGetters('repositoryModule',[
+      'getRepositoryById',
+    ]),
   },
   data() {
     return {
@@ -80,12 +83,20 @@ export default {
   methods: {
     ...mapActions('repositoryModule',[
         'updateRequestModalVisible',
-        'clearSelectedRepo'
+        'setSelectedRepo',
+        'clearSelectedRepo',
       ]
     ),
 
-    handleOpen: function(ev) {
-      this.activeRequest = this.datasetProposals[0]
+    openDatasetProposal: function(proposal) {
+      this.activeRequest = proposal
+      // set the selected repository, if one is designated on the proposal
+      if (proposal && proposal.repositoryId) {
+        let repository = this.getRepositoryById(proposal.repositoryId)
+        if (repository) {
+          this.setSelectedRepo(repository)
+        }
+      }
       this.updateRequestModalVisible(true)
     },
 
