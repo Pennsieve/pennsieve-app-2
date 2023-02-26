@@ -24,8 +24,19 @@
 
       </div>
       <div>
-        <bf-button class="primary">Save Draft</bf-button>
-        <bf-button class="primary">Submit Request</bf-button>
+        <bf-button
+          class="primary"
+          :disabled="!readyToSave"
+          @click="saveDraft"
+        >
+          Save Draft
+        </bf-button>
+        <bf-button
+          class="primary"
+          :disabled="!readyToSubmit"
+        >
+          Submit Request
+        </bf-button>
       </div>
     </div>
 
@@ -77,13 +88,13 @@
           :is-saving="isSavingMarkdown"
           :empty-state="datasetProposalEmptyState"
           :is-loading="isLoadingMarkdown"
-          @save="onSaveDescription"
+          @save="saveDescription"
         />
       </data-card>
 
       <div class="questions">
         <data-card
-          v-for="(question, idx) in repositoryQuestions"
+          v-for="(question, Id) in repositoryQuestions"
           :key="question.Id"
           ref="surveyDataCard"
           class="compact purple question-card"
@@ -167,6 +178,21 @@ export default {
       "selectedRepoForRequest"
     ]),
 
+    allRepoQuestionsAnswered: function() {
+      if (this.selectedRepoForRequest) {
+        let answered = this.surveyResponses()
+        return answered.length === this.selectedRepoForRequest.survey.length
+      }
+      return false
+    },
+    readyToSave: function() {
+      // must have: selected a repo, and provided a name
+      return (this.selectedRepoForRequest && this.proposal.name)
+    },
+    readyToSubmit: function() {
+      // readyToSave, and provided a description, and answered questions
+      return (this.readyToSave && this.proposal.description && this.allRepoQuestionsAnswered)
+    },
     statusStr: function() {
       if (this.datasetRequest.status) {
         return this.datasetRequest.status.toUpperCase();
@@ -194,6 +220,11 @@ export default {
         return this.selectedRepoForRequest.survey
       }
       return []
+    }
+  },
+  watch: {
+    selectedRepoForRequest: function() {
+      this.proposal.survey = []
     }
   },
   methods: {
@@ -231,12 +262,62 @@ export default {
         survey: []
       }
     },
-    onSaveDescription: function(markdown) {
-      console.log("onSaveDescription() markdown:")
+    saveDescription: function(markdown) {
+      console.log("saveDescription() markdown:")
       console.log(markdown)
       this.proposal.description = markdown
       this.isEditingMarkdown = false
       this.isSavingMarkdown = false
+    },
+    saveDraft: function() {
+      console.log("RequestSurvey::saveDraft()")
+      // this.datasetRequest: prop (if empty, then this is a new request)
+      // this.proposal: form data
+      // this.selectedRepoForRequest
+      if (this.datasetRequest && this.datasetRequest.id) {
+        this.updateProposal()
+      }
+      else {
+        this.createProposal()
+      }
+    },
+    surveyResponses: function() {
+      let responses = []
+      for (let index = 0; index < this.proposal.survey.length; index++) {
+        if (this.proposal.survey[index]) {
+          responses.push({
+            QuestionId: index,
+            Response: this.proposal.survey[index]
+          })
+        }
+      }
+      return responses
+    },
+    // TODO: note that this.proposal.survey[] has a [0] entry that should be ignored
+    createProposal: function() {
+      console.log("RequestSurvey::createProposal()")
+      let proposal = {
+        name: this.proposal.name,
+        description: this.proposal.description,
+        repositoryId: this.selectedRepoForRequest.organizationId,
+        organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
+        survey: this.surveyResponses(),
+      }
+      this.$emit("create-proposal", proposal)
+      this.closeDialog()
+    },
+    updateProposal: function() {
+      console.log("RequestSurvey::updateProposal()")
+      let proposal = {
+        nodeId: this.datasetRequest.nodeId,
+        name: this.proposal.name,
+        description: this.proposal.description,
+        repositoryId: this.selectedRepoForRequest.organizationId,
+        organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
+        survey: this.surveyResponses(),
+      }
+      this.$emit("update-proposal", proposal)
+      this.closeDialog()
     },
   }
 }

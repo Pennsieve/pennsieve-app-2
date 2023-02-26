@@ -38,6 +38,8 @@
       <request-survey
         :visible.sync="requestModalVisible"
         :dataset-request="activeRequest"
+        @create-proposal="createProposal"
+        @update-proposal="updateProposal"
       />
 
     </bf-stage>
@@ -85,6 +87,9 @@ export default {
         'updateRequestModalVisible',
         'setSelectedRepo',
         'clearSelectedRepo',
+        'fetchProposals',
+        'storeNewProposal',
+        'storeChangedProposal'
       ]
     ),
 
@@ -104,7 +109,25 @@ export default {
       this.activeRequest = {}
       this.clearSelectedRepo()
       this.updateRequestModalVisible(true)
-    }
+    },
+
+    createProposal: async function(proposal) {
+      console.log("SubmitDatasets::createProposal() proposal:")
+      console.log(proposal)
+      // TODO: make storeNewProposal an async function
+      // TODO: if storeNewProposal() succeeds, then call fetchProposals
+      this.storeNewProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
+    },
+
+    updateProposal: async function(proposal) {
+      console.log("SubmitDatasets::updateProposal() proposal:")
+      console.log(proposal)
+      this.storeChangedProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
+    },
   }
 }
 </script>
