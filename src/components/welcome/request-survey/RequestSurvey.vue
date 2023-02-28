@@ -321,6 +321,8 @@ export default {
         repositoryId: this.selectedRepoForRequest.organizationId,
         organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
         survey: this.surveyResponses(),
+        status: this.datasetRequest.status,
+        createdAt: this.datasetRequest.createdAt,
       }
       this.$emit("update-proposal", proposal)
       this.closeDialog()

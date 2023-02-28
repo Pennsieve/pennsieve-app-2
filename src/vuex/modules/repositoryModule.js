@@ -57,6 +57,13 @@ export const mutations = {
   ADD_PROPOSAL(state, proposal) {
     state.datasetProposals.push(proposal)
   },
+  UPDATE_PROPOSAL(state, proposal) {
+    let index = state.datasetProposals.findIndex(p => p.nodeId === proposal.nodeId)
+    let existing = state.datasetProposals[index]
+    let updated = proposal
+    updated.id = existing.id
+    state.datasetProposals[index] = updated
+  },
   REMOVE_PROPOSAL(state, proposal) {
     let result = state.datasetProposals.filter(p => p.nodeId !== proposal.nodeId)
     state.datasetProposals = result
@@ -194,10 +201,58 @@ export const actions = {
       throw response.error()
     }
   },
-  storeChangedProposal: ({commit, rootState, state}, proposal) => {
+  storeChangedProposal: async({commit, rootState, state}, proposal) => {
     console.log("repositoryModule::storeChangedProposal() proposal:")
     console.log(proposal)
     // call: PUT /publishing/proposal
+    let url = `${rootState.config.api2Url}/publishing/proposal`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: myHeaders,
+      body: JSON.stringify({
+        UserId: rootState.profile.intId,
+        ProposalNodeId:  propOr("", "nodeId", proposal),
+        Name: propOr("", "name", proposal),
+        Description: propOr("", "description", proposal),
+        RepositoryId: propOr("", "repositoryId", proposal),
+        OrganizationNodeId: propOr("", "organizationNodeId", proposal),
+        Survey: propOr([], "survey", proposal),
+        Status: propOr([], "status", proposal),
+        CreatedAt: propOr([], "createdAt", proposal),
+      })
+    })
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::storeNewProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let proposal = {
+        'nodeId': responseJson.ProposalNodeId,
+        'userId': responseJson.UserId,
+        'name': responseJson.Name,
+        'description': responseJson.Description,
+        'repositoryId': responseJson.RepositoryId,
+        'organizationNodeId': responseJson.OrganizationNodeId,
+        'datasetNodeId': responseJson.DatasetNodeId,
+        'status': responseJson.Status,
+        'survey': responseJson.Survey,
+        'createdAt': responseJson.CreatedAt,
+        'updatedAt': responseJson.UpdatedAt,
+      }
+      // mutate state
+      commit('UPDATE_PROPOSAL', proposal)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw response.error()
+    }
   },
   removeProposal: async({commit, rootState, state}, proposal) => {
     console.log("repositoryModule::removeProposal() proposal:")
