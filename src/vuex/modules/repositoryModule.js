@@ -57,6 +57,10 @@ export const mutations = {
   ADD_PROPOSAL(state, proposal) {
     state.datasetProposals.push(proposal)
   },
+  REMOVE_PROPOSAL(state, proposal) {
+    let result = state.datasetProposals.filter(p => p.nodeId !== proposal.nodeId)
+    state.datasetProposals = result
+  },
   UPDATE_SELECTED_PROPOSAL(state, data) {
     state.selectedDatasetProposal = data
   },
@@ -194,6 +198,26 @@ export const actions = {
     console.log("repositoryModule::storeChangedProposal() proposal:")
     console.log(proposal)
     // call: PUT /publishing/proposal
+  },
+  removeProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::removeProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/proposal?proposal_node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: myHeaders})
+    if (response.ok) {
+      commit('REMOVE_PROPOSAL', proposal)
+      return {
+        status: "SUCCESS",
+      }
+    } else {
+      throw response.error()
+    }
   },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {
     commit('UPDATE_REPOSITORY_INFO_MODAL_VISIBLE', isModalVisible)

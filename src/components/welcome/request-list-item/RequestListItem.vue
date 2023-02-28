@@ -1,5 +1,5 @@
 <template>
-  <div class="repository-list-item" @click="openInfoPanel">
+  <div class="repository-list-item">
 
     <el-row
       type="flex"
@@ -37,7 +37,7 @@
         <template v-if="datasetRequest.status === 'DRAFT'">
           <a
             href="#"
-            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+            @click.prevent="triggerRequest(DatasetProposalAction.EDIT)"
           >
             Edit Request
           </a>
@@ -45,7 +45,7 @@
         <template v-if="datasetRequest.status === 'ACCEPTED'">
           <a
             href="#"
-            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+            @click.prevent="triggerRequest(DatasetProposalAction.OPEN_DATASET)"
           >
             Open Dataset
           </a>
@@ -53,7 +53,7 @@
         <template v-if="datasetRequest.status === 'SUBMITTED' || datasetRequest.status === 'REJECTED' ">
           <a
             href="#"
-            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+            @click.prevent="triggerRequest(DatasetProposalAction.WITHDRAW)"
           >
             Retract Request
           </a>
@@ -61,7 +61,7 @@
         <template v-if="datasetRequest.status === 'REJECTED'">
           <a
             href="#"
-            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+            @click.prevent="triggerRequest(DatasetProposalAction.RESUBMIT)"
           >
             Resubmit To...
           </a>
@@ -69,7 +69,7 @@
         <template v-if="datasetRequest.status === 'DRAFT'">
           <a
             href="#"
-            @click.prevent="triggerRequest(PublicationStatus.ACCEPTED, PublicationType.REVISION)"
+            @click.prevent="triggerRequest(DatasetProposalAction.REMOVE)"
           >
             Remove Request
           </a>
@@ -92,11 +92,6 @@
       </el-col>
     </el-row>
 
-
-
-
-
-
   </div>
 
 
@@ -111,6 +106,7 @@ import {
 import {find, propEq, propOr} from "ramda";
 import FormatDate from '@/mixins/format-date'
 import PsSwitch from '../../shared/PsSwitch/PsSwitch.vue'
+import { DatasetProposalAction } from '@/utils/constants';
 
 export default {
   name: 'RequestListItem',
@@ -144,7 +140,11 @@ export default {
     },
     statusStr: function() {
       return this.datasetRequest.status.toUpperCase();
-    }
+    },
+
+    DatasetProposalAction: function() {
+      return DatasetProposalAction
+    },
   },
 
   data: function () {
@@ -162,9 +162,14 @@ export default {
       ]
     ),
     openInfoPanel: function(event) {
+      console.log("openInfoPanel() event:")
+      console.log(event)
       this.$emit("open", this.datasetRequest)
-    }
-
+    },
+    triggerRequest: function(request) {
+      console.log(`triggerRequest() request: ${request}`)
+      this.$emit(request, this.datasetRequest)
+    },
   }
 }
 </script>

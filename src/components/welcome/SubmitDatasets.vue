@@ -31,7 +31,8 @@
           v-for="request in datasetProposals"
           :key="request.id"
           :datasetRequest="request"
-          @open="openDatasetProposal"
+          @edit="editDatasetProposal"
+          @remove="removeDatasetProposal"
         />
       </div>
 
@@ -89,11 +90,12 @@ export default {
         'clearSelectedRepo',
         'fetchProposals',
         'storeNewProposal',
-        'storeChangedProposal'
+        'storeChangedProposal',
+        'removeProposal'
       ]
     ),
 
-    openDatasetProposal: function(proposal) {
+    editDatasetProposal: function(proposal) {
       this.activeRequest = proposal
       // set the selected repository, if one is designated on the proposal
       if (proposal && proposal.repositoryId) {
@@ -103,6 +105,13 @@ export default {
         }
       }
       this.updateRequestModalVisible(true)
+    },
+
+    removeDatasetProposal: async function(proposal) {
+      console.log("SubmitDatasets::removeDatasetProposal()")
+      this.removeProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
     },
 
     startNewRequest: function() {
