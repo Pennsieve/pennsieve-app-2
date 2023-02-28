@@ -19,7 +19,7 @@
 
         <div class="buttons">
 
-          <bf-button>Visit Documentation Hub</bf-button>
+          <a href="https://docs.pennsieve.io" target="_blank" class="mr-16"><bf-button>Visit Documentation Hub</bf-button></a>
           <bf-button>Submit a Dataset</bf-button>
 
         </div>
