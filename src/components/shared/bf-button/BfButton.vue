@@ -102,7 +102,7 @@
     justify-content: center;
     line-height: 1;
     margin: 0;
-    min-width: 112px;
+    min-width: 160px;
     outline: none;
     padding: 12px 16px;
     text-transform: none;

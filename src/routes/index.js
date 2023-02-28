@@ -110,7 +110,76 @@ const Bf404 = () => import('../components/Bf-404/Bf-404.vue')
 const ORCIDRedirect = () => import('../components/ORCID/ORCIDRedirect.vue')
 const ORCID = () => import('../components/ORCID/ORCID.vue')
 
+/**
+ * WelcomeOrg
+ */
+const WelcomePage = () => import('./welcomePage/WelcomePage.vue')
+const SubmitDatastPage = () => import('./welcomePage/SubmitDatasetPage.vue')
+
+const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
+const SubmitDatasets = () => import('../components/welcome/SubmitDatasets.vue')
+const PennsieveInfo = () => import('../components/welcome/Info.vue')
+
+
+
+
+
 const routes = [
+
+  /**
+   * Welcome Org routes
+   */
+  {
+    path: '/:orgId/welcome',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'welcome',
+        path: '',
+        components: {
+          stage: WelcomeInfo
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/submit',
+    components: {
+      page: SubmitDatastPage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'submit',
+        path: '',
+        components: {
+          stage: SubmitDatasets
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/info',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'info',
+        path: '',
+        components: {
+          stage: PennsieveInfo
+        }
+      },
+    ],
+  },
 
   /**
    * Datasets routes

@@ -9,7 +9,6 @@
         tag="button"
         :to="logoRoute"
 
-
       >
         <svg-icon
           v-show="!primaryNavCondensed || secondaryNavOpen"
@@ -51,7 +50,35 @@
 
     <div class="menu-wrap">
       <bf-navigation-item
-        v-if="!pageNotFound"
+        v-if="!(pageNotFound) && isWelcomeOrg"
+        :link="{ name: 'welcome', params: {orgId: activeOrganizationId} }"
+        label="Welcome"
+        icon="icon-organization"
+        :condensed="primaryNavCondensed"
+
+      />
+
+      <bf-navigation-item
+        v-if="!(pageNotFound) && isWelcomeOrg"
+        :link="{ name: 'submit', params: {orgId: activeOrganizationId} }"
+        label="Submit Datasets"
+        icon="icon-document"
+        :condensed="primaryNavCondensed"
+
+      />
+
+
+      <bf-navigation-item
+        v-if="!(pageNotFound) && isWelcomeOrg"
+        :link="{ name: 'info', params: {orgId: activeOrganizationId} }"
+        label="More Information"
+        icon="icon-help"
+        :condensed="primaryNavCondensed"
+
+      />
+
+      <bf-navigation-item
+        v-if="!(pageNotFound || isWelcomeOrg)"
         :link="{ name: 'datasets-list', params: {orgId: activeOrganizationId} }"
         label="Datasets"
         icon="icon-datasets"
@@ -60,7 +87,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound && !isWorkspaceGuest"
+        v-if="!(pageNotFound || isWelcomeOrg) && !isWorkspaceGuest"
         :link="{ name: 'people-list', params: {orgId: activeOrganizationId} }"
         label="People"
         icon="icon-person"
@@ -69,7 +96,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound && !isWorkspaceGuest"
+        v-if="!(pageNotFound || isWelcomeOrg) && !isWorkspaceGuest"
         :link="{ name: 'teams-list', params: {orgId: activeOrganizationId} }"
         label="Teams"
         icon="icon-team"
@@ -78,7 +105,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound && !isWorkspaceGuest"
+        v-if="!(pageNotFound || isWelcomeOrg) && !isWorkspaceGuest"
         id="nav-publishing"
         :link="{ name: 'publishing', params: {orgId: activeOrganizationId} }"
         label="Publishing"
@@ -88,7 +115,7 @@
       />
 
       <bf-navigation-item
-        v-if="!pageNotFound && !isWorkspaceGuest"
+        v-if="!(pageNotFound || isWelcomeOrg) && !isWorkspaceGuest"
         id="nav-integrations"
         :link="{ name: 'integrations-list', params: {orgId: activeOrganizationId} }"
         label="Integrations"
@@ -135,7 +162,8 @@
       ...mapGetters([
         'activeOrganization',
         'hasFeature',
-        'isUserPublisher'
+        'isUserPublisher',
+        'isWelcomeOrg'
       ]),
 
       ...mapState([
@@ -207,7 +235,7 @@
         'togglePrimaryNav',
         'condensePrimaryNav'
       ]),
-      
+
       /**
        * Toggles primary nav open and closed
        */

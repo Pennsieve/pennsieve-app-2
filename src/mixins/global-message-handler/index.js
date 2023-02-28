@@ -137,6 +137,9 @@ export default {
   },
 
   methods: {
+    ...mapGetters([
+      "isWelcomeOrg"
+    ]),
     ...mapActions([
       'updateActiveOrganization',
       'updateOrganizations',
@@ -380,9 +383,11 @@ export default {
       const redirect = pathOr('', ['query', 'redirectTo'], this.$route)
       if (redirect) {
         window.location.replace(redirect)
+      } else if (this.isWelcomeOrg() ){
+        this.$router.push(`/${orgId}/welcome`)
       } else {
-        this.$router.push(`/${orgId}/datasets`)
-        this.launchOnboarding()
+          this.$router.push(`/${orgId}/datasets`)
+          this.launchOnboarding()
       }
     },
 

@@ -63,6 +63,26 @@ export const PublicationType = Object.freeze({
   RELEASE: 'release'
 })
 
+export const DatasetProposalStatus = Object.freeze({
+  DRAFT: 'draft',
+  SUBMITTED: 'submitted',
+  WITHDRAWN: 'withdrawn',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected',
+  REMOVED: 'removed'
+})
+
+export const DatasetProposalAction = Object.freeze({
+  EDIT: 'edit',
+  SUBMIT: 'submit',
+  WITHDRAW: 'withdraw',
+  ACCEPT: 'accept',
+  REJECT: 'reject',
+  REMOVE: 'remove',
+  RESUBMIT: 'resubmit',
+  OPEN_DATASET: 'open-dataset'
+})
+
 export const referenceTypeOptions = Object.freeze([
 {
   value: 'IsDerivedFrom',
