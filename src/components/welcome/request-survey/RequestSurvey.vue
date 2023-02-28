@@ -69,14 +69,14 @@
             v-if="!isEditingMarkdown"
             class="linked mr-8"
             :disabled="proposalLocked"
-            @click="isEditingMarkdown = true"
+            @click="onClickEditMarkdown"
           >
             Edit
           </button>
           <button
             v-if="isEditingMarkdown"
             class="linked"
-            @click="isSavingMarkdown = true"
+            @click="onClickSaveMarkdown"
           >
             Save
           </button>
@@ -262,9 +262,15 @@ export default {
         survey: []
       }
     },
+    onClickEditMarkdown: function(evt) {
+      evt.preventDefault()
+      this.isEditingMarkdown = true
+    },
+    onClickSaveMarkdown: function(evt) {
+      evt.preventDefault()
+      this.isSavingMarkdown = true
+    },
     saveDescription: function(markdown) {
-      console.log("saveDescription() markdown:")
-      console.log(markdown)
       this.proposal.description = markdown
       this.isEditingMarkdown = false
       this.isSavingMarkdown = false
