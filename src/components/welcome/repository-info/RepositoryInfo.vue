@@ -17,7 +17,7 @@
         alt="Logo for Pennsieve"
       />
       <div>
-        <a :href="selectedRepoForRequest.site">
+        <a :href="selectedRepoForRequest.site" target="_blank">
           <bf-button class="primary">
             Visit Repository
           </bf-button>
