@@ -43,6 +43,19 @@
         @update-proposal="updateProposal"
       />
 
+      <confirmation-dialog
+        :visible="confirmationDialogVisible"
+        :action="confirmationDialog.action"
+        :resource-name="confirmationDialog.resourceName"
+        :resource="confirmationDialog.resource"
+        :warning-message="confirmationDialog.warningMessage"
+        :confirmations="confirmationDialog.confirmations"
+        :confirm-action="confirmationDialog.confirmAction"
+        :cancel-action="confirmationDialog.cancelAction"
+        :event-name="confirmationDialog.eventName"
+        @close="confirmationDialogVisible = false"
+        />
+
     </bf-stage>
   </bf-page>
 </template>
@@ -52,11 +65,13 @@ import {mapState, mapActions, mapGetters,} from "vuex";
 import BfButton from '../shared/bf-button/BfButton.vue'
 import RequestListItem from './request-list-item/RequestListItem'
 import RequestSurvey from './request-survey/RequestSurvey.vue'
+import ConfirmationDialog from "../shared/ConfirmationDialog/ConfirmationDialog";
 
 export default {
   name: 'SubmitDatasets',
 
   components: {
+    ConfirmationDialog,
     BfButton,
     RequestListItem,
     RequestSurvey
@@ -79,7 +94,18 @@ export default {
   data() {
     return {
       isLoading: false,
-      activeRequest: {}
+      activeRequest: {},
+      confirmationDialogVisible: false,
+      confirmationDialog: {
+        action: '',
+        resourceName: '',
+        resource: {},
+        warningMessage: '',
+        confirmations: [],
+        confirmAction: '',
+        cancelAction: '',
+        eventName: ''
+      }
     }
   },
 
