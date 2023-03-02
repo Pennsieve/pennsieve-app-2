@@ -32,7 +32,7 @@
           :key="request.id"
           :datasetRequest="request"
           @edit="editDatasetProposal"
-          @remove="removeDatasetProposal"
+          @remove="removeDatasetProposalRequest"
         />
       </div>
 
@@ -43,6 +43,20 @@
         @update-proposal="updateProposal"
       />
 
+      <confirmation-dialog
+        :visible="confirmationDialogVisible"
+        :action="confirmationDialog.action"
+        :action-message="confirmationDialog.actionMessage"
+        :resource="confirmationDialog.resource"
+        :info-message="confirmationDialog.infoMessage"
+        :warning-message="confirmationDialog.warningMessage"
+        :acknowledgements="confirmationDialog.acknowledgements"
+        :confirm-action-label="confirmationDialog.confirmActionLabel"
+        :cancel-action-label="confirmationDialog.cancelActionLabel"
+        @close="confirmationDialogVisible = false"
+        @confirmed="confirmedAction"
+        />
+
     </bf-stage>
   </bf-page>
 </template>
@@ -52,11 +66,13 @@ import {mapState, mapActions, mapGetters,} from "vuex";
 import BfButton from '../shared/bf-button/BfButton.vue'
 import RequestListItem from './request-list-item/RequestListItem'
 import RequestSurvey from './request-survey/RequestSurvey.vue'
+import ConfirmationDialog from "../shared/ConfirmationDialog/ConfirmationDialog";
 
 export default {
   name: 'SubmitDatasets',
 
   components: {
+    ConfirmationDialog,
     BfButton,
     RequestListItem,
     RequestSurvey
@@ -79,7 +95,18 @@ export default {
   data() {
     return {
       isLoading: false,
-      activeRequest: {}
+      activeRequest: {},
+      confirmationDialogVisible: false,
+      confirmationDialog: {
+        action: '',
+        actionMessage: '',
+        resource: {},
+        infoMessage: '',
+        warningMessage: '',
+        acknowledgements: [],
+        confirmActionLabel: '',
+        cancelActionLabel: '',
+      },
     }
   },
 
@@ -95,6 +122,20 @@ export default {
       ]
     ),
 
+    resetConfirmation: function() {
+      this.confirmationDialogVisible = false
+      this.confirmationDialog = {
+        action: '',
+        actionMessage: '',
+        resource: {},
+        infoMessage: '',
+        warningMessage: '',
+        acknowledgements: [],
+        confirmActionLabel: '',
+        cancelActionLabel: '',
+      }
+    },
+
     editDatasetProposal: function(proposal) {
       this.activeRequest = proposal
       // set the selected repository, if one is designated on the proposal
@@ -107,11 +148,44 @@ export default {
       this.updateRequestModalVisible(true)
     },
 
+    confirmedAction: async function(event) {
+      console.log("SubmitDatasets::confirmedAction() event:")
+      console.log(event)
+      this.resetConfirmation()
+      if (event.action && event.resource) {
+        switch (event.action) {
+          case "delete":
+            this.removeDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
+        }
+      }
+    },
+
     removeDatasetProposal: async function(proposal) {
-      console.log("SubmitDatasets::removeDatasetProposal()")
+      console.log("SubmitDatasets::removeDatasetProposal() proposal:")
+      console.log(proposal)
       this.removeProposal(proposal)
         .then(() => this.fetchProposals())
         .catch(err => console.log(err))
+    },
+
+    removeDatasetProposalRequest: function(proposal) {
+      console.log("SubmitDatasets::removeDatasetProposalRequest() proposal:")
+      console.log(proposal)
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'delete',
+        actionMessage: `Remove Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: 'This will delete the Dataset Proposal and cannot be undone.',
+        confirmActionLabel: 'Remove',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
+      // this.removeProposal(proposal)
+      //   .then(() => this.fetchProposals())
+      //   .catch(err => console.log(err))
     },
 
     startNewRequest: function() {
