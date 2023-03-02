@@ -1,5 +1,5 @@
 <template>
-  <bf-page class="bf-dataset-files">
+  <bf-page class="bf-dataset-files-deleted">
     <locked-banner
       slot="banner"
     />
@@ -135,12 +135,6 @@
       @folder-created="onFolderCreated"
     />
 
-    <deleted-files
-        :open.sync="deletedDialogOpen"
-        @close-deleted-dialog = "closeDeletedDialog"
-
-    />
-
     <bf-move-dialog
       ref="moveDialog"
       :file="file"
@@ -190,7 +184,7 @@ import BfDropInfo from './bf-drop-info/BfDropInfo.vue'
 import BfUploadInfo from './bf-upload-info/BfUploadInfo.vue'
 import FilesTable from '../../FilesTable/FilesTable.vue'
 import BfUploadMenu from './bf-upload-menu/BfUploadMenu.vue'
-import DeletedFiles from '../../DeletedFiles/DeletedFiles.vue'
+
 import Sorter from '../../../mixins/sorter/index'
 import Request from '../../../mixins/request/index'
 import EventBus from '../../../utils/event-bus'
@@ -214,8 +208,7 @@ export default {
     BreadcrumbNavigation,
     BfUploadMenu,
     FilesTable,
-    LockedBanner,
-    DeletedFiles
+    LockedBanner
   },
 
   mixins: [
@@ -239,8 +232,7 @@ export default {
       showDropInfo: false,
       showUploadInfo: false,
       sortDirection: 'asc',
-      singleFile: {},
-      deletedDialogOpen: false
+      singleFile: {}
     }
   },
 
@@ -341,15 +333,6 @@ export default {
     EventBus.$on('dismiss-upload-info', this.onDismissUploadInfo.bind(this))
     EventBus.$on('update-uploaded-file-state', this.onUpdateUploadedFileState.bind(this))
     EventBus.$on('update-external-file', this.onFileRenamed)
-    EventBus.$on('openDeletedModal', (data) => {
-      console.log("view deleted called from Rafter")
-      this.deletedDialogOpen = data;
-      this.fetchDeleted()
-    })
-    EventBus.$on('refreshAfterDeleteModal', (data) => {
-      var temp = data;
-      this.fetchFiles()
-    })
   },
 
   destroyed: function () {
@@ -373,16 +356,6 @@ export default {
   },
 
   methods: {
-
-    fetchDeleted: function() {
-      console.log("fetch deleted called")
-      EventBus.$emit('fetchDeleted',true)
-    },
-
-    closeDeletedDialog: function () {
-      this.deletedDialogOpen = false;
-    },
-
     /**
      * Set selected files
      * @param {Array} selection
@@ -429,7 +402,6 @@ export default {
      * Send API request to get files for item
      */
     fetchFiles: function () {
-      console.log('calling again')
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.file = response
@@ -904,7 +876,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.bf-dataset-files {
+.bf-dataset-files-deleted {
   background: #fff;
   position: relative;
   &.condensed {

@@ -12,7 +12,6 @@
           @click="close"
         />
       </div>
-
       <div class="bf-dialog-body">
         <slot name="body" />
       </div>

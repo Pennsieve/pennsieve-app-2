@@ -68,6 +68,7 @@ const Datasets = () => import('./datasets/Datasets.vue')
 
 const BfDatasetList = () => import('../components/datasets/dataset-list/BfDatasetList.vue')
 const BfDatasetFiles = () => import('../components/datasets/files/BfDatasetFiles.vue')
+const BfDatasetFilesDeleted = () => import('../components/datasets/files/BfDatasetFilesDeleted.vue')
 const BfDatasetCollaborators = () => import('../components/datasets/collaborators/BfDatasetCollaborators.vue')
 const DatasetPermissions = () => import('../components/datasets/DatasetPermissions/DatasetPermissions.vue')
 const DatasetActivity = () => import('../components/datasets/DatasetActivity/DatasetActivity.vue')
@@ -303,6 +304,11 @@ const routes = [
         children: [
           {
             name: 'collection-files',
+            path: ':fileId',
+            props: true
+          },
+          {
+            name: 'collection-files-deleted',
             path: ':fileId',
             props: true
           }

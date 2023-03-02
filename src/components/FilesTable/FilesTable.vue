@@ -15,6 +15,43 @@
         {{ selectionCountLabel }}
       </span>
       <ul class="selection-actions unstyled">
+       <template v-if='withinDeleteMenu'>
+       <!-=-
+      <li class="mr-24">
+        <button
+          v-if="!searchAllDataMenu"
+          class="linked btn-selection-action"
+          :disabled="datasetLocked"
+          @click="$emit('delete')"
+        >
+          <svg-icon
+            class="mr-8"
+            icon="icon-trash"
+            height="16"
+            width="16"
+          />
+          Delete permanently
+        </button>
+      </li>
+      -->
+      <li class="mr-24">
+        <button
+          v-if="!searchAllDataMenu"
+          class="linked btn-selection-action"
+          :disabled="datasetLocked"
+          @click="$emit('move')"
+        >
+          <svg-icon
+            class="mr-8"
+            icon="icon-move-file"
+            height="16"
+            width="16"
+          />
+          Restore {{ selectionCountLabel }}
+        </button>
+      </li>
+      </template>
+       <template v-else>
         <li class="mr-24">
           <button
             v-if="!searchAllDataMenu"
@@ -47,6 +84,7 @@
             Move to&hellip;
           </button>
         </li>
+         </template>
         <li>
           <button
             class="linked btn-selection-action"
@@ -114,6 +152,7 @@
         :render-header="renderHeader"
         :sort-orders="sortOrders"
       />
+
       <el-table-column
         prop="storage"
         label="Size"
@@ -125,6 +164,7 @@
           {{ formatMetric(scope.row.storage) }}
         </template>
       </el-table-column>
+
       <el-table-column
         prop="content.createdAt"
         label="Date Created"
@@ -137,7 +177,22 @@
           {{ formatDate(scope.row.content.createdAt) }}
         </template>
       </el-table-column>
-
+      <template v-if='withinDeleteMenu'>
+        <el-table-column
+          prop="content.createdAt"
+          label="Date Deleted"
+          width="180"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        >
+          <template slot-scope="scope">
+            {{ formatDate(scope.row.content.updatedAt) }}
+          </template>
+        </el-table-column>
+      </template>
+      <template v-else>
+      </template>
       <el-table-column
         label=""
         fixed="right"
@@ -222,6 +277,10 @@ export default {
     nonSortableColumns: {
       type: Array,
       default: () => []
+    },
+    withinDeleteMenu: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -244,7 +303,6 @@ export default {
       'dataset',
       'filesProxyId'
     ]),
-
     /**
      * Compute if the checkbox is indeterminate
      * @returns {Boolean}
