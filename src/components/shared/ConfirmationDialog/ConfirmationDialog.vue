@@ -17,8 +17,11 @@
           width="32"
         />
         <h4 class="delete-dataset-title">
-          {{action}} : {{ resourceName }}
+          {{ actionMessage }}
         </h4>
+        <div class="info-message" v-if="infoMessage !== ''">
+          {{infoMessage}}
+        </div>
         <div class="warning-message" v-if="warningMessage !== ''">
           {{warningMessage}}
         </div>
@@ -32,7 +35,7 @@
             v-model="form.checkBoxes"
             @change="isChecked"
           >
-            <template v-for="(item, key) in confirmations">
+            <template v-for="(item, key) in acknowledgements">
               <el-checkbox
                  class="step-1"
                  :label=item
@@ -53,14 +56,21 @@
         class="secondary"
         @click="closeDialog"
       >
-        {{cancelAction}}
+        {{cancelActionLabel}}
       </bf-button>
-      <bf-button
+      <bf-button v-if="infoMessage !== ''"
+        class="blue"
+        :disabled="disableConfirmation"
+        @click="onFormSubmit"
+      >
+        {{confirmActionLabel}}
+      </bf-button>
+      <bf-button v-if="warningMessage !== ''"
         class="red"
         :disabled="disableConfirmation"
         @click="onFormSubmit"
       >
-        {{confirmAction}}
+        {{confirmActionLabel}}
       </bf-button>
     </span>
   </el-dialog>
@@ -68,7 +78,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import { pathOr, propOr } from 'ramda'
 
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import BfDialogHeader from '@/components/shared/bf-dialog-header/BfDialogHeader.vue'
@@ -88,11 +97,7 @@ export default {
       type: Boolean,
       default: false
     },
-    action: {
-      type: String,
-      default: "Delete"
-    },
-    resourceName: {
+    actionMessage: {
       type: String,
       required: true
     },
@@ -100,26 +105,26 @@ export default {
       type: Object,
       required: true
     },
+    infoMessage: {
+      type: String,
+      default: ''
+    },
     warningMessage: {
       type: String,
       default: ''
     },
-    confirmations: {
+    acknowledgements: {
       type: Array,
       default: () => []
     },
-    confirmAction: {
+    confirmActionLabel: {
       type: String,
       default: "OK"
     },
-    cancelAction: {
+    cancelActionLabel: {
       type: String,
       default: "Cancel"
     },
-    eventName: {
-      type: String,
-      default: "confirmed"
-    }
   },
 
   mixins: [
@@ -142,7 +147,7 @@ export default {
       }
     },
     disableConfirmation: function() {
-      return this.confirmations.length !== this.form.checkBoxes.length
+      return this.acknowledgements.length !== this.form.checkBoxes.length
     }
   },
 
@@ -167,7 +172,7 @@ export default {
      * Handler for form submit and validation
      */
     onFormSubmit: function() {
-      this.$emit(this.eventName, this.resource)
+      this.$emit("confirmation", this.resource)
       this.closeDialog()
     },
     /**
@@ -207,12 +212,16 @@ export default {
 }
 
 .svg-icon {
-  color: $red_1;
+  color: $info-color;
 }
 
 .warning-wrap {
   text-align: center;
   margin-bottom: 24px;
+}
+
+.info-message {
+  color: $blue_1;
 }
 
 .warning-message {

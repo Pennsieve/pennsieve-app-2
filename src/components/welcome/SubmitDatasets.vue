@@ -45,15 +45,15 @@
 
       <confirmation-dialog
         :visible="confirmationDialogVisible"
-        :action="confirmationDialog.action"
-        :resource-name="confirmationDialog.resourceName"
+        :action-message="confirmationDialog.actionMessage"
         :resource="confirmationDialog.resource"
+        :info-message="confirmationDialog.infoMessage"
         :warning-message="confirmationDialog.warningMessage"
-        :confirmations="confirmationDialog.confirmations"
-        :confirm-action="confirmationDialog.confirmAction"
-        :cancel-action="confirmationDialog.cancelAction"
-        :event-name="confirmationDialog.eventName"
+        :acknowledgements="confirmationDialog.acknowledgements"
+        :confirm-action-label="confirmationDialog.confirmActionLabel"
+        :cancel-action-label="confirmationDialog.cancelActionLabel"
         @close="confirmationDialogVisible = false"
+        @confirmed="confirmedAction"
         />
 
     </bf-stage>
@@ -97,15 +97,15 @@ export default {
       activeRequest: {},
       confirmationDialogVisible: false,
       confirmationDialog: {
-        action: '',
-        resourceName: '',
+        actionMessage: '',
         resource: {},
+        infoMessage: '',
         warningMessage: '',
-        confirmations: [],
-        confirmAction: '',
-        cancelAction: '',
-        eventName: ''
-      }
+        acknowledgements: [],
+        confirmActionLabel: '',
+        cancelActionLabel: '',
+      },
+      confirmedAction: undefined,
     }
   },
 
