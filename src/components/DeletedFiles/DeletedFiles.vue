@@ -193,13 +193,36 @@ computed: {
       const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
       const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
 
-      return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${this.userToken}&includeAncestors=true`
+      //return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${this.userToken}&includeAncestors=true`
       //PAGE BREAKS WHEN BELOW EXECUTES
-      //return `https://api2.pennsieve.net/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}&api_key=${this.userToken}&includeAncestors=true`
+      return `https://api2.pennsieve.net/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}&api_key=${this.userToken}`
     }
   },
 },
 methods: {
+
+  /**
+     * Scroll to file in list
+     * @param {String} pkgId
+     */
+     scrollToFile: function (pkgId) {
+      this.$nextTick(() => {
+        const trimmedId = pkgId.replace(/:/g, '')
+        const element = document.querySelectorAll(`.file-row-${trimmedId}`)
+
+        if (element.length) {
+          head(element).scrollIntoView()
+
+          element.forEach(row => {
+            row.classList.add('highlight')
+
+            setTimeout(() => {
+              row.classList.remove('highlight')
+            }, 500)
+          })
+        }
+      })
+    },
   /**
    * Update pagination offset
    */
@@ -371,26 +394,33 @@ https://api2.pennsieve.net/datasets/trashcan?dataset_id=Nxxx
 RETURNS: {"limit":50,"offset":0,"totalCount":0,"packages":null,"messages":["GetTrashcan not implemented yet"]}
 request limit defaults to 10 and must be < 100. offset defaults to 0
 path field is empty
+Need to reach into packages list instead of pulling stuff from url
 */
  fetchDeletedFunc: function(offset, limit) {
   //NOTE: we will  want to make sure that this isnt a flat map
+  const options = {method: 'GET', headers: {accept: '*/*', 'content-type': 'application/json', 'Authorization': `Bearer ${this.userToken}`}};
    console.log('fetching deleted files')
-   this.sendXhr(this.getFilesUrl)
+   fetch(this.getFilesUrl, options) //this.sendxhr
      .then(response => {
        this.file = response
+       console.log("RESPONSE OBJECT IS ",this.file)
        this.tableResultsTotalCount = this.file.totalCount
-       this.files = response.children.map(file => {
+       console.log("TOTAL COUNT IS ", this.tableResultsTotalCount)
+       this.files = response.packages.node_id.map(file => {
          if (!file.storage) {
            file.storage = 0
          }
-         file.icon = file.icon || this.getFilePropertyVal(file.properties, 'icon')
-         file.subtype = this.getSubType(file)
+         //NO ICON FOR NOW
+         //file.icon = file.icon || this.getFilePropertyVal(file.properties, 'icon')
+         //file.subtype = this.getSubType(file)
          return file
        })
        this.sortedFiles = this.returnSort('content.name', this.files, this.sortDirection)
-       this.ancestors = response.ancestors
+       //DISABLE ANCESTORS FOR NOW 
+       //this.ancestors = response.ancestors
 
        const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
+       //const pkgId = file
        if (pkgId) {
          this.scrollToFile(pkgId)
        }

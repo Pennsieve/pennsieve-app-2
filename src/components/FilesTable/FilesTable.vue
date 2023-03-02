@@ -15,8 +15,8 @@
         {{ selectionCountLabel }}
       </span>
       <ul class="selection-actions unstyled">
-       <template v-if='withinDeleteMenu'>
-       <!-=-
+      <template v-if='withinDeleteMenu'>
+       <!--THIS WAS COMMENTED OUT-->
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
@@ -33,7 +33,7 @@
           Delete permanently
         </button>
       </li>
-      -->
+      
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
@@ -47,7 +47,7 @@
             height="16"
             width="16"
           />
-          Restore {{ selectionCountLabel }}
+          Restore the {{ selectionCountLabel }}
         </button>
       </li>
       </template>
