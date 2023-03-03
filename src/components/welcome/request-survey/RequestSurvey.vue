@@ -92,6 +92,41 @@
         />
       </data-card>
 
+      <data-card
+        ref="contributorsDataCard"
+        class="compact purple question-card"
+        title="Please list the dataset contributors"
+        :is-expandable="true"
+        :padding="false"
+      >
+        <template slot="title-aux">
+          <button
+            class="linked mr-8"
+            :disabled="proposalLocked"
+            @click.prevent="onClickAddContributor"
+          >
+            Add
+          </button>
+        </template>
+        <template v-for="(contributor, idx) in proposal.contributors">
+          <proposal-contributor
+            :id=contributor.emailAddress
+            :index=idx
+            :contributor=contributor
+            @edit-contributor="editContributor"
+            @remove-contributor="removeContributor"
+            />
+        </template>
+        <proposal-contributor-dialog
+          :visible="contributorDialogVisible"
+          :all-contributors="datasetRequest.contributors"
+          :contributor="selectedContributor"
+          @add-contributor="addContributor"
+          @update-contributor="updateContributor"
+          @close="closeContributorDialog"
+          />
+      </data-card>
+
       <div class="questions">
         <data-card
           v-for="(question, Id) in repositoryQuestions"
@@ -121,17 +156,21 @@ import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import RepoSelector from '@/components/welcome/request-survey/RepoSelector.vue'
 import DataCard from "@/components/shared/DataCard/DataCard.vue"
 import datasetProposalEmptyState from './dataset-proposal-empty-state'
+import ProposalContributor from "./ProposalContributor";
 
 import {
   mapState,
   mapActions
 } from 'vuex'
+import ProposalContributorDialog from "./ProposalContributorDialog";
 
 
 
 export default {
   name: "RequestSurvey",
   components: {
+    ProposalContributorDialog,
+    ProposalContributor,
     BfDialogHeader,
     DialogBody,
     MarkdownEditor,
@@ -159,12 +198,15 @@ export default {
       proposal: {
         name: '',
         description: '',
+        contributors: [],
         survey: []
       },
       isEditingMarkdown: false,
       isSavingMarkdown: false,
       isLoadingMarkdown: false,
-      datasetProposalEmptyState
+      datasetProposalEmptyState,
+      selectedContributor: {},
+      contributorDialogVisible: false
     }
   },
   computed: {
@@ -220,7 +262,7 @@ export default {
         return this.selectedRepoForRequest.survey
       }
       return []
-    }
+    },
   },
   watch: {
     selectedRepoForRequest: function() {
@@ -233,6 +275,7 @@ export default {
       ]
     ),
     openDialog: function() {
+      console.log("RequestSurvey::openDialog()")
       // populate name
       if (this.datasetRequest && this.datasetRequest.name) {
         this.proposal.name = this.datasetRequest.name
@@ -240,6 +283,15 @@ export default {
       // populate description
       if (this.datasetRequest && this.datasetRequest.description) {
         this.proposal.description = this.datasetRequest.description
+      }
+      // populate list of contributors
+      if (this.datasetRequest && this.datasetRequest.contributors) {
+        console.log("RequestSurvey::openDialog() loading from datasetRequest")
+        this.proposal.contributors = this.datasetRequest.contributors
+      } else {
+        console.log("RequestSurvey::openDialog() populating with fake data")
+        this.proposal.contributors.push({firstName: 'Some', lastName: 'Researcher', emailAddress: 'scientist@research.org'})
+        this.proposal.contributors.push({firstName: 'Another', lastName: 'Professor', emailAddress: 'professor@university.edu'})
       }
       // populate survey responses
       if (this.datasetRequest && this.datasetRequest.survey) {
@@ -259,6 +311,7 @@ export default {
       this.proposal = {
         name: '',
         description: '',
+        contributors: [],
         survey: []
       }
     },
@@ -299,6 +352,39 @@ export default {
       }
       return responses
     },
+    /**
+     *
+     */
+    onClickAddContributor: function() {
+      console.log("RequestSurvey::onClickAddContributor()")
+      this.selectedContributor = {}
+      this.contributorDialogVisible = true
+    },
+    editContributor: function(event) {
+      console.log("RequestSurvey::editContributor() event:")
+      console.log(event)
+
+    },
+    removeContributor: function(event) {
+      console.log("RequestSurvey::removeContributor() event:")
+      console.log(event)
+    },
+    addContributor: function(event) {
+      console.log("RequestSurvey::addContributor() event:")
+      console.log(event)
+    },
+    updateContributor: function(event) {
+      console.log("RequestSurvey::updateContributor() event:")
+      console.log(event)
+    },
+    closeContributorDialog: function(event) {
+      console.log("RequestSurvey::closeContributorDialog() event:")
+      console.log(event)
+      this.contributorDialogVisible = false
+    },
+    /**
+     *
+     */
     // TODO: note that this.proposal.survey[] has a [0] entry that should be ignored
     createProposal: function() {
       console.log("RequestSurvey::createProposal()")
