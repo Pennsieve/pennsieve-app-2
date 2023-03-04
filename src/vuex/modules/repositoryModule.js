@@ -5,6 +5,77 @@ const sortRepositories = (repositories) => {
   return repositories.sort((a, b) => a.displayName.localeCompare(b.name, 'en', { numeric: true}))
 }
 
+const transformContributorsIn = (contributors) => {
+  console.log("transformContributorsIn() contributors:")
+  console.log(contributors)
+  if (contributors) {
+    let result = contributors.map(c => {
+      return {
+        firstName: c.FirstName,
+        lastName: c.LastName,
+        emailAddress: c.EmailAddress,
+      }
+    })
+    console.log("transformContributorsIn() result:")
+    console.log(result)
+    return result
+  }
+  return undefined
+}
+
+const transformContributorsOut = (contributors) => {
+  console.log("transformContributorsOut() contributors:")
+  console.log(contributors)
+  if (contributors) {
+    let result = contributors.map(c => {
+      return {
+        FirstName: c.firstName,
+        LastName: c.lastName,
+        EmailAddress: c.emailAddress,
+      }
+    })
+    console.log("transformContributorsOut() result:")
+    console.log(result)
+    return result
+  }
+  return undefined
+}
+
+const transformProposalIn = (proposal, count = 0) => {
+  return {
+    'id': count,
+    'userId': proposal.UserId,
+    'nodeId': proposal.ProposalNodeId,
+    'name': proposal.Name,
+    'description': proposal.Description,
+    'repositoryId': proposal.RepositoryId,
+    'organizationNodeId': proposal.OrganizationNodeId,
+    'datasetNodeId': proposal.DatasetNodeId,
+    'status': proposal.Status,
+    'survey': proposal.Survey,
+    'contributors': transformContributorsIn(proposal.Contributors),
+    'createdAt': proposal.CreatedAt,
+    'updatedAt': proposal.UpdatedAt,
+  }
+}
+
+const transformProposalOut = (proposal, userId) => {
+  return {
+    UserId: userId,
+    ProposalNodeId:  propOr(undefined, "nodeId", proposal),
+    Name: propOr("", "name", proposal),
+    Description: propOr("", "description", proposal),
+    RepositoryId: propOr("", "repositoryId", proposal),
+    OrganizationNodeId: propOr("", "organizationNodeId", proposal),
+    DatasetNodeId: propOr(undefined, "datasetNodeId", proposal),
+    Status: propOr(undefined, "status", proposal),
+    Survey: propOr([], "survey", proposal),
+    Contributors: transformContributorsOut(proposal.contributors),
+    CreatedAt: propOr(undefined, "createdAt", proposal),
+    UpdatedAt: propOr(undefined, "updatedAt", proposal),
+  }
+}
+
 const initialState = () => ({
   repositories: [],
   datasetProposals: [],
@@ -125,20 +196,8 @@ export const actions = {
         const responseJson = await response.json()
         let count = 0
         let proposals = responseJson.map(p => {
-          return {
-            'id': ++count,
-            'nodeId': p.ProposalNodeId,
-            'userId': p.UserId,
-            'name': p.Name,
-            'description': p.Description,
-            'repositoryId': p.RepositoryId,
-            'organizationNodeId': p.OrganizationNodeId,
-            'datasetNodeId': p.DatasetNodeId,
-            'status': p.Status,
-            'survey': p.Survey,
-            'createdAt': p.CreatedAt,
-            'updatedAt': p.UpdatedAt,
-          } })
+          return transformProposalIn(p, ++count)
+        })
         commit('UPDATE_PROPOSALS', proposals)
       } else {
         commit('UPDATE_PROPOSALS', [])
@@ -161,14 +220,7 @@ export const actions = {
     const response = await fetch(url, {
       method: "POST",
       headers: myHeaders,
-      body: JSON.stringify({
-        UserId: rootState.profile.intId,
-        Name: propOr("", "name", proposal),
-        Description: propOr("", "description", proposal),
-        RepositoryId: propOr("", "repositoryId", proposal),
-        OrganizationNodeId: propOr("", "organizationNodeId", proposal),
-        Survey: propOr([], "survey", proposal)
-      })
+      body: JSON.stringify(transformProposalOut(proposal, rootState.profile.intId))
     })
     if (response.ok) {
       // get the response
@@ -177,20 +229,7 @@ export const actions = {
       console.log(responseJson)
       // unpack the response
       let count = state.datasetProposals.length
-      let proposal = {
-        'id': ++count,
-        'nodeId': responseJson.ProposalNodeId,
-        'userId': responseJson.UserId,
-        'name': responseJson.Name,
-        'description': responseJson.Description,
-        'repositoryId': responseJson.RepositoryId,
-        'organizationNodeId': responseJson.OrganizationNodeId,
-        'datasetNodeId': responseJson.DatasetNodeId,
-        'status': responseJson.Status,
-        'survey': responseJson.Survey,
-        'createdAt': responseJson.CreatedAt,
-        'updatedAt': responseJson.UpdatedAt,
-      }
+      let proposal = transformProposalIn(responseJson, ++count)
       // mutate state
       commit('ADD_PROPOSAL', proposal)
       return {
@@ -213,37 +252,15 @@ export const actions = {
     const response = await fetch(url, {
       method: "PUT",
       headers: myHeaders,
-      body: JSON.stringify({
-        UserId: rootState.profile.intId,
-        ProposalNodeId:  propOr("", "nodeId", proposal),
-        Name: propOr("", "name", proposal),
-        Description: propOr("", "description", proposal),
-        RepositoryId: propOr("", "repositoryId", proposal),
-        OrganizationNodeId: propOr("", "organizationNodeId", proposal),
-        Survey: propOr([], "survey", proposal),
-        Status: propOr([], "status", proposal),
-        CreatedAt: propOr([], "createdAt", proposal),
-      })
+      body: JSON.stringify(transformProposalOut(proposal, rootState.profile.intId))
     })
     if (response.ok) {
       // get the response
       const responseJson = await response.json()
-      console.log("repositoryModule::storeNewProposal() responseJson:")
+      console.log("repositoryModule::storeChangedProposal() responseJson:")
       console.log(responseJson)
       // unpack the response
-      let proposal = {
-        'nodeId': responseJson.ProposalNodeId,
-        'userId': responseJson.UserId,
-        'name': responseJson.Name,
-        'description': responseJson.Description,
-        'repositoryId': responseJson.RepositoryId,
-        'organizationNodeId': responseJson.OrganizationNodeId,
-        'datasetNodeId': responseJson.DatasetNodeId,
-        'status': responseJson.Status,
-        'survey': responseJson.Survey,
-        'createdAt': responseJson.CreatedAt,
-        'updatedAt': responseJson.UpdatedAt,
-      }
+      let proposal = transformProposalIn(responseJson)
       // mutate state
       commit('UPDATE_PROPOSAL', proposal)
       return {
