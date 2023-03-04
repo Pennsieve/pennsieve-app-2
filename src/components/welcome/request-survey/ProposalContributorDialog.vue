@@ -2,6 +2,7 @@
   <el-dialog
     :visible="visible"
     :show-close="false"
+    append-to-body
     @close="onClose"
     @open="onOpen"
   >
@@ -58,7 +59,7 @@
         </el-form-item>
         <el-form-item
           class="mb-16"
-          prop="email"
+          prop="emailAddress"
         >
           <template slot="label">
             Email Address
@@ -67,7 +68,7 @@
             </span>
           </template>
           <el-input
-            id="email"
+            id="emailAddress"
             v-model="form.emailAddress"
             placeholder="Required"
           />
@@ -138,6 +139,10 @@ export default {
     allContributors: {
       type: Array,
       default: () => []
+    },
+    id: {
+      type: String,
+      default: ''
     },
     contributor: {
       type: Object,
@@ -240,11 +245,11 @@ export default {
      */
     checkCollaborators: function(rule, value, callback) {
       if (!value) {
-        callback(new Error('Email is required'))
+        callback(new Error('Email address is required'))
       } else {
-        const result = this.allContributors.filter(contributor => value === contributor.email );
+        const result = this.allContributors.filter(contributor => value === contributor.emailAddress );
         if (result.length !== 0 && !this.isEditing) {
-          callback(new Error('Contributor with this email already exists'));
+          callback(new Error('Contributor with this email address already exists'));
         } else {
           callback()
         }
@@ -314,12 +319,16 @@ export default {
      * Submit form and emit event
      */
     submitForm: function() {
+      console.log("ProposalContributorDialog::submitForm()")
       const eventName = this.isEditing
         ? 'update-contributor'
         : 'add-contributor'
-
-      const contributor = this.form
-      this.$emit(eventName, contributor)
+      console.log(`ProposalContributorDialog::submitForm() eventName: ${eventName}`)
+      console.log(`ProposalContributorDialog::submitForm() id: ${this.id}`)
+      let result = {firstName: this.form.firstName, lastName: this.form.lastName, emailAddress: this.form.emailAddress}
+      console.log("ProposalContributorDialog::submitForm() result:")
+      console.log(result)
+      this.$emit(eventName, {id: this.id, contributor: result})
     },
 
   }

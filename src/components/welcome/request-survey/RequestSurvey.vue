@@ -117,14 +117,6 @@
             @remove-contributor="removeContributor"
             />
         </template>
-        <proposal-contributor-dialog
-          :visible="contributorDialogVisible"
-          :all-contributors="datasetRequest.contributors"
-          :contributor="selectedContributor"
-          @add-contributor="addContributor"
-          @update-contributor="updateContributor"
-          @close="closeContributorDialog"
-          />
       </data-card>
 
       <div class="questions">
@@ -143,6 +135,16 @@
         </data-card>
       </div>
     </el-form>
+
+    <proposal-contributor-dialog
+      :visible="contributorDialogVisible"
+      :all-contributors="datasetRequest.contributors"
+      :id="selectedContributorId"
+      :contributor="selectedContributor"
+      @add-contributor="addContributor"
+      @update-contributor="updateContributor"
+      @close="closeContributorDialog"
+    />
 
   </el-dialog>
 
@@ -163,6 +165,7 @@ import {
   mapActions
 } from 'vuex'
 import ProposalContributorDialog from "./ProposalContributorDialog";
+import {propOr} from "ramda";
 
 
 
@@ -205,6 +208,7 @@ export default {
       isSavingMarkdown: false,
       isLoadingMarkdown: false,
       datasetProposalEmptyState,
+      selectedContributorId: '',
       selectedContributor: {},
       contributorDialogVisible: false
     }
@@ -288,11 +292,11 @@ export default {
       if (this.datasetRequest && this.datasetRequest.contributors) {
         console.log("RequestSurvey::openDialog() loading from datasetRequest")
         this.proposal.contributors = this.datasetRequest.contributors
-      } else {
-        console.log("RequestSurvey::openDialog() populating with fake data")
-        this.proposal.contributors.push({firstName: 'Some', lastName: 'Researcher', emailAddress: 'scientist@research.org'})
-        this.proposal.contributors.push({firstName: 'Another', lastName: 'Professor', emailAddress: 'professor@university.edu'})
-      }
+      } // else {
+      //   console.log("RequestSurvey::openDialog() populating with fake data")
+      //   this.proposal.contributors.push({firstName: 'Some', lastName: 'Researcher', emailAddress: 'scientist@research.org'})
+      //   this.proposal.contributors.push({firstName: 'Another', lastName: 'Professor', emailAddress: 'professor@university.edu'})
+      // }
       // populate survey responses
       if (this.datasetRequest && this.datasetRequest.survey) {
         this.datasetRequest.survey.forEach(e => {
@@ -355,62 +359,93 @@ export default {
     /**
      *
      */
+    resetContributorDialog: function() {
+      this.selectedContributorId = ''
+      this.selectedContributor = {}
+    },
     onClickAddContributor: function() {
       console.log("RequestSurvey::onClickAddContributor()")
-      this.selectedContributor = {}
+      this.resetContributorDialog()
       this.contributorDialogVisible = true
     },
     editContributor: function(event) {
       console.log("RequestSurvey::editContributor() event:")
       console.log(event)
-
+      this.selectedContributorId = event.id
+      this.selectedContributor = event.contributor
+      this.contributorDialogVisible = true
     },
     removeContributor: function(event) {
       console.log("RequestSurvey::removeContributor() event:")
       console.log(event)
+      // search this.proposal.contributors where email === event.id, and remove it
+      let update = this.proposal.contributors.filter(e => e.emailAddress !== event.id)
+      this.proposal.contributors = update
+      this.resetContributorDialog()
+      this.contributorDialogVisible = false
     },
     addContributor: function(event) {
       console.log("RequestSurvey::addContributor() event:")
       console.log(event)
+      this.proposal.contributors.push({
+        firstName: event.contributor.firstName,
+        lastName: event.contributor.lastName,
+        emailAddress: event.contributor.emailAddress
+      })
+      this.resetContributorDialog()
+      this.contributorDialogVisible = false
     },
     updateContributor: function(event) {
       console.log("RequestSurvey::updateContributor() event:")
       console.log(event)
+      // search this.proposal.contributors where email === event.id, and replace that with event.contributor
+      // let update = this.proposal.contributors.map(c =>  || c)
+      // this.proposal.contributors = update
+      let index = this.proposal.contributors.findIndex(e => e.emailAddress === event.id)
+      console.log(`RequestSurvey::updateContributor() index: ${index}`)
+      if (index >= 0) {
+        this.proposal.contributors[index] = event.contributor
+      }
+      this.resetContributorDialog()
+      this.contributorDialogVisible = false
     },
     closeContributorDialog: function(event) {
       console.log("RequestSurvey::closeContributorDialog() event:")
       console.log(event)
+      this.resetContributorDialog()
       this.contributorDialogVisible = false
     },
     /**
      *
      */
-    // TODO: note that this.proposal.survey[] has a [0] entry that should be ignored
-    createProposal: function() {
-      console.log("RequestSurvey::createProposal()")
+    synthesizeProposal: function() {
+      console.log("RequestSurvey::synthesizeProposal()")
       let proposal = {
+        nodeId: propOr(undefined, "nodeId", this.datasetRequest),
         name: this.proposal.name,
         description: this.proposal.description,
         repositoryId: this.selectedRepoForRequest.organizationId,
         organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
+        datasetNodeId: propOr(undefined, "datasetNodeId", this.datasetRequest),
+        status: propOr(undefined, "status", this.datasetRequest),
         survey: this.surveyResponses(),
+        contributors: this.proposal.contributors,
+        createdAt: propOr(undefined, "createdAt", this.datasetRequest),
+        updatedAt: propOr(undefined, "updatedAt", this.datasetRequest),
       }
-      this.$emit("create-proposal", proposal)
+      console.log("RequestSurvey::synthesizeProposal() proposal:")
+      console.log(proposal)
+      return proposal
+    },
+    // TODO: note that this.proposal.survey[] has a [0] entry that should be ignored
+    createProposal: function() {
+      console.log("RequestSurvey::createProposal()")
+      this.$emit("create-proposal", this.synthesizeProposal())
       this.closeDialog()
     },
     updateProposal: function() {
       console.log("RequestSurvey::updateProposal()")
-      let proposal = {
-        nodeId: this.datasetRequest.nodeId,
-        name: this.proposal.name,
-        description: this.proposal.description,
-        repositoryId: this.selectedRepoForRequest.organizationId,
-        organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
-        survey: this.surveyResponses(),
-        status: this.datasetRequest.status,
-        createdAt: this.datasetRequest.createdAt,
-      }
-      this.$emit("update-proposal", proposal)
+      this.$emit("update-proposal", this.synthesizeProposal())
       this.closeDialog()
     },
   }
