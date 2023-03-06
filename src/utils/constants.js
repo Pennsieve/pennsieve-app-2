@@ -34,7 +34,8 @@ export const PublicationStatus = Object.freeze({
 export const PublicationTabs = Object.freeze({
   REVIEW: 'review',
   REJECTED: 'rejected',
-  PUBLISHED: 'published'
+  PUBLISHED: 'published',
+  PROPOSED: 'proposed'
 })
 
 export const UserFriendlyPublicationStatus = Object.freeze({

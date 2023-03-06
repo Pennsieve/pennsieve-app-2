@@ -258,7 +258,10 @@ export const actions = {
 
 export const getters = {
   getTotalCount: state => (type) => {
-    return state[type].count || 0
+    if (state[type]) {
+      return state[type].count || 0
+    }
+    return 0
   },
   getDatasets: state => (type) => {
     return state[type].datasets

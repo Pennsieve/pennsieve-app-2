@@ -120,6 +120,13 @@ export default {
           },
           label: 'Rejected',
           type: PublicationTabs.REJECTED
+        },
+        {
+          route: {
+            name: PublicationTabs.PROPOSED,
+          },
+          label: 'Proposed',
+          type: PublicationTabs.PROPOSED
         }
       ]
     },
