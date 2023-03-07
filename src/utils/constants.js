@@ -53,7 +53,8 @@ export const PublicationStatusColor = Object.freeze({
 export const PublicationTabsStatuses = Object.freeze({
   [PublicationTabs.REVIEW]: [PublicationStatus.REQUESTED, PublicationStatus.FAILED, PublicationStatus.ACCEPTED],
   [PublicationTabs.REJECTED]: [PublicationStatus.REJECTED],
-  [PublicationTabs.PUBLISHED]: [PublicationStatus.COMPLETED]
+  [PublicationTabs.PUBLISHED]: [PublicationStatus.COMPLETED],
+  [PublicationTabs.PROPOSED]: []
 })
 
 export const PublicationType = Object.freeze({

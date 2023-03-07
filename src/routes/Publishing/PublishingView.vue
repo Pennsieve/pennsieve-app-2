@@ -156,7 +156,8 @@ export default {
   methods: {
     ...mapActions('publishingModule', [
       'updateDatasetTotalCount',
-      'getDatasetCount'
+      'getDatasetCount',
+      'getDatasetProposalCount'
     ]),
     ...mapActions(['togglePrimaryNav']),
 
@@ -198,6 +199,8 @@ export default {
       this.getDatasetCount(PublicationTabs.PUBLISHED)
 
       this.getDatasetCount(PublicationTabs.REJECTED)
+
+      this.getDatasetProposalCount(PublicationTabs.PROPOSED)
     }
   }
 }
