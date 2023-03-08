@@ -291,11 +291,13 @@ export const actions = {
         headers: myHeaders,
       })
       if (response.ok) {
-        const { proposals } = await response.json()
+        const { proposals, totalCount } = await response.json()
+        commit('UPDATE_PUBLISHING_SEARCH_TOTAL_COUNT', totalCount);
         console.log("publishingModule::fetchDatasetProposals() proposals:")
         console.log(proposals)
         commit('UPDATE_DATASETS', { type: rootState.route.name, datasets: proposals });
         commit('UPDATE_IS_LOADING_DATASETS', false);
+
       } else {
         throw new Error(response.statusText)
       }

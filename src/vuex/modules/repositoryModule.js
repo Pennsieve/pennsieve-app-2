@@ -5,6 +5,16 @@ const sortRepositories = (repositories) => {
   return repositories.sort((a, b) => a.displayName.localeCompare(b.name, 'en', { numeric: true}))
 }
 
+const getOwnerName = (profile) => {
+  console.log("getOwnerName() profile:")
+  console.log(profile)
+  let firstName = profile.firstName
+  let lastName = profile.lastName
+  let ownerName = `${firstName} ${lastName}`
+  console.log(`getOwnerName() ownerName: ${ownerName}`)
+  return ownerName
+}
+
 const transformContributorsIn = (contributors) => {
   console.log("transformContributorsIn() contributors:")
   console.log(contributors)
@@ -46,6 +56,7 @@ const transformProposalIn = (proposal, count = 0) => {
     'id': count,
     'userId': proposal.UserId,
     'nodeId': proposal.ProposalNodeId,
+    'ownerName': proposal.OwnerName,
     'name': proposal.Name,
     'description': proposal.Description,
     'repositoryId': proposal.RepositoryId,
@@ -59,10 +70,11 @@ const transformProposalIn = (proposal, count = 0) => {
   }
 }
 
-const transformProposalOut = (proposal, userId) => {
+const transformProposalOut = (proposal, profile) => {
   return {
-    UserId: userId,
+    UserId: profile.intId,
     ProposalNodeId:  propOr(undefined, "nodeId", proposal),
+    OwnerName: getOwnerName(profile),
     Name: propOr("", "name", proposal),
     Description: propOr("", "description", proposal),
     RepositoryId: propOr("", "repositoryId", proposal),
@@ -220,7 +232,7 @@ export const actions = {
     const response = await fetch(url, {
       method: "POST",
       headers: myHeaders,
-      body: JSON.stringify(transformProposalOut(proposal, rootState.profile.intId))
+      body: JSON.stringify(transformProposalOut(proposal, rootState.profile))
     })
     if (response.ok) {
       // get the response
@@ -252,7 +264,7 @@ export const actions = {
     const response = await fetch(url, {
       method: "PUT",
       headers: myHeaders,
-      body: JSON.stringify(transformProposalOut(proposal, rootState.profile.intId))
+      body: JSON.stringify(transformProposalOut(proposal, rootState.profile))
     })
     if (response.ok) {
       // get the response
@@ -339,7 +351,7 @@ export const getters = {
   },
   getProposalByNodeId: state => (nodeId) => {
     return defaultTo({}, find(propEq('nodeId', nodeId), state.datasetProposals))
-  }
+  },
 }
 
 const repositoryModule = {
