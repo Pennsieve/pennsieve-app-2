@@ -78,6 +78,9 @@
           v-for="proposal in proposals"
           :key="proposals.NodeId"
           :proposal="proposal"
+          @view="viewProposal"
+          @accept="acceptProposal"
+          @reject="rejectProposal"
         />
       </div>
 
@@ -85,6 +88,15 @@
       <bf-empty-page-state v-if="!hasProposals">
         No dataset proposals found
       </bf-empty-page-state>
+
+      <request-survey
+        :visible.sync="requestModalVisible"
+        :dataset-request="selectedRequest"
+        :role="role"
+        @accept-proposal="acceptProposal"
+        @reject-proposal="rejectProposal"
+      />
+
     </div>
   </div>
 </template>
@@ -95,6 +107,7 @@ import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPag
 import PublishingProposalsListItem from "./PublishingProposalsListItem";
 import DatasetSortMenu from '@/components/datasets/DatasetSortMenu/DatasetSortMenu.vue'
 import PaginationPageMenu from '@/components/shared/PaginationPageMenu/PaginationPageMenu.vue'
+import RequestSurvey from "@/components/welcome/request-survey/RequestSurvey";
 
 export default {
   name: 'PublishingProposalsList',
@@ -103,7 +116,8 @@ export default {
     BfEmptyPageState,
     PublishingProposalsListItem,
     DatasetSortMenu,
-    PaginationPageMenu
+    PaginationPageMenu,
+    RequestSurvey
   },
 
   props: {
@@ -124,8 +138,11 @@ export default {
 
   data() {
     return {
+      role: 'publisher',
       isLoadingDatasetsError: false,
-      searchQuery: ''
+      searchQuery: '',
+      requestModalVisible: false,
+      selectedRequest: {},
     }
   },
 
@@ -190,10 +207,14 @@ export default {
       'updatePublishingSearchLimit',
       'updatePublishingSearchOrderBy'
     ]),
+    ...mapActions('repositoryModule', [
+      'fetchRepositories'
+    ]),
 
     getInitialData: function(){
       this.clearSearchParams()
         .then(() => {
+          this.fetchRepositories()
           this.fetchDatasetProposals()
         })
     },
@@ -237,6 +258,34 @@ export default {
       const offset = (page - 1) * this.publishingSearchParams.limit
       this.updatePublishingOffset(offset)
     },
+
+    viewProposal: function(proposal) {
+      console.log("PublishingProposalsList::viewProposal() proposal:")
+      console.log(proposal)
+      this.selectedRequest = proposal
+      // this.requestModalVisible = true
+    },
+
+    acceptProposal: function(proposal) {
+      console.log("PublishingProposalsList::acceptProposal() proposal:")
+      console.log(proposal)
+      // raise Confirmation Dialog, with callback = acceptProposalConfirmed()
+    },
+
+    acceptProposalConfirmed: function() {
+      console.log("PublishingProposalsList::acceptProposalConfirmed()")
+    },
+
+    rejectProposal: function(proposal) {
+      console.log("PublishingProposalsList::rejectProposal() proposal:")
+      console.log(proposal)
+      // raise Confirmation Dialog, with callback = rejectProposalConfirmed()
+    },
+
+    rejectProposalConfirmed: function() {
+      console.log("PublishingProposalsList::rejectProposalConfirmed()")
+    },
+
   },
 }
 </script>

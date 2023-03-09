@@ -25,17 +25,38 @@
       </div>
       <div>
         <bf-button
+          v-if="showSave"
           class="primary"
           :disabled="!readyToSave"
-          @click="saveDraft"
+          @click="triggerAction(DatasetProposalAction.SAVE)"
         >
           Save Draft
         </bf-button>
         <bf-button
+          v-if="showSubmit"
           class="primary"
           :disabled="!readyToSubmit"
+          @click="triggerAction(DatasetProposalAction.SUBMIT)"
         >
           Submit Request
+        </bf-button>
+
+        <bf-button
+          v-if="showAccept"
+          class="primary"
+          :disabled="!readyToAccept"
+          @click="triggerAction(DatasetProposalAction.ACCEPT)"
+        >
+          Accept Proposal
+        </bf-button>
+
+        <bf-button
+          v-if="showReject"
+          class="primary"
+          :disabled="!readyToReject"
+          @click="triggerAction(DatasetProposalAction.REJECT)"
+        >
+          Reject Proposal
         </bf-button>
       </div>
     </div>
@@ -121,16 +142,16 @@
 
       <div class="questions">
         <data-card
-          v-for="(question, Id) in repositoryQuestions"
-          :key="question.Id"
+          v-for="(question, id) in repositoryQuestions"
+          :key="question.id"
           ref="surveyDataCard"
           class="compact purple question-card"
-          :title="question.Question"
+          :title="question.question"
           :is-expandable="true"
           :padding="false"
         >
           <el-input
-            v-model="proposal.survey[question.Id]"
+            v-model="proposal.survey[question.id]"
           />
         </data-card>
       </div>
@@ -166,8 +187,7 @@ import {
 } from 'vuex'
 import ProposalContributorDialog from "./ProposalContributorDialog";
 import {propOr} from "ramda";
-
-
+import { DatasetProposalAction } from '@/utils/constants';
 
 export default {
   name: "RequestSurvey",
@@ -185,6 +205,10 @@ export default {
     visible: {
       type: Boolean,
       default: false
+    },
+    role: {
+      type: String,
+      default: "owner"
     },
     datasetRequest: {
       type: Object,
@@ -224,27 +248,59 @@ export default {
       "selectedRepoForRequest"
     ]),
 
-    allRepoQuestionsAnswered: function() {
-      if (this.selectedRepoForRequest) {
-        let answered = this.surveyResponses()
-        return answered.length === this.selectedRepoForRequest.survey.length
-      }
-      return false
+    DatasetProposalAction: function() {
+      return DatasetProposalAction
     },
+
+    showSave: function() {
+      return this.role === "owner"
+    },
+
+    showSubmit: function() {
+      return this.role === "owner"
+    },
+
+    showAccept: function() {
+      return this.role === "publisher"
+    },
+
+    showReject: function() {
+      return this.role === "publisher"
+    },
+
     readyToSave: function() {
       // must have: selected a repo, and provided a name
       return (this.selectedRepoForRequest && this.proposal.name)
     },
+
     readyToSubmit: function() {
       // readyToSave, and provided a description, and answered questions
       return (this.readyToSave && this.proposal.description && this.allRepoQuestionsAnswered)
     },
+
+    readyToAccept: function() {
+      return true
+    },
+
+    readyToReject: function() {
+      return true
+    },
+
+    allRepoQuestionsAnswered: function() {
+      if (this.selectedRepoForRequest) {
+        let answered = this.surveyResponses()
+        return answered.length === this.selectedRepoForRequest.questions.length
+      }
+      return false
+    },
+
     statusStr: function() {
       if (this.datasetRequest.status) {
         return this.datasetRequest.status.toUpperCase();
       }
       return "DRAFT"
     },
+
     proposalLocked: function() {
       return this.statusStr !== "DRAFT"
     },
@@ -263,7 +319,7 @@ export default {
      */
     repositoryQuestions: function() {
       if (this.selectedRepoForRequest) {
-        return this.selectedRepoForRequest.survey
+        return this.selectedRepoForRequest.questions
       }
       return []
     },
@@ -300,7 +356,7 @@ export default {
       // populate survey responses
       if (this.datasetRequest && this.datasetRequest.survey) {
         this.datasetRequest.survey.forEach(e => {
-          this.proposal.survey[e.QuestionId] = e.Response
+          this.proposal.survey[e.questionId] = e.response
         })
       }
     },
@@ -349,8 +405,8 @@ export default {
       for (let index = 0; index < this.proposal.survey.length; index++) {
         if (this.proposal.survey[index]) {
           responses.push({
-            QuestionId: index,
-            Response: this.proposal.survey[index]
+            questionId: index,
+            response: this.proposal.survey[index]
           })
         }
       }
@@ -437,6 +493,22 @@ export default {
       console.log(proposal)
       return proposal
     },
+
+    triggerAction: function(action) {
+      console.log(`RequestSurvey::triggerAction() action: ${action}`)
+      switch (action) {
+        case DatasetProposalAction.SAVE:
+          this.saveDraft()
+          break;
+        case DatasetProposalAction.SUBMIT:
+          break;
+        case DatasetProposalAction.ACCEPT:
+          break;
+        case DatasetProposalAction.REJECT:
+          break;
+      }
+    },
+
     // TODO: note that this.proposal.survey[] has a [0] entry that should be ignored
     createProposal: function() {
       console.log("RequestSurvey::createProposal()")

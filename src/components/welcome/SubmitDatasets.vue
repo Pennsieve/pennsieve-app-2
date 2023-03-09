@@ -114,6 +114,7 @@ export default {
     ...mapActions('repositoryModule',[
         'updateRequestModalVisible',
         'setSelectedRepo',
+        'setSelectedProposal',
         'clearSelectedRepo',
         'fetchProposals',
         'storeNewProposal',
@@ -137,7 +138,10 @@ export default {
     },
 
     editDatasetProposal: function(proposal) {
-      this.activeRequest = proposal
+      if (proposal) {
+        this.activeRequest = proposal
+        this.setSelectedProposal(proposal)
+      }
       // set the selected repository, if one is designated on the proposal
       if (proposal && proposal.repositoryId) {
         let repository = this.getRepositoryById(proposal.repositoryId)

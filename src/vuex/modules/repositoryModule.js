@@ -159,6 +159,7 @@ export const mutations = {
 export const actions = {
   updateRepositories: ({commit}, data) => commit('UPDATE_REPOSITORIES', data),
   fetchRepositories: async({ commit, rootState }) => {
+    console.log("repositoryModule::fetchRepositories()")
     try {
       let url = `${rootState.config.api2Url}/publishing/repositories`
       const apiKey = rootState.userToken || Cookies.get('user_token')
@@ -168,20 +169,14 @@ export const actions = {
       const response = await fetch(url, { headers: myHeaders })
       if (response.ok) {
         const responseJson = await response.json()
+        console.log("repositoryModule::fetchRepositories() responseJson:")
+        console.log(responseJson)
         let count = 0
         let repositories = responseJson.map(r => {
           return {
-          'id': ++count,
-          'organizationNodeId': r.OrganizationNodeId,
-          'name': r.Name,
-          'displayName': r.DisplayName,
-          'organizationId': r.WorkspaceId,
-          'isPublic': r.Type === "PUBLIC",
-          'description': r.Description,
-          'site': r.URL,
-          'readme': r.OverviewDocument,
-          'logo': r.LogoFile,
-          'survey': r.Questions,
+            'id': ++count,
+            'isPublic': r.type === "PUBLIC",
+            ...r
         } })
         commit('UPDATE_REPOSITORIES', repositories)
       } else {
@@ -206,9 +201,15 @@ export const actions = {
       const response = await fetch(url, { headers: myHeaders })
       if (response.ok) {
         const responseJson = await response.json()
+        console.log("repositoryModule::fetchProposals() responseJson:")
+        console.log(responseJson)
         let count = 0
         let proposals = responseJson.map(p => {
-          return transformProposalIn(p, ++count)
+          // return transformProposalIn(p, ++count)
+          return {
+            id: ++count,
+            ...p
+          }
         })
         commit('UPDATE_PROPOSALS', proposals)
       } else {
@@ -347,7 +348,7 @@ export const actions = {
 
 export const getters = {
   getRepositoryById: state => (id) => {
-    return defaultTo({}, find(propEq('organizationId', id), state.repositories))
+    return defaultTo({}, find(propEq('repositoryId', id), state.repositories))
   },
   getProposalByNodeId: state => (nodeId) => {
     return defaultTo({}, find(propEq('nodeId', nodeId), state.datasetProposals))

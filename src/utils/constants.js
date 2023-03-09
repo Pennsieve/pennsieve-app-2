@@ -76,8 +76,10 @@ export const DatasetProposalStatus = Object.freeze({
 
 export const DatasetProposalAction = Object.freeze({
   EDIT: 'edit',
+  SAVE: 'save',
   SUBMIT: 'submit',
   WITHDRAW: 'withdraw',
+  VIEW: 'view',
   ACCEPT: 'accept',
   REJECT: 'reject',
   REMOVE: 'remove',

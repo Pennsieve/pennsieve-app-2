@@ -133,7 +133,7 @@ export default {
       if (this.datasetRequest) {
         let repository = this.getRepositoryById(this.datasetRequest.repositoryId)
         if (repository) {
-          return repository.logo
+          return repository.logoFile
         }
       }
       return ""

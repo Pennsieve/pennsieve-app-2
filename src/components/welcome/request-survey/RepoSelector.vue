@@ -73,7 +73,7 @@ export default {
     },
     logoPath: function() {
       if (this.selectedRepoForRequest) {
-        return this.selectedRepoForRequest.logo
+        return this.selectedRepoForRequest.logoFile
       }
       return ""
     },

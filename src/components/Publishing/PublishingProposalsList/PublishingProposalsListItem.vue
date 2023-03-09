@@ -8,7 +8,12 @@
         <div class="dataset-info">
           <div>
             <h2>
-              <a>{{ proposalName }}</a>
+              <a
+                href="#"
+                @click.prevent="triggerRequest(DatasetProposalAction.VIEW)"
+              >
+                {{ proposalName }}
+              </a>
             </h2>
             <p class="dataset-meta">
               Submitted by
@@ -52,8 +57,22 @@
           <div
             class="dataset-actions"
           >
-            <p><a>Accept</a></p>
-            <p><a>Reject</a></p>
+            <p>
+              <a
+                href="#"
+                @click.prevent="triggerRequest(DatasetProposalAction.ACCEPT)"
+              >
+                Accept
+              </a>
+            </p>
+            <p>
+              <a
+                href="#"
+                @click.prevent="triggerRequest(DatasetProposalAction.REJECT)"
+              >
+                Reject
+              </a>
+            </p>
           </div>
         </div>
       </el-col>
@@ -63,6 +82,7 @@
 <script>
 import {pathOr} from "ramda";
 import FormatDate from '@/mixins/format-date'
+import { DatasetProposalAction } from '@/utils/constants';
 
 export default {
   name: 'PublishingProposalsListItem',
@@ -106,8 +126,14 @@ export default {
     owner: function() {
       return this.proposal.OwnerName
     },
+
     storage: function() { return 0},
-    publicationType: function() {return "proposal"}
+
+    publicationType: function() {return "proposal"},
+
+    DatasetProposalAction: function() {
+      return DatasetProposalAction
+    },
   },
 
   methods: {
@@ -115,7 +141,13 @@ export default {
       let d = new Date(0)
       d.setUTCSeconds(seconds)
       return d.toISOString()
-    }
+    },
+
+    triggerRequest: function(request) {
+      console.log(`PublishingProposalListItem::triggerRequest() request: ${request}`)
+      this.$emit(request, this.proposal)
+    },
+
   }
 }
 
