@@ -76,7 +76,7 @@
       >
         <publishing-proposals-list-item
           v-for="proposal in proposals"
-          :key="proposals.NodeId"
+          :key="proposals.nodeId"
           :proposal="proposal"
           @view="viewProposal"
           @accept="acceptProposal"
@@ -141,7 +141,6 @@ export default {
       role: 'publisher',
       isLoadingDatasetsError: false,
       searchQuery: '',
-      requestModalVisible: false,
       selectedRequest: {},
     }
   },
@@ -155,6 +154,15 @@ export default {
     ...mapGetters('publishingModule', [
       'getDatasets'
     ]),
+
+    ...mapState('repositoryModule', [
+      'requestModalVisible',
+    ]),
+
+    ...mapGetters('repositoryModule',[
+        'getRepositoryById'
+      ]
+    ),
 
     proposals: function() {
       return this.getDatasets(this.$route.name)
@@ -208,7 +216,10 @@ export default {
       'updatePublishingSearchOrderBy'
     ]),
     ...mapActions('repositoryModule', [
-      'fetchRepositories'
+      'fetchRepositories',
+      'updateRequestModalVisible',
+      'setSelectedRepo',
+      'setSelectedProposal'
     ]),
 
     getInitialData: function(){
@@ -262,8 +273,21 @@ export default {
     viewProposal: function(proposal) {
       console.log("PublishingProposalsList::viewProposal() proposal:")
       console.log(proposal)
-      this.selectedRequest = proposal
-      // this.requestModalVisible = true
+      // set selected proposal
+      if (proposal) {
+        this.selectedRequest = proposal
+        this.setSelectedProposal(proposal)
+      }
+      // set selected repo
+      if (proposal && proposal.repositoryId) {
+        console.log(`PublishingProposalsList::viewProposal() proposal.repositoryId: ${proposal.repositoryId}`)
+        let repository = this.getRepositoryById(proposal.repositoryId)
+        console.log("PublishingProposalsList::viewProposal() repository:")
+        console.log(repository)
+        this.setSelectedRepo(repository)
+      }
+      // enable modal visibility
+      this.updateRequestModalVisible(true)
     },
 
     acceptProposal: function(proposal) {

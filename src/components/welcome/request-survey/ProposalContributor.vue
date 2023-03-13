@@ -17,6 +17,7 @@
       </div>
     </div>
     <el-dropdown
+      v-if="!locked"
       slot="info"
       trigger="click"
       placement="bottom-end"
@@ -91,6 +92,10 @@ export default {
           userId: ''
         }
       }
+    },
+    locked: {
+      type: Boolean,
+      default: false
     },
   },
 

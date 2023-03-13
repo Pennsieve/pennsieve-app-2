@@ -15,76 +15,18 @@ const getOwnerName = (profile) => {
   return ownerName
 }
 
-const transformContributorsIn = (contributors) => {
-  console.log("transformContributorsIn() contributors:")
-  console.log(contributors)
-  if (contributors) {
-    let result = contributors.map(c => {
-      return {
-        firstName: c.FirstName,
-        lastName: c.LastName,
-        emailAddress: c.EmailAddress,
-      }
-    })
-    console.log("transformContributorsIn() result:")
-    console.log(result)
-    return result
-  }
-  return undefined
-}
-
-const transformContributorsOut = (contributors) => {
-  console.log("transformContributorsOut() contributors:")
-  console.log(contributors)
-  if (contributors) {
-    let result = contributors.map(c => {
-      return {
-        FirstName: c.firstName,
-        LastName: c.lastName,
-        EmailAddress: c.emailAddress,
-      }
-    })
-    console.log("transformContributorsOut() result:")
-    console.log(result)
-    return result
-  }
-  return undefined
-}
-
 const transformProposalIn = (proposal, count = 0) => {
   return {
     'id': count,
-    'userId': proposal.UserId,
-    'nodeId': proposal.ProposalNodeId,
-    'ownerName': proposal.OwnerName,
-    'name': proposal.Name,
-    'description': proposal.Description,
-    'repositoryId': proposal.RepositoryId,
-    'organizationNodeId': proposal.OrganizationNodeId,
-    'datasetNodeId': proposal.DatasetNodeId,
-    'status': proposal.Status,
-    'survey': proposal.Survey,
-    'contributors': transformContributorsIn(proposal.Contributors),
-    'createdAt': proposal.CreatedAt,
-    'updatedAt': proposal.UpdatedAt,
+    ...proposal
   }
 }
 
 const transformProposalOut = (proposal, profile) => {
   return {
-    UserId: profile.intId,
-    ProposalNodeId:  propOr(undefined, "nodeId", proposal),
-    OwnerName: getOwnerName(profile),
-    Name: propOr("", "name", proposal),
-    Description: propOr("", "description", proposal),
-    RepositoryId: propOr("", "repositoryId", proposal),
-    OrganizationNodeId: propOr("", "organizationNodeId", proposal),
-    DatasetNodeId: propOr(undefined, "datasetNodeId", proposal),
-    Status: propOr(undefined, "status", proposal),
-    Survey: propOr([], "survey", proposal),
-    Contributors: transformContributorsOut(proposal.contributors),
-    CreatedAt: propOr(undefined, "createdAt", proposal),
-    UpdatedAt: propOr(undefined, "updatedAt", proposal),
+    userId: profile.intId,
+    ownerName: getOwnerName(profile),
+    ...proposal
   }
 }
 
@@ -205,11 +147,7 @@ export const actions = {
         console.log(responseJson)
         let count = 0
         let proposals = responseJson.map(p => {
-          // return transformProposalIn(p, ++count)
-          return {
-            id: ++count,
-            ...p
-          }
+          return transformProposalIn(p, ++count)
         })
         commit('UPDATE_PROPOSALS', proposals)
       } else {
@@ -250,7 +188,7 @@ export const actions = {
         result: proposal
       }
     } else {
-      throw response.error()
+      throw new Error(response.statusText)
     }
   },
   storeChangedProposal: async({commit, rootState, state}, proposal) => {
@@ -281,7 +219,7 @@ export const actions = {
         result: proposal
       }
     } else {
-      throw response.error()
+      throw new Error(response.statusText)
     }
   },
   removeProposal: async({commit, rootState, state}, proposal) => {
@@ -301,7 +239,7 @@ export const actions = {
         status: "SUCCESS",
       }
     } else {
-      throw response.error()
+      throw new Error(response.statusText)
     }
   },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {

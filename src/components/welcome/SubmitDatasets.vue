@@ -24,7 +24,7 @@
 
       </div>
       <div
-        v-if="datasetProposals.length > 0"
+        v-if="hasProposals"
         class="integration-list"
       >
         <request-list-item
@@ -35,6 +35,10 @@
           @remove="removeDatasetProposalRequest"
         />
       </div>
+
+      <bf-empty-page-state v-if="!hasProposals">
+        You have not created any dataset proposals yet. Click <strong>New Request</strong> to get started.
+      </bf-empty-page-state>
 
       <request-survey
         :visible.sync="requestModalVisible"
@@ -67,6 +71,7 @@ import BfButton from '../shared/bf-button/BfButton.vue'
 import RequestListItem from './request-list-item/RequestListItem'
 import RequestSurvey from './request-survey/RequestSurvey.vue'
 import ConfirmationDialog from "../shared/ConfirmationDialog/ConfirmationDialog";
+import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue';
 
 export default {
   name: 'SubmitDatasets',
@@ -75,7 +80,8 @@ export default {
     ConfirmationDialog,
     BfButton,
     RequestListItem,
-    RequestSurvey
+    RequestSurvey,
+    BfEmptyPageState
   },
 
   props: {
@@ -91,6 +97,11 @@ export default {
     ...mapGetters('repositoryModule',[
       'getRepositoryById',
     ]),
+
+    hasProposals: function() {
+      return this.datasetProposals.length > 0
+    },
+
   },
   data() {
     return {

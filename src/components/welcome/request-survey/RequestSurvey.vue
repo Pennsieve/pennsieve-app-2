@@ -19,7 +19,9 @@
           </div>
         </div>
         <div>
-          <repo-selector/>
+          <repo-selector
+            :locked="proposalLocked"
+          />
         </div>
 
       </div>
@@ -75,6 +77,7 @@
       >
         <el-input
           v-model="proposal.name"
+          :readonly="proposalLocked"
         />
       </data-card>
 
@@ -85,7 +88,7 @@
         :is-expandable="true"
         :padding="false"
       >
-        <template slot="title-aux">
+        <template v-if="!proposalLocked" slot="title-aux">
           <button
             v-if="!isEditingMarkdown"
             class="linked mr-8"
@@ -120,7 +123,7 @@
         :is-expandable="true"
         :padding="false"
       >
-        <template slot="title-aux">
+        <template v-if="!proposalLocked" slot="title-aux">
           <button
             class="linked mr-8"
             :disabled="proposalLocked"
@@ -134,6 +137,7 @@
             :id=contributor.emailAddress
             :index=idx
             :contributor=contributor
+            :locked="proposalLocked"
             @edit-contributor="editContributor"
             @remove-contributor="removeContributor"
             />
@@ -152,6 +156,7 @@
         >
           <el-input
             v-model="proposal.survey[question.id]"
+            :readonly="proposalLocked"
           />
         </data-card>
       </div>
@@ -183,7 +188,8 @@ import ProposalContributor from "./ProposalContributor";
 
 import {
   mapState,
-  mapActions
+  mapActions,
+  mapGetters
 } from 'vuex'
 import ProposalContributorDialog from "./ProposalContributorDialog";
 import {propOr} from "ramda";
@@ -334,8 +340,10 @@ export default {
         'updateRequestModalVisible'
       ]
     ),
+
     openDialog: function() {
       console.log("RequestSurvey::openDialog()")
+
       // populate name
       if (this.datasetRequest && this.datasetRequest.name) {
         this.proposal.name = this.datasetRequest.name
@@ -480,10 +488,10 @@ export default {
         nodeId: propOr(undefined, "nodeId", this.datasetRequest),
         name: this.proposal.name,
         description: this.proposal.description,
-        repositoryId: this.selectedRepoForRequest.organizationId,
+        repositoryId: this.selectedRepoForRequest.repositoryId,
         organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
         datasetNodeId: propOr(undefined, "datasetNodeId", this.datasetRequest),
-        status: propOr(undefined, "status", this.datasetRequest),
+        status: propOr("DRAFT", "status", this.datasetRequest),
         survey: this.surveyResponses(),
         contributors: this.proposal.contributors,
         createdAt: propOr(undefined, "createdAt", this.datasetRequest),
@@ -558,6 +566,10 @@ export default {
 .question-card {
   margin: 8px 0;
 }
+
+//.el-input__inner {
+//  background-color: red !important;
+//}
 
 </style>
 

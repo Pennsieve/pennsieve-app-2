@@ -103,7 +103,7 @@ export default {
      * Compute title of dataset proposl
      */
     proposalName: function() {
-      return this.proposal.Name
+      return this.proposal.name
     },
     /**
      * Compute formatted timestamp
@@ -111,10 +111,10 @@ export default {
      */
     updated: function() {
       let epochSeconds = 0
-      if (this.proposal.SubmittedAt) {
-        epochSeconds = this.proposal.SubmittedAt
+      if (this.proposal.submittedAt) {
+        epochSeconds = this.proposal.submittedAt
       } else {
-        epochSeconds = this.proposal.UpdatedAt
+        epochSeconds = this.proposal.updatedAt
       }
       let isoTimestamp = this.epochToISO(epochSeconds)
       return this.formatDate(isoTimestamp)
@@ -124,7 +124,7 @@ export default {
      * @returns {String}
      */
     owner: function() {
-      return this.proposal.OwnerName
+      return this.proposal.ownerName
     },
 
     storage: function() { return 0},

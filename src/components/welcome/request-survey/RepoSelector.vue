@@ -28,6 +28,7 @@
         </div>
       </div>
       <el-dropdown-menu
+        v-if="!locked"
         slot="dropdown"
         class="bf-menu"
         :offset="9"
@@ -57,9 +58,12 @@ import { has } from 'ramda'
 
 export default {
   name: "RepoSelector",
-  props: [
-
-  ],
+  props: {
+    locked: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     ...mapState('repositoryModule',[
       'repositories',
