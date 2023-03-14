@@ -21,7 +21,12 @@
 
         <el-row>
           <div class="repository-title" >
-            {{datasetRequest.name}}
+            <a
+              href="#"
+              @click.prevent="triggerRequest(DatasetProposalAction.EDIT)"
+            >
+              {{datasetRequest.name}}
+            </a>
           </div>
         </el-row>
         <el-row>
