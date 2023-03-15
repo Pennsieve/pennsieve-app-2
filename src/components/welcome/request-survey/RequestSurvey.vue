@@ -289,7 +289,11 @@ export default {
 
     readyToSave: function() {
       // must have: selected a repo, and provided a name
-      return (this.selectedRepoForRequest && this.proposal.name)
+      if (this.selectedRepoForRequest && this.proposal.name) {
+        return true
+      } else {
+        return false
+      }
     },
 
     readyToSubmit: function() {
@@ -541,6 +545,7 @@ export default {
       this.$emit("update-proposal", this.synthesizeProposal())
       this.closeDialog()
     },
+
   }
 }
 </script>
