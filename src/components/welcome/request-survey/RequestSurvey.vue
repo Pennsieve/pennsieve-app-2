@@ -44,6 +44,15 @@
         </bf-button>
 
         <bf-button
+          v-if="showWithdraw"
+          class="primary"
+          :disabled="!readyToSubmit"
+          @click="triggerAction(DatasetProposalAction.WITHDRAW)"
+        >
+          Retract Request
+        </bf-button>
+
+        <bf-button
           v-if="showAccept"
           class="primary"
           :disabled="!readyToAccept"
@@ -259,11 +268,11 @@ export default {
     },
 
     showSave: function() {
-      return this.role === "owner"
+      return this.role === "owner" && !this.proposalLocked
     },
 
     showSubmit: function() {
-      return this.role === "owner"
+      return this.role === "owner" && !this.proposalLocked
     },
 
     showAccept: function() {
@@ -272,6 +281,10 @@ export default {
 
     showReject: function() {
       return this.role === "publisher"
+    },
+
+    showWithdraw: function() {
+      return this.role === "owner" && this.statusStr === "SUBMITTED"
     },
 
     readyToSave: function() {
@@ -301,8 +314,8 @@ export default {
     },
 
     statusStr: function() {
-      if (this.datasetRequest.status) {
-        return this.datasetRequest.status.toUpperCase();
+      if (this.datasetRequest.proposalStatus) {
+        return this.datasetRequest.proposalStatus.toUpperCase();
       }
       return "DRAFT"
     },

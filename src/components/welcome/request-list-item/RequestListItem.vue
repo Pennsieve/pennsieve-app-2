@@ -39,7 +39,7 @@
         class = "option-col"
         :sm="8"
         >
-        <template v-if="datasetRequest.status === 'DRAFT'">
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.EDIT)"
@@ -47,7 +47,7 @@
             Edit Request
           </a>
         </template>
-        <template v-if="datasetRequest.status === 'ACCEPTED'">
+        <template v-if="datasetRequest.proposalStatus === 'ACCEPTED'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.OPEN_DATASET)"
@@ -55,7 +55,7 @@
             Open Dataset
           </a>
         </template>
-        <template v-if="datasetRequest.status === 'SUBMITTED' || datasetRequest.status === 'REJECTED' ">
+        <template v-if="datasetRequest.proposalStatus === 'SUBMITTED'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.WITHDRAW)"
@@ -63,7 +63,7 @@
             Retract Request
           </a>
         </template>
-        <template v-if="datasetRequest.status === 'REJECTED'">
+        <template v-if="datasetRequest.proposalStatus === 'REJECTED'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.RESUBMIT)"
@@ -71,7 +71,7 @@
             Resubmit To...
           </a>
         </template>
-        <template v-if="datasetRequest.status === 'DRAFT'">
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.REMOVE)"
@@ -144,7 +144,7 @@ export default {
       return ""
     },
     statusStr: function() {
-      return this.datasetRequest.status.toUpperCase();
+      return this.datasetRequest.proposalStatus.toUpperCase();
     },
 
     DatasetProposalAction: function() {
