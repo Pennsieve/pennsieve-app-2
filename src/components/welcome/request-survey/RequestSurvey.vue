@@ -34,6 +34,7 @@
         >
           Save Draft
         </bf-button>
+        <!--
         <bf-button
           v-if="showSubmit"
           class="primary"
@@ -42,6 +43,7 @@
         >
           Submit Request
         </bf-button>
+        -->
 
         <bf-button
           v-if="showWithdraw"

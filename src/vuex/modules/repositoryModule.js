@@ -242,6 +242,34 @@ export const actions = {
       throw new Error(response.statusText)
     }
   },
+  submitProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::submitProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/proposal/submit?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::submitProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let submitted = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', submitted)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {
     commit('UPDATE_REPOSITORY_INFO_MODAL_VISIBLE', isModalVisible)
 

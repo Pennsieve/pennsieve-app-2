@@ -33,6 +33,7 @@
           :datasetRequest="request"
           @edit="editDatasetProposal"
           @remove="removeDatasetProposalRequest"
+          @submit="submitDatasetProposalRequest"
         />
       </div>
 
@@ -130,7 +131,8 @@ export default {
         'fetchProposals',
         'storeNewProposal',
         'storeChangedProposal',
-        'removeProposal'
+        'removeProposal',
+        'submitProposal'
       ]
     ),
 
@@ -173,6 +175,10 @@ export default {
             this.removeDatasetProposal(event.resource)
               .catch(err => console.log(err))
             break;
+          case "submit":
+            this.submitDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
         }
       }
     },
@@ -181,6 +187,14 @@ export default {
       console.log("SubmitDatasets::removeDatasetProposal() proposal:")
       console.log(proposal)
       this.removeProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
+    },
+
+    submitDatasetProposal: async function(proposal) {
+      console.log("SubmitDatasets::submitDatasetProposal() proposal:")
+      console.log(proposal)
+      this.submitProposal(proposal)
         .then(() => this.fetchProposals())
         .catch(err => console.log(err))
     },
@@ -198,9 +212,26 @@ export default {
         cancelActionLabel: 'Cancel',
       }
       this.confirmationDialogVisible = true
-      // this.removeProposal(proposal)
-      //   .then(() => this.fetchProposals())
-      //   .catch(err => console.log(err))
+    },
+
+    submitDatasetProposalRequest: function(proposal) {
+      console.log("SubmitDatasets::submitDatasetProposalRequest() proposal:")
+      console.log(proposal)
+      let repositoryName = "???"
+      let repository = this.getRepositoryById(proposal.repositoryId)
+      if (repository) {
+        repositoryName = repository.displayName
+      }
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'submit',
+        actionMessage: `Submit Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: `This will submit the dataset proposal to ${repositoryName} for review and consideration.`,
+        confirmActionLabel: 'Submit',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
     },
 
     startNewRequest: function() {

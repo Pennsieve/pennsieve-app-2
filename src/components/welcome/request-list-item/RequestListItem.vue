@@ -39,12 +39,30 @@
         class = "option-col"
         :sm="8"
         >
+        <!--
         <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.EDIT)"
           >
             Edit Request
+          </a>
+        </template>
+        -->
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(DatasetProposalAction.SUBMIT)"
+          >
+            Submit Request
+          </a>
+        </template>
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(DatasetProposalAction.REMOVE)"
+          >
+            Remove Request
           </a>
         </template>
         <template v-if="datasetRequest.proposalStatus === 'ACCEPTED'">
@@ -71,14 +89,7 @@
             Resubmit To...
           </a>
         </template>
-        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
-          <a
-            href="#"
-            @click.prevent="triggerRequest(DatasetProposalAction.REMOVE)"
-          >
-            Remove Request
-          </a>
-        </template>
+
 
       </el-col>
       <el-col
@@ -167,12 +178,12 @@ export default {
       ]
     ),
     openInfoPanel: function(event) {
-      console.log("openInfoPanel() event:")
+      console.log("RequestListItem::openInfoPanel() event:")
       console.log(event)
       this.$emit("open", this.datasetRequest)
     },
     triggerRequest: function(request) {
-      console.log(`triggerRequest() request: ${request}`)
+      console.log(`RequestListItem::triggerRequest() request: ${request}`)
       this.$emit(request, this.datasetRequest)
     },
   }

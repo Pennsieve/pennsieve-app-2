@@ -26,6 +26,8 @@
           </div>
         </div>
       </el-col>
+
+      <!--
       <el-col :sm="4">
         <div class="bf-dataset-list-item-storage">
           <p class="bf-dataset-list-item-stat">
@@ -36,6 +38,7 @@
           </p>
         </div>
       </el-col>
+      -->
 
       <el-col
         :sm="4"
@@ -52,7 +55,7 @@
         </div>
       </el-col>
 
-      <el-col :span="2">
+      <el-col :span="4">
         <div class="bf-dataset-list-item-stat-align">
           <div
             class="dataset-actions"
@@ -62,7 +65,7 @@
                 href="#"
                 @click.prevent="triggerRequest(DatasetProposalAction.ACCEPT)"
               >
-                Accept
+                Accept Request
               </a>
             </p>
             <p>
@@ -70,7 +73,7 @@
                 href="#"
                 @click.prevent="triggerRequest(DatasetProposalAction.REJECT)"
               >
-                Reject
+                Reject Request
               </a>
             </p>
           </div>
