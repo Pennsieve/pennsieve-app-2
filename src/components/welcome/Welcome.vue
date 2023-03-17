@@ -20,7 +20,11 @@
         <div class="buttons">
 
           <a href="https://docs.pennsieve.io" target="_blank" class="mr-16"><bf-button>Visit Documentation Hub</bf-button></a>
-          <bf-button>Submit a Dataset</bf-button>
+            <bf-button
+              @click="navigateToSubmit"
+            >
+              Submit a Dataset
+            </bf-button>
 
         </div>
 
@@ -93,7 +97,7 @@ export default {
       'selectedRepoForRequest'
     ]),
     ...mapGetters([
-
+      'activeOrganization'
     ]),
   },
 
@@ -101,17 +105,14 @@ export default {
   watch: {
   },
 
-
-
-  // beforeRouteEnter(to, from, next) {
-  //   next(vm => {
-  //     if (vm.hasFeature('sandbox_org_feature')) {
-  //       vm.$router.push({name: 'create-org'})
-  //     }
-  //   })
-  // },
-
   methods: {
+    navigateToSubmit: function() {
+      console.log("Welcome::navigateToSubmit()")
+      this.$router.push({
+        name: 'submit',
+        params: {  }
+      })
+    }
   },
 }
 </script>
