@@ -270,6 +270,90 @@ export const actions = {
       throw new Error(response.statusText)
     }
   },
+  withdrawProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::withdrawProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/proposal/withdraw?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::withdrawProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let submitted = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', submitted)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
+  acceptProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::acceptProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/submission/accept?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::acceptProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let submitted = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', submitted)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
+  rejectProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::rejectProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/submission/reject?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::rejectProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let submitted = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', submitted)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {
     commit('UPDATE_REPOSITORY_INFO_MODAL_VISIBLE', isModalVisible)
 

@@ -79,8 +79,8 @@
           :key="proposals.nodeId"
           :proposal="proposal"
           @view="viewProposal"
-          @accept="acceptProposal"
-          @reject="rejectProposal"
+          @accept="acceptDatasetProposalRequest"
+          @reject="rejectDatasetProposalRequest"
         />
       </div>
 
@@ -93,8 +93,22 @@
         :visible.sync="requestModalVisible"
         :dataset-request="selectedRequest"
         :role="role"
-        @accept-proposal="acceptProposal"
-        @reject-proposal="rejectProposal"
+        @accept="acceptDatasetProposalRequest"
+        @reject="rejectDatasetProposalRequest"
+      />
+
+      <confirmation-dialog
+        :visible="confirmationDialogVisible"
+        :action="confirmationDialog.action"
+        :action-message="confirmationDialog.actionMessage"
+        :resource="confirmationDialog.resource"
+        :info-message="confirmationDialog.infoMessage"
+        :warning-message="confirmationDialog.warningMessage"
+        :acknowledgements="confirmationDialog.acknowledgements"
+        :confirm-action-label="confirmationDialog.confirmActionLabel"
+        :cancel-action-label="confirmationDialog.cancelActionLabel"
+        @close="confirmationDialogVisible = false"
+        @confirmed="confirmedAction"
       />
 
     </div>
@@ -108,6 +122,7 @@ import PublishingProposalsListItem from "./PublishingProposalsListItem";
 import DatasetSortMenu from '@/components/datasets/DatasetSortMenu/DatasetSortMenu.vue'
 import PaginationPageMenu from '@/components/shared/PaginationPageMenu/PaginationPageMenu.vue'
 import RequestSurvey from "@/components/welcome/request-survey/RequestSurvey";
+import ConfirmationDialog from "@/components/shared/ConfirmationDialog/ConfirmationDialog";
 
 export default {
   name: 'PublishingProposalsList',
@@ -117,7 +132,8 @@ export default {
     PublishingProposalsListItem,
     DatasetSortMenu,
     PaginationPageMenu,
-    RequestSurvey
+    RequestSurvey,
+    ConfirmationDialog
   },
 
   props: {
@@ -142,6 +158,17 @@ export default {
       isLoadingDatasetsError: false,
       searchQuery: '',
       selectedRequest: {},
+      confirmationDialogVisible: false,
+      confirmationDialog: {
+        action: '',
+        actionMessage: '',
+        resource: {},
+        infoMessage: '',
+        warningMessage: '',
+        acknowledgements: [],
+        confirmActionLabel: '',
+        cancelActionLabel: '',
+      },
     }
   },
 
@@ -219,7 +246,9 @@ export default {
       'fetchRepositories',
       'updateRequestModalVisible',
       'setSelectedRepo',
-      'setSelectedProposal'
+      'setSelectedProposal',
+      'acceptProposal',
+      'rejectProposal'
     ]),
 
     getInitialData: function(){
@@ -290,24 +319,86 @@ export default {
       this.updateRequestModalVisible(true)
     },
 
-    acceptProposal: function(proposal) {
-      console.log("PublishingProposalsList::acceptProposal() proposal:")
+    resetConfirmation: function() {
+      this.confirmationDialogVisible = false
+      this.confirmationDialog = {
+        action: '',
+        actionMessage: '',
+        resource: {},
+        infoMessage: '',
+        warningMessage: '',
+        acknowledgements: [],
+        confirmActionLabel: '',
+        cancelActionLabel: '',
+      }
+    },
+
+    confirmedAction: async function(event) {
+      console.log("PublishingProposalsList::confirmedAction() event:")
+      console.log(event)
+      this.resetConfirmation()
+      if (event.action && event.resource) {
+        switch (event.action) {
+          case "accept":
+            this.acceptDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
+          case "reject":
+            this.rejectDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
+        }
+      }
+    },
+
+    acceptDatasetProposalRequest: function(proposal) {
+      console.log("PublishingProposalsList::acceptDatasetProposalRequest() proposal:")
       console.log(proposal)
-      // raise Confirmation Dialog, with callback = acceptProposalConfirmed()
+      // raise Confirmation Dialog
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'accept',
+        actionMessage: `Accept Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: 'This will accept the Dataset Proposal.',
+        confirmActionLabel: 'Accept',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
     },
 
-    acceptProposalConfirmed: function() {
-      console.log("PublishingProposalsList::acceptProposalConfirmed()")
-    },
-
-    rejectProposal: function(proposal) {
-      console.log("PublishingProposalsList::rejectProposal() proposal:")
+    acceptDatasetProposal: async function(proposal) {
+      console.log("PublishingProposalsList::acceptDatasetProposal() proposal:")
       console.log(proposal)
-      // raise Confirmation Dialog, with callback = rejectProposalConfirmed()
+      // invoke repositoryModule::acceptProposal()
+      this.acceptProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
     },
 
-    rejectProposalConfirmed: function() {
-      console.log("PublishingProposalsList::rejectProposalConfirmed()")
+    rejectDatasetProposalRequest: function(proposal) {
+      console.log("PublishingProposalsList::rejectDatasetProposalRequest() proposal:")
+      console.log(proposal)
+      // raise Confirmation Dialog
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'reject',
+        actionMessage: `Reject Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: 'This will reject the Dataset Proposal.',
+        confirmActionLabel: 'Reject',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
+    },
+
+    rejectDatasetProposal: function(proposal) {
+      console.log("PublishingProposalsList::rejectProposalConfirmed() proposal:")
+      console.log(proposal)
+      // invoke repositoryModule::rejectProposal()
+      this.rejectProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
     },
 
   },

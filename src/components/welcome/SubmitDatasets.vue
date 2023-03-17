@@ -34,6 +34,7 @@
           @edit="editDatasetProposal"
           @remove="removeDatasetProposalRequest"
           @submit="submitDatasetProposalRequest"
+          @withdraw="withdrawDatasetProposalRequest"
         />
       </div>
 
@@ -132,7 +133,8 @@ export default {
         'storeNewProposal',
         'storeChangedProposal',
         'removeProposal',
-        'submitProposal'
+        'submitProposal',
+        'withdrawProposal'
       ]
     ),
 
@@ -179,6 +181,10 @@ export default {
             this.submitDatasetProposal(event.resource)
               .catch(err => console.log(err))
             break;
+          case "withdraw":
+            this.withdrawDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
         }
       }
     },
@@ -195,6 +201,14 @@ export default {
       console.log("SubmitDatasets::submitDatasetProposal() proposal:")
       console.log(proposal)
       this.submitProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
+    },
+
+    withdrawDatasetProposal: async function(proposal) {
+      console.log("SubmitDatasets::withdrawDatasetProposal() proposal:")
+      console.log(proposal)
+      this.withdrawProposal(proposal)
         .then(() => this.fetchProposals())
         .catch(err => console.log(err))
     },
@@ -229,6 +243,26 @@ export default {
         resource: proposal,
         warningMessage: `This will submit the dataset proposal to ${repositoryName} for review and consideration.`,
         confirmActionLabel: 'Submit',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
+    },
+
+    withdrawDatasetProposalRequest: function(proposal) {
+      console.log("SubmitDatasets::withdrawDatasetProposalRequest() proposal:")
+      console.log(proposal)
+      let repositoryName = "???"
+      let repository = this.getRepositoryById(proposal.repositoryId)
+      if (repository) {
+        repositoryName = repository.displayName
+      }
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'withdraw',
+        actionMessage: `Withdraw Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: `This will withdraw the request to review and consider the dataset proposal from ${repositoryName}.`,
+        confirmActionLabel: 'Withdraw',
         cancelActionLabel: 'Cancel',
       }
       this.confirmationDialogVisible = true

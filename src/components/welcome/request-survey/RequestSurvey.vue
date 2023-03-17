@@ -528,10 +528,13 @@ export default {
           this.saveDraft()
           break;
         case DatasetProposalAction.SUBMIT:
+          this.submitProposal()
           break;
         case DatasetProposalAction.ACCEPT:
+          this.acceptProposal()
           break;
         case DatasetProposalAction.REJECT:
+          this.rejectProposal()
           break;
       }
     },
@@ -546,6 +549,20 @@ export default {
       console.log("RequestSurvey::updateProposal()")
       this.$emit("update-proposal", this.synthesizeProposal())
       this.closeDialog()
+    },
+
+    submitProposal: function() {
+      console.log("RequestSurvey::submitProposal()")
+    },
+    acceptProposal: function() {
+      console.log("RequestSurvey::acceptProposal() proposal:")
+      console.log(this.datasetRequest)
+      this.$emit("accept", this.datasetRequest)
+    },
+    rejectProposal: function() {
+      console.log("RequestSurvey::rejectProposal() proposal:")
+      console.log(this.datasetRequest)
+      this.$emit("reject", this.datasetRequest)
     },
 
   }
