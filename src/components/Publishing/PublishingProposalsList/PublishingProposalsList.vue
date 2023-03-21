@@ -244,6 +244,7 @@ export default {
     ]),
     ...mapActions('repositoryModule', [
       'fetchRepositories',
+      'fetchProposals',
       'updateRequestModalVisible',
       'setSelectedRepo',
       'setSelectedProposal',
@@ -372,7 +373,7 @@ export default {
       console.log(proposal)
       // invoke repositoryModule::acceptProposal()
       this.acceptProposal(proposal)
-        .then(() => this.fetchProposals())
+        .then(() => this.fetchDatasetProposals())
         .catch(err => console.log(err))
     },
 
@@ -397,7 +398,7 @@ export default {
       console.log(proposal)
       // invoke repositoryModule::rejectProposal()
       this.rejectProposal(proposal)
-        .then(() => this.fetchProposals())
+        .then(() => this.fetchDatasetProposals())
         .catch(err => console.log(err))
     },
 
