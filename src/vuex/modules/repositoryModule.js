@@ -84,10 +84,16 @@ export const mutations = {
   },
   UPDATE_PROPOSAL(state, proposal) {
     let index = state.datasetProposals.findIndex(p => p.nodeId === proposal.nodeId)
-    let existing = state.datasetProposals[index]
-    let updated = proposal
-    updated.id = existing.id
-    state.datasetProposals[index] = updated
+    if (index > -1) {
+      let existing = state.datasetProposals[index]
+      let updated = proposal
+      updated.id = existing.id
+      state.datasetProposals[index] = updated
+    } // else {
+      // let new = proposal
+      // new.id = state.datasetProposals.length
+      // state.datasetProposals.push(new)
+    // }
   },
   REMOVE_PROPOSAL(state, proposal) {
     let result = state.datasetProposals.filter(p => p.nodeId !== proposal.nodeId)
@@ -287,9 +293,9 @@ export const actions = {
       console.log("repositoryModule::withdrawProposal() responseJson:")
       console.log(responseJson)
       // unpack the response
-      let submitted = transformProposalIn(responseJson)
+      let withdrawn = transformProposalIn(responseJson)
       // mutate state
-      commit('UPDATE_PROPOSAL', submitted)
+      commit('UPDATE_PROPOSAL', withdrawn)
       return {
         status: "SUCCESS",
         result: proposal
@@ -315,9 +321,9 @@ export const actions = {
       console.log("repositoryModule::acceptProposal() responseJson:")
       console.log(responseJson)
       // unpack the response
-      let submitted = transformProposalIn(responseJson)
+      let accepted = transformProposalIn(responseJson)
       // mutate state
-      commit('UPDATE_PROPOSAL', submitted)
+      commit('UPDATE_PROPOSAL', accepted)
       return {
         status: "SUCCESS",
         result: proposal
@@ -343,9 +349,9 @@ export const actions = {
       console.log("repositoryModule::rejectProposal() responseJson:")
       console.log(responseJson)
       // unpack the response
-      let submitted = transformProposalIn(responseJson)
+      let rejected = transformProposalIn(responseJson)
       // mutate state
-      commit('UPDATE_PROPOSAL', submitted)
+      commit('UPDATE_PROPOSAL', rejected)
       return {
         status: "SUCCESS",
         result: proposal
