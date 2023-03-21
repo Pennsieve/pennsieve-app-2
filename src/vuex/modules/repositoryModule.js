@@ -5,74 +5,28 @@ const sortRepositories = (repositories) => {
   return repositories.sort((a, b) => a.displayName.localeCompare(b.name, 'en', { numeric: true}))
 }
 
-const transformContributorsIn = (contributors) => {
-  console.log("transformContributorsIn() contributors:")
-  console.log(contributors)
-  if (contributors) {
-    let result = contributors.map(c => {
-      return {
-        firstName: c.FirstName,
-        lastName: c.LastName,
-        emailAddress: c.EmailAddress,
-      }
-    })
-    console.log("transformContributorsIn() result:")
-    console.log(result)
-    return result
-  }
-  return undefined
-}
-
-const transformContributorsOut = (contributors) => {
-  console.log("transformContributorsOut() contributors:")
-  console.log(contributors)
-  if (contributors) {
-    let result = contributors.map(c => {
-      return {
-        FirstName: c.firstName,
-        LastName: c.lastName,
-        EmailAddress: c.emailAddress,
-      }
-    })
-    console.log("transformContributorsOut() result:")
-    console.log(result)
-    return result
-  }
-  return undefined
+const getOwnerName = (profile) => {
+  console.log("getOwnerName() profile:")
+  console.log(profile)
+  let firstName = profile.firstName
+  let lastName = profile.lastName
+  let ownerName = `${firstName} ${lastName}`
+  console.log(`getOwnerName() ownerName: ${ownerName}`)
+  return ownerName
 }
 
 const transformProposalIn = (proposal, count = 0) => {
   return {
     'id': count,
-    'userId': proposal.UserId,
-    'nodeId': proposal.ProposalNodeId,
-    'name': proposal.Name,
-    'description': proposal.Description,
-    'repositoryId': proposal.RepositoryId,
-    'organizationNodeId': proposal.OrganizationNodeId,
-    'datasetNodeId': proposal.DatasetNodeId,
-    'status': proposal.Status,
-    'survey': proposal.Survey,
-    'contributors': transformContributorsIn(proposal.Contributors),
-    'createdAt': proposal.CreatedAt,
-    'updatedAt': proposal.UpdatedAt,
+    ...proposal
   }
 }
 
-const transformProposalOut = (proposal, userId) => {
+const transformProposalOut = (proposal, profile) => {
   return {
-    UserId: userId,
-    ProposalNodeId:  propOr(undefined, "nodeId", proposal),
-    Name: propOr("", "name", proposal),
-    Description: propOr("", "description", proposal),
-    RepositoryId: propOr("", "repositoryId", proposal),
-    OrganizationNodeId: propOr("", "organizationNodeId", proposal),
-    DatasetNodeId: propOr(undefined, "datasetNodeId", proposal),
-    Status: propOr(undefined, "status", proposal),
-    Survey: propOr([], "survey", proposal),
-    Contributors: transformContributorsOut(proposal.contributors),
-    CreatedAt: propOr(undefined, "createdAt", proposal),
-    UpdatedAt: propOr(undefined, "updatedAt", proposal),
+    userId: profile.intId,
+    ownerName: getOwnerName(profile),
+    ...proposal
   }
 }
 
@@ -130,10 +84,16 @@ export const mutations = {
   },
   UPDATE_PROPOSAL(state, proposal) {
     let index = state.datasetProposals.findIndex(p => p.nodeId === proposal.nodeId)
-    let existing = state.datasetProposals[index]
-    let updated = proposal
-    updated.id = existing.id
-    state.datasetProposals[index] = updated
+    if (index > -1) {
+      let existing = state.datasetProposals[index]
+      let updated = proposal
+      updated.id = existing.id
+      state.datasetProposals[index] = updated
+    } // else {
+      // let new = proposal
+      // new.id = state.datasetProposals.length
+      // state.datasetProposals.push(new)
+    // }
   },
   REMOVE_PROPOSAL(state, proposal) {
     let result = state.datasetProposals.filter(p => p.nodeId !== proposal.nodeId)
@@ -147,6 +107,7 @@ export const mutations = {
 export const actions = {
   updateRepositories: ({commit}, data) => commit('UPDATE_REPOSITORIES', data),
   fetchRepositories: async({ commit, rootState }) => {
+    console.log("repositoryModule::fetchRepositories()")
     try {
       let url = `${rootState.config.api2Url}/publishing/repositories`
       const apiKey = rootState.userToken || Cookies.get('user_token')
@@ -156,20 +117,14 @@ export const actions = {
       const response = await fetch(url, { headers: myHeaders })
       if (response.ok) {
         const responseJson = await response.json()
+        console.log("repositoryModule::fetchRepositories() responseJson:")
+        console.log(responseJson)
         let count = 0
         let repositories = responseJson.map(r => {
           return {
-          'id': ++count,
-          'organizationNodeId': r.OrganizationNodeId,
-          'name': r.Name,
-          'displayName': r.DisplayName,
-          'organizationId': r.WorkspaceId,
-          'isPublic': r.Type === "PUBLIC",
-          'description': r.Description,
-          'site': r.URL,
-          'readme': r.OverviewDocument,
-          'logo': r.LogoFile,
-          'survey': r.Questions,
+            'id': ++count,
+            'isPublic': r.type === "PUBLIC",
+            ...r
         } })
         commit('UPDATE_REPOSITORIES', repositories)
       } else {
@@ -194,6 +149,8 @@ export const actions = {
       const response = await fetch(url, { headers: myHeaders })
       if (response.ok) {
         const responseJson = await response.json()
+        console.log("repositoryModule::fetchProposals() responseJson:")
+        console.log(responseJson)
         let count = 0
         let proposals = responseJson.map(p => {
           return transformProposalIn(p, ++count)
@@ -220,7 +177,7 @@ export const actions = {
     const response = await fetch(url, {
       method: "POST",
       headers: myHeaders,
-      body: JSON.stringify(transformProposalOut(proposal, rootState.profile.intId))
+      body: JSON.stringify(transformProposalOut(proposal, rootState.profile))
     })
     if (response.ok) {
       // get the response
@@ -237,7 +194,7 @@ export const actions = {
         result: proposal
       }
     } else {
-      throw response.error()
+      throw new Error(response.statusText)
     }
   },
   storeChangedProposal: async({commit, rootState, state}, proposal) => {
@@ -252,7 +209,7 @@ export const actions = {
     const response = await fetch(url, {
       method: "PUT",
       headers: myHeaders,
-      body: JSON.stringify(transformProposalOut(proposal, rootState.profile.intId))
+      body: JSON.stringify(transformProposalOut(proposal, rootState.profile))
     })
     if (response.ok) {
       // get the response
@@ -268,7 +225,7 @@ export const actions = {
         result: proposal
       }
     } else {
-      throw response.error()
+      throw new Error(response.statusText)
     }
   },
   removeProposal: async({commit, rootState, state}, proposal) => {
@@ -288,7 +245,119 @@ export const actions = {
         status: "SUCCESS",
       }
     } else {
-      throw response.error()
+      throw new Error(response.statusText)
+    }
+  },
+  submitProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::submitProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/proposal/submit?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::submitProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let submitted = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', submitted)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
+  withdrawProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::withdrawProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/proposal/withdraw?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::withdrawProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let withdrawn = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', withdrawn)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
+  acceptProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::acceptProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/submission/accept?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::acceptProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let accepted = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', accepted)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
+    }
+  },
+  rejectProposal: async({commit, rootState, state}, proposal) => {
+    console.log("repositoryModule::rejectProposal() proposal:")
+    console.log(proposal)
+    let url = `${rootState.config.api2Url}/publishing/submission/reject?node_id=${proposal.nodeId}`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders})
+    if (response.ok) {
+      // get the response
+      const responseJson = await response.json()
+      console.log("repositoryModule::rejectProposal() responseJson:")
+      console.log(responseJson)
+      // unpack the response
+      let rejected = transformProposalIn(responseJson)
+      // mutate state
+      commit('UPDATE_PROPOSAL', rejected)
+      return {
+        status: "SUCCESS",
+        result: proposal
+      }
+    } else {
+      throw new Error(response.statusText)
     }
   },
   updateModalVisible: ({ commit, rootState, state }, isModalVisible) => {
@@ -335,11 +404,11 @@ export const actions = {
 
 export const getters = {
   getRepositoryById: state => (id) => {
-    return defaultTo({}, find(propEq('organizationId', id), state.repositories))
+    return defaultTo({}, find(propEq('repositoryId', id), state.repositories))
   },
   getProposalByNodeId: state => (nodeId) => {
     return defaultTo({}, find(propEq('nodeId', nodeId), state.datasetProposals))
-  }
+  },
 }
 
 const repositoryModule = {

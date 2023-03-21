@@ -89,8 +89,7 @@ export default {
     },
     logoPath: function() {
       if (this.repository) {
-        // return "../../../../static/images/" + this.repository.logo
-        return this.repository.logo
+        return this.repository.logoFile
       }
       return ""
     }

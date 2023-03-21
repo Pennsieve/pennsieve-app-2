@@ -21,7 +21,12 @@
 
         <el-row>
           <div class="repository-title" >
-            {{datasetRequest.name}}
+            <a
+              href="#"
+              @click.prevent="triggerRequest(DatasetProposalAction.EDIT)"
+            >
+              {{datasetRequest.name}}
+            </a>
           </div>
         </el-row>
         <el-row>
@@ -34,7 +39,8 @@
         class = "option-col"
         :sm="8"
         >
-        <template v-if="datasetRequest.status === 'DRAFT'">
+        <!--
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.EDIT)"
@@ -42,31 +48,16 @@
             Edit Request
           </a>
         </template>
-        <template v-if="datasetRequest.status === 'ACCEPTED'">
+        -->
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
           <a
             href="#"
-            @click.prevent="triggerRequest(DatasetProposalAction.OPEN_DATASET)"
+            @click.prevent="triggerRequest(DatasetProposalAction.SUBMIT)"
           >
-            Open Dataset
+            Submit Request
           </a>
         </template>
-        <template v-if="datasetRequest.status === 'SUBMITTED' || datasetRequest.status === 'REJECTED' ">
-          <a
-            href="#"
-            @click.prevent="triggerRequest(DatasetProposalAction.WITHDRAW)"
-          >
-            Retract Request
-          </a>
-        </template>
-        <template v-if="datasetRequest.status === 'REJECTED'">
-          <a
-            href="#"
-            @click.prevent="triggerRequest(DatasetProposalAction.RESUBMIT)"
-          >
-            Resubmit To...
-          </a>
-        </template>
-        <template v-if="datasetRequest.status === 'DRAFT'">
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.REMOVE)"
@@ -74,6 +65,31 @@
             Remove Request
           </a>
         </template>
+        <template v-if="datasetRequest.proposalStatus === 'ACCEPTED'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(DatasetProposalAction.OPEN_DATASET)"
+          >
+            Open Dataset
+          </a>
+        </template>
+        <template v-if="datasetRequest.proposalStatus === 'SUBMITTED'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(DatasetProposalAction.WITHDRAW)"
+          >
+            Retract Request
+          </a>
+        </template>
+        <template v-if="datasetRequest.proposalStatus === 'REJECTED'">
+          <a
+            href="#"
+            @click.prevent="triggerRequest(DatasetProposalAction.RESUBMIT)"
+          >
+            Resubmit To...
+          </a>
+        </template>
+
 
       </el-col>
       <el-col
@@ -133,13 +149,13 @@ export default {
       if (this.datasetRequest) {
         let repository = this.getRepositoryById(this.datasetRequest.repositoryId)
         if (repository) {
-          return repository.logo
+          return repository.logoFile
         }
       }
       return ""
     },
     statusStr: function() {
-      return this.datasetRequest.status.toUpperCase();
+      return this.datasetRequest.proposalStatus.toUpperCase();
     },
 
     DatasetProposalAction: function() {
@@ -162,12 +178,12 @@ export default {
       ]
     ),
     openInfoPanel: function(event) {
-      console.log("openInfoPanel() event:")
+      console.log("RequestListItem::openInfoPanel() event:")
       console.log(event)
       this.$emit("open", this.datasetRequest)
     },
     triggerRequest: function(request) {
-      console.log(`triggerRequest() request: ${request}`)
+      console.log(`RequestListItem::triggerRequest() request: ${request}`)
       this.$emit(request, this.datasetRequest)
     },
   }

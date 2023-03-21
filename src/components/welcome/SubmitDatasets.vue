@@ -24,7 +24,7 @@
 
       </div>
       <div
-        v-if="datasetProposals.length > 0"
+        v-if="hasProposals"
         class="integration-list"
       >
         <request-list-item
@@ -33,8 +33,14 @@
           :datasetRequest="request"
           @edit="editDatasetProposal"
           @remove="removeDatasetProposalRequest"
+          @submit="submitDatasetProposalRequest"
+          @withdraw="withdrawDatasetProposalRequest"
         />
       </div>
+
+      <bf-empty-page-state v-if="!hasProposals">
+        You have not created any dataset proposals yet. Click <strong>New Request</strong> to get started.
+      </bf-empty-page-state>
 
       <request-survey
         :visible.sync="requestModalVisible"
@@ -67,6 +73,7 @@ import BfButton from '../shared/bf-button/BfButton.vue'
 import RequestListItem from './request-list-item/RequestListItem'
 import RequestSurvey from './request-survey/RequestSurvey.vue'
 import ConfirmationDialog from "../shared/ConfirmationDialog/ConfirmationDialog";
+import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue';
 
 export default {
   name: 'SubmitDatasets',
@@ -75,7 +82,8 @@ export default {
     ConfirmationDialog,
     BfButton,
     RequestListItem,
-    RequestSurvey
+    RequestSurvey,
+    BfEmptyPageState
   },
 
   props: {
@@ -91,6 +99,11 @@ export default {
     ...mapGetters('repositoryModule',[
       'getRepositoryById',
     ]),
+
+    hasProposals: function() {
+      return this.datasetProposals.length > 0
+    },
+
   },
   data() {
     return {
@@ -114,11 +127,14 @@ export default {
     ...mapActions('repositoryModule',[
         'updateRequestModalVisible',
         'setSelectedRepo',
+        'setSelectedProposal',
         'clearSelectedRepo',
         'fetchProposals',
         'storeNewProposal',
         'storeChangedProposal',
-        'removeProposal'
+        'removeProposal',
+        'submitProposal',
+        'withdrawProposal'
       ]
     ),
 
@@ -137,7 +153,10 @@ export default {
     },
 
     editDatasetProposal: function(proposal) {
-      this.activeRequest = proposal
+      if (proposal) {
+        this.activeRequest = proposal
+        this.setSelectedProposal(proposal)
+      }
       // set the selected repository, if one is designated on the proposal
       if (proposal && proposal.repositoryId) {
         let repository = this.getRepositoryById(proposal.repositoryId)
@@ -158,6 +177,14 @@ export default {
             this.removeDatasetProposal(event.resource)
               .catch(err => console.log(err))
             break;
+          case "submit":
+            this.submitDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
+          case "withdraw":
+            this.withdrawDatasetProposal(event.resource)
+              .catch(err => console.log(err))
+            break;
         }
       }
     },
@@ -166,6 +193,22 @@ export default {
       console.log("SubmitDatasets::removeDatasetProposal() proposal:")
       console.log(proposal)
       this.removeProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
+    },
+
+    submitDatasetProposal: async function(proposal) {
+      console.log("SubmitDatasets::submitDatasetProposal() proposal:")
+      console.log(proposal)
+      this.submitProposal(proposal)
+        .then(() => this.fetchProposals())
+        .catch(err => console.log(err))
+    },
+
+    withdrawDatasetProposal: async function(proposal) {
+      console.log("SubmitDatasets::withdrawDatasetProposal() proposal:")
+      console.log(proposal)
+      this.withdrawProposal(proposal)
         .then(() => this.fetchProposals())
         .catch(err => console.log(err))
     },
@@ -183,9 +226,46 @@ export default {
         cancelActionLabel: 'Cancel',
       }
       this.confirmationDialogVisible = true
-      // this.removeProposal(proposal)
-      //   .then(() => this.fetchProposals())
-      //   .catch(err => console.log(err))
+    },
+
+    submitDatasetProposalRequest: function(proposal) {
+      console.log("SubmitDatasets::submitDatasetProposalRequest() proposal:")
+      console.log(proposal)
+      let repositoryName = "???"
+      let repository = this.getRepositoryById(proposal.repositoryId)
+      if (repository) {
+        repositoryName = repository.displayName
+      }
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'submit',
+        actionMessage: `Submit Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: `This will submit the dataset proposal to ${repositoryName} for review and consideration.`,
+        confirmActionLabel: 'Submit',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
+    },
+
+    withdrawDatasetProposalRequest: function(proposal) {
+      console.log("SubmitDatasets::withdrawDatasetProposalRequest() proposal:")
+      console.log(proposal)
+      let repositoryName = "???"
+      let repository = this.getRepositoryById(proposal.repositoryId)
+      if (repository) {
+        repositoryName = repository.displayName
+      }
+      this.resetConfirmation()
+      this.confirmationDialog = {
+        action: 'withdraw',
+        actionMessage: `Withdraw Dataset Proposal: "${proposal.name}"?`,
+        resource: proposal,
+        warningMessage: `This will withdraw the request to review and consider the dataset proposal from ${repositoryName}.`,
+        confirmActionLabel: 'Withdraw',
+        cancelActionLabel: 'Cancel',
+      }
+      this.confirmationDialogVisible = true
     },
 
     startNewRequest: function() {

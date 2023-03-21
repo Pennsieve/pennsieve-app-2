@@ -37,6 +37,7 @@ const PeopleList = () => import('../components/people/list/PeopleList.vue')
  */
 const Publishing = () => import('@/routes/Publishing/PublishingView.vue')
 const PublishingDatasetsList = () => import ('@/components/Publishing/PublishingDatasetsList/PublishingDatasetsList.vue')
+const PublishingProposalsList = () => import ('@/components/Publishing/PublishingProposalsList/PublishingProposalsList.vue')
 
 /**
  * Integrations Components
@@ -599,6 +600,18 @@ const routes = [
         props: {
           stage: {
             publicationStatus: [PublicationStatus.REJECTED],
+          }
+        }
+      },
+      {
+        name: PublicationTabs.PROPOSED,
+        path: PublicationTabs.PROPOSED,
+        components: {
+          stage: PublishingProposalsList
+        },
+        props: {
+          stage: {
+            publicationStatus: [PublicationStatus.PROPOSED],
           }
         }
       }

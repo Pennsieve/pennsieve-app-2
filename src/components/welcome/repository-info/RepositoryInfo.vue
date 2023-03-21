@@ -17,7 +17,7 @@
         alt="Logo for Pennsieve"
       />
       <div>
-        <a :href="selectedRepoForRequest.site" target="_blank">
+        <a :href="selectedRepoForRequest.url" target="_blank">
           <bf-button class="primary">
             Visit Repository
           </bf-button>
@@ -81,7 +81,7 @@ export default {
 
     logoPath: function() {
       if (this.selectedRepoForRequest) {
-        return this.selectedRepoForRequest.logo
+        return this.selectedRepoForRequest.logoFile
       }
       return ""
     },
@@ -111,7 +111,7 @@ export default {
     getReadmeText: async function() {
       let result = ""
       if (this.selectedRepoForRequest) {
-        let response = await fetch(this.selectedRepoForRequest.readme)
+        let response = await fetch(this.selectedRepoForRequest.overviewDocument)
         if (response.ok) {
           result = await response.text()
         }

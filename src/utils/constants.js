@@ -34,7 +34,8 @@ export const PublicationStatus = Object.freeze({
 export const PublicationTabs = Object.freeze({
   REVIEW: 'review',
   REJECTED: 'rejected',
-  PUBLISHED: 'published'
+  PUBLISHED: 'published',
+  PROPOSED: 'proposed'
 })
 
 export const UserFriendlyPublicationStatus = Object.freeze({
@@ -52,7 +53,8 @@ export const PublicationStatusColor = Object.freeze({
 export const PublicationTabsStatuses = Object.freeze({
   [PublicationTabs.REVIEW]: [PublicationStatus.REQUESTED, PublicationStatus.FAILED, PublicationStatus.ACCEPTED],
   [PublicationTabs.REJECTED]: [PublicationStatus.REJECTED],
-  [PublicationTabs.PUBLISHED]: [PublicationStatus.COMPLETED]
+  [PublicationTabs.PUBLISHED]: [PublicationStatus.COMPLETED],
+  [PublicationTabs.PROPOSED]: []
 })
 
 export const PublicationType = Object.freeze({
@@ -74,8 +76,10 @@ export const DatasetProposalStatus = Object.freeze({
 
 export const DatasetProposalAction = Object.freeze({
   EDIT: 'edit',
+  SAVE: 'save',
   SUBMIT: 'submit',
   WITHDRAW: 'withdraw',
+  VIEW: 'view',
   ACCEPT: 'accept',
   REJECT: 'reject',
   REMOVE: 'remove',
