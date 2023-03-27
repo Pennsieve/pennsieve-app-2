@@ -2,6 +2,19 @@
   <div
     class="deleted-files"
   >
+  <bf-rafter slot="heading">
+      <div
+        slot="heading"
+        class="bf-dataset-breadcrumbs"
+      >
+        <breadcrumb-navigation
+          :ancestors="ancestors"
+          :file="file"
+          :file-id="$route.params.fileId"
+          @navigate-breadcrumb="handleNavigateBreadcrumb"
+        />
+      </div>
+  </bf-rafter>
     <bf-dialog
       :title="dialogTitle"
       :open="isOpen"
@@ -16,7 +29,7 @@
         slot="body"
         class="bf-upload-body"
       >
-      <!--HERE we will add pagination header -->
+      <!--HERE we will add pagination header?? -->
 
       <div class="file-pagination">
           <div>
@@ -41,7 +54,7 @@
           :multiple-selected="multipleSelected"
           within-delete-menu
           :enable-download="false"
-          @move="moveBackToFiles"
+          @restore="moveBackToFiles"
           @delete="showDelete2"
           @selection-change="deleteSetSelectedFiles"
           @click-file-label="onClickLabelDelete">
@@ -134,7 +147,7 @@ data: function(){
 
 mounted: function(){
  EventBus.$on('fetchDeleted', (data) => {
-   this.fetchDeletedFunc()
+   this.fetchDeletedFunc(this.offset,this.limit,root_node)
  })
  EventBus.$on('openDeletedModal', (data) => {
    this.isOpen = data;
@@ -187,17 +200,28 @@ computed: {
    * Get files URL for dataset
    * @returns {String}
    */
-  getFilesUrl: function () {
-    //https://api2.pennsieve.net/datasets/trashcan?dataset_id=Nxxx
+  getFilesUrl: function (root_node) {
     if (this.config.apiUrl && this.userToken) {
-      const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
+      //const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
       const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
-
-      //return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${this.userToken}&includeAncestors=true`
-      //PAGE BREAKS WHEN BELOW EXECUTES
-      return `https://api2.pennsieve.net/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}&api_key=${this.userToken}`
+      //PAGE BREAKS WHEN BELOW EXECUTES ??
+      return `https://api2.pennsieve.io/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}`
+    }
+    if (this.config.apiUrl && this.userToken && root_node){
+      const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
+      return `https://api2.pennsieve.io/datasets/trashcan?dataset_id=${id}&root_node_id=${root_node}&limit=${this.limit}&offset=${this.offset}`
     }
   },
+},
+watch: {
+
+   /**
+     * Trigger API request when URL is changed
+     */
+     getFilesUrl: function (root_node) {
+      this.fetchDeletedFunc(this.offset,this.limit,root_node)
+    },
+
 },
 methods: {
 
@@ -231,7 +255,7 @@ methods: {
     const offset = (page - 1) * this.limit
     this.offset = offset
     //NOTE: should pass offset and page into fetchDeleted
-    this.fetchDeletedFunc(this.offset,this.limit)
+    this.fetchDeletedFunc(this.offset,this.limit,root_node)
     
   },
   /**
@@ -240,6 +264,7 @@ methods: {
   resetSelectedFiles: function () {
     this.selectedDeletedFiles = []
     this.lastSelectedFile = {}
+    this.fetchDeletedFunc(this.offset,this.limit,root_node)
   },
   /**
    * Sort table by column
@@ -275,7 +300,7 @@ methods: {
     this.onClose()
   },
   /**
-   * Handler for clicking file
+   * Handler for clicking file. Allows one to drill down into deleted package
    * @param {Object} file
    */
   onClickLabelDelete: function (file) {
@@ -298,6 +323,27 @@ methods: {
       })
     }
   },
+   /**
+     * Navigate to file
+     * @param {String} id
+     */
+     navigateToFile: function (id) {
+      this.$router.push({name: 'collection-files', params: {fileId: id}})
+      root_node = id
+      //consider if there's another way to do this:
+      this.fetchDeletedFunc(this.offset,this.limit,root_node)
+    },
+     /**
+     * Handler for breadcrumb overflow navigation
+     * @param {String} id
+     */
+     handleNavigateBreadcrumb: function (id = '') {
+      if (id) {
+        this.navigateToFile(id)
+      } else {
+        this.navigateToDataset()
+      }
+    },
   /**
    * Close dialog callback
    */
@@ -333,7 +379,7 @@ methods: {
           msg
         }
       })
-      this.fetchDeletedFunc()
+      this.fetchDeletedFunc(this.offset,this.limit,root_node)
     })
     .catch(response => {
       this.handleXhrError(response)
@@ -345,7 +391,7 @@ methods: {
   try {
     //const move_response1 = await fetch('moveEndpoint');
     if (response1.ok) {
-      await this.fetchDeletedFunc();
+      await this.fetchDeletedFunc(this.offset,this.limit,root_node);
       console.log('files moved back to original directory');
     } else {
       console.error('Error calling endpoint:', move_response.status);
@@ -354,6 +400,37 @@ methods: {
     console.error(error);
   }
 },
+
+    /**
+     * method moves selection(s) back to the datasets file storage (unmarked as deleted)
+     * @param {String} destination}
+     * @param {Array} items
+     */
+     moveItems: function (destination, items) {
+    const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
+    const nodeIds = items.map(item => item.content.id)
+    const options = {
+    method: 'POST',
+    headers: {
+    accept: 'application/json',
+    'content-type': 'application/json',
+    Authorization:  `Bearer ${this.userToken}`
+  },
+  body: JSON.stringify({nodeIds})
+};
+fetch(`https://api2.pennsieve.io/packages/restore?dataset_id=${id}`, options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  //response is {"success": array of strings, "failures": array of objects}
+  .then(onRestoreItems(response))
+  .catch(err => console.error(err));
+  },
+
+  //handler for restore items success
+  onRestoreItems: function(response){
+  const successItems = propOr([], 'success', response)
+  this.removeItems(successItems)
+  },
   /**
    * Set selected files
    * @param {Array} selection
@@ -388,20 +465,21 @@ methods: {
   },
 
 /*
-Will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
-and need to provide limit and offset in request (getFilesUrl)
-https://api2.pennsieve.net/datasets/trashcan?dataset_id=Nxxx
-RETURNS: {"limit":50,"offset":0,"totalCount":0,"packages":null,"messages":["GetTrashcan not implemented yet"]}
+Will fetch all files that are marked deleted for a given dataset.
+RETURNS: {"limit":50,"offset":0,"totalCount":0,"packages":null,"messages":["..."]}
 request limit defaults to 10 and must be < 100. offset defaults to 0
 path field is empty
 Need to reach into packages list instead of pulling stuff from url
 */
- fetchDeletedFunc: function(offset, limit) {
+ fetchDeletedFunc: function(offset, limit, root_node) {
   //NOTE: we will  want to make sure that this isnt a flat map
-  const options = {method: 'GET', headers: {accept: '*/*', 'content-type': 'application/json', 'Authorization': `Bearer ${this.userToken}`}};
+  const options = {method: 'GET', headers: {accept: 'application/json', 'Authorization': `Bearer ${this.userToken}`}};
    console.log('fetching deleted files')
-   fetch(this.getFilesUrl, options) //this.sendxhr
-     .then(response => {
+   fetch(this.getFilesUrl(root_node), options) //this.sendxhr
+     .then(
+      //check if syntax error
+      //response => response.json(),
+      response => {
        this.file = response
        console.log("RESPONSE OBJECT IS ",this.file)
        this.tableResultsTotalCount = this.file.totalCount

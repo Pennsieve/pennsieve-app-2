@@ -16,7 +16,8 @@
       </span>
       <ul class="selection-actions unstyled">
       <template v-if='withinDeleteMenu'>
-       <!--THIS WAS COMMENTED OUT-->
+       <!--WE DONT YET GIVE THE OPTION OF DELETING FILES STAGED FOR DELETION-->
+      <!--
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
@@ -33,13 +34,14 @@
           Delete permanently
         </button>
       </li>
+    -->
       
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
           class="linked btn-selection-action"
           :disabled="datasetLocked"
-          @click="$emit('move')"
+          @click="$emit('restore')"
         >
           <svg-icon
             class="mr-8"
