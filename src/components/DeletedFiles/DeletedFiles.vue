@@ -7,6 +7,7 @@
         slot="heading"
         class="bf-dataset-breadcrumbs"
       >
+        <!--ANCESTORS AREN'T AVAILABLE TO DELETED FILES. NEED TO TRACK PARENTS OF EACH FILE OR DIRECTORY-->
         <breadcrumb-navigation
           :ancestors="ancestors"
           :file="file"
@@ -475,7 +476,14 @@ Need to reach into packages list instead of pulling stuff from url
   //NOTE: we will  want to make sure that this isnt a flat map
   const options = {method: 'GET', headers: {accept: 'application/json', 'Authorization': `Bearer ${this.userToken}`}};
    console.log('fetching deleted files')
-   fetch(this.getFilesUrl(root_node), options) //this.sendxhr
+   var the_url = ''
+   if (root_node) {
+    deleted_files_url = this.getFilesUrl(root_node) //this.sendxhr
+   }
+   else {
+    deleted_files_url = this.getFilesUrl() //this.sendxhr
+   }
+   fetch(deleted_files_url, options)
      .then(
       //check if syntax error
       //response => response.json(),
