@@ -389,6 +389,8 @@ methods: {
       this.handleXhrError(response)
     })
   },
+
+  /*
   //method moves selection(s) back to the datasets file storage (unmarked as deleted)
   moveBackToFiles: async function() {
       console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
@@ -404,13 +406,13 @@ methods: {
     console.error(error);
   }
 },
-
+*/
     /**
      * method moves selection(s) back to the datasets file storage (unmarked as deleted)
      * @param {String} destination}
      * @param {Array} items
      */
-     moveItems: function (destination, items) {
+     moveBackToFiles: function (destination, items) {
     const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
     const nodeIds = items.map(item => item.content.id)
     const options = {
@@ -433,6 +435,7 @@ fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
   //handler for restore items success
   onRestoreItems: function(response){
   const successItems = propOr([], 'success', response)
+  EventBus.$emit('refreshAfterRestore',true)
   this.removeItems(successItems)
   },
   /**
