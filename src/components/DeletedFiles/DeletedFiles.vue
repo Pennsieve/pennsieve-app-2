@@ -9,7 +9,7 @@
       >
         <!--ANCESTORS AREN'T AVAILABLE TO DELETED FILES. NEED TO TRACK PARENTS OF EACH FILE OR DIRECTORY-->
         <breadcrumb-navigation
-          :ancestors="ancestors"
+          :ancestors="ancestorList"
           :file="file"
           :file-id="$route.params.fileId"
           @navigate-breadcrumb="handleNavigateBreadcrumb"
@@ -133,7 +133,13 @@ mixins: [
 
 data: function(){
   return {
+    file: {
+        content: {
+          name: ''
+        }
+      },
       selectedDeletedFiles: [],
+      sortedDeletedFiles: [],
       files: [],
       isOpen: false,
       tableResultsTotalCount: 0,
@@ -141,7 +147,8 @@ data: function(){
       limit: 10,
       //page: 1,
       //full path, i.e. move destination for 'restore' operation
-      origFilePath: ''
+      origFilePath: '',
+      ancestorList: []
 
   }
 },
@@ -262,7 +269,7 @@ methods: {
    * @param {String} dir
    */
   sortColumn: function (path, dir = '') {
-    this.sortedFiles = this.returnSort(path, this.files, dir)
+    this.sortedDeletedFiles = this.returnSort(path, this.files, dir)
   },
   /**
    * Remove items from files list
@@ -293,8 +300,10 @@ methods: {
    * Handler for clicking file. Allows one to drill down into deleted package
    * @param {Object} file
    */
-  onClickLabelDelete: function (file) {
+  onClickLabelDelete: function (file) {  
     const id = pathOr('', ['content', 'id'], file)
+    //If we click on a file or package, we want to add that file to the ancestors list
+    this.ancestorList.push(id)
     const packageType = pathOr('', ['content', 'packageType'], file)
 
     if (id === '') {
@@ -330,6 +339,11 @@ methods: {
      handleNavigateBreadcrumb: function (id = '') {
       if (id) {
         this.navigateToFile(id)
+        //If we go 
+        let index = this.ancestorList.findIndex(item => item == id);
+        if (index >= 0){
+          this.ancestorList.splice(index, this.ancestorList.length -index);
+        }
       } else {
         this.navigateToDataset()
       }
@@ -463,7 +477,7 @@ Need to reach into packages list instead of pulling stuff from url
 */
  fetchDeletedFunc: function(offset, limit, root_node = undefined) {
   //NOTE: we will  want to make sure that this isnt a flat map
-  const options = {method: 'GET', headers: {accept: 'application/json', Authorization: `${this.userToken}`}};
+  const options = {method: 'GET', headers: {accept: 'application/json', authorization: `Bearer ${this.userToken}`}};
    console.log('fetching deleted files')
    var deleted_files_url = ''
    if (root_node) {
@@ -478,7 +492,7 @@ Need to reach into packages list instead of pulling stuff from url
       //response => response.json(),
       response => {
        this.file = response
-       console.log("RESPONSE OBJECT IS ",this.file)
+       console.log("RESPONSE OBJECT IS ",response)
        this.tableResultsTotalCount = this.file.totalCount
        console.log("TOTAL COUNT IS ", this.tableResultsTotalCount)
        this.files = response.packages.node_id.map(file => {
@@ -490,7 +504,7 @@ Need to reach into packages list instead of pulling stuff from url
          //file.subtype = this.getSubType(file)
          return file
        })
-       this.sortedFiles = this.returnSort('content.name', this.files, this.sortDirection)
+       this.sortedDeletedFiles = this.returnSort('content.name', this.files, this.sortDirection)
        //DISABLE ANCESTORS FOR NOW 
        //this.ancestors = response.ancestors
 
