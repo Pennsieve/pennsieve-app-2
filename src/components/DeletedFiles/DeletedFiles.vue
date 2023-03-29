@@ -147,8 +147,8 @@ data: function(){
 },
 
 mounted: function(){
- EventBus.$on('fetchDeleted', (data) => {
-   this.fetchDeletedFunc(this.offset,this.limit,root_node)
+ EventBus.$on('fetchDeleted', () => {
+   this.fetchDeletedFunc(this.offset,this.limit)
  })
  EventBus.$on('openDeletedModal', (data) => {
    this.isOpen = data;
@@ -197,35 +197,24 @@ computed: {
   multipleSelected: function () {
     return this.selectedDeletedFiles.length > 1
   },
+},
+methods: {
   /**
    * Get files URL for dataset
    * @returns {String}
    */
-  getFilesUrl: function (root_node) {
-    if (this.config.apiUrl && this.userToken) {
+   getFilesUrl: function (root_node) {
+    if (this.config.api2Url && this.userToken) {
       //const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
       const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
       //PAGE BREAKS WHEN BELOW EXECUTES ??
-      return `https://api2.pennsieve.io/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}`
+      return `${this.config.api2Url}/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}`
     }
-    if (this.config.apiUrl && this.userToken && root_node){
+    if (this.config.api2Url && this.userToken && root_node){
       const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
-      return `https://api2.pennsieve.io/datasets/trashcan?dataset_id=${id}&root_node_id=${root_node}&limit=${this.limit}&offset=${this.offset}`
+      return `${this.config.api2Url}/datasets/trashcan?dataset_id=${id}&root_node_id=${root_node}&limit=${this.limit}&offset=${this.offset}`
     }
   },
-},
-watch: {
-
-   /**
-     * Trigger API request when URL is changed
-     */
-     getFilesUrl: function (root_node) {
-      this.fetchDeletedFunc(this.offset,this.limit,root_node)
-    },
-
-},
-methods: {
-
   /**
      * Scroll to file in list
      * @param {String} pkgId
@@ -419,7 +408,7 @@ methods: {
   },
   body: JSON.stringify({nodeIds})
 };
-fetch(`https://api2.pennsieve.io/packages/restore?dataset_id=${id}`, options)
+fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
   .then(response => response.json())
   .then(response => console.log(response))
   //response is {"success": array of strings, "failures": array of objects}
@@ -472,11 +461,11 @@ request limit defaults to 10 and must be < 100. offset defaults to 0
 path field is empty
 Need to reach into packages list instead of pulling stuff from url
 */
- fetchDeletedFunc: function(offset, limit, root_node) {
+ fetchDeletedFunc: function(offset, limit, root_node = undefined) {
   //NOTE: we will  want to make sure that this isnt a flat map
-  const options = {method: 'GET', headers: {accept: 'application/json', 'Authorization': `Bearer ${this.userToken}`}};
+  const options = {method: 'GET', headers: {accept: 'application/json', Authorization: `${this.userToken}`}};
    console.log('fetching deleted files')
-   var the_url = ''
+   var deleted_files_url = ''
    if (root_node) {
     deleted_files_url = this.getFilesUrl(root_node) //this.sendxhr
    }
