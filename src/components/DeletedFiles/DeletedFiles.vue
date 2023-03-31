@@ -78,7 +78,6 @@
       ref="deleteDialog"
       calling-from-deleted
       :selected-files="selectedDeletedFiles"
-      <!-- file-delete-2 -->
       @file-delete="onDelete"
     />
   </div>

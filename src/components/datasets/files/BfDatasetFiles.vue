@@ -41,70 +41,25 @@
       v-loading="isLoading"
       element-loading-background="transparent"
     >
-      <files-table
-        v-if="hasFiles"
-        :data="files"
-        :multiple-selected="multipleSelected"
-        @move="showMove"
-        @delete="showDelete"
-        @process="processFile"
-        @copy-url="getPresignedUrl"
-        @selection-change="setSelectedFiles"
-        @click-file-label="onClickLabel"
-      />
-      <!--
-      <div class="bf-table" v-if="hasFiles">
-        <div class="bf-table-header">
-          <el-row type="flex" align="middle" :gutter="20">
-            <el-col :span="4">
-              <button :class="[ isSorting('content.name') ? 'sort-active' : '']" @click="sortColumn('content.name')">Name<svg-icon class="sort-icon" :name="sortIcon('content.name')" color="currentColor" /></button>
-            </el-col>
+      <div class="file-meta-wrapper">
+        <files-table
+          v-if="hasFiles"
+          :data="files"
+          :multiple-selected="multipleSelected"
+          @move="showMove"
+          @delete="showDelete"
+          @process="processFile"
+          @copy-url="getPresignedUrl"
+          @selection-change="setSelectedFiles"
+          @click-file-label="onClickLabel"
+        />
 
-            <el-col :span="4">
-                <button :class="[ isSorting('state') ? 'sort-active' : '']" @click="sortColumn('state')">Status<svg-icon class="sort-icon" :name="sortIcon('state')" color="currentColor" /></button>
-            </el-col>
+        <file-metadata-info
+          :selectedFiles="selectedFiles"
+        />
 
-            <el-col :span="4">
-              <button :class="[ isSorting('subtype') ? 'sort-active' : '']" @click="sortColumn('subtype')">Kind<svg-icon class="sort-icon" :name="sortIcon('subtype')" color="currentColor" /></button>
-            </el-col>
-
-            <el-col :span="4">
-              <button :class="[ isSorting('storage') ? 'sort-active' : '']" @click="sortColumn('storage')">Size<svg-icon class="sort-icon" :name="sortIcon('storage')" color="currentColor"  /></button>
-            </el-col>
-
-            <el-col :span="4">
-              <button :class="[ isSorting('content.createdAt') ? 'sort-active' : '']" @click="sortColumn('content.createdAt')">Date Created<svg-icon class="sort-icon" :name="sortIcon('content.createdAt')" color="currentColor" /></button>
-            </el-col>
-
-            <el-col :span="4"></el-col>
-          </el-row>
-        </div>
-
-        <div>
-          <div>
-            <bf-file
-              v-for="file in sortedFiles"
-              :key="file.content.id"
-              class="bf-table-row"
-              @click="selectItem"
-              @click-label="onClickLabel"
-              @click-menu="onClickMenu"
-              @delete="showDelete"
-              @open-office-file="showOfficeModal"
-              @move="showMove"
-              @dragstart="_onDragStart"
-              @dragend="_onDragEnd"
-              @drag="_onDrag"
-              @drop="_onDrop"
-              :file="file"
-              :is-selected="_getIsSelected(file)"
-              :multiple-selected="multipleSelected"
-              :interactive="true"
-              data-cy="fileName" />
-          </div>
-        </div>
       </div>
-      -->
+
 
       <bf-empty-page-state
         v-if="!hasFiles && !isLoading"
@@ -195,6 +150,7 @@ import Sorter from '../../../mixins/sorter/index'
 import Request from '../../../mixins/request/index'
 import EventBus from '../../../utils/event-bus'
 import GetFileProperty from '../../../mixins/get-file-property'
+import FileMetadataInfo from './Metadata/FileMetadataInfo.vue'
 import Cookie from 'js-cookie'
 import LockedBanner from '../LockedBanner/LockedBanner';
 
@@ -215,7 +171,8 @@ export default {
     BfUploadMenu,
     FilesTable,
     LockedBanner,
-    DeletedFiles
+    DeletedFiles,
+    FileMetadataInfo
   },
 
   mixins: [
@@ -904,6 +861,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+.file-meta-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
 .bf-dataset-files {
   background: #fff;
   position: relative;
