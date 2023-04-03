@@ -111,6 +111,7 @@
       :row-class-name="getRowClassName"
       @selection-change="handleTableSelectionChange"
       @sort-change="onSortChange"
+      @row-click="onRowClick"
     >
       <el-table-column
         type="selection"
@@ -145,13 +146,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="subtype"
-        label="Kind"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      />
+<!--      <el-table-column-->
+<!--        prop="subtype"-->
+<!--        label="Kind"-->
+<!--        :sortable="!isSearchResults"-->
+<!--        :render-header="renderHeader"-->
+<!--        :sort-orders="sortOrders"-->
+<!--      />-->
 
       <el-table-column
         prop="storage"
@@ -406,6 +407,13 @@ export default {
       }
     },
 
+    onRowClick: function(row,selected){
+      console.log(row)
+      console.log(selected)
+      this.$refs.table.clearSelection()
+      this.$refs.table.toggleRowSelection(row, true)
+    },
+
     /**
      * handle the table header download click
      */
@@ -483,6 +491,8 @@ export default {
 
 .files-table {
   position: relative;
+  flex:1 1 auto;
+  min-width: 0;
 }
 .el-table {
   width: 100%;

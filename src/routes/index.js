@@ -12,6 +12,7 @@ const Login = () => import('./login/Login.vue')
 const Viewer = () => import('../components/viewer/BfViewer/BfViewer.vue')
 const ResetPassword = () => import('./ResetPassword/ResetPassword.vue')
 const DocsLogin = () => import('./DocsLogin/DocsLogin.vue')
+const JupyterLogin = () => import('./JupyterLogin/JupyterLogin.vue')
 const CreateAccount = () => import('./CreateAccount/CreateAccount.vue')
 const CreateOrg = () => import('./CreateOrg/CreateOrg.vue')
 
@@ -772,6 +773,13 @@ const routes = [
       page: Login
     },
     props: true
+  },
+  {
+    name: 'jupyter-login',
+    path: '/jupyter-login',
+    components: {
+      page: JupyterLogin
+    }
   },
   {
     name: 'docs-login',
