@@ -159,6 +159,9 @@
     .grey & {
       background: #f9f9f9;
     }
+    .purple & {
+      background: $purple_tint;
+    }
   }
   h2 {
     font-size: 14px;

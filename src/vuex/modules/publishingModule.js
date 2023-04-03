@@ -59,6 +59,10 @@ const initialState = () => ({
       count: 0,
       datasets: []
     },
+    [PublicationTabs.PROPOSED]: {
+      count: 0,
+      datasets: []
+    },
     publishingSearchParams: publishingSearchParams(),
     isLoadingDatasets: false
 })
@@ -245,6 +249,63 @@ export const actions = {
     }
   },
 
+  getDatasetProposalCount: async ({commit, rootState}, type) => {
+    console.log(`publishingModule::getDatasetProposalCount() type: ${type}`)
+    let url = `${rootState.config.api2Url}/publishing/submission`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: myHeaders,
+      })
+      if (response.ok) {
+        const { totalCount } = await response.json()
+        console.log(`publishingModule::getDatasetProposalCount() totalCount: ${totalCount}`)
+        commit('UPDATE_PUBLISHING_TOTAL_COUNT', { type, count: totalCount })
+      } else {
+        throw new Error(response.statusText)
+      }
+    } catch (err) {
+      EventBus.$emit('ajaxError', err)
+    }
+  },
+
+  fetchDatasetProposals: async ({state, commit, rootState}) => {
+    console.log("publishingModule::fetchDatasetProposals()")
+    // const publicationStatus = PublicationTabsStatuses[rootState.route.name]
+    // if(!publicationStatus) {
+    //   return
+    // }
+    // console.log(`publishingModule::fetchDatasetProposals() publicationStatus: ${publicationStatus}`)
+    let url = `${rootState.config.api2Url}/publishing/submission`
+    const apiKey = rootState.userToken || Cookies.get('user_token')
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + apiKey)
+    myHeaders.append('Accept', 'application/json')
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: myHeaders,
+      })
+      if (response.ok) {
+        const { proposals, totalCount } = await response.json()
+        commit('UPDATE_PUBLISHING_SEARCH_TOTAL_COUNT', totalCount);
+        console.log("publishingModule::fetchDatasetProposals() proposals:")
+        console.log(proposals)
+        commit('UPDATE_DATASETS', { type: rootState.route.name, datasets: proposals });
+        commit('UPDATE_IS_LOADING_DATASETS', false);
+
+      } else {
+        throw new Error(response.statusText)
+      }
+    } catch (err) {
+      EventBus.$emit('ajaxError', err)
+    }
+  },
+
   refreshPublishingData: ({ dispatch }, status) => {
     const actions = StatusActions[status]
 
@@ -258,7 +319,10 @@ export const actions = {
 
 export const getters = {
   getTotalCount: state => (type) => {
-    return state[type].count || 0
+    if (state[type]) {
+      return state[type].count || 0
+    }
+    return 0
   },
   getDatasets: state => (type) => {
     return state[type].datasets

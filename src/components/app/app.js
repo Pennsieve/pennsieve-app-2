@@ -39,7 +39,7 @@ export default {
     BfUploadExternalFile,
     SearchAllData,
     Office365Dialog,
-    LinkOrcidDialog
+    LinkOrcidDialog,
   },
 
   mixins: [
@@ -72,6 +72,7 @@ export default {
     ...mapState('datasetModule', [
       'datasetSearchParams'
     ]),
+
     ...mapGetters([
       'activeOrganization',
       'getActiveOrganization',

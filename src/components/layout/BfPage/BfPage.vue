@@ -3,7 +3,7 @@
     class="bf-page"
     :class="[condensed ? 'condensed' : '']"
   >
-    <sandbox-organization-banner />
+<!--    <sandbox-organization-banner />-->
     <slot name="banner" />
     <slot name="heading" />
     <slot name="stage" />

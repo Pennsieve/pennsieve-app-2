@@ -1,6 +1,6 @@
 <template>
   <div class="bf-navigation-tertiary">
-    <search-menu v-if="!pageNotFound && !isWorkspaceGuest" />
+    <search-menu v-if="!(pageNotFound || isWelcomeOrg) && !isWorkspaceGuest" />
     <help-menu />
     <user-menu />
   </div>
@@ -24,7 +24,9 @@
 
     computed: {
       ...mapGetters([
-        'hasFeature'
+        'hasFeature',
+        'isWelcomeOrg'
+
       ]),
 
       ...mapState([

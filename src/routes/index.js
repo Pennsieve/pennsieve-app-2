@@ -38,6 +38,7 @@ const PeopleList = () => import('../components/people/list/PeopleList.vue')
  */
 const Publishing = () => import('@/routes/Publishing/PublishingView.vue')
 const PublishingDatasetsList = () => import ('@/components/Publishing/PublishingDatasetsList/PublishingDatasetsList.vue')
+const PublishingProposalsList = () => import ('@/components/Publishing/PublishingProposalsList/PublishingProposalsList.vue')
 
 /**
  * Integrations Components
@@ -111,7 +112,76 @@ const Bf404 = () => import('../components/Bf-404/Bf-404.vue')
 const ORCIDRedirect = () => import('../components/ORCID/ORCIDRedirect.vue')
 const ORCID = () => import('../components/ORCID/ORCID.vue')
 
+/**
+ * WelcomeOrg
+ */
+const WelcomePage = () => import('./welcomePage/WelcomePage.vue')
+const SubmitDatastPage = () => import('./welcomePage/SubmitDatasetPage.vue')
+
+const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
+const SubmitDatasets = () => import('../components/welcome/SubmitDatasets.vue')
+const PennsieveInfo = () => import('../components/welcome/Info.vue')
+
+
+
+
+
 const routes = [
+
+  /**
+   * Welcome Org routes
+   */
+  {
+    path: '/:orgId/welcome',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'welcome',
+        path: '',
+        components: {
+          stage: WelcomeInfo
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/submit',
+    components: {
+      page: SubmitDatastPage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'submit',
+        path: '',
+        components: {
+          stage: SubmitDatasets
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/info',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'info',
+        path: '',
+        components: {
+          stage: PennsieveInfo
+        }
+      },
+    ],
+  },
 
   /**
    * Datasets routes
@@ -531,6 +601,18 @@ const routes = [
         props: {
           stage: {
             publicationStatus: [PublicationStatus.REJECTED],
+          }
+        }
+      },
+      {
+        name: PublicationTabs.PROPOSED,
+        path: PublicationTabs.PROPOSED,
+        components: {
+          stage: PublishingProposalsList
+        },
+        props: {
+          stage: {
+            publicationStatus: [PublicationStatus.PROPOSED],
           }
         }
       }
