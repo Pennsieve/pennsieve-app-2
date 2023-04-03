@@ -146,13 +146,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="subtype"
-        label="Kind"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      />
+<!--      <el-table-column-->
+<!--        prop="subtype"-->
+<!--        label="Kind"-->
+<!--        :sortable="!isSearchResults"-->
+<!--        :render-header="renderHeader"-->
+<!--        :sort-orders="sortOrders"-->
+<!--      />-->
 
       <el-table-column
         prop="storage"

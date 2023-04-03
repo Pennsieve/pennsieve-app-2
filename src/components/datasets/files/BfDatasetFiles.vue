@@ -56,6 +56,8 @@
 
         <file-metadata-info
           :selectedFiles="selectedFiles"
+          :ancestors="ancestors"
+          :folderName="file.content.name"
         />
 
       </div>

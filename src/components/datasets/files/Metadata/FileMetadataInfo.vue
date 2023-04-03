@@ -28,12 +28,15 @@
           <div class="value">{{getFileInfo.CreatedAt}}</div>
         </div>
         <div class="key-value">
-          <div class="label">Owner:</div>
-          <div class="value">{{getFileInfo.CreatedBy}}</div>
-        </div>
-        <div class="key-value">
           <div class="label">Id:</div>
           <div class="value">{{getFileInfo.PackageId}}</div>
+          <svg-icon
+            icon="icon-annotation"
+            class="copy-clipboard"
+            width="24"
+            height="24"
+            @click="copyPackageIdToClipboard"
+          />
         </div>
       </div>
       <div class="record-info"
@@ -41,7 +44,21 @@
            :key="item.id">
 
         <div class="record-header">
-          {{ item.model }}
+          <div>
+            {{ item.model }}
+          </div>
+          <el-popover
+            placement="top-start"
+            title="Information"
+            width="260"
+            trigger="hover"
+            :content="getMessage(item.origin.node_id, item.model)">
+              <svg-icon slot="reference"
+                        icon="icon-info"
+                        width="14"
+                        height="14"
+              />
+          </el-popover>
         </div>
 
         <div class="record-props"
@@ -63,6 +80,8 @@
 
       </div>
 
+
+
     </template>
 
 
@@ -70,7 +89,17 @@
 </template>
 
 <script>
+import EventBus from "../../../../utils/event-bus";
 import { mapGetters,mapActions, mapState } from 'vuex'
+import BfStorageMetrics from '../../../../mixins/bf-storage-metrics';
+import FormatDate from '../../../../mixins/format-date'
+import {
+  compose,
+  map,
+  join,
+  prepend,
+  reverse,
+} from 'ramda'
 
 
 
@@ -81,6 +110,8 @@ export default {
   },
 
   mixins: [
+    BfStorageMetrics,
+    FormatDate
   ],
 
   props: {
@@ -88,6 +119,14 @@ export default {
       type: Array,
       default: () => []
     },
+    ancestors: {
+      type: Array,
+      default: () => []
+    },
+    folderName: {
+      type: String,
+      default: () => ""
+    }
   },
 
   data: function () {
@@ -103,6 +142,22 @@ export default {
       'curPackageMetaData',
     ]),
 
+    fileLocation: function() {
+      const ancestors = this.ancestors
+
+      const path = compose(
+        join('/'),
+        prepend('Files'),
+        map(ancestor => {
+          return ancestor.content.name
+        }),
+        reverse()
+      )(ancestors)
+
+
+
+      return path + "/" + this.folderName
+    },
 
     noDetailsMessage: function() {
       if (this.selectedFiles.length == 0) {
@@ -119,11 +174,10 @@ export default {
         console.log(this.selectedFiles[0].content.name)
         let result =  {
           'Name': this.selectedFiles[0].content.name,
-          'Size': this.selectedFiles[0].storage,
-          'Where': "unknown",
+          'Size': this.formatMetric(this.selectedFiles[0].storage),
+          'Where': this.fileLocation,
           'Kind': this.selectedFiles[0].subtype,
-          'CreatedAt': this.selectedFiles[0].content.createdAt,
-          'CreatedBy':this.selectedFiles[0].content.ownerId,
+          'CreatedAt': this.formatDate(this.selectedFiles[0].content.createdAt),
           'PackageId': this.selectedFiles[0].content.nodeId,
         }
         console.log(result)
@@ -164,6 +218,41 @@ export default {
     ...mapActions('filesModule', [
       'fetchMetadataForPackage',
     ]),
+    getMessage(itemId, modelName) {
+      // Get Folder Name
+      var fName = ""
+
+      if (this.selectedFiles[0].content.nodeId == itemId) {
+        if (modelName == this.curPackageMetaData[0].model) {
+          fName = "the selected file is directly associated with the"
+        } else {
+          fName = "the selected file is associated with a record hierarchically linked to "
+        }
+      } else {
+        for (let i = 0; i < this.ancestors.length; i++) {
+          if (this.ancestors[i].content.nodeId == itemId) {
+            fName = "the folder with name '" + this.ancestors[i].content.name + "' is associated with the"
+            break
+          }
+        }
+      }
+
+
+
+
+      return "You are seeing this because " + fName + modelName +" record."
+
+      // return "You are seeing this metadata record because the folder '/d/ad//asd' is associated with the hopsital record."
+    },
+    copyPackageIdToClipboard(evt) {
+      this.$clipboard(this.selectedFiles[0].content.nodeId)
+      EventBus.$emit('toast', {
+        detail: {
+          type: 'success',
+          msg: 'The package ID was copied to the clipboard'
+        }
+      })
+    }
   }
 }
 </script>
@@ -174,10 +263,11 @@ export default {
 
 .file-meta-data-info {
   border: 1px solid $gray_2;
-  width: 300px;
   margin-left: 16px;
   border-radius: 4px;
-  flex: 0 0 280px;
+  flex: 0 0 260px;
+  max-width: 260px;
+  overflow-wrap: anywhere;
 }
 
 .header {
@@ -197,9 +287,9 @@ export default {
   .record-header {
     color: $purple_1;
     background: none;
-    //margin: 0 8px;
-    //padding: 8px;
-    //padding-left: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     border-bottom: 1px solid $gray_2;
   }
 
@@ -217,13 +307,15 @@ export default {
       }
     }
   }
-
-
-
 }
 
+.copy-clipboard {
+  align-self: center;
+  color: $purple_1;
+  cursor: pointer;
+}
 .file-info {
-  margin: 4px 4px;
+  margin: 4px 8px 4px 4px;
 
   .simple-message {
     padding: 8px;
