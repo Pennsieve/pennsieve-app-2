@@ -104,6 +104,7 @@
 
     &.primary {
       background: $gray_1;
+      margin-top: 24px;
 
       &.white {
         background: white;
