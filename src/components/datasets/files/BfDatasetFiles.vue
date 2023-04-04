@@ -350,8 +350,7 @@ export default {
       var temp = data;
       this.fetchFiles()
     })
-    EventBus.$on('refreshAfterRestore', (data) => {
-      var temp = data;
+    EventBus.$on('refreshAfterRestore', () => {
       this.fetchFiles()
     })
   },

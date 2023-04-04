@@ -8,7 +8,7 @@
         id="check-all"
         v-model="checkAll"
         :indeterminate="isIndeterminate"
-        @change="onCheckAllChange"x
+        @change="onCheckAllChange"
       />
 
       <span id="selection-count-label">
@@ -167,7 +167,22 @@
         </template>
       </el-table-column>
 
-      <el-table-column
+      <template v-if='withinDeleteMenu'>
+        <!--<el-table-column
+          prop="content.createdAt"
+          label="Date Deleted"
+          width="180"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        >
+          <template slot-scope="scope">
+            {{ formatDate(scope.row.content.updatedAt) }}
+          </template>
+        </el-table-column>-->
+      </template>
+      <template v-else>
+        <el-table-column
         prop="content.createdAt"
         label="Date Created"
         width="180"
@@ -179,21 +194,6 @@
           {{ formatDate(scope.row.content.createdAt) }}
         </template>
       </el-table-column>
-      <template v-if='withinDeleteMenu'>
-        <el-table-column
-          prop="content.createdAt"
-          label="Date Deleted"
-          width="180"
-          :sortable="!isSearchResults"
-          :render-header="renderHeader"
-          :sort-orders="sortOrders"
-        >
-          <template slot-scope="scope">
-            {{ formatDate(scope.row.content.updatedAt) }}
-          </template>
-        </el-table-column>
-      </template>
-      <template v-else>
       </template>
       <el-table-column
         label=""

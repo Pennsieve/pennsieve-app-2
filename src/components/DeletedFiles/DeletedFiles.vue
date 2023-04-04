@@ -102,6 +102,7 @@
 import EventBus from '../../utils/event-bus'
 import BfButton from '../shared/bf-button/BfButton.vue'
 import BfDialog from '../shared/bf-dialog/bf-dialog.vue'
+import BfRafter from '../shared/bf-rafter/BfRafter.vue'
 import BfMoveDialog from '../datasets/files/bf-move-dialog/BfMoveDialog.vue'
 import BreadcrumbNavigation from '../datasets/files/BreadcrumbNavigation/BreadcrumbNavigation.vue'
 import BfEmptyPageState from '../shared/bf-empty-page-state/BfEmptyPageState.vue'
@@ -112,7 +113,7 @@ import GetFileProperty from '../../mixins/get-file-property';
 import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
 import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu.vue'
 import { mapGetters } from 'vuex';
-import { pathOr } from 'ramda';
+import { pathOr, propOr } from 'ramda';
 export default {
 name: 'DeletedFiles',
 components: {
@@ -121,8 +122,10 @@ components: {
   FilesTable,
   BfEmptyPageState,
   BfMoveDialog,
+  BfRafter,
   BreadcrumbNavigation,
-  BfDeleteDialog
+  BfDeleteDialog,
+  PaginationPageMenu
 },
 
 mixins: [
@@ -133,7 +136,7 @@ mixins: [
 
 data: function(){
   return {
-    file: {
+      file: {
         content: {
           name: ''
         }
@@ -261,7 +264,7 @@ methods: {
   resetSelectedFiles: function () {
     this.selectedDeletedFiles = []
     this.lastSelectedFile = {}
-    this.fetchDeletedFunc(this.offset,this.limit,root_node)
+    this.fetchDeletedFunc(this.offset,this.limit)
   },
   /**
    * Sort table by column
@@ -277,10 +280,13 @@ methods: {
    */
   removeItems: function (items) {
     // Remove all successfully deleted files
-    for (let i = 0; i < items.length; i++) {
-      const fileIndex = findIndex(pathEq(['content', 'id'], items[i]), this.files)
-      this.files.splice(fileIndex, 1)
-    }
+    this.files.filter((value, index, arr) => {
+      const file_node_id = propOr('', 'node_id', value)
+      const item_file = items.find(item => item == file_node_id)
+      if (item_file) {
+        arr.splice(index, 1)
+      }
+    })
 
     // Resort files
     this.sortColumn(this.sortBy, this.sortDirection)
@@ -407,36 +413,42 @@ methods: {
   }
 },
 */
-    /**
-     * method moves selection(s) back to the datasets file storage (unmarked as deleted)
-     * @param {String} destination}
-     * @param {Array} items
-     */
-     moveBackToFiles: function (destination, items) {
+  /**
+   * method moves selection(s) back to the datasets file storage (unmarked as deleted)
+   * @param {String} destination}
+   * @param {Array} items
+   */
+  moveBackToFiles: function () {
     const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
-    const nodeIds = items.map(item => item.content.id)
+    const nodeIds = this.selectedDeletedFiles.map(item => item.node_id)
     const options = {
-    method: 'POST',
-    headers: {
-    accept: 'application/json',
-    'content-type': 'application/json',
-    Authorization:  `Bearer ${this.userToken}`
-  },
-  body: JSON.stringify({nodeIds})
-};
-fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
-  .then(response => response.json())
-  .then(response => console.log(response))
-  //response is {"success": array of strings, "failures": array of objects}
-  .then(onRestoreItems(response))
-  .catch(err => console.error(err));
+        method: 'POST',
+        headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        Authorization:  `Bearer ${this.userToken}`
+      },
+      body: JSON.stringify({nodeIds})
+    }
+    fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
+      .then(response => {
+        if (response.ok) {
+          this.onRestoreItems(response.json())
+        } else {
+          throw response
+        }
+      })
+      .catch(err => console.error(err))
   },
 
   //handler for restore items success
-  onRestoreItems: function(response){
-  const successItems = propOr([], 'success', response)
-  EventBus.$emit('refreshAfterRestore',true)
-  this.removeItems(successItems)
+  onRestoreItems: async function(response){
+    const data = await response
+    console.log("ON RESTORE ITEMS = ", data)
+    const successItems = propOr([], 'success', data)
+    console.log("SUCCESS ITEMS = ", successItems)
+    EventBus.$emit('refreshAfterRestore')
+    this.removeItems(successItems)
   },
   /**
    * Set selected files
@@ -490,11 +502,28 @@ Need to reach into packages list instead of pulling stuff from url
     deleted_files_url = this.getFilesUrl() //this.sendxhr
    }
    fetch(deleted_files_url, options)
-     .then(
-      //check if syntax error
-      //response => response.json(),
-      response => {
-       this.file = response
+     .then(response => {
+      if (response.ok) {
+        response.json().then(data => {
+          console.log("Data = ", data)
+          const packages = data.packages
+          console.log("PACKAGES = ", packages)
+          packages.forEach(file => {
+            if (file.state == 'DELETED') {
+              this.files.push({
+                ...file,
+                'content': {
+                  'packageType': file.type,
+                  'name': file.name
+                }
+              })
+            }
+          })
+        })
+      } else {
+        throw response
+      }
+       /*this.file = response
        console.log("RESPONSE OBJECT IS ",response)
        this.tableResultsTotalCount = this.file.totalCount
        console.log("TOTAL COUNT IS ", this.tableResultsTotalCount)
@@ -506,7 +535,7 @@ Need to reach into packages list instead of pulling stuff from url
          //file.icon = file.icon || this.getFilePropertyVal(file.properties, 'icon')
          //file.subtype = this.getSubType(file)
          return file
-       })
+       })*/
        this.sortedDeletedFiles = this.returnSort('content.name', this.files, this.sortDirection)
        //DISABLE ANCESTORS FOR NOW 
        //this.ancestors = response.ancestors
