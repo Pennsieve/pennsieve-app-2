@@ -37,6 +37,7 @@
     </bf-rafter>
 
     <bf-stage
+      class="bf-stage-file"
       slot="stage"
       v-loading="isLoading"
       element-loading-background="transparent"
@@ -57,7 +58,7 @@
         <file-metadata-info
           :selectedFiles="selectedFiles"
           :ancestors="ancestors"
-          :folderName="file.content.name"
+          :folder="file"
         />
 
       </div>
@@ -863,6 +864,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+/deep/ .bf-stage-content {
+  display: flex;
+  flex-direction: row;
+}
 
 .file-meta-wrapper {
   position: relative;

@@ -5,7 +5,7 @@
         Details
     </div>
 
-    <template v-if="singleFileSelected">
+    <template v-if="showFileFolderInfo">
       <div class="file-info">
         <div class="key-value">
           <div class="label">Name:</div>
@@ -33,8 +33,8 @@
           <svg-icon
             icon="icon-annotation"
             class="copy-clipboard"
-            width="24"
-            height="24"
+            width="28"
+            height="28"
             @click="copyPackageIdToClipboard"
           />
         </div>
@@ -72,6 +72,7 @@
         </div>
       </div>
     </template>
+
     <template v-else>
       <div class="file-info">
         <div class="simple-message">
@@ -123,9 +124,9 @@ export default {
       type: Array,
       default: () => []
     },
-    folderName: {
-      type: String,
-      default: () => ""
+    folder: {
+      type: Object,
+      default: () => {}
     }
   },
 
@@ -143,7 +144,7 @@ export default {
     ]),
 
     fileLocation: function() {
-      const ancestors = this.ancestors
+      const ancestors = this.folder.ancestors
 
       const path = compose(
         join('/'),
@@ -156,7 +157,7 @@ export default {
 
 
 
-      return path + "/" + this.folderName
+      return path + "/" + this.folder.content.name
     },
 
     noDetailsMessage: function() {
@@ -166,13 +167,26 @@ export default {
         return this.selectedFiles.length + " files selected"
       }
     },
-    singleFileSelected: function() {
-      return this.selectedFiles.length == 1
+    showFileFolderInfo: function() {
+      return this.selectedFiles.length == 1 || this.selectedFiles.length == 0
+    },
+    getFolderInfo: function(){
+      console.log(this.selectedFiles[0].content.name)
+      let result =  {
+        'Name': this.folder.content.name,
+        'Size': this.formatMetric(this.folder.storage),
+        'Where': this.fileLocation,
+        'Kind': this.folder.subtype,
+        'CreatedAt': this.formatDate(this.folder.content.createdAt),
+        'PackageId': this.folder.content.nodeId,
+      }
+      return result
     },
     getFileInfo: function () {
+      let result
       if(this.selectedFiles.length == 1) {
         console.log(this.selectedFiles[0].content.name)
-        let result =  {
+        result =  {
           'Name': this.selectedFiles[0].content.name,
           'Size': this.formatMetric(this.selectedFiles[0].storage),
           'Where': this.fileLocation,
@@ -180,15 +194,21 @@ export default {
           'CreatedAt': this.formatDate(this.selectedFiles[0].content.createdAt),
           'PackageId': this.selectedFiles[0].content.nodeId,
         }
-        console.log(result)
-
         return result
       }
-      else {
+      else if(this.selectedFiles.length == 0){
+        result =  {
+          'Name': this.folder.content.name,
+          'Size': this.formatMetric(this.folder.storage),
+          'Where': this.fileLocation,
+          'Kind': "Folder",
+          'CreatedAt': this.formatDate(this.folder.content.createdAt),
+          'PackageId': this.folder.content.nodeId,
+        }
+        return result
+      } else {
         return {}
       }
-
-
 
     },
   },
@@ -197,12 +217,11 @@ export default {
     selectedFiles(newSelectedFiles, oldQuestion) {
       if (newSelectedFiles.length == 1 ){
         this.fetchMetadataForPackage(newSelectedFiles[0].content.nodeId)
+      } else if (newSelectedFiles.length == 0 ){
+        this.fetchMetadataForPackage(this.folder.content.id)
       }
 
     },
-    // curPackageMetaData(newMetadata) {
-    //   console.log("New Metadata")
-    // }
   },
 
   mounted: function () {
@@ -221,26 +240,31 @@ export default {
     getMessage(itemId, modelName) {
       // Get Folder Name
       var fName = ""
+      var curNodeId = ""
+      if (this.singleFileSelected) {
+        curNodeId = this.selectedFiles[0].content.nodeId
+      } else {
+        curNodeId = this.folder.content.id
+      }
 
-      if (this.selectedFiles[0].content.nodeId == itemId) {
+      if (curNodeId == itemId) {
         if (modelName == this.curPackageMetaData[0].model) {
-          fName = "the selected file is directly associated with the"
+          fName = "the selected file is directly associated with the '" + modelName + "' record."
         } else {
-          fName = "the selected file is associated with a record hierarchically linked to "
+          fName = "the selected file is associated with a record which is has the '" + modelName + "' record as its parent."
         }
+      } else if (this.folder.content.id == itemId) {
+        fName = "the current folder is directly associated with the '" + modelName + "' record."
       } else {
         for (let i = 0; i < this.ancestors.length; i++) {
           if (this.ancestors[i].content.nodeId == itemId) {
-            fName = "the folder with name '" + this.ancestors[i].content.name + "' is associated with the"
+            fName = "the parent folder '" + this.ancestors[i].content.name + "' is associated with the '" + modelName + "' record."
             break
           }
         }
       }
 
-
-
-
-      return "You are seeing this because " + fName + modelName +" record."
+      return "You are seeing this because " + fName
 
       // return "You are seeing this metadata record because the folder '/d/ad//asd' is associated with the hopsital record."
     },
@@ -315,7 +339,7 @@ export default {
   cursor: pointer;
 }
 .file-info {
-  margin: 4px 8px 4px 4px;
+  margin: 4px 8px 24px 4px;
 
   .simple-message {
     padding: 8px;

@@ -268,7 +268,7 @@ import BfButton from '../bf-button/BfButton.vue'
       datasetNameTruncated: false,
       datasetname: '',
       datasetFilterOpen: false,
-      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings']
+      datasetPageList: ['collection-files', 'records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings']
     }
   }
 

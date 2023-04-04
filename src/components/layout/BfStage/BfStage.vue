@@ -77,6 +77,8 @@
     box-sizing: border-box;
     min-height: 100%;
     padding: 32px;
+    display: flex;
+    flex-direction: column;
   }
   .graph-management {
     .bf-stage-content {

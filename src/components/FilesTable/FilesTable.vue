@@ -493,12 +493,25 @@ export default {
   position: relative;
   flex:1 1 auto;
   min-width: 0;
+  border: 1px solid $gray_2;
+  border-radius: 4px;
 }
 .el-table {
   width: 100%;
 }
+
+.el-table--border /deep/ {
+  border: none
+}
+
 .el-table--border /deep/ td {
+  //border: none;
   border-right: 1px solid transparent;
+}
+
+.el-table--border /deep/ tr {
+  border: none;
+  //border-right: 1px solid transparent;
 }
 
 /deep/ .btn-open-file {
