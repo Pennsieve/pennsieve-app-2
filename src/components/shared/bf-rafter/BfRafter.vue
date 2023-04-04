@@ -236,10 +236,13 @@
     }
   }
   .bf-rafter-buttons {
+    align-self: end;
+
     .buttons {
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
+
     }
     .bf-button {
       margin-left: 8px !important;

@@ -200,6 +200,9 @@ export default {
     showDatasetInfo: function() {
       return this.folder.content.packageType && this.folder.content.packageType =="DataSet"
     },
+    singleFileSelected: function() {
+      return this.selectedFiles.length == 1
+    },
     showFileFolderInfo: function() {
       return (this.selectedFiles.length == 1 || this.selectedFiles.length == 0) && this.folder.content.packageType && this.folder.content.packageType !="DataSet"
     },

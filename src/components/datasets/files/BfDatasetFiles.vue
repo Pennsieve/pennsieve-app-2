@@ -3,7 +3,7 @@
     <locked-banner
       slot="banner"
     />
-    <bf-rafter slot="heading">
+    <bf-rafter slot="heading"  title="Files">
       <div
         slot="heading"
         class="bf-dataset-breadcrumbs"
