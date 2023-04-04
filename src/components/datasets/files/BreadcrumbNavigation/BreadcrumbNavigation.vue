@@ -105,6 +105,10 @@ export default {
   margin: 0;
   white-space: nowrap;
 
+  .el-dropdown {
+    color:white;
+  }
+
   .breadcrumb-menu {
     max-width: 256px;
     .el-dropdown-menu__item {
@@ -119,7 +123,7 @@ export default {
   }
   .collection-name {
     align-items: center;
-    color: $text-color;
+    color: white;
     outline: none;
     overflow: hidden;
     text-overflow: ellipsis;

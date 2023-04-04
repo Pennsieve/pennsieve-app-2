@@ -3,7 +3,7 @@
     <locked-banner
       slot="banner"
     />
-    <bf-rafter slot="heading">
+    <bf-rafter slot="heading" class="primary white">
       <h1
         slot="heading"
         class="flex-heading"

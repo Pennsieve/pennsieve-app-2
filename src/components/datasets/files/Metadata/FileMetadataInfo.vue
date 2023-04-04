@@ -73,6 +73,33 @@
       </div>
     </template>
 
+    <template v-else-if="showDatasetInfo">
+      <div class="key-value">
+        <div class="label">Name:</div>
+        <div class="value">{{getDatasetInfo.Name}}</div>
+      </div>
+      <div class="key-value">
+        <div class="label">Size:</div>
+        <div class="value">{{getDatasetInfo.Size}}</div>
+      </div>
+      <div class="key-value">
+        <div class="label">Where:</div>
+        <div class="value">{{getDatasetInfo.Where}}</div>
+      </div>
+      <div class="key-value">
+        <div class="label">Kind:</div>
+        <div class="value">{{getDatasetInfo.Kind}}</div>
+      </div>
+      <div class="key-value">
+        <div class="label">Created:</div>
+        <div class="value">{{getDatasetInfo.CreatedAt}}</div>
+      </div>
+
+      <div class="dataset-info">
+        This is the root folder of the '{{folder.content.name}}' dataset.
+      </div>
+    </template>
+
     <template v-else>
       <div class="file-info">
         <div class="simple-message">
@@ -145,47 +172,51 @@ export default {
 
     fileLocation: function() {
       const ancestors = this.folder.ancestors
-
-      const path = compose(
-        join('/'),
-        prepend('Files'),
-        map(ancestor => {
-          return ancestor.content.name
-        }),
-        reverse()
-      )(ancestors)
-
-
+      let path
+      if (this.folder.ancestors && ancestors.length > 0) {
+        path = compose(
+          join('/'),
+          prepend('Files'),
+          map(ancestor => {
+            return ancestor.content.name
+          }),
+          reverse()
+        )(ancestors)
+      }
 
       return path + "/" + this.folder.content.name
     },
 
     noDetailsMessage: function() {
       if (this.selectedFiles.length == 0) {
+        if (this.folder.content.packageType && this.folder.content.packageType =="DataSet") {
+          return "This is the root folder of the dataset"
+        }
         return "No files selected"
       } else if (this.selectedFiles.length > 1) {
         return this.selectedFiles.length + " files selected"
       }
     },
-    showFileFolderInfo: function() {
-      return this.selectedFiles.length == 1 || this.selectedFiles.length == 0
+    showDatasetInfo: function() {
+      return this.folder.content.packageType && this.folder.content.packageType =="DataSet"
     },
-    getFolderInfo: function(){
-      console.log(this.selectedFiles[0].content.name)
-      let result =  {
-        'Name': this.folder.content.name,
-        'Size': this.formatMetric(this.folder.storage),
-        'Where': this.fileLocation,
-        'Kind': this.folder.subtype,
-        'CreatedAt': this.formatDate(this.folder.content.createdAt),
-        'PackageId': this.folder.content.nodeId,
+    showFileFolderInfo: function() {
+      return (this.selectedFiles.length == 1 || this.selectedFiles.length == 0) && this.folder.content.packageType && this.folder.content.packageType !="DataSet"
+    },
+    getDatasetInfo: function() {
+      if (this.folder.content.packageType && this.folder.content.packageType =="DataSet") {
+        return {
+          'Name': "/",
+          'Size': this.formatMetric(this.folder.storage),
+          'Where': "/",
+          'Kind': "Folder",
+          'CreatedAt': this.formatDate(this.folder.content.createdAt),
+        }
       }
-      return result
     },
     getFileInfo: function () {
       let result
       if(this.selectedFiles.length == 1) {
-        console.log(this.selectedFiles[0].content.name)
         result =  {
           'Name': this.selectedFiles[0].content.name,
           'Size': this.formatMetric(this.selectedFiles[0].storage),
@@ -197,13 +228,24 @@ export default {
         return result
       }
       else if(this.selectedFiles.length == 0){
-        result =  {
-          'Name': this.folder.content.name,
-          'Size': this.formatMetric(this.folder.storage),
-          'Where': this.fileLocation,
-          'Kind': "Folder",
-          'CreatedAt': this.formatDate(this.folder.content.createdAt),
-          'PackageId': this.folder.content.nodeId,
+        if (this.folder.content.name != "") {
+          result =  {
+            'Name': this.folder.content.name,
+            'Size': this.formatMetric(this.folder.storage),
+            'Where': this.fileLocation,
+            'Kind': "Folder",
+            'CreatedAt': this.formatDate(this.folder.content.createdAt),
+            'PackageId': this.folder.content.nodeId,
+          }
+        } else {
+          result =  {
+            'Name': "/",
+            'Size': "",
+            'Where': "/",
+            'Kind': "Folder",
+            'CreatedAt': "",
+            'PackageId': "",
+          }
         }
         return result
       } else {
@@ -284,6 +326,10 @@ export default {
 <style scoped lang="scss">
 @import '../../../../assets/_variables.scss';
 
+.dataset-info {
+  margin: 8px;
+  font-size: 12px;
+}
 
 .file-meta-data-info {
   border: 1px solid $gray_2;

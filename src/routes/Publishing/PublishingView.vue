@@ -3,13 +3,14 @@
     <bf-rafter
       slot="heading"
       title="Publishing"
+      class="primary"
     >
       <div
         slot="buttons"
         class="buttons"
       >
         <bf-button
-          class="secondary"
+          class="primary"
           @click="$router.push(publisherTeamRoute)"
         >
           {{ activeOrganization.isAdmin ? 'Manage Publishers' : 'View Publishers' }}

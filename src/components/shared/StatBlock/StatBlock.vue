@@ -19,7 +19,7 @@
 </script>
 <style lang="scss" scoped>
   .stat {
-    color: #000;
+    color: white;
     font-weight: 500;
     font-size: 64px;
     margin: 0 0 16px;

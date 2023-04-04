@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       title="People"
+      class="primary"
     >
       <div
         slot="description"
