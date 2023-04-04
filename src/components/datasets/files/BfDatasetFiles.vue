@@ -42,29 +42,7 @@
       v-loading="isLoading"
       element-loading-background="transparent"
     >
-      <div class="file-meta-wrapper">
-        <files-table
-          v-if="hasFiles"
-          :data="files"
-          :multiple-selected="multipleSelected"
-          @move="showMove"
-          @delete="showDelete"
-          @process="processFile"
-          @copy-url="getPresignedUrl"
-          @selection-change="setSelectedFiles"
-          @click-file-label="onClickLabel"
-        />
-
-        <file-metadata-info
-          :selectedFiles="selectedFiles"
-          :ancestors="ancestors"
-          :folder="file"
-        />
-
-      </div>
-
-
-      <bf-empty-page-state
+    <bf-empty-page-state
         v-if="!hasFiles && !isLoading"
         class="bf-files-empty-state"
       >
@@ -83,6 +61,24 @@
           <h2>This folder is empty.</h2>
         </template>
       </bf-empty-page-state>
+      <files-table
+          v-if="hasFiles"
+          :data="files"
+          :multiple-selected="multipleSelected"
+          @move="showMove"
+          @delete="showDelete"
+          @process="processFile"
+          @copy-url="getPresignedUrl"
+          @selection-change="setSelectedFiles"
+          @click-file-label="onClickLabel"
+        />
+
+        <file-metadata-info
+          :selectedFiles="selectedFiles"
+          :ancestors="ancestors"
+          :folder="file"
+        />
+
     </bf-stage>
 
     <bf-package-dialog
@@ -872,7 +868,6 @@ export default {
 
 .file-meta-wrapper {
   position: relative;
-  width: 100%;
   display: flex;
   flex-direction: row;
 }
