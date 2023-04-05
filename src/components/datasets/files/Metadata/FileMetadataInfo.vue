@@ -172,11 +172,14 @@ export default {
 
     fileLocation: function() {
       const ancestors = this.folder.ancestors
-      let path
+      const rootNode = 'Files'
+
+      window.relatives = ancestors
+      let path = rootNode
       if (this.folder.ancestors && ancestors.length > 0) {
         path = compose(
           join('/'),
-          prepend('Files'),
+          prepend(rootNode),
           map(ancestor => {
             return ancestor.content.name
           }),
