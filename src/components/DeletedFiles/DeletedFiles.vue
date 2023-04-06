@@ -15,7 +15,6 @@
         class="bf-upload-body"
       >
       <div class="bf-dataset-breadcrumbs">
-        <!--ANCESTORS AREN'T AVAILABLE TO DELETED FILES. NEED TO TRACK PARENTS OF EACH FILE OR DIRECTORY-->
         <breadcrumb-navigation
           :ancestors="ancestorList"
           :file="file"
