@@ -161,7 +161,6 @@
     methods: {
       //deletes files permenantly. NOTE: should have toast message that confirms
       deletePermanently: function(){
-        console.log("DELETING PERMANENTLY")
         const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
         this.sendXhr(this.deleteUrl, {
@@ -191,16 +190,12 @@
       },
 
       deleteFiles: function() {
-        console.log("DELETE FILES FUNCTION CALLED FROM DELETE DIALOG")
-        //NOTE: This will be the function that marks files for deletion
         const fileIds = this.selectedFiles.map(item => item.content.id)
-        console.log("THE FILES IDS TO DELETE ARE",fileIds)
         this.sendXhr(this.deleteUrl, {
           method: 'POST',
           body: { things: fileIds }
         })
         .then(response => {
-          console.log("EMITTING FILE-DELETE ")
           this.$emit('file-delete', response)
           this.closeDialog()
         })
