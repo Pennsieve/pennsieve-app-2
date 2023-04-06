@@ -35,6 +35,7 @@
           @remove="removeDatasetProposalRequest"
           @submit="submitDatasetProposalRequest"
           @withdraw="withdrawDatasetProposalRequest"
+          @open-dataset="openDatasetRequest"
         />
       </div>
 
@@ -74,6 +75,7 @@ import RequestListItem from './request-list-item/RequestListItem'
 import RequestSurvey from './request-survey/RequestSurvey.vue'
 import ConfirmationDialog from "../shared/ConfirmationDialog/ConfirmationDialog";
 import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue';
+import EventBus from '../../utils/event-bus'
 
 export default {
   name: 'SubmitDatasets',
@@ -124,6 +126,7 @@ export default {
   },
 
   methods: {
+    ...mapGetters(['organizations']),
     ...mapActions('repositoryModule',[
         'updateRequestModalVisible',
         'setSelectedRepo',
@@ -266,6 +269,22 @@ export default {
         cancelActionLabel: 'Cancel',
       }
       this.confirmationDialogVisible = true
+    },
+
+    openDatasetRequest: function(proposal) {
+      console.log("SubmitDatasets::openDatasetRequest() proposal:")
+      console.log(proposal)
+      console.log("SubmitDatasets::openDatasetRequest() organizations:")
+      console.log(this.organizations())
+      let evt = this.organizations().filter(org => org.organization.id === proposal.organizationNodeId)[0]
+      evt.destination = {
+        datasetNodeId: proposal.datasetNodeId,
+        view: "overview"
+      }
+      console.log("SubmitDatasets::openDatasetRequest() evt:")
+      console.log(evt)
+      EventBus.$emit('switch-organization', evt)
+      // this.$router.push(`/${proposal.organizationNodeId}/datasets/${proposal.datasetNodeId}/overview`)
     },
 
     startNewRequest: function() {
