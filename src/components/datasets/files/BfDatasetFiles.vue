@@ -298,7 +298,6 @@ export default {
     EventBus.$on('update-uploaded-file-state', this.onUpdateUploadedFileState.bind(this))
     EventBus.$on('update-external-file', this.onFileRenamed)
     EventBus.$on('openDeletedModal', (data) => {
-      console.log("view deleted called from Rafter")
       this.deletedDialogOpen = data;
       this.fetchDeleted()
     })
@@ -334,7 +333,6 @@ export default {
   methods: {
 
     fetchDeleted: function() {
-      console.log("fetch deleted called")
       EventBus.$emit('fetchDeleted',true)
     },
 
@@ -354,7 +352,6 @@ export default {
      * Reset selected files state
      */
     resetSelectedFiles: function () {
-      console.log("RESET SELECTED FILES CALLED")
       this.selectedFiles = []
       this.lastSelectedFile = {}
     },
@@ -389,11 +386,9 @@ export default {
      * Send API request to get files for item
      */
     fetchFiles: function () {
-      console.log('calling again')
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.file = response
-          console.log("FILE IS ",this.file)
           this.files = response.children.map(file => {
             if (!file.storage) {
               file.storage = 0
@@ -529,9 +524,7 @@ export default {
      * Handler for delete XHR
      */
     onDelete: function (response) {
-      console.log("ONDELETE() CALLED. WE ARE REMOVING FILES FROM ITEMS")
       const successItems = propOr([], 'success', response)
-      console.log("SUCCESS ITEMS ARE",successItems)
       this.removeItems(successItems)
     },
 
@@ -540,11 +533,9 @@ export default {
      * @param {Object} items
      */
     removeItems: function (items) {
-      console.log("REMOVE ITEMS CALLED")
       // Remove all successfully deleted files
       for (let i = 0; i < items.length; i++) {
         const fileIndex = findIndex(pathEq(['content', 'id'], items[i]), this.files)
-        console.log("FILE INDEX FOR REMOVE ITEMS IS ",fileIndex)
         this.files.splice(fileIndex, 1)
       }
       // Resort files
