@@ -16,7 +16,6 @@
       </span>
       <ul class="selection-actions unstyled">
       <template v-if='withinDeleteMenu'>
-       <!--WE DONT YET GIVE THE OPTION OF DELETING FILES STAGED FOR DELETION-->
       <!--
       <li class="mr-24">
         <button
@@ -395,8 +394,6 @@ export default {
     },
 
     onRowClick: function(row,selected){
-      console.log(row)
-      console.log(selected)
       this.$refs.table.clearSelection()
       this.$refs.table.toggleRowSelection(row, true)
     },
