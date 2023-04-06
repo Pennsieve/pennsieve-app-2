@@ -118,6 +118,7 @@ export default {
 .dataset-activity {
   background: #fff;
 }
+
 /deep/ .bf-stage-content {
   display: flex;
   flex-direction: column;

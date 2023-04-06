@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       title="People"
+      class="primary"
     >
       <div
         slot="description"
@@ -173,6 +174,8 @@ export default {
       allPeople: [],
       offset: 0,
       limit: 25,
+      members: [],
+      invitations: [],
     }
   },
 
@@ -202,6 +205,7 @@ export default {
     orgMembers: {
       handler: function(orgMembers) {
         if (orgMembers.length > 0) {
+          this.members = orgMembers
           this.getUsers()
         }
       },
@@ -315,7 +319,7 @@ export default {
           pending: true,
           lastName: '',
           storage: 0,
-          role: 'Collaborator'
+          role: member.permission
         }
         return Object.assign({}, newFields, member)
       })
@@ -360,6 +364,7 @@ export default {
       Promise.all([invitesPromise, peoplePromise])
         .then(values => {
           this.isLoading = false // ensure this is reset if there are no promises executed
+          this.invitations = values[0]
           const pendingMembers = this.updatePendingMembers(values[0])
           const currentMembers = this.updateCurrentMembers(values[1])
           const allUsers = union(pendingMembers, currentMembers)

@@ -3,13 +3,14 @@
     <bf-rafter
       slot="heading"
       :title="pageHeading"
+      class="primary"
     >
       <div
         slot="buttons"
         class="buttons"
       >
         <bf-button
-          v-if="hasDatasets"
+          v-if="hasDatasets && !isWorkspaceGuest"
           @click="openNewDatasetDialog"
         >
           New Dataset
@@ -284,7 +285,8 @@
         'isLoadingDatasetsError',
         'onboardingEvents',
         'datasetFilters',
-        'gettingStartedOpen'
+        'gettingStartedOpen',
+        'activeOrganization'
       ]),
 
       ...mapState('integrationsModule', [
@@ -363,6 +365,11 @@
        */
       pageHeading: function() {
         return 'Datasets'
+      },
+
+      isWorkspaceGuest: function() {
+        const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+        return isGuest
       }
     },
 
@@ -529,6 +536,8 @@
 </script>
 
 <style scoped lang="scss">
+@import '../../../assets/_variables.scss';
+
 .no-results-found-wrapper {
   img {
     height: 99px;
@@ -555,6 +564,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  color: $gray_5;
 }
 .dataset-list-controls {
   align-items: center;

@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       title="Organization Settings"
+      class="primary"
     />
 
     <bf-stage

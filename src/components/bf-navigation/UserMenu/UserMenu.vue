@@ -47,7 +47,7 @@
 
                 @click.prevent="requestCreateOrganization"
               >
-                Request to Create New Organization
+                Request to Create Private Workspace
               </a>
             </li>
           </ul>
@@ -120,6 +120,17 @@
                 View My Profile
               </router-link>
             </li>
+
+
+            <li>
+              <a
+                href="#"
+                class="bf-menu-item"
+                @click.prevent="switchOrganization(welcomeOrganization)"
+              >
+                Submit to Public Repository
+              </a>
+            </li>
             <li>
               <a
                 v-popover:orgMenu
@@ -129,13 +140,18 @@
                 @mouseenter="onOrgMenuMouseenter"
                 @mouseleave="onOrgMenuMouseleave"
               >
-                Switch Organization <svg-icon
+                Switch to Private Workspace <svg-icon
                   icon="icon-arrow-right"
                   width="10"
                   height="10"
                 />
               </a>
             </li>
+          </ul>
+
+          <hr>
+
+          <ul>
             <li>
               <a
                 class="bf-menu-item"
@@ -168,6 +184,9 @@
         </span>
         <span id="organization-name">
           {{ organizationName }}
+        </span>
+        <span v-if="isWorkspaceGuest" id="workspace-guest">
+          (workspace guest)
         </span>
       </div>
 
@@ -282,11 +301,21 @@ export default {
         })
 
         return this.organizations.filter(organization => {
-          return organization.organization.name.toLowerCase().indexOf(this.orgFilterName.toLowerCase()) > -1
+          return organization.organization.name.toLowerCase().indexOf(this.orgFilterName.toLowerCase()) > -1 &&
+            organization.organization.name != "Welcome"
         })
       }
 
       return []
+    },
+    welcomeOrganization: function() {
+      if (this.organizations.length) {
+        let welcomeOrgs =  this.organizations.filter(org => {
+          return org.organization.name == 'Welcome'
+        })
+        return welcomeOrgs[0]
+
+      }
     },
 
     /**
@@ -307,6 +336,11 @@ export default {
       return pathOr('----', ['organization', 'name'], this.activeOrganization)
     },
 
+    isWorkspaceGuest: function() {
+      const isGuest = propOr(false, 'isGuest', this.activeOrganization)
+      return isGuest
+    },
+
     /**
      * Compute if the filter should be shown
      * @returns {Boolean}
@@ -317,9 +351,6 @@ export default {
   },
 
   methods: {
-    ...mapActions([
-      'toggleDatasetVis'
-    ]),
 
     /**
      * Open Create Organization Dialog
@@ -337,20 +368,12 @@ export default {
       this.isCreateOrgDialogVisible = false
     },
 
-    /*
-     * Sets the dataset name visibility flag to false
-     */
-    setDatasetVis: function() {
-      console.log("SETTING VISIBILITY TO FALSE")
-      this.toggleDatasetVis(false)
-    },
     /**
      * Close all menus
      */
     closeMenus: function() {
       this.orgMenuOpen = false
       this.menuOpen = false
-      this.setDatasetVis()
     },
 
     /**
@@ -517,6 +540,10 @@ export default {
   }
   #organization-name {
     font-size: 12px
+  }
+  #workspace-guest {
+    font-size: 10px;
+    color: #999999;
   }
   .icon-caret {
     flex-shrink: none;

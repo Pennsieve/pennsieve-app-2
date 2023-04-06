@@ -99,11 +99,15 @@ export default {
 .breadcrumb-navigation {
   align-items: center;
   display: flex;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 40px;
   margin: 0;
   white-space: nowrap;
+
+  .el-dropdown {
+    color:white;
+  }
 
   .breadcrumb-menu {
     max-width: 256px;
@@ -119,7 +123,7 @@ export default {
   }
   .collection-name {
     align-items: center;
-    color: $text-color;
+    color: white;
     outline: none;
     overflow: hidden;
     text-overflow: ellipsis;

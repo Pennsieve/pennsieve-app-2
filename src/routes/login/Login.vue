@@ -85,7 +85,7 @@
       <div class="subheader">Private datasets can be published to Pennsieve Discover</div>
       <PublicDatasetsGrid/>
       <div class="browseAllButton">
-        <bf-button :class="submitButtonType" type="submit" @click="directToDiscover">
+        <bf-button type="submit" @click="directToDiscover">
           More Public Data
         </bf-button>
       </div>

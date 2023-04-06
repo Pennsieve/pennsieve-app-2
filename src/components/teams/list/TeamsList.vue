@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       title="Teams"
+      class="primary"
     >
       <div
         slot="buttons"

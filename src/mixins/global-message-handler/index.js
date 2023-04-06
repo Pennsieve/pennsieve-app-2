@@ -49,6 +49,7 @@ export default {
     EventBus.$on('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$on('set-default-route', this.setDefaultRoute.bind(this))
     EventBus.$on('finalize-orcid-integration', this.finalizeOrcidIntegration.bind(this))
+    EventBus.$on('update-organization-members', this.getOrgMembers.bind(this))
   },
 
   beforeDestroy() {
@@ -69,6 +70,7 @@ export default {
     EventBus.$off('close-external-file-modal', this.onCloseExternalFileModal.bind(this))
     EventBus.$off('set-default-route', this.setDefaultRoute.bind(this))
     EventBus.$off('finalize-orcid-integration', this.finalizeOrcidIntegration.bind(this))
+    EventBus.$off('update-organization-members', this.getOrgMembers.bind(this))
   },
 
   computed: {
@@ -135,6 +137,9 @@ export default {
   },
 
   methods: {
+    ...mapGetters([
+      "isWelcomeOrg"
+    ]),
     ...mapActions([
       'updateActiveOrganization',
       'updateOrganizations',
@@ -378,9 +383,11 @@ export default {
       const redirect = pathOr('', ['query', 'redirectTo'], this.$route)
       if (redirect) {
         window.location.replace(redirect)
+      } else if (this.isWelcomeOrg() ){
+        this.$router.push(`/${orgId}/welcome`)
       } else {
-        this.$router.push(`/${orgId}/datasets`)
-        this.launchOnboarding()
+          this.$router.push(`/${orgId}/datasets`)
+          this.launchOnboarding()
       }
     },
 

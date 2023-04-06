@@ -180,7 +180,7 @@ sync(store, router)
 const isAuthorized = (to, from, next) => {
   const token = Cookies.get('user_token')
   const savedOrgId = Cookies.get('preferred_org_id')
-  const allowList = ['home', 'password', 'welcome', 'setup-profile', 'verify-account','welcome-to-pennsieve', 'docs-login', 'create-account']
+  const allowList = ['home', 'password', 'welcome', 'setup-profile', 'verify-account','welcome-to-pennsieve', 'docs-login', 'jupyter-login','create-account']
   if (allowList.indexOf(to.name) < 0 && !token) {
     const destination = to.fullPath
     if (destination && destination.name !== 'page-not-found') {

@@ -141,7 +141,7 @@
       line-height: 32px;
     }
     .stat-block {
-      color: #000;
+      color: white;
       text-align: center;
       .stat {
         font-size: 16px;

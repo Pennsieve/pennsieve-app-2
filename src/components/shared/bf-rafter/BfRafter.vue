@@ -14,6 +14,7 @@
     </div>
   </template>
     <div
+      v-if="this.$slots['breadcrumb']=='has-breadcrumb'"
       class="row bf-rafter-breadcrumb"
       :class="[ this.$slots['breadcrumb'] ? 'has-breadcrumb' : 'no-breadcrumb' ]"
     >
@@ -94,9 +95,68 @@
   @import '../../../assets/components/_dataset-status.scss';
 
   .bf-rafter {
-    padding: 9px 31px 1px 31px;
+    padding: 8px 32px 8px 32px;
     transition: .15s padding linear;
+    background: $purple_1;
     z-index: 5;
+
+    &.primary {
+      background: $gray_1;
+      margin-top: 24px;
+
+      &.white {
+        background: white;
+      }
+      h1 {
+        margin: 0;
+        color: $gray_5;
+        font-size: 20px;
+        &.flex-heading {
+          align-items: center;
+          display: flex;
+        }
+      }
+
+      .tabs {
+        display: flex;
+        li {
+          margin-left: 32px;
+          &:first-child {
+            margin: 0;
+          }
+        }
+        a {
+          color: $gray_5;
+          display: inline-flex;
+          padding: 0 0 16px;
+          position: relative;
+          text-decoration: none;
+          &:hover, &:focus {
+            color: $purple_2;
+            text-decoration: none;
+          }
+          &.router-link-active, &.active {
+            color: $purple_2;
+            &:after {
+              color: $purple_1;
+              background: $purple_1;
+              bottom: 0;
+              content: '';
+              left: 0;
+              height: 6px;
+              position: absolute;
+              width: 100%;
+            }
+          }
+          &.disabled {
+            cursor: default;
+            color: $gray_4;
+          }
+        }
+      }
+
+
+    }
     &.small {
       padding-top: 28px;
       h1 {
@@ -105,16 +165,18 @@
       }
     }
     &.border, &.with-tabs {
-      box-shadow: 1px 1px 0 0 $gray_2;
+      //box-shadow: 1px 1px 0 0 $purple_3;
+      //border-bottom: 2px solid $purple_2;
     }
     &.with-tabs {
-      padding-bottom: 0
+      padding-bottom: 2px;
     }
     &.editing {
       background: $gray_1;
     }
     h1 {
       margin: 0;
+      color: white;
       font-size: 20px;
       &.flex-heading {
         align-items: center;
@@ -133,6 +195,7 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      color: white;
     }
     .main .col {
       flex: 1;
@@ -141,6 +204,7 @@
   }
   .bf-rafter-description {
     margin-top: 8px;
+    color: $gray_5;
     .condensed & {
       display: none;
     }
@@ -150,6 +214,7 @@
     .condensed & {
       margin-top: 8px;
     }
+
   }
   .bf-rafter-bottom {
     margin-top: 24px;
@@ -163,15 +228,19 @@
     line-height: 16px;
     margin-bottom: 8px;
     min-height: 17px;
+    color: white;
     .condensed &.no-breadcrumb {
       display: none;
     }
   }
   .bf-rafter-buttons {
+    align-self: end;
+
     .buttons {
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
+
     }
     .bf-button {
       margin-left: 8px !important;
@@ -183,19 +252,21 @@
     align-items: flex-end;
     display: flex;
     justify-content: space-between;
+    color: white;
   }
   .bf-rafter-stats {
     display: flex;
+    color: white;
   }
   .dataset-filter-status-check {
     margin: -2px 0;
     float: right;
   }
   .dataset-name {
-    font-weight: 600;
-    font-size: 20px;
-    color: $purple_2;
-    padding-top: 12px;
+    font-weight: 300;
+    font-size: 16px;
+    color: white;
+    padding-top: 8px;
   }
   //.dataset-status-dropdown {
   //  position: absolute;
@@ -266,7 +337,7 @@ import BfButton from '../bf-button/BfButton.vue'
       datasetNameTruncated: false,
       datasetname: '',
       datasetFilterOpen: false,
-      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings']
+      datasetPageList: ['upload-manifests','publishing-settings','integrations-settings','embargoed-permissions','relationship-types','graph-browser','collection-files', 'records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings']
     }
   }
 

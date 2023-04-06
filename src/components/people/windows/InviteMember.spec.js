@@ -107,7 +107,7 @@ describe('InviteMember.vue', () => {
   it('handleSucessfulInvite: member invited', (done) => {
     cmp.vm.$refs.invitationForm.resetFields = () => {}
     cmp.vm.$on('member-invited', payload => {
-      expect(payload.role).toBe('Collaborator')
+      expect(payload.role).toBe('collaborator')
       expect(payload.storage).toBe(0)
       expect(payload.pending).toBe(true)
       done()
