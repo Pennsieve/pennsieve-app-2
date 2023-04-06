@@ -147,78 +147,63 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="subtype"
-        label="Kind"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      />
+      <template v-if='!withinDeleteMenu'>
+        <el-table-column
+          prop="subtype"
+          label="Kind"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        />
 
-      <el-table-column
-        prop="storage"
-        label="Size"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      >
-        <template slot-scope="scope">
-          {{ formatMetric(scope.row.storage) }}
-        </template>
-      </el-table-column>
-
-      <template v-if='withinDeleteMenu'>
-        <!--<el-table-column
+        <el-table-column
+          prop="storage"
+          label="Size"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        >
+          <template slot-scope="scope">
+            {{ formatMetric(scope.row.storage) }}
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="content.createdAt"
-          label="Date Deleted"
+          label="Date Created"
           width="180"
           :sortable="!isSearchResults"
           :render-header="renderHeader"
           :sort-orders="sortOrders"
         >
           <template slot-scope="scope">
-            {{ formatDate(scope.row.content.updatedAt) }}
+            {{ formatDate(scope.row.content.createdAt) }}
           </template>
-        </el-table-column>-->
-      </template>
-      <template v-else>
+        </el-table-column>
         <el-table-column
-        prop="content.createdAt"
-        label="Date Created"
-        width="180"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      >
-        <template slot-scope="scope">
-          {{ formatDate(scope.row.content.createdAt) }}
-        </template>
-      </el-table-column>
+          label=""
+          fixed="right"
+          align="right"
+          width="54"
+          :sortable="false"
+          :resizable="false"
+        >
+          <template slot-scope="scope">
+            <div class="file-actions-wrap">
+              <table-menu
+                v-if="getPermission('editor') || searchAllDataMenu"
+                :file="scope.row"
+                :multiple-selected="multipleSelected"
+                :search-all-data-menu="searchAllDataMenu"
+                @delete="deleteFile"
+                @move="moveFile"
+                @download-file="downloadFile"
+                @process-file="processFile"
+                @copy-url="getPresignedUrl"
+              />
+            </div>
+          </template>
+        </el-table-column>
       </template>
-      <el-table-column
-        label=""
-        fixed="right"
-        align="right"
-        width="54"
-        :sortable="false"
-        :resizable="false"
-      >
-        <template slot-scope="scope">
-          <div class="file-actions-wrap">
-            <table-menu
-              v-if="getPermission('editor') || searchAllDataMenu"
-              :file="scope.row"
-              :multiple-selected="multipleSelected"
-              :search-all-data-menu="searchAllDataMenu"
-              @delete="deleteFile"
-              @move="moveFile"
-              @download-file="downloadFile"
-              @process-file="processFile"
-              @copy-url="getPresignedUrl"
-            />
-          </div>
-        </template>
-      </el-table-column>
     </el-table>
   </div>
 </template>

@@ -1,21 +1,5 @@
 <template>
-  <div
-    class="deleted-files"
-  >
-  <bf-rafter slot="heading">
-      <div
-        slot="heading"
-        class="bf-dataset-breadcrumbs"
-      >
-        <!--ANCESTORS AREN'T AVAILABLE TO DELETED FILES. NEED TO TRACK PARENTS OF EACH FILE OR DIRECTORY-->
-        <breadcrumb-navigation
-          :ancestors="ancestorList"
-          :file="file"
-          :file-id="$route.params.fileId"
-          @navigate-breadcrumb="handleNavigateBreadcrumb"
-        />
-      </div>
-  </bf-rafter>
+  <div class="deleted-files">
     <bf-dialog
       :title="dialogTitle"
       :open="isOpen"
@@ -30,8 +14,15 @@
         slot="body"
         class="bf-upload-body"
       >
-      <!--HERE we will add pagination header?? -->
-
+      <div class="bf-dataset-breadcrumbs">
+        <!--ANCESTORS AREN'T AVAILABLE TO DELETED FILES. NEED TO TRACK PARENTS OF EACH FILE OR DIRECTORY-->
+        <breadcrumb-navigation
+          :ancestors="ancestorList"
+          :file="file"
+          :file-id="fileId"
+          @navigate-breadcrumb="handleNavigateBreadcrumb"
+        />
+      </div>
       <div class="file-pagination">
           <div>
             <pagination-page-menu
@@ -113,7 +104,7 @@ import GetFileProperty from '../../mixins/get-file-property';
 import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
 import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu.vue'
 import { mapGetters } from 'vuex';
-import { pathOr, propOr } from 'ramda';
+import { pathOr, propOr, isEmpty } from 'ramda';
 export default {
 name: 'DeletedFiles',
 components: {
@@ -161,6 +152,8 @@ mounted: function(){
    this.fetchDeletedFunc(this.offset,this.limit)
  })
  EventBus.$on('openDeletedModal', (data) => {
+   this.file = {}
+   this.ancestorList = []
    this.isOpen = data;
  })
  //EventBus.$on()
@@ -207,6 +200,12 @@ computed: {
   multipleSelected: function () {
     return this.selectedDeletedFiles.length > 1
   },
+  fileId() {
+    return pathOr(propOr('', 'node_id', this.file), ['content', 'id'], this.file)
+  },
+  fileName() {
+    return pathOr(propOr('', 'name', this.file), ['content', 'name'], this.file)
+  }
 },
 methods: {
   /**
@@ -215,14 +214,9 @@ methods: {
    */
    getFilesUrl: function (root_node) {
     if (this.config.api2Url && this.userToken) {
-      //const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
-      const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
-      //PAGE BREAKS WHEN BELOW EXECUTES ??
-      return `${this.config.api2Url}/datasets/trashcan?dataset_id=${id}&limit=${this.limit}&offset=${this.offset}`
-    }
-    if (this.config.api2Url && this.userToken && root_node){
-      const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
-      return `${this.config.api2Url}/datasets/trashcan?dataset_id=${id}&root_node_id=${root_node}&limit=${this.limit}&offset=${this.offset}`
+      return root_node ? 
+        `${this.config.api2Url}/datasets/trashcan?dataset_id=${this.$route.params.datasetId}&root_node_id=${root_node}&limit=${this.limit}&offset=${this.offset}` :
+        `${this.config.api2Url}/datasets/trashcan?dataset_id=${this.$route.params.datasetId}&limit=${this.limit}&offset=${this.offset}`
     }
   },
   /**
@@ -288,6 +282,8 @@ methods: {
       }
     })
 
+    this.file = {}
+    this.ancestorList = []
     // Resort files
     this.sortColumn(this.sortBy, this.sortDirection)
     this.resetSelectedFiles()
@@ -307,51 +303,52 @@ methods: {
    * @param {Object} file
    */
   onClickLabelDelete: function (file) {  
-    const id = pathOr('', ['content', 'id'], file)
-    //If we click on a file or package, we want to add that file to the ancestors list
-    this.ancestorList.push(id)
     const packageType = pathOr('', ['content', 'packageType'], file)
-
-    if (id === '') {
+    if (propOr('', 'node_id', file) === '') {
       return
     }
 
     if (packageType === 'Collection') {
-      this.navigateToFile(id)
-    } else {
-      this.$router.push({
-        name: 'file-record',
-        params: {
-          conceptId: this.filesProxyId,
-          instanceId: id
-        }
-      })
+      //If we click on a folder, we want to add that folder to the ancestors list
+      if (this.fileId && this.fileName) {
+        this.ancestorList.push({
+          'content': {
+            'id': this.fileId,
+            'name': this.fileName
+          }
+        })
+      }
+      this.file = file
+      this.navigateToFile(this.fileId)
     }
   },
    /**
      * Navigate to file
      * @param {String} id
      */
-     navigateToFile: function (id) {
-      this.$router.push({name: 'collection-files', params: {fileId: id}})
-      root_node = id
+     navigateToFile: function (root_node) {
       //consider if there's another way to do this:
-      this.fetchDeletedFunc(this.offset,this.limit,root_node)
+      this.fetchDeletedFunc(this.offset, this.limit, root_node)
     },
      /**
      * Handler for breadcrumb overflow navigation
      * @param {String} id
      */
      handleNavigateBreadcrumb: function (id = '') {
-      if (id) {
+      if (!isEmpty(id)) {
         this.navigateToFile(id)
-        //If we go 
-        let index = this.ancestorList.findIndex(item => item == id);
+        let index = this.ancestorList.findIndex(item => item.content.id == id)
         if (index >= 0){
-          this.ancestorList.splice(index, this.ancestorList.length -index);
+          this.file = this.ancestorList[index]
+          if ((this.ancestorList.length - index - 1) > 0)
+            this.ancestorList.splice(index, this.ancestorList.length - index - 1)
+          else
+            this.ancestorList.splice(0, this.ancestorList.length)
         }
       } else {
-        this.navigateToDataset()
+        this.ancestorList = []
+        this.file = {}
+        this.fetchDeletedFunc(this.offset,this.limit)
       }
     },
   /**
@@ -373,7 +370,6 @@ methods: {
   },
   //deletes files permenantly. NOTE: should have toast message that confirms
   showDelete: function(){
-    console.log("DELETING PERMANENTLY")
     const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
     this.sendXhr(this.deleteUrl, {
@@ -395,24 +391,6 @@ methods: {
       this.handleXhrError(response)
     })
   },
-
-  /*
-  //method moves selection(s) back to the datasets file storage (unmarked as deleted)
-  moveBackToFiles: async function() {
-      console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
-  try {
-    //const move_response1 = await fetch('moveEndpoint');
-    if (response1.ok) {
-      await this.fetchDeletedFunc(this.offset,this.limit,root_node);
-      console.log('files moved back to original directory');
-    } else {
-      console.error('Error calling endpoint:', move_response.status);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-},
-*/
   /**
    * method moves selection(s) back to the datasets file storage (unmarked as deleted)
    * @param {String} destination}
@@ -444,9 +422,23 @@ methods: {
   //handler for restore items success
   onRestoreItems: async function(response){
     const data = await response
-    console.log("ON RESTORE ITEMS = ", data)
     const successItems = propOr([], 'success', data)
-    console.log("SUCCESS ITEMS = ", successItems)
+    const failureItems = propOr([], 'failures', data)
+    if (failureItems.length > 0) {
+      let failedFileNames = []
+      failureItems.forEach(item => {
+        const failedFile = this.selectedDeletedFiles.find(file => file.node_id == item.id)
+        if (failedFile) {
+          failedFileNames.push(failedFile.name)
+        }
+      })
+      EventBus.$emit('toast', {
+        detail: {
+          msg: `There was an error restoring the following file(s): ${failedFileNames}`,
+          type: 'error'
+        }
+      })
+    }
     EventBus.$emit('refreshAfterRestore')
     this.removeItems(successItems)
   },
@@ -491,71 +483,45 @@ path field is empty
 Need to reach into packages list instead of pulling stuff from url
 */
  fetchDeletedFunc: function(offset, limit, root_node = undefined) {
-  //NOTE: we will  want to make sure that this isnt a flat map
-  const options = {method: 'GET', headers: {accept: 'application/json', authorization: `Bearer ${this.userToken}`}};
-   console.log('fetching deleted files')
-   var deleted_files_url = ''
-   if (root_node) {
+    //NOTE: we will  want to make sure that this isnt a flat map
+    const options = {method: 'GET', headers: {accept: 'application/json', authorization: `Bearer ${this.userToken}`}};
+    var deleted_files_url = ''
     deleted_files_url = this.getFilesUrl(root_node) //this.sendxhr
-   }
-   else {
-    deleted_files_url = this.getFilesUrl() //this.sendxhr
-   }
-   fetch(deleted_files_url, options)
-     .then(response => {
-      if (response.ok) {
-        response.json().then(data => {
-          console.log("Data = ", data)
-          const packages = data.packages
-          console.log("PACKAGES = ", packages)
-          packages.forEach(file => {
-            if (file.state == 'DELETED') {
+    fetch(deleted_files_url, options)
+      .then(response => {
+        if (response.ok) {
+          this.files = []
+          response.json().then(data => {
+            const packages = data.packages
+            packages.forEach(file => {
               this.files.push({
                 ...file,
                 'content': {
                   'packageType': file.type,
-                  'name': file.name
+                  'name': file.name.replace(`__DELETED__${file.node_id}_`, '')
                 }
               })
-            }
+            })
           })
-        })
-      } else {
-        throw response
-      }
-       /*this.file = response
-       console.log("RESPONSE OBJECT IS ",response)
-       this.tableResultsTotalCount = this.file.totalCount
-       console.log("TOTAL COUNT IS ", this.tableResultsTotalCount)
-       this.files = response.packages.node_id.map(file => {
-         if (!file.storage) {
-           file.storage = 0
-         }
-         //NO ICON FOR NOW
-         //file.icon = file.icon || this.getFilePropertyVal(file.properties, 'icon')
-         //file.subtype = this.getSubType(file)
-         return file
-       })*/
-       this.sortedDeletedFiles = this.returnSort('content.name', this.files, this.sortDirection)
-       //DISABLE ANCESTORS FOR NOW 
-       //this.ancestors = response.ancestors
+        } else {
+          throw response
+        }
+        this.sortedDeletedFiles = this.returnSort('content.name', this.files, this.sortDirection)
 
-       const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
-       //const pkgId = file
-       if (pkgId) {
-         this.scrollToFile(pkgId)
-       }
-       //this.tableResultsTotalCount = this.files.length
-     })
-     .catch(response => {
-       this.handleXhrError(response)
-     })
- }
-}
+        const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
+
+        if (pkgId) {
+          this.scrollToFile(pkgId)
+        }
+      })
+      .catch(response => {
+        this.handleXhrError(response)
+      })
+    }
+  }
 }
 </script>
-<style src="../BfUpload/BfUpload.scss" scoped lang="scss"></style>
-<style lang="scss">
+<style lang="scss" scoped>
   @import '../../assets/_variables.scss';
   .deleted-files .bf-dialog .bf-dialog-wrap {
     height: 700px;
