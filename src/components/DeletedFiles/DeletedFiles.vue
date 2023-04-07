@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="deleted-files"
-  >
+  <div class="deleted-files">
     <bf-dialog
       :title="dialogTitle"
       :open="isOpen"
@@ -16,8 +14,14 @@
         slot="body"
         class="bf-upload-body"
       >
-      <!--HERE we will add pagination header -->
-
+      <div class="bf-dataset-breadcrumbs">
+        <breadcrumb-navigation
+          :ancestors="ancestorList"
+          :file="file"
+          :file-id="fileId"
+          @navigate-breadcrumb="handleNavigateBreadcrumb"
+        />
+      </div>
       <div class="file-pagination">
           <div>
             <pagination-page-menu
@@ -34,7 +38,6 @@
             @current-change="onPaginationPageChange"
           />
         </div>
-        <!-- END pagination -->
         &nbsp;
         <files-table
           v-if="hasFiles"
@@ -42,7 +45,7 @@
           :multiple-selected="multipleSelected"
           within-delete-menu
           :enable-download="false"
-          @move="moveBackToFiles"
+          @restore="moveBackToFiles"
           @delete="showDelete2"
           @selection-change="deleteSetSelectedFiles"
           @click-file-label="onClickLabelDelete">
@@ -74,12 +77,13 @@
         </bf-button>
       </div>
     </bf-dialog>
+    <!--
     <bf-delete-dialog
       ref="deleteDialog"
       calling-from-deleted
       :selected-files="selectedDeletedFiles"
       @file-delete="onDelete"
-    />
+    /> -->
   </div>
 </template>
 
@@ -87,6 +91,7 @@
 import EventBus from '../../utils/event-bus'
 import BfButton from '../shared/bf-button/BfButton.vue'
 import BfDialog from '../shared/bf-dialog/bf-dialog.vue'
+import BfRafter from '../shared/bf-rafter/BfRafter.vue'
 import BfMoveDialog from '../datasets/files/bf-move-dialog/BfMoveDialog.vue'
 import BreadcrumbNavigation from '../datasets/files/BreadcrumbNavigation/BreadcrumbNavigation.vue'
 import BfEmptyPageState from '../shared/bf-empty-page-state/BfEmptyPageState.vue'
@@ -97,7 +102,7 @@ import GetFileProperty from '../../mixins/get-file-property';
 import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
 import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu.vue'
 import { mapGetters } from 'vuex';
-import { pathOr } from 'ramda';
+import { pathOr, propOr, isEmpty } from 'ramda';
 export default {
 name: 'DeletedFiles',
 components: {
@@ -106,8 +111,10 @@ components: {
   FilesTable,
   BfEmptyPageState,
   BfMoveDialog,
+  BfRafter,
   BreadcrumbNavigation,
-  BfDeleteDialog
+  BfDeleteDialog,
+  PaginationPageMenu
 },
 
 mixins: [
@@ -118,25 +125,36 @@ mixins: [
 
 data: function(){
   return {
+      file: {
+        content: {
+          name: ''
+        }
+      },
       selectedDeletedFiles: [],
+      sortedDeletedFiles: [],
       files: [],
       isOpen: false,
       tableResultsTotalCount: 0,
       offset: 0,
       limit: 10,
-      page: 1
+      //page: 1,
+      //full path, i.e. move destination for 'restore' operation
+      origFilePath: '',
+      ancestorList: []
 
   }
 },
 
 mounted: function(){
- EventBus.$on('fetchDeleted', (data) => {
-   this.fetchDeletedFunc()
+ EventBus.$on('fetchDeleted', () => {
+   this.fetchDeletedFunc(this.offset,this.limit)
  })
  EventBus.$on('openDeletedModal', (data) => {
+   this.file = {}
+   this.ancestorList = []
    this.isOpen = data;
  })
- EventBus.$on()
+ //EventBus.$on()
 
  //EventBus.$on('fetchDeleted', this.fetchDeletedFunc())
 },
@@ -180,28 +198,57 @@ computed: {
   multipleSelected: function () {
     return this.selectedDeletedFiles.length > 1
   },
+  fileId() {
+    return pathOr(propOr('', 'node_id', this.file), ['content', 'id'], this.file)
+  },
+  fileName() {
+    return pathOr(propOr('', 'name', this.file), ['content', 'name'], this.file)
+  }
+},
+methods: {
   /**
    * Get files URL for dataset
    * @returns {String}
    */
-  getFilesUrl: function () {
-    if (this.config.apiUrl && this.userToken) {
-      const baseUrl = this.$route.name === 'dataset-files' ? 'datasets' : 'packages'
-      const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
-
-      return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${this.userToken}&includeAncestors=true`
+   getFilesUrl: function (root_node) {
+    if (this.config.api2Url && this.userToken) {
+      return root_node ? 
+        `${this.config.api2Url}/datasets/trashcan?dataset_id=${this.$route.params.datasetId}&root_node_id=${root_node}&limit=${this.limit}&offset=${this.offset}` :
+        `${this.config.api2Url}/datasets/trashcan?dataset_id=${this.$route.params.datasetId}&limit=${this.limit}&offset=${this.offset}`
     }
   },
-},
-methods: {
+  /**
+     * Scroll to file in list
+     * @param {String} pkgId
+     */
+     scrollToFile: function (pkgId) {
+      this.$nextTick(() => {
+        const trimmedId = pkgId.replace(/:/g, '')
+        const element = document.querySelectorAll(`.file-row-${trimmedId}`)
+
+        if (element.length) {
+          head(element).scrollIntoView()
+
+          element.forEach(row => {
+            row.classList.add('highlight')
+
+            setTimeout(() => {
+              row.classList.remove('highlight')
+            }, 500)
+          })
+        }
+      })
+    },
   /**
    * Update pagination offset
    */
   onPaginationPageChange: async function(page) {
-    //note... need to find a way to change the page (just use 'page')
-    this.offset = (this.page - 1) * this.limit
+    //currFileSearchPage
+    const offset = (page - 1) * this.limit
+    this.offset = offset
     //NOTE: should pass offset and page into fetchDeleted
-    await this.fetchDeletedFunc(this.offset,this.limit)
+    this.fetchDeletedFunc(this.offset,this.limit,root_node)
+    
   },
   /**
    * Reset selected files state
@@ -209,6 +256,7 @@ methods: {
   resetSelectedFiles: function () {
     this.selectedDeletedFiles = []
     this.lastSelectedFile = {}
+    this.fetchDeletedFunc(this.offset,this.limit)
   },
   /**
    * Sort table by column
@@ -216,7 +264,7 @@ methods: {
    * @param {String} dir
    */
   sortColumn: function (path, dir = '') {
-    this.sortedFiles = this.returnSort(path, this.files, dir)
+    this.sortedDeletedFiles = this.returnSort(path, this.files, dir)
   },
   /**
    * Remove items from files list
@@ -224,11 +272,16 @@ methods: {
    */
   removeItems: function (items) {
     // Remove all successfully deleted files
-    for (let i = 0; i < items.length; i++) {
-      const fileIndex = findIndex(pathEq(['content', 'id'], items[i]), this.files)
-      this.files.splice(fileIndex, 1)
-    }
+    this.files.filter((value, index, arr) => {
+      const file_node_id = propOr('', 'node_id', value)
+      const item_file = items.find(item => item == file_node_id)
+      if (item_file) {
+        arr.splice(index, 1)
+      }
+    })
 
+    this.file = {}
+    this.ancestorList = []
     // Resort files
     this.sortColumn(this.sortBy, this.sortDirection)
     this.resetSelectedFiles()
@@ -244,29 +297,58 @@ methods: {
     this.onClose()
   },
   /**
-   * Handler for clicking file
+   * Handler for clicking file. Allows one to drill down into deleted package
    * @param {Object} file
    */
-  onClickLabelDelete: function (file) {
-    const id = pathOr('', ['content', 'id'], file)
+  onClickLabelDelete: function (file) {  
     const packageType = pathOr('', ['content', 'packageType'], file)
-
-    if (id === '') {
+    if (propOr('', 'node_id', file) === '') {
       return
     }
 
     if (packageType === 'Collection') {
-      this.navigateToFile(id)
-    } else {
-      this.$router.push({
-        name: 'file-record',
-        params: {
-          conceptId: this.filesProxyId,
-          instanceId: id
-        }
-      })
+      //If we click on a folder, we want to add that folder to the ancestors list
+      if (this.fileId && this.fileName) {
+        this.ancestorList.push({
+          'content': {
+            'id': this.fileId,
+            'name': this.fileName
+          }
+        })
+      }
+      this.file = file
+      this.navigateToFile(this.fileId)
     }
   },
+   /**
+     * Navigate to file
+     * @param {String} id
+     */
+     navigateToFile: function (root_node) {
+      //consider if there's another way to do this:
+      this.fetchDeletedFunc(this.offset, this.limit, root_node)
+    },
+     /**
+     * Handler for breadcrumb overflow navigation
+     * @param {String} id
+     */
+     handleNavigateBreadcrumb: function (id = '') {
+      if (!isEmpty(id)) {
+        this.navigateToFile(id)
+        let index = this.ancestorList.findIndex(item => item.content.id == id)
+        if (index >= 0){
+          this.file = this.ancestorList[index]
+          if ((this.ancestorList.length - index - 1) > 0)
+            this.ancestorList.splice(index, this.ancestorList.length - index - 1)
+          else
+            this.ancestorList.splice(0, this.ancestorList.length)
+        }
+      } else {
+        this.ancestorList = []
+        this.file = {}
+        this.fetchDeletedFunc(this.offset,this.limit)
+      }
+    },
   /**
    * Close dialog callback
    */
@@ -286,7 +368,6 @@ methods: {
   },
   //deletes files permenantly. NOTE: should have toast message that confirms
   showDelete: function(){
-    console.log("DELETING PERMANENTLY")
     const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
     this.sendXhr(this.deleteUrl, {
@@ -302,34 +383,63 @@ methods: {
           msg
         }
       })
-      this.fetchDeletedFunc()
+      this.fetchDeletedFunc(this.offset,this.limit,root_node)
     })
     .catch(response => {
       this.handleXhrError(response)
     })
   },
-  //method moves selection(s) back to the datasets file storage (unmarked as deleted)
-  moveBackToFiles: function(){
-    console.log("MOVING FILES STAGED FOR DELETION BACK TO PARENT DIRECTORY")
-    let undeleteFilesMove = new Promise(function(resolve, reject) {
-      //let req = call new endpoint
-      if (req.status == 200) {
-        EventBus.$emit('toast', {
-          detail: {
-            type: 'success',
-            msg: 'File(s) moved back to parent directory.'
-          }
-        })
-        resolve(req.response);
-      } else {
-        reject("Error")
-      }
-    });
-    undeleteFilesMove.then(
-        function(value) {this.fetchDeletedFunc(this.limit,this.offset)},
-        function(error) {console.error(err);}
-      );
-    },
+  /**
+   * method moves selection(s) back to the datasets file storage (unmarked as deleted)
+   * @param {String} destination}
+   * @param {Array} items
+   */
+  moveBackToFiles: function () {
+    const id = this.$route.name === 'dataset-files' ? this.$route.params.datasetId : this.$route.params.fileId
+    const nodeIds = this.selectedDeletedFiles.map(item => item.node_id)
+    const options = {
+        method: 'POST',
+        headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        Authorization:  `Bearer ${this.userToken}`
+      },
+      body: JSON.stringify({nodeIds})
+    }
+    fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
+      .then(response => {
+        if (response.ok) {
+          this.onRestoreItems(response.json())
+        } else {
+          throw response
+        }
+      })
+      .catch(err => console.error(err))
+  },
+
+  //handler for restore items success
+  onRestoreItems: async function(response){
+    const data = await response
+    const successItems = propOr([], 'success', data)
+    const failureItems = propOr([], 'failures', data)
+    if (failureItems.length > 0) {
+      let failedFileNames = []
+      failureItems.forEach(item => {
+        const failedFile = this.selectedDeletedFiles.find(file => file.node_id == item.id)
+        if (failedFile) {
+          failedFileNames.push(failedFile.name)
+        }
+      })
+      EventBus.$emit('toast', {
+        detail: {
+          msg: `There was an error restoring the following file(s): ${failedFileNames}`,
+          type: 'error'
+        }
+      })
+    }
+    EventBus.$emit('refreshAfterRestore')
+    this.removeItems(successItems)
+  },
   /**
    * Set selected files
    * @param {Array} selection
@@ -364,40 +474,52 @@ methods: {
   },
 
 /*
-Will fetch all files that are marked deleted for a given dataset. Need proper API endpoints
-and need to provide limit and offset in request (getFilesUrl)
+Will fetch all files that are marked deleted for a given dataset.
+RETURNS: {"limit":50,"offset":0,"totalCount":0,"packages":null,"messages":["..."]}
+request limit defaults to 10 and must be < 100. offset defaults to 0
+path field is empty
+Need to reach into packages list instead of pulling stuff from url
 */
- fetchDeletedFunc: function(offset, limit) {
-   console.log('fetching deleted files')
-   this.sendXhr(this.getFilesUrl)
-     .then(response => {
-       this.file = response
-       this.files = response.children.map(file => {
-         if (!file.storage) {
-           file.storage = 0
-         }
-         file.icon = file.icon || this.getFilePropertyVal(file.properties, 'icon')
-         file.subtype = this.getSubType(file)
-         return file
-       })
-       this.sortedFiles = this.returnSort('content.name', this.files, this.sortDirection)
-       this.ancestors = response.ancestors
+ fetchDeletedFunc: function(offset, limit, root_node = undefined) {
+    //NOTE: we will  want to make sure that this isnt a flat map
+    const options = {method: 'GET', headers: {accept: 'application/json', authorization: `Bearer ${this.userToken}`}};
+    var deleted_files_url = ''
+    deleted_files_url = this.getFilesUrl(root_node) //this.sendxhr
+    fetch(deleted_files_url, options)
+      .then(response => {
+        if (response.ok) {
+          this.files = []
+          response.json().then(data => {
+            const packages = data.packages
+            packages.forEach(file => {
+              this.files.push({
+                ...file,
+                'content': {
+                  'packageType': file.type,
+                  'name': file.name.replace(`__DELETED__${file.node_id}_`, '')
+                }
+              })
+            })
+          })
+        } else {
+          throw response
+        }
+        this.sortedDeletedFiles = this.returnSort('content.name', this.files, this.sortDirection)
 
-       const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
-       if (pkgId) {
-         this.scrollToFile(pkgId)
-       }
-       this.tableResultsTotalCount = this.files.length
-     })
-     .catch(response => {
-       this.handleXhrError(response)
-     })
- }
-}
+        const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
+
+        if (pkgId) {
+          this.scrollToFile(pkgId)
+        }
+      })
+      .catch(response => {
+        this.handleXhrError(response)
+      })
+    }
+  }
 }
 </script>
-<style src="../BfUpload/BfUpload.scss" scoped lang="scss"></style>
-<style lang="scss">
+<style lang="scss" scoped>
   @import '../../assets/_variables.scss';
   .deleted-files .bf-dialog .bf-dialog-wrap {
     height: 700px;

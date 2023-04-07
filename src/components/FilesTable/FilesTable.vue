@@ -15,8 +15,8 @@
         {{ selectionCountLabel }}
       </span>
       <ul class="selection-actions unstyled">
-       <template v-if='withinDeleteMenu'>
-       <!-=-
+      <template v-if='withinDeleteMenu'>
+      <!--
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
@@ -33,13 +33,14 @@
           Delete permanently
         </button>
       </li>
-      -->
+    -->
+      
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
           class="linked btn-selection-action"
           :disabled="datasetLocked"
-          @click="$emit('move')"
+          @click="$emit('restore')"
         >
           <svg-icon
             class="mr-8"
@@ -47,7 +48,7 @@
             height="16"
             width="16"
           />
-          Restore {{ selectionCountLabel }}
+          Restore the {{ selectionCountLabel }}
         </button>
       </li>
       </template>
@@ -146,78 +147,63 @@
           />
         </template>
       </el-table-column>
-<!--      <el-table-column-->
-<!--        prop="subtype"-->
-<!--        label="Kind"-->
-<!--        :sortable="!isSearchResults"-->
-<!--        :render-header="renderHeader"-->
-<!--        :sort-orders="sortOrders"-->
-<!--      />-->
+      <template v-if='!withinDeleteMenu'>
+        <el-table-column
+          prop="subtype"
+          label="Kind"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        />
 
-      <el-table-column
-        prop="storage"
-        label="Size"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      >
-        <template slot-scope="scope">
-          {{ formatMetric(scope.row.storage) }}
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        prop="content.createdAt"
-        label="Date Created"
-        width="180"
-        :sortable="!isSearchResults"
-        :render-header="renderHeader"
-        :sort-orders="sortOrders"
-      >
-        <template slot-scope="scope">
-          {{ formatDate(scope.row.content.createdAt) }}
-        </template>
-      </el-table-column>
-      <template v-if='withinDeleteMenu'>
+        <el-table-column
+          prop="storage"
+          label="Size"
+          :sortable="!isSearchResults"
+          :render-header="renderHeader"
+          :sort-orders="sortOrders"
+        >
+          <template slot-scope="scope">
+            {{ formatMetric(scope.row.storage) }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="content.createdAt"
-          label="Date Deleted"
+          label="Date Created"
           width="180"
           :sortable="!isSearchResults"
           :render-header="renderHeader"
           :sort-orders="sortOrders"
         >
           <template slot-scope="scope">
-            {{ formatDate(scope.row.content.updatedAt) }}
+            {{ formatDate(scope.row.content.createdAt) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          label=""
+          fixed="right"
+          align="right"
+          width="54"
+          :sortable="false"
+          :resizable="false"
+        >
+          <template slot-scope="scope">
+            <div class="file-actions-wrap">
+              <table-menu
+                v-if="getPermission('editor') || searchAllDataMenu"
+                :file="scope.row"
+                :multiple-selected="multipleSelected"
+                :search-all-data-menu="searchAllDataMenu"
+                @delete="deleteFile"
+                @move="moveFile"
+                @download-file="downloadFile"
+                @process-file="processFile"
+                @copy-url="getPresignedUrl"
+              />
+            </div>
           </template>
         </el-table-column>
       </template>
-      <template v-else>
-      </template>
-      <el-table-column
-        label=""
-        fixed="right"
-        align="right"
-        width="54"
-        :sortable="false"
-        :resizable="false"
-      >
-        <template slot-scope="scope">
-          <div class="file-actions-wrap">
-            <table-menu
-              v-if="getPermission('editor') || searchAllDataMenu"
-              :file="scope.row"
-              :multiple-selected="multipleSelected"
-              :search-all-data-menu="searchAllDataMenu"
-              @delete="deleteFile"
-              @move="moveFile"
-              @download-file="downloadFile"
-              @process-file="processFile"
-              @copy-url="getPresignedUrl"
-            />
-          </div>
-        </template>
-      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -408,8 +394,6 @@ export default {
     },
 
     onRowClick: function(row,selected){
-      console.log(row)
-      console.log(selected)
       this.$refs.table.clearSelection()
       this.$refs.table.toggleRowSelection(row, true)
     },
