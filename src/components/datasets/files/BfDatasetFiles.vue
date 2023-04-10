@@ -298,12 +298,14 @@ export default {
     EventBus.$on('update-uploaded-file-state', this.onUpdateUploadedFileState.bind(this))
     EventBus.$on('update-external-file', this.onFileRenamed)
     EventBus.$on('openDeletedModal', (data) => {
-      console.log("view deleted called from Rafter")
       this.deletedDialogOpen = data;
       this.fetchDeleted()
     })
     EventBus.$on('refreshAfterDeleteModal', (data) => {
       var temp = data;
+      this.fetchFiles()
+    })
+    EventBus.$on('refreshAfterRestore', () => {
       this.fetchFiles()
     })
   },
@@ -331,7 +333,6 @@ export default {
   methods: {
 
     fetchDeleted: function() {
-      console.log("fetch deleted called")
       EventBus.$emit('fetchDeleted',true)
     },
 
@@ -385,7 +386,6 @@ export default {
      * Send API request to get files for item
      */
     fetchFiles: function () {
-      console.log('calling again')
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.file = response
@@ -538,7 +538,6 @@ export default {
         const fileIndex = findIndex(pathEq(['content', 'id'], items[i]), this.files)
         this.files.splice(fileIndex, 1)
       }
-
       // Resort files
       this.sortColumn(this.sortBy, this.sortDirection)
       this.resetSelectedFiles()

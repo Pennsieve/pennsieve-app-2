@@ -410,6 +410,7 @@ export default {
      */
     onSwitchOrganization: function(evt, redirect = true) {
       const newOrg = propOr({}, 'organization', evt)
+      const newDestNodeId = pathOr('', ['destination', 'datasetNodeId'], evt)
       const newOrgId = propOr(1, 'id', newOrg)
       const newOrgIntId = propOr(1, 'intId', newOrg)
       const activeOrgId = pathOr(0, ['organization', 'id'], this.activeOrganization)
@@ -450,6 +451,9 @@ export default {
             } else {
               this.setDefaultRoute(newOrgId)
             }
+          }
+          if (newDestNodeId !== '') {
+            this.$router.replace(`/${newOrgId}/datasets/${newDestNodeId}/overview`)
           }
           return this.getOrgMembers()
                   .then(this.getTeams.bind(this))

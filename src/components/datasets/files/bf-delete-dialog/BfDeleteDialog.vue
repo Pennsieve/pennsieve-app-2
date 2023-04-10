@@ -18,6 +18,7 @@
       />
       <template v-if="callingFromDeleted"
       >
+      <!-- THIS SHOULD BE DISABLED FOR NOW-->
       <h2>Delete {{ totalFiles }} {{ headline }}</h2>
       <p>Delete {{ copy }}. This action cannot be undone. </p>
 
@@ -160,7 +161,6 @@
     methods: {
       //deletes files permenantly. NOTE: should have toast message that confirms
       deletePermanently: function(){
-        console.log("DELETING PERMANENTLY")
         const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
         this.sendXhr(this.deleteUrl, {
@@ -190,9 +190,7 @@
       },
 
       deleteFiles: function() {
-        //NOTE: This will be the function that marks files for deletion
         const fileIds = this.selectedFiles.map(item => item.content.id)
-
         this.sendXhr(this.deleteUrl, {
           method: 'POST',
           body: { things: fileIds }
