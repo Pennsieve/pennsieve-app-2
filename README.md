@@ -22,6 +22,8 @@ With nvm installed:
 
 `nvm install 14.21.1`
 
+You can also run `nvm use` which will use the node version defined in the .nvmrc
+
 ## Setup
 
 ### Install dependencies
