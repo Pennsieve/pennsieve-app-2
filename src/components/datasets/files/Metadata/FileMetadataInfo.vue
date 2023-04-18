@@ -273,7 +273,6 @@ export default {
       return this.$route.name
     },
     onFilesPage: function() {
-      console.log('here', this.currentRouteName)
       let filesTable = ['dataset-files', 'collection-files']
       if (filesTable.includes(this.currentRouteName)) {
         return true
