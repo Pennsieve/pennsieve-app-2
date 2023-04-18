@@ -10,11 +10,7 @@
         @command="breadcrumbNavigate"
       >
         <span class="el-dropdown-link button-icon">
-          <svg-icon
-            name="icon-menu"
-            height="20"
-            width="20"
-          />
+          <svg-icon name="icon-menu" height="20" width="20" />
         </span>
         <el-dropdown-menu
           slot="dropdown"
@@ -40,9 +36,7 @@
         width="12"
       />
 
-      <span class="collection-name">
-        {{ file.content.name }}
-      </span>
+      <span class="collection-name">{{ file.content.name }}</span>
     </template>
   </div>
 </template>
@@ -80,15 +74,15 @@ export default {
 
   methods: {
     /**
-      * Handler for breadcrumb overflow navigation
-      * @param {String} id
-      */
+     * Handler for breadcrumb overflow navigation
+     * @param {String} id
+     */
     breadcrumbNavigate: function(id = '') {
       if (id) {
         return this.$emit('navigate-breadcrumb', id)
       }
       this.$emit('navigate-breadcrumb')
-    },
+    }
   }
 }
 </script>
@@ -106,7 +100,7 @@ export default {
   white-space: nowrap;
 
   .el-dropdown {
-    color:white;
+    color: white;
   }
 
   .breadcrumb-menu {

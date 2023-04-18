@@ -1,146 +1,150 @@
 <template>
-  <bf-page v-show=true class="file-meta-data-info">
+  <bf-page v-show="true">
+    <div class="file-meta-data-info">
+      <div class="header">
+        <div>Details</div>
+        <template v-if="onFilesPage">
+          <div class="undelete-button-container">
+            <el-tooltip
+              placement="top"
+              content="Restore Deleted Files"
+              :open-delay="300"
+            >
+              <button
+                class="undelete-button linked btn-selection-action"
+                @click="NavToDeleted"
+              >
+                <svg-icon
+                  class="mr-8"
+                  icon="icon-trash"
+                  height="22"
+                  width="22"
+                />
+              </button>
+            </el-tooltip>
+          </div>
+        </template>
+      </div>
 
-    <div class="header">
-        Details
-    </div>
+      <template v-if="showFileFolderInfo">
+        <div class="file-info">
+          <div class="key-value">
+            <div class="label">Name:</div>
+            <div class="value">{{ getFileInfo.Name }}</div>
+          </div>
+          <div class="key-value">
+            <div class="label">Size:</div>
+            <div class="value">{{ getFileInfo.Size }}</div>
+          </div>
+          <div class="key-value">
+            <div class="label">Where:</div>
+            <div class="value">{{ getFileInfo.Where }}</div>
+          </div>
+          <div class="key-value">
+            <div class="label">Kind:</div>
+            <div class="value">{{ getFileInfo.Kind }}</div>
+          </div>
+          <div class="key-value">
+            <div class="label">Created:</div>
+            <div class="value">{{ getFileInfo.CreatedAt }}</div>
+          </div>
+          <div class="key-value">
+            <div class="label">Id:</div>
+            <div class="value">{{ getFileInfo.PackageId }}</div>
+            <svg-icon
+              icon="icon-annotation"
+              class="copy-clipboard"
+              width="28"
+              height="28"
+              @click="copyPackageIdToClipboard"
+            />
+          </div>
+        </div>
+        <div
+          class="record-info"
+          v-for="item in curPackageMetaData"
+          :key="item.id"
+        >
+          <div class="record-header">
+            <div>{{ item.model }}</div>
+            <el-popover
+              placement="top-start"
+              title="Information"
+              width="260"
+              trigger="hover"
+              :content="getMessage(item.origin.node_id, item.model)"
+            >
+              <svg-icon
+                slot="reference"
+                icon="icon-info"
+                width="14"
+                height="14"
+              />
+            </el-popover>
+          </div>
 
-    <template v-if="showFileFolderInfo">
-      <div class="file-info">
+          <div
+            class="record-props"
+            v-for="(value, propertyName) in item.props"
+            :key="value"
+          >
+            <div class="record-prop-item">
+              <div class="prop-label">{{ propertyName }}</div>
+              <div>{{ value }}</div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else-if="showDatasetInfo">
         <div class="key-value">
           <div class="label">Name:</div>
-          <div class="value">{{getFileInfo.Name}}</div>
+          <div class="value">{{ getDatasetInfo.Name }}</div>
         </div>
         <div class="key-value">
           <div class="label">Size:</div>
-          <div class="value">{{getFileInfo.Size}}</div>
+          <div class="value">{{ getDatasetInfo.Size }}</div>
         </div>
         <div class="key-value">
           <div class="label">Where:</div>
-          <div class="value">{{getFileInfo.Where}}</div>
+          <div class="value">{{ getDatasetInfo.Where }}</div>
         </div>
         <div class="key-value">
           <div class="label">Kind:</div>
-          <div class="value">{{getFileInfo.Kind}}</div>
+          <div class="value">{{ getDatasetInfo.Kind }}</div>
         </div>
         <div class="key-value">
           <div class="label">Created:</div>
-          <div class="value">{{getFileInfo.CreatedAt}}</div>
-        </div>
-        <div class="key-value">
-          <div class="label">Id:</div>
-          <div class="value">{{getFileInfo.PackageId}}</div>
-          <svg-icon
-            icon="icon-annotation"
-            class="copy-clipboard"
-            width="28"
-            height="28"
-            @click="copyPackageIdToClipboard"
-          />
-        </div>
-      </div>
-      <div class="record-info"
-           v-for="item in curPackageMetaData"
-           :key="item.id">
-
-        <div class="record-header">
-          <div>
-            {{ item.model }}
-          </div>
-          <el-popover
-            placement="top-start"
-            title="Information"
-            width="260"
-            trigger="hover"
-            :content="getMessage(item.origin.node_id, item.model)">
-              <svg-icon slot="reference"
-                        icon="icon-info"
-                        width="14"
-                        height="14"
-              />
-          </el-popover>
+          <div class="value">{{ getDatasetInfo.CreatedAt }}</div>
         </div>
 
-        <div class="record-props"
-             v-for="(value,propertyName) in item.props"
-             :key="value"
-        >
-          <div class="record-prop-item">
-            <div class="prop-label">{{propertyName}}</div>
-            <div>{{value}}</div>
-          </div>
+        <div class="dataset-info">
+          This is the root folder of the '{{ folder.content.name }}' dataset.
         </div>
-      </div>
-    </template>
+      </template>
 
-    <template v-else-if="showDatasetInfo">
-      <div class="key-value">
-        <div class="label">Name:</div>
-        <div class="value">{{getDatasetInfo.Name}}</div>
-      </div>
-      <div class="key-value">
-        <div class="label">Size:</div>
-        <div class="value">{{getDatasetInfo.Size}}</div>
-      </div>
-      <div class="key-value">
-        <div class="label">Where:</div>
-        <div class="value">{{getDatasetInfo.Where}}</div>
-      </div>
-      <div class="key-value">
-        <div class="label">Kind:</div>
-        <div class="value">{{getDatasetInfo.Kind}}</div>
-      </div>
-      <div class="key-value">
-        <div class="label">Created:</div>
-        <div class="value">{{getDatasetInfo.CreatedAt}}</div>
-      </div>
-
-      <div class="dataset-info">
-        This is the root folder of the '{{folder.content.name}}' dataset.
-      </div>
-    </template>
-
-    <template v-else>
-      <div class="file-info">
-        <div class="simple-message">
-          {{noDetailsMessage}}
+      <template v-else>
+        <div class="file-info">
+          <div class="simple-message">{{ noDetailsMessage }}</div>
         </div>
-
-      </div>
-
-
-
-    </template>
-
-
+      </template>
+    </div>
   </bf-page>
 </template>
 
 <script>
-import EventBus from "../../../../utils/event-bus";
-import { mapGetters,mapActions, mapState } from 'vuex'
-import BfStorageMetrics from '../../../../mixins/bf-storage-metrics';
+import EventBus from '../../../../utils/event-bus'
+import { mapGetters, mapActions, mapState } from 'vuex'
+import BfStorageMetrics from '../../../../mixins/bf-storage-metrics'
 import FormatDate from '../../../../mixins/format-date'
-import {
-  compose,
-  map,
-  join,
-  prepend,
-  reverse,
-} from 'ramda'
-
-
+import { compose, map, join, prepend, reverse } from 'ramda'
 
 export default {
   name: 'FileMetadataInfo',
 
-  components: {
-  },
+  components: {},
 
-  mixins: [
-    BfStorageMetrics,
-    FormatDate
-  ],
+  mixins: [BfStorageMetrics, FormatDate],
 
   props: {
     selectedFiles: {
@@ -157,18 +161,13 @@ export default {
     }
   },
 
-  data: function () {
-    return {
-    }
+  data: function() {
+    return {}
   },
 
   computed: {
-    ...mapGetters([
-      'userToken',
-    ]),
-    ...mapGetters('filesModule',[
-      'curPackageMetaData',
-    ]),
+    ...mapGetters(['userToken']),
+    ...mapGetters('filesModule', ['curPackageMetaData']),
 
     fileLocation: function() {
       const ancestors = this.folder.ancestors
@@ -187,108 +186,123 @@ export default {
         )(ancestors)
       }
 
-      return path + "/" + this.folder.content.name
+      return path + '/' + this.folder.content.name
     },
 
     noDetailsMessage: function() {
       if (this.selectedFiles.length == 0) {
-        if (this.folder.content.packageType && this.folder.content.packageType =="DataSet") {
-          return "This is the root folder of the dataset"
+        if (
+          this.folder.content.packageType &&
+          this.folder.content.packageType == 'DataSet'
+        ) {
+          return 'This is the root folder of the dataset'
         }
-        return "No files selected"
+        return 'No files selected'
       } else if (this.selectedFiles.length > 1) {
-        return this.selectedFiles.length + " files selected"
+        return this.selectedFiles.length + ' files selected'
       }
     },
     showDatasetInfo: function() {
-      return this.folder.content.packageType && this.folder.content.packageType =="DataSet"
+      return (
+        this.folder.content.packageType &&
+        this.folder.content.packageType == 'DataSet'
+      )
     },
     singleFileSelected: function() {
       return this.selectedFiles.length == 1
     },
     showFileFolderInfo: function() {
-      return (this.selectedFiles.length == 1 || this.selectedFiles.length == 0) && this.folder.content.packageType && this.folder.content.packageType !="DataSet"
+      return (
+        (this.selectedFiles.length == 1 || this.selectedFiles.length == 0) &&
+        this.folder.content.packageType &&
+        this.folder.content.packageType != 'DataSet'
+      )
     },
     getDatasetInfo: function() {
-      if (this.folder.content.packageType && this.folder.content.packageType =="DataSet") {
+      if (
+        this.folder.content.packageType &&
+        this.folder.content.packageType == 'DataSet'
+      ) {
         return {
-          'Name': "/",
-          'Size': this.formatMetric(this.folder.storage),
-          'Where': "/",
-          'Kind': "Folder",
-          'CreatedAt': this.formatDate(this.folder.content.createdAt),
+          Name: '/',
+          Size: this.formatMetric(this.folder.storage),
+          Where: '/',
+          Kind: 'Folder',
+          CreatedAt: this.formatDate(this.folder.content.createdAt)
         }
       }
     },
-    getFileInfo: function () {
+    getFileInfo: function() {
       let result
-      if(this.selectedFiles.length == 1) {
-        result =  {
-          'Name': this.selectedFiles[0].content.name,
-          'Size': this.formatMetric(this.selectedFiles[0].storage),
-          'Where': this.fileLocation,
-          'Kind': this.selectedFiles[0].subtype,
-          'CreatedAt': this.formatDate(this.selectedFiles[0].content.createdAt),
-          'PackageId': this.selectedFiles[0].content.nodeId,
+      if (this.selectedFiles.length == 1) {
+        result = {
+          Name: this.selectedFiles[0].content.name,
+          Size: this.formatMetric(this.selectedFiles[0].storage),
+          Where: this.fileLocation,
+          Kind: this.selectedFiles[0].subtype,
+          CreatedAt: this.formatDate(this.selectedFiles[0].content.createdAt),
+          PackageId: this.selectedFiles[0].content.nodeId
         }
         return result
-      }
-      else if(this.selectedFiles.length == 0){
-        if (this.folder.content.name != "") {
-          result =  {
-            'Name': this.folder.content.name,
-            'Size': this.formatMetric(this.folder.storage),
-            'Where': this.fileLocation,
-            'Kind': "Folder",
-            'CreatedAt': this.formatDate(this.folder.content.createdAt),
-            'PackageId': this.folder.content.nodeId,
+      } else if (this.selectedFiles.length == 0) {
+        if (this.folder.content.name != '') {
+          result = {
+            Name: this.folder.content.name,
+            Size: this.formatMetric(this.folder.storage),
+            Where: this.fileLocation,
+            Kind: 'Folder',
+            CreatedAt: this.formatDate(this.folder.content.createdAt),
+            PackageId: this.folder.content.nodeId
           }
         } else {
-          result =  {
-            'Name': "/",
-            'Size': "",
-            'Where': "/",
-            'Kind': "Folder",
-            'CreatedAt': "",
-            'PackageId': "",
+          result = {
+            Name: '/',
+            Size: '',
+            Where: '/',
+            Kind: 'Folder',
+            CreatedAt: '',
+            PackageId: ''
           }
         }
         return result
       } else {
         return {}
       }
-
     },
+    currentRouteName: function() {
+      return this.$route.name
+    },
+    onFilesPage: function() {
+      console.log('here', this.currentRouteName)
+      let filesTable = ['dataset-files', 'collection-files']
+      if (filesTable.includes(this.currentRouteName)) {
+        return true
+      } else {
+        return false
+      }
+    }
   },
 
   watch: {
     selectedFiles(newSelectedFiles, oldQuestion) {
-      if (newSelectedFiles.length == 1 ){
+      if (newSelectedFiles.length == 1) {
         this.fetchMetadataForPackage(newSelectedFiles[0].content.nodeId)
-      } else if (newSelectedFiles.length == 0 ){
+      } else if (newSelectedFiles.length == 0) {
         this.fetchMetadataForPackage(this.folder.content.id)
       }
-
-    },
+    }
   },
 
-  mounted: function () {
+  mounted: function() {},
 
-  },
-
-  destroyed: function () {
-
-  },
-
+  destroyed: function() {},
 
   methods: {
-    ...mapActions('filesModule', [
-      'fetchMetadataForPackage',
-    ]),
+    ...mapActions('filesModule', ['fetchMetadataForPackage']),
     getMessage(itemId, modelName) {
       // Get Folder Name
-      var fName = ""
-      var curNodeId = ""
+      var fName = ''
+      var curNodeId = ''
       if (this.singleFileSelected) {
         curNodeId = this.selectedFiles[0].content.nodeId
       } else {
@@ -297,22 +311,36 @@ export default {
 
       if (curNodeId == itemId) {
         if (modelName == this.curPackageMetaData[0].model) {
-          fName = "the selected file is directly associated with the '" + modelName + "' record."
+          fName =
+            "the selected file is directly associated with the '" +
+            modelName +
+            "' record."
         } else {
-          fName = "the selected file is associated with a record which is has the '" + modelName + "' record as its parent."
+          fName =
+            "the selected file is associated with a record which is has the '" +
+            modelName +
+            "' record as its parent."
         }
       } else if (this.folder.content.id == itemId) {
-        fName = "the current folder is directly associated with the '" + modelName + "' record."
+        fName =
+          "the current folder is directly associated with the '" +
+          modelName +
+          "' record."
       } else {
         for (let i = 0; i < this.ancestors.length; i++) {
           if (this.ancestors[i].content.nodeId == itemId) {
-            fName = "the parent folder '" + this.ancestors[i].content.name + "' is associated with the '" + modelName + "' record."
+            fName =
+              "the parent folder '" +
+              this.ancestors[i].content.name +
+              "' is associated with the '" +
+              modelName +
+              "' record."
             break
           }
         }
       }
 
-      return "You are seeing this because " + fName
+      return 'You are seeing this because ' + fName
 
       // return "You are seeing this metadata record because the folder '/d/ad//asd' is associated with the hopsital record."
     },
@@ -324,6 +352,11 @@ export default {
           msg: 'The package ID was copied to the clipboard'
         }
       })
+    },
+    //Navigates to dataset trash bin modal
+    NavToDeleted: function() {
+      //CONSIDER DOING SOMETHING LIKE FETCHFILES()
+      EventBus.$emit('openDeletedModal', true)
     }
   }
 }
@@ -335,6 +368,15 @@ export default {
 .dataset-info {
   margin: 8px;
   font-size: 12px;
+}
+
+.undelete-button {
+  padding: 10px;
+}
+
+.undelete-button-container {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .file-meta-data-info {
@@ -372,7 +414,6 @@ export default {
   .record-props {
     font-size: 12px;
     //margin: 0 16px 16px 16px;
-
 
     .record-prop-item {
       border-top: 1px solid $gray_1;
@@ -416,5 +457,4 @@ export default {
     color: $gray_5;
   }
 }
-
 </style>
