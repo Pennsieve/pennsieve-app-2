@@ -6,32 +6,23 @@
       @visible-change="onVisibleChange"
       @command="onMenuClick"
     >
-      <bf-button :disabled="datasetLocked">
+      <bf-button class="secondary" :disabled="datasetLocked">
         Add File
         <svg-icon
           slot="suffix"
           class="icon-caret"
           icon="icon-arrow-up"
-          color="#fff"
+          color="#000"
           :dir="arrowDir"
           height="10"
           width="10"
         />
       </bf-button>
-      <el-dropdown-menu
-        slot="dropdown"
-        class="bf-menu"
-      >
-        <el-dropdown-item
-          class="bf-menu-item"
-          command="file"
-        >
+      <el-dropdown-menu slot="dropdown" class="bf-menu">
+        <el-dropdown-item class="bf-menu-item" command="file">
           Upload File
         </el-dropdown-item>
-        <el-dropdown-item
-          class="bf-menu-item"
-          command="external-file"
-        >
+        <el-dropdown-item class="bf-menu-item" command="external-file">
           Link to External File
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -40,10 +31,10 @@
 </template>
 
 <script>
-  import BfButton from '../../../shared/bf-button/BfButton.vue';
-  import { mapGetters } from 'vuex';
+import BfButton from '../../../shared/bf-button/BfButton.vue'
+import { mapGetters } from 'vuex'
 
-  export default {
+export default {
   name: 'BfUploadMenu',
 
   components: {
@@ -72,7 +63,7 @@
      */
     arrowDir: function() {
       return this.isOpen ? 'up' : 'down'
-    },
+    }
   },
 
   methods: {
