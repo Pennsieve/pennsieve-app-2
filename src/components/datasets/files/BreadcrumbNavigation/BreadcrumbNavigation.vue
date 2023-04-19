@@ -74,7 +74,8 @@ export default {
      * @returns {Array}
      */
     breadcrumbs: function() {
-      return defaultTo([], this.ancestors).reverse()
+      //return defaultTo([], this.ancestors).reverse()
+      return defaultTo([], this.ancestors)
     }
   },
 
@@ -123,7 +124,7 @@ export default {
   }
   .collection-name {
     align-items: center;
-    color: white;
+    color: black; 
     outline: none;
     overflow: hidden;
     text-overflow: ellipsis;

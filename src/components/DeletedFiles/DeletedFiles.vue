@@ -34,6 +34,7 @@
             />
           </div>
           &nbsp;
+          <table-wrapper>
           <files-table
             v-if="hasFiles"
             :data="files"
@@ -45,6 +46,7 @@
             @selection-change="deleteSetSelectedFiles"
             @click-file-label="onClickLabelDelete"
           ></files-table>
+          </table-wrapper>
         </div>
       </div>
 
@@ -544,5 +546,15 @@ Need to reach into packages list instead of pulling stuff from url
 bf-upload-body {
   height: 200px;
   overflow-y: auto;
+}
+table-wrapper{
+  overflow-y:scroll;
+  display:block;
+  height:100px;
+  margin-top:1px;  
+}
+bf-dialog{
+  height: 200px;
+  width: 200px;
 }
 </style>
