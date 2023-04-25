@@ -46,7 +46,7 @@
               @delete="showDelete2"
               @selection-change="deleteSetSelectedFiles"
               @click-file-label="onClickLabelDelete"
-            ></files-table>
+            />
           </table-wrapper>
         </div>
       </div>
