@@ -1,31 +1,17 @@
 <template>
   <bf-page v-show="true">
+    <div class="actions-container">
+      <div class="header">Actions</div>
+      <button
+        class="undelete-button actions-item-container"
+        @click="NavToDeleted"
+      >
+        <svg-icon class="mr-8" icon="icon-trash" height="22" width="22" />
+        <div>Restore Deleted</div>
+      </button>
+    </div>
     <div class="file-meta-data-info">
-      <div class="header">
-        <div>Details</div>
-        <template v-if="onFilesPage">
-          <div class="undelete-button-container">
-            <el-tooltip
-              placement="top"
-              content="Restore Deleted Files"
-              :open-delay="300"
-            >
-              <button
-                class="undelete-button linked btn-selection-action"
-                @click="NavToDeleted"
-              >
-                <svg-icon
-                  class="mr-8"
-                  icon="icon-trash"
-                  height="22"
-                  width="22"
-                />
-              </button>
-            </el-tooltip>
-          </div>
-        </template>
-      </div>
-
+      <div class="header"><div>Details</div></div>
       <template v-if="showFileFolderInfo">
         <div class="file-info">
           <div class="key-value">
@@ -166,7 +152,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['userToken']),
+    ...mapGetters(['userToken', 'getPermission', 'datasetLocked']),
     ...mapGetters('filesModule', ['curPackageMetaData']),
 
     fileLocation: function() {
@@ -373,9 +359,38 @@ export default {
   padding: 10px;
 }
 
+.no-margin {
+  margin: 0px;
+}
+
+.plus-icon {
+  margin-left: -6px;
+  margin-top: -10px;
+  margin-bottom: -10px;
+}
+
 .undelete-button-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.actions-container {
+  border: 1px solid $gray_2;
+  margin-left: 16px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  max-width: 260px;
+  overflow-wrap: anywhere;
+}
+
+.actions-item-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  &:hover {
+    color: $purple_1;
+  }
 }
 
 .file-meta-data-info {
