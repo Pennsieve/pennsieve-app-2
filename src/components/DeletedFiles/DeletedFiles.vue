@@ -16,6 +16,7 @@
         <div v-if="hasFiles">
           <div class="bf-dataset-breadcrumbs">
             <breadcrumb-navigation
+              is-light-background="{true}"
               :ancestors="ancestorList"
               :file="file"
               :file-id="fileId"
@@ -35,17 +36,17 @@
           </div>
           &nbsp;
           <table-wrapper>
-          <files-table
-            v-if="hasFiles"
-            :data="files"
-            :multiple-selected="multipleSelected"
-            within-delete-menu
-            :enable-download="false"
-            @restore="moveBackToFiles"
-            @delete="showDelete2"
-            @selection-change="deleteSetSelectedFiles"
-            @click-file-label="onClickLabelDelete"
-          ></files-table>
+            <files-table
+              v-if="hasFiles"
+              :data="files"
+              :multiple-selected="multipleSelected"
+              within-delete-menu
+              :enable-download="false"
+              @restore="moveBackToFiles"
+              @delete="showDelete2"
+              @selection-change="deleteSetSelectedFiles"
+              @click-file-label="onClickLabelDelete"
+            />
           </table-wrapper>
         </div>
       </div>
@@ -547,13 +548,13 @@ bf-upload-body {
   height: 200px;
   overflow-y: auto;
 }
-table-wrapper{
-  overflow-y:scroll;
-  display:block;
-  height:100px;
-  margin-top:1px;  
+table-wrapper {
+  overflow-y: scroll;
+  display: block;
+  height: 100px;
+  margin-top: 1px;
 }
-bf-dialog{
+bf-dialog {
   height: 200px;
   width: 200px;
 }
