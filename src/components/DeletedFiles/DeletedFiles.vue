@@ -1,6 +1,7 @@
 <template>
   <div class="deleted-files">
     <bf-dialog
+      large
       :title="dialogTitle"
       :open="isOpen"
       @close="onClose"
@@ -551,7 +552,7 @@ bf-upload-body {
 table-wrapper {
   overflow-y: scroll;
   display: block;
-  height: 100px;
+  height: 100%;
   margin-top: 1px;
 }
 bf-dialog {
