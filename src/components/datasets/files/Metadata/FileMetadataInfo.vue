@@ -359,16 +359,6 @@ export default {
   padding: 10px;
 }
 
-.no-margin {
-  margin: 0px;
-}
-
-.plus-icon {
-  margin-left: -6px;
-  margin-top: -10px;
-  margin-bottom: -10px;
-}
-
 .undelete-button-container {
   display: flex;
   justify-content: flex-start;
