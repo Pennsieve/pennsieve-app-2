@@ -152,7 +152,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['userToken', 'getPermission', 'datasetLocked']),
+    ...mapGetters(['userToken']),
     ...mapGetters('filesModule', ['curPackageMetaData']),
 
     fileLocation: function() {
