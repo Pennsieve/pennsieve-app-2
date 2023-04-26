@@ -1,9 +1,6 @@
 <template>
   <div class="files-table">
-    <div
-      v-if="selection.length > 0"
-      class="selection-menu-wrap mb-16"
-    >
+    <div v-if="selection.length > 0" class="selection-menu-wrap mb-16">
       <el-checkbox
         id="check-all"
         v-model="checkAll"
@@ -11,12 +8,10 @@
         @change="onCheckAllChange"
       />
 
-      <span id="selection-count-label">
-        {{ selectionCountLabel }}
-      </span>
+      <span id="selection-count-label">{{ selectionCountLabel }}</span>
       <ul class="selection-actions unstyled">
-      <template v-if='withinDeleteMenu'>
-      <!--
+        <template v-if="withinDeleteMenu">
+          <!--
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"
@@ -34,63 +29,55 @@
         </button>
       </li>
     -->
-      
-      <li class="mr-24">
-        <button
-          v-if="!searchAllDataMenu"
-          class="linked btn-selection-action"
-          :disabled="datasetLocked"
-          @click="$emit('restore')"
-        >
-          <svg-icon
-            class="mr-8"
-            icon="icon-move-file"
-            height="16"
-            width="16"
-          />
-          Restore the {{ selectionCountLabel }}
-        </button>
-      </li>
-      </template>
-       <template v-else>
-        <li class="mr-24">
-          <button
-            v-if="!searchAllDataMenu"
-            class="linked btn-selection-action"
-            :disabled="datasetLocked"
-            @click="$emit('delete')"
-          >
-            <svg-icon
-              class="mr-8"
-              icon="icon-trash"
-              height="16"
-              width="16"
-            />
-            Delete
-          </button>
-        </li>
-        <li class="mr-24">
-          <button
-            v-if="!searchAllDataMenu"
-            class="linked btn-selection-action"
-            :disabled="datasetLocked"
-            @click="$emit('move')"
-          >
-            <svg-icon
-              class="mr-8"
-              icon="icon-move-file"
-              height="16"
-              width="16"
-            />
-            Move to&hellip;
-          </button>
-        </li>
-         </template>
+
+          <li class="mr-24">
+            <button
+              v-if="!searchAllDataMenu"
+              class="linked btn-selection-action"
+              :disabled="datasetLocked"
+              @click="$emit('restore')"
+            >
+              <svg-icon
+                class="mr-8"
+                icon="icon-move-file"
+                height="16"
+                width="16"
+              />
+              Restore the {{ selectionCountLabel }}
+            </button>
+          </li>
+        </template>
+        <template v-else>
+          <li class="mr-24">
+            <button
+              v-if="!searchAllDataMenu"
+              class="linked btn-selection-action"
+              :disabled="datasetLocked"
+              @click="$emit('delete')"
+            >
+              <svg-icon class="mr-8" icon="icon-trash" height="16" width="16" />
+              Delete
+            </button>
+          </li>
+          <li class="mr-24">
+            <button
+              v-if="!searchAllDataMenu"
+              class="linked btn-selection-action"
+              :disabled="datasetLocked"
+              @click="$emit('move')"
+            >
+              <svg-icon
+                class="mr-8"
+                icon="icon-move-file"
+                height="16"
+                width="16"
+              />
+              Move to&hellip;
+            </button>
+          </li>
+        </template>
         <li>
-          <button
-            class="linked btn-selection-action"
-            @click="onDownloadClick"
-          >
+          <button class="linked btn-selection-action" @click="onDownloadClick">
             <svg-icon
               class="mr-8"
               icon="icon-upload"
@@ -108,18 +95,14 @@
       ref="table"
       :border="true"
       :data="data"
-      :default-sort="{prop: 'content.name', order: 'ascending'}"
+      :default-sort="{ prop: 'content.name', order: 'ascending' }"
       :row-class-name="getRowClassName"
+      :cell-class-name="getCellClassName"
       @selection-change="handleTableSelectionChange"
       @sort-change="onSortChange"
       @row-click="onRowClick"
     >
-      <el-table-column
-        type="selection"
-        align="center"
-        fixed
-        width="50"
-      />
+      <el-table-column type="selection" align="center" fixed width="50" />
       <el-table-column
         v-if="searchAllDataMenu"
         prop="datasetName"
@@ -147,7 +130,7 @@
           />
         </template>
       </el-table-column>
-      <template v-if='!withinDeleteMenu'>
+      <template v-if="!withinDeleteMenu">
         <el-table-column
           prop="subtype"
           label="Kind"
@@ -209,14 +192,8 @@
 </template>
 
 <script>
-import {
-  pathOr,
-  propOr
-} from 'ramda'
-import {
-  mapGetters,
-  mapState
-} from 'vuex'
+import { pathOr, propOr } from 'ramda'
+import { mapGetters, mapState } from 'vuex'
 import EventBus from '@/utils/event-bus'
 
 import BfFileLabel from '../datasets/files/bf-file/BfFileLabel.vue'
@@ -236,13 +213,7 @@ export default {
     TableMenu
   },
 
-  mixins: [
-    BfStorageMetrics,
-    FileIcon,
-    FormatDate,
-    Sorter,
-    TableFunctions
-  ],
+  mixins: [BfStorageMetrics, FileIcon, FormatDate, Sorter, TableFunctions],
 
   props: {
     data: {
@@ -271,7 +242,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       activeRow: {},
       selection: [],
@@ -281,21 +252,17 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'getPermission',
-      'datasetLocked',
-    ]),
+    ...mapGetters(['getPermission', 'datasetLocked']),
 
-    ...mapState([
-      'dataset',
-      'filesProxyId'
-    ]),
+    ...mapState(['dataset', 'filesProxyId']),
     /**
      * Compute if the checkbox is indeterminate
      * @returns {Boolean}
      */
     isIndeterminate: function() {
-      return this.selection.length > 0 && this.selection.length < this.data.length
+      return (
+        this.selection.length > 0 && this.selection.length < this.data.length
+      )
     },
 
     /**
@@ -304,9 +271,7 @@ export default {
      */
     selectionCountLabel: function() {
       const selectionCount = this.selection.length
-      const fileWord = selectionCount === 1
-        ? 'file'
-        : 'files'
+      const fileWord = selectionCount === 1 ? 'file' : 'files'
       return `${selectionCount} ${fileWord} selected`
     }
   },
@@ -318,6 +283,7 @@ export default {
      * @param {Boolean} selected
      */
     selectRow: function(row, selected = null) {
+      console.log('here', row)
       this.$refs.table.toggleRowSelection(row, selected)
     },
 
@@ -393,7 +359,7 @@ export default {
       }
     },
 
-    onRowClick: function(row,selected){
+    onRowClick: function(row, selected) {
       this.$refs.table.clearSelection()
       this.$refs.table.toggleRowSelection(row, true)
     },
@@ -461,10 +427,16 @@ export default {
      * @returns {String}
      */
     getRowClassName: function(tableRow) {
+      // console.log(tableRow.row.state)
+      // console.log('tableRow', tableRow)
       const { row } = tableRow
+
       const id = pathOr('', ['content', 'nodeId'], row)
       const trimmedId = id.replace(/:/g, '')
-      return `file-row-${trimmedId}`
+
+      return `${tableRow.row.state !== 'DELETED' &&
+        this.withinDeleteMenu &&
+        'disable-select'} file-row-${trimmedId}`
     }
   }
 }
@@ -475,7 +447,7 @@ export default {
 
 .files-table {
   position: relative;
-  flex:1 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
   border: 1px solid $gray_2;
   border-radius: 4px;
@@ -485,7 +457,7 @@ export default {
 }
 
 .el-table--border /deep/ {
-  border: none
+  border: none;
 }
 
 .el-table--border /deep/ td {
@@ -520,17 +492,18 @@ export default {
 }
 .link-file {
   color: $text-color;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     color: $app-primary-color;
   }
 }
 #check-all {
-  margin-right: 37px
+  margin-right: 37px;
 }
 #selection-count-label {
   font-size: 12px;
   font-weight: 700;
-  transform: translateY(1px)
+  transform: translateY(1px);
 }
 .selection-menu-wrap {
   background: #e9edf6;
@@ -542,7 +515,7 @@ export default {
   position: absolute;
   justify-content: space-between;
   width: 100%;
-  z-index: 10
+  z-index: 10;
 }
 .selection-actions {
   display: flex;
@@ -554,13 +527,28 @@ export default {
   tr {
     transition: background-color 0.3s ease-in-out;
   }
-  td, th {
+  td,
+  th {
     padding: 8px 0;
   }
+
+  .disable-select {
+    pointer-events: none;
+  }
+
+  .disable-select span {
+    display: none;
+  }
+
+  .disable-select button {
+    pointer-events: auto;
+  }
+
   .cell {
     padding-left: 16px;
     padding-right: 16px;
   }
+
   .caret-wrapper {
     display: none;
   }
