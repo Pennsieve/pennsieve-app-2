@@ -24,18 +24,6 @@
               @navigate-breadcrumb="handleNavigateBreadcrumb"
             />
           </div>
-          <div class="file-pagination">
-            <div><pagination-page-menu class="mr-24" :page-size="100" /></div>
-            <el-pagination
-              :page-size="100"
-              :pager-count="5"
-              :current-page="curFileSearchPage"
-              layout="prev, pager, next"
-              :total="tableResultsTotalCount"
-              @current-change="onPaginationPageChange"
-            />
-          </div>
-          &nbsp;
           <table-wrapper>
             <files-table
               v-if="hasFiles"
