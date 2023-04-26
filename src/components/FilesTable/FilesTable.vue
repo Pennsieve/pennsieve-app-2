@@ -283,7 +283,6 @@ export default {
      * @param {Boolean} selected
      */
     selectRow: function(row, selected = null) {
-      console.log('here', row)
       this.$refs.table.toggleRowSelection(row, selected)
     },
 
@@ -427,8 +426,6 @@ export default {
      * @returns {String}
      */
     getRowClassName: function(tableRow) {
-      // console.log(tableRow.row.state)
-      // console.log('tableRow', tableRow)
       const { row } = tableRow
 
       const id = pathOr('', ['content', 'nodeId'], row)
