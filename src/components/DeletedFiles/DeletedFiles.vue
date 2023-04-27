@@ -17,25 +17,13 @@
         <div v-if="hasFiles">
           <div class="bf-dataset-breadcrumbs">
             <breadcrumb-navigation
-              is-light-background="{true}"
+              is-light-background
               :ancestors="ancestorList"
               :file="file"
               :file-id="fileId"
               @navigate-breadcrumb="handleNavigateBreadcrumb"
             />
           </div>
-          <div class="file-pagination">
-            <div><pagination-page-menu class="mr-24" :page-size="100" /></div>
-            <el-pagination
-              :page-size="100"
-              :pager-count="5"
-              :current-page="curFileSearchPage"
-              layout="prev, pager, next"
-              :total="tableResultsTotalCount"
-              @current-change="onPaginationPageChange"
-            />
-          </div>
-          &nbsp;
           <table-wrapper>
             <files-table
               v-if="hasFiles"
@@ -84,16 +72,11 @@
 import EventBus from '../../utils/event-bus'
 import BfButton from '../shared/bf-button/BfButton.vue'
 import BfDialog from '../shared/bf-dialog/bf-dialog.vue'
-import BfRafter from '../shared/bf-rafter/BfRafter.vue'
-import BfMoveDialog from '../datasets/files/bf-move-dialog/BfMoveDialog.vue'
 import BreadcrumbNavigation from '../datasets/files/BreadcrumbNavigation/BreadcrumbNavigation.vue'
-import BfEmptyPageState from '../shared/bf-empty-page-state/BfEmptyPageState.vue'
 import FilesTable from '../FilesTable/FilesTable.vue'
 import Request from '../../mixins/request/index'
 import Sorter from '../../mixins/sorter/index'
 import GetFileProperty from '../../mixins/get-file-property'
-import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
-import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu.vue'
 import { mapGetters } from 'vuex'
 import { pathOr, propOr, isEmpty } from 'ramda'
 export default {
@@ -102,12 +85,7 @@ export default {
     BfButton,
     BfDialog,
     FilesTable,
-    BfEmptyPageState,
-    BfMoveDialog,
-    BfRafter,
-    BreadcrumbNavigation,
-    BfDeleteDialog,
-    PaginationPageMenu
+    BreadcrumbNavigation
   },
 
   mixins: [Sorter, Request, GetFileProperty],
@@ -125,7 +103,7 @@ export default {
       isOpen: false,
       tableResultsTotalCount: 0,
       offset: 0,
-      limit: 10,
+      limit: 100,
       //page: 1,
       //full path, i.e. move destination for 'restore' operation
       origFilePath: '',
@@ -170,7 +148,7 @@ export default {
     deleteUrl: function() {
       if (this.config.apiUrl && this.userToken) {
         return `${this.config.apiUrl}/data/delete?api_key=${this.userToken}`
-      }
+      } else return null
     },
 
     /**
@@ -552,11 +530,7 @@ bf-upload-body {
 table-wrapper {
   overflow-y: scroll;
   display: block;
-  height: 100%;
+  height: 660px;
   margin-top: 1px;
-}
-bf-dialog {
-  height: 200px;
-  width: 200px;
 }
 </style>
