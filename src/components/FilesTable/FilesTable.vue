@@ -11,25 +11,6 @@
       <span id="selection-count-label">{{ selectionCountLabel }}</span>
       <ul class="selection-actions unstyled">
         <template v-if="withinDeleteMenu">
-          <!--
-      <li class="mr-24">
-        <button
-          v-if="!searchAllDataMenu"
-          class="linked btn-selection-action"
-          :disabled="datasetLocked"
-          @click="$emit('delete')"
-        >
-          <svg-icon
-            class="mr-8"
-            icon="icon-trash"
-            height="16"
-            width="16"
-          />
-          Delete permanently
-        </button>
-      </li>
-    -->
-
           <li class="mr-24">
             <button
               v-if="!searchAllDataMenu"
@@ -97,7 +78,6 @@
       :data="data"
       :default-sort="{ prop: 'content.name', order: 'ascending' }"
       :row-class-name="getRowClassName"
-      :cell-class-name="getCellClassName"
       @selection-change="handleTableSelectionChange"
       @sort-change="onSortChange"
       @row-click="onRowClick"
@@ -446,6 +426,7 @@ export default {
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
+  min-height: calc(100vh - 200px);
   border: 1px solid $gray_2;
   border-radius: 4px;
 }

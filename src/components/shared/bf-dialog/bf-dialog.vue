@@ -92,10 +92,10 @@ export default {
     width: 540px;
     z-index: 201;
     &.large {
-      height: 90%;
-      top: 25%;
-      width: 80%;
-      left: 30%;
+      height: 75%;
+      top: 30%;
+      width: calc(100vw - 40%);
+      left: 40%;
     }
   }
   .bf-dialog-header,

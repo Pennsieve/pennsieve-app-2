@@ -1,15 +1,5 @@
 <template>
   <bf-page v-show="true">
-    <div class="actions-container">
-      <div class="header">Actions</div>
-      <button
-        class="undelete-button actions-item-container"
-        @click="NavToDeleted"
-      >
-        <svg-icon class="mr-8" icon="icon-trash" height="22" width="22" />
-        <div>Restore Deleted</div>
-      </button>
-    </div>
     <div class="file-meta-data-info">
       <div class="header"><div>Details</div></div>
       <template v-if="showFileFolderInfo">
@@ -337,11 +327,6 @@ export default {
           msg: 'The package ID was copied to the clipboard'
         }
       })
-    },
-    //Navigates to dataset trash bin modal
-    NavToDeleted: function() {
-      //CONSIDER DOING SOMETHING LIKE FETCHFILES()
-      EventBus.$emit('openDeletedModal', true)
     }
   }
 }
@@ -353,34 +338,6 @@ export default {
 .dataset-info {
   margin: 8px;
   font-size: 12px;
-}
-
-.undelete-button {
-  padding: 10px;
-}
-
-.undelete-button-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.actions-container {
-  border: 1px solid $gray_2;
-  margin-left: 16px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  max-width: 260px;
-  overflow-wrap: anywhere;
-}
-
-.actions-item-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  &:hover {
-    color: $purple_1;
-  }
 }
 
 .file-meta-data-info {
