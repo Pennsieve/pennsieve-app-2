@@ -902,6 +902,7 @@ export default {
 
 <style scoped lang="scss">
 @import '../../../assets/_variables.scss';
+
 .actions-container {
   display: flex;
   justify-content: flex-end;
