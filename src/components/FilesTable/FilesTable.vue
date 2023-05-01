@@ -427,11 +427,11 @@ export default {
   flex: 1 1 auto;
   min-width: 0;
   min-height: calc(100vh - 200px);
-  &.undelete-modal {
-    min-height: calc(100vh - 500px);
-  }
   border: 1px solid $gray_2;
   border-radius: 4px;
+  &.undelete-modal {
+    min-height: calc(100vh - 530px);
+  }
 }
 
 .el-table {

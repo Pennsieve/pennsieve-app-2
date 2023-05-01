@@ -24,7 +24,7 @@
               @navigate-breadcrumb="handleNavigateBreadcrumb"
             />
           </div>
-          <table-wrapper>
+          <table-wrapper class="table-wrapper">
             <files-table
               v-if="hasFiles"
               :data="files"
@@ -523,14 +523,15 @@ Need to reach into packages list instead of pulling stuff from url
   margin: -295px 0 0 -350px;
   width: 700px;
 }
-bf-upload-body {
-  height: 200px;
-  overflow-y: auto;
-}
-table-wrapper {
+
+.table-wrapper {
   overflow-y: scroll;
   display: block;
-  height: 660px;
+  max-height: 450px;
   margin-top: 1px;
+}
+
+.bf-upload-body {
+  border-bottom: 1px solid $gray_2;
 }
 </style>
