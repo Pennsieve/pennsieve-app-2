@@ -374,7 +374,9 @@ export default {
         this.$route.name === 'dataset-files'
           ? this.$route.params.datasetId
           : this.$route.params.fileId
-      const nodeIds = this.selectedDeletedFiles.map(item => item.node_id)
+      const nodeIds = this.selectedDeletedFiles
+        // .filter(item => item.state !== 'READY')
+        .map(item => item.node_id)
       const options = {
         method: 'POST',
         headers: {

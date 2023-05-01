@@ -82,7 +82,13 @@
       @sort-change="onSortChange"
       @row-click="onRowClick"
     >
-      <el-table-column type="selection" align="center" fixed width="50" />
+      <el-table-column
+        type="selection"
+        align="center"
+        :selectable="withinDeleteMenu ? canSelectRow : null"
+        fixed
+        width="50"
+      />
       <el-table-column
         v-if="searchAllDataMenu"
         prop="datasetName"
@@ -266,6 +272,10 @@ export default {
       this.$refs.table.toggleRowSelection(row, selected)
     },
 
+    canSelectRow: row => {
+      return row.state === 'DELETED'
+    },
+
     /**
      * Checkbox display logic
      * @param {Object} store
@@ -413,7 +423,8 @@ export default {
 
       return `${tableRow.row.state !== 'DELETED' &&
         this.withinDeleteMenu &&
-        'disable-select'} file-row-${trimmedId}`
+        'disable-select'} ${tableRow.row.state === 'READY' &&
+        'allow-file-navigation'} file-row-${trimmedId}`
     }
   }
 }
@@ -519,11 +530,7 @@ export default {
     pointer-events: none;
   }
 
-  .disable-select span {
-    display: none;
-  }
-
-  .disable-select button {
+  .allow-file-navigation button {
     pointer-events: auto;
   }
 
