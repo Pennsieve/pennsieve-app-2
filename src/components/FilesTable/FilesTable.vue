@@ -1,5 +1,5 @@
 <template>
-  <div class="files-table">
+  <div class="files-table" :class="withinDeleteMenu && 'undelete-modal'">
     <div v-if="selection.length > 0" class="selection-menu-wrap mb-16">
       <el-checkbox
         id="check-all"
@@ -427,9 +427,13 @@ export default {
   flex: 1 1 auto;
   min-width: 0;
   min-height: calc(100vh - 200px);
+  &.undelete-modal {
+    min-height: calc(100vh - 500px);
+  }
   border: 1px solid $gray_2;
   border-radius: 4px;
 }
+
 .el-table {
   width: 100%;
 }
