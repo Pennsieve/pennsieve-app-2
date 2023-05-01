@@ -430,7 +430,8 @@ export default {
   border: 1px solid $gray_2;
   border-radius: 4px;
   &.undelete-modal {
-    min-height: calc(100vh - 530px);
+    min-height: calc(100vh - 400px);
+    border-bottom: none;
   }
 }
 
