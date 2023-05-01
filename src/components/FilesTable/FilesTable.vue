@@ -445,7 +445,6 @@ export default {
     border-bottom: none;
   }
 }
-
 .el-table {
   width: 100%;
 }
