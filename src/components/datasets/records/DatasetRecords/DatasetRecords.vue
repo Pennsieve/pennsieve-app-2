@@ -24,8 +24,18 @@
         class="tabs unstyled"
       >
         <li>
-          <router-link :to="{ name: 'records-overview' }">
-            Overview
+          <router-link :to="{ name: 'metadata' }">
+            Records
+          </router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'models' }">
+            Models
+          </router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'relationship-types' }">
+            Relationships
           </router-link>
         </li>
         <li>

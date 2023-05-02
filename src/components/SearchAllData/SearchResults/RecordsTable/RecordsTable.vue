@@ -4,6 +4,7 @@
       ref="table"
       :border="true"
       :data="data"
+      :fit="true"
       @sort-change="onSortChange"
       @row-click="onRowClick"
     >
@@ -11,6 +12,7 @@
         v-for="heading in headings"
         :key="heading.name"
         :prop="heading.name"
+        :minWidth="widthForColumn(heading)"
         :label="heading.displayName"
         :sortable="isSortable ? 'custom' : false"
       >
@@ -137,7 +139,35 @@ export default {
     }
   },
 
+
+
   methods: {
+    getTextWidth: function(text, font) {
+      // if given, use cached canvas for better performance
+      // else, create new canvas
+      var canvas = this.getTextWidth.canvas || (this.getTextWidth.canvas = document.createElement("canvas"));
+      var context = canvas.getContext("2d");
+      context.font = font;
+      var metrics = context.measureText(text);
+      return metrics.width;
+    },
+
+    widthForColumn: function(heading) {
+      if (this.data.length > 0) {
+        let longestValue = heading.name + ">>"
+        for (let i = 0; i < this.data.length; i++) {
+          let curValue = this.data[i][heading.name]
+          if (curValue) {
+            longestValue =  ((curValue.length > longestValue.length) ? curValue : longestValue)
+          }
+        }
+
+        let tw = this.getTextWidth(longestValue, '14pt sans-serif')
+
+        return (tw < 300) ? tw: 300
+      }
+      return "200"
+    },
     /**
      * Action when clicking a row
      */
@@ -154,6 +184,9 @@ export default {
      * @param {Object} evt
      */
     onSortChange: function(evt) {
+
+      this.$refs.table.doLayout()
+
       const property = propOr('', 'prop', evt)
 
       const ascending = !(this.tableSearchParams.orderBy === property && this.tableSearchParams.ascending)

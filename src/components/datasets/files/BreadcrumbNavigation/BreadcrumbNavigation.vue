@@ -124,7 +124,7 @@ export default {
   }
   .collection-name {
     align-items: center;
-    color: black; 
+    color: white;
     outline: none;
     overflow: hidden;
     text-overflow: ellipsis;

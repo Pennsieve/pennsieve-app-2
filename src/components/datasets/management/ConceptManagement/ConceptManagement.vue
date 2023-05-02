@@ -61,7 +61,7 @@
             </bf-button>
             <bf-button
               :disabled="datasetLocked"
-              class="add-property"
+              class="add-property secondary"
               @click="openCreateProperty"
             >
               Add Property
@@ -1145,11 +1145,11 @@ export default {
 
 .bf-concept-managment {
   header {
-    background: #fff;
+    background: $purple_1;
   }
 
   .back-to-concepts {
-    color: $purple_1;
+    color: white;
 
     svg {
       margin: -2px 8px 0 0;

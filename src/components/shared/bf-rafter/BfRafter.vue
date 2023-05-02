@@ -131,7 +131,7 @@
     padding-bottom: 2px;
   }
   &.editing {
-    background: $gray_1;
+    //background: $gray_1;
   }
   h1 {
     margin: 0;
@@ -143,11 +143,11 @@
     }
   }
   .condensed & {
-    background: $white;
-    box-shadow: 1px 1px 0 0 $gray_2;
-    padding: 16px 32px;
+    background: $purple_1;
+    //box-shadow: 1px 1px 0 0 $gray_2;
+    padding: 8px 32px;
     &.with-tabs {
-      padding-bottom: 0;
+      padding-bottom: 2px;
     }
   }
   .row {
@@ -306,7 +306,10 @@ export default {
         'models',
         'dataset-permissions',
         'activity-log',
-        'dataset-settings'
+        'dataset-settings',
+        'concept-search',
+        'metadata',
+        'concept-instance'
       ]
     }
   },

@@ -112,9 +112,9 @@
       />
 
       <bf-navigation-item
-        :link="{ name: 'records' }"
+        :link="{ name: 'metadata' }"
         icon="icon-explore-dataset"
-        label="Records"
+        label="Metadata"
         class="secondary"
         :condensed="secondaryNavCondensed"
 
@@ -134,15 +134,15 @@
         />
       </bf-navigation-item>
 
-      <bf-navigation-item
-        v-if="getPermission('manager')"
-        :link="{ name: 'models' }"
-        icon="icon-graph"
-        label="Models"
-        class="secondary"
-        :condensed="secondaryNavCondensed"
+<!--      <bf-navigation-item-->
+<!--        v-if="getPermission('manager')"-->
+<!--        :link="{ name: 'models' }"-->
+<!--        icon="icon-graph"-->
+<!--        label="Models"-->
+<!--        class="secondary"-->
+<!--        :condensed="secondaryNavCondensed"-->
 
-      />
+<!--      />-->
 
       <bf-navigation-item
         :link="{ name: 'dataset-permissions' }"

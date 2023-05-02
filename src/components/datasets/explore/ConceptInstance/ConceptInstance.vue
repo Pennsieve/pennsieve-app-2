@@ -105,6 +105,7 @@
 
             <bf-button
               v-if="!isCreating"
+              class="secondary"
               :processing="savingChanges"
               processing-text="Saving Changes"
               @click="saveChanges"
@@ -3383,6 +3384,20 @@ export default {
 }
 </script>
 
+<style lang="scss" scoped>
+@import '../../../../assets/_variables.scss';
+@import '../../../../assets/_icon-item-colors.scss';
+@import '../../../../assets/components/_uploader-empty-state.scss';
+
+
+.model-name{
+  margin: 16px 0 0 0;
+  color: white;
+  font-weight: 300;
+}
+
+</style>
+
 <style lang="scss">
 @import '../../../../assets/_variables.scss';
 @import '../../../../assets/_icon-item-colors.scss';
@@ -3522,11 +3537,6 @@ export default {
   }
 }
 
-.model-name{
-  margin: 16px 0 0 0;
-  color: $gray_4;
-  font-weight: 300;
-}
 
 .relationships-list {
   display: flex;

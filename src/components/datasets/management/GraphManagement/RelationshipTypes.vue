@@ -55,14 +55,14 @@
     </template>
 
     <template v-if="hasRelationships">
-      <data-model-graph
-        ref="dataModelGraph"
-        :show-relationship-types="true"
-        :relationship-linked-props="relationshipLinkedProps"
-        :show-title="false"
-        :height="216"
-        :strength="-50"
-      />
+<!--      <data-model-graph-->
+<!--        ref="dataModelGraph"-->
+<!--        :show-relationship-types="true"-->
+<!--        :relationship-linked-props="relationshipLinkedProps"-->
+<!--        :show-title="false"-->
+<!--        :height="216"-->
+<!--        :strength="-50"-->
+<!--      />-->
 
       <button
         class="add-relationship-type-btn"

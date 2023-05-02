@@ -231,7 +231,7 @@ const routes = [
     },
     children: [
       {
-        path: 'records',
+        path: 'metadata',
         components: {
           stage: ExploreRoute
         },
@@ -247,17 +247,37 @@ const routes = [
               stage: DatasetRecords
             },
             redirect: {
-              name: 'records-overview'
+              name: 'metadata'
             },
             children: [
               {
-                path: 'overview',
-                name: 'records-overview',
+                path: 'records',
+                name: 'metadata',
                 props: {
                   stage: true
                 },
                 components: {
-                  stage: RecordsOverview
+                  stage: ModelRecords
+                }
+              },
+              {
+                path: 'models',
+                name: 'models',
+                props: {
+                  stage: true
+                },
+                components: {
+                  stage: Models
+                }
+              },
+              {
+                path: 'relationship-types',
+                name: 'relationship-types',
+                props: {
+                  stage: true
+                },
+                components: {
+                  stage: RelationshipTypes
                 }
               },
               {
@@ -331,33 +351,33 @@ const routes = [
         },
         props: true,
         children: [
-          {
-            path: '',
-            name: 'graph-management',
-            props: true,
-            components: {
-              stage: GraphManagement
-            },
-            redirect: 'models',
-            children: [
-              {
-                path: 'models',
-                name: 'models',
-                props: true,
-                components: {
-                  stage: Models
-                }
-              },
-              {
-                path: 'relationship-types',
-                name: 'relationship-types',
-                props: true,
-                components: {
-                  stage: RelationshipTypes
-                }
-              }
-            ]
-          },
+          // {
+          //   path: '',
+          //   name: 'graph-management',
+          //   props: true,
+          //   components: {
+          //     stage: GraphManagement
+          //   },
+          //   redirect: 'models',
+          //   children: [
+          //     {
+          //       path: 'models',
+          //       name: 'models',
+          //       props: true,
+          //       components: {
+          //         stage: Models
+          //       }
+          //     },
+          //     {
+          //       path: 'relationship-types',
+          //       name: 'relationship-types',
+          //       props: true,
+          //       components: {
+          //         stage: RelationshipTypes
+          //       }
+          //     }
+          //   ]
+          // },
           {
             path: 'model-templates',
             name: 'model-templates',
