@@ -1,5 +1,5 @@
 <template>
-  <div class="files-table">
+  <div class="files-table" :class="withinDeleteMenu && 'undelete-modal'">
     <div v-if="selection.length > 0" class="selection-menu-wrap mb-16">
       <el-checkbox
         id="check-all"
@@ -82,7 +82,13 @@
       @sort-change="onSortChange"
       @row-click="onRowClick"
     >
-      <el-table-column type="selection" align="center" fixed width="50" />
+      <el-table-column
+        type="selection"
+        align="center"
+        :selectable="withinDeleteMenu ? canSelectRow : null"
+        fixed
+        width="50"
+      />
       <el-table-column
         v-if="searchAllDataMenu"
         prop="datasetName"
@@ -266,6 +272,10 @@ export default {
       this.$refs.table.toggleRowSelection(row, selected)
     },
 
+    canSelectRow: row => {
+      return row.state === 'DELETED'
+    },
+
     /**
      * Checkbox display logic
      * @param {Object} store
@@ -413,7 +423,8 @@ export default {
 
       return `${tableRow.row.state !== 'DELETED' &&
         this.withinDeleteMenu &&
-        'disable-select'} file-row-${trimmedId}`
+        'disable-select'} ${tableRow.row.state === 'READY' &&
+        'allow-file-navigation'} file-row-${trimmedId}`
     }
   }
 }
@@ -429,6 +440,10 @@ export default {
   min-height: calc(100vh - 200px);
   border: 1px solid $gray_2;
   border-radius: 4px;
+  &.undelete-modal {
+    min-height: calc(100vh - 400px);
+    border-bottom: none;
+  }
 }
 .el-table {
   width: 100%;
@@ -514,11 +529,7 @@ export default {
     pointer-events: none;
   }
 
-  .disable-select span {
-    display: none;
-  }
-
-  .disable-select button {
+  .allow-file-navigation button {
     pointer-events: auto;
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <bf-page v-show="true">
+  <bf-page>
     <div class="file-meta-data-info">
       <div class="header"><div>Details</div></div>
       <template v-if="showFileFolderInfo">
