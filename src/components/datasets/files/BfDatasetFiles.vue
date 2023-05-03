@@ -12,7 +12,7 @@
       </div>
     </bf-rafter>
     <div>
-      <div v-if="hasFiles" class="actions-container">
+      <div v-if="!isLoading" class="actions-container">
         <button class="undelete-button actions-item" @click="NavToDeleted">
           <svg-icon class="mr-8" icon="icon-trash" height="22" width="22" />
           <div>Restore Deleted</div>
@@ -75,7 +75,7 @@
           @click-file-label="onClickLabel"
         />
         <file-metadata-info
-          v-if="hasFiles"
+          v-if="!isLoading"
           :selectedFiles="selectedFiles"
           :ancestors="ancestors"
           :folder="file"
