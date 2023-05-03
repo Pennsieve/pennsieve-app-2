@@ -31,6 +31,7 @@ const transformProposalOut = (proposal, profile) => {
 }
 
 const initialState = () => ({
+  publishingInfo: [],
   repositories: [],
   datasetProposals: [],
   repositoryModalVisible: false,
@@ -50,6 +51,9 @@ export const mutations = {
     const _initialState = initialState()
     // need to iteratively set keys to preserve reactivity
     Object.keys(_initialState).forEach(key => state[key] = _initialState[key])
+  },
+  UPDATE_PUBLISHING_INFO(state, info) {
+    state.publishingInfo = info
   },
   UPDATE_REPOSITORIES(state, repositories) {
     state.repositories = sortRepositories(repositories)
@@ -105,6 +109,36 @@ export const mutations = {
 }
 
 export const actions = {
+  updatePublishingInfo: ({commit}, data) => commit('UPDATE_PUBLISHING_INFO', data),
+  fetchPublishingInfo: async({ commit, rootState }) => {
+    console.log("repositoryModule::fetchPublishingInfo()")
+    try {
+      let url = `${rootState.config.api2Url}/publishing/info`
+      const apiKey = rootState.userToken || Cookies.get('user_token')
+      const myHeaders = new Headers();
+      myHeaders.append('Authorization', 'Bearer ' + apiKey)
+      myHeaders.append('Accept', 'application/json')
+      const response = await fetch(url, { headers: myHeaders })
+      if (response.ok) {
+        const responseJson = await response.json()
+        console.log("repositoryModule::fetchPublishingInfo() responseJson:")
+        console.log(responseJson)
+        let count = 0
+        let publishingInfo = responseJson.map(r => {
+          return {
+            'id': ++count,
+            ...r
+          } })
+        commit('UPDATE_PUBLISHING_INFO', publishingInfo)
+      } else {
+        commit('UPDATE_PUBLISHING_INFO', [])
+        throw new Error(response.statusText)
+      }
+    }
+    catch (err) {
+      commit('UPDATE_REPOSITORIES', [])
+    }
+  },
   updateRepositories: ({commit}, data) => commit('UPDATE_REPOSITORIES', data),
   fetchRepositories: async({ commit, rootState }) => {
     console.log("repositoryModule::fetchRepositories()")
@@ -403,6 +437,9 @@ export const actions = {
 }
 
 export const getters = {
+  getPublishingInfo: state => (tag) => {
+    return defaultTo({}, find(propEq('tag', tag), state.publishingInfo))
+  },
   getRepositoryById: state => (id) => {
     return defaultTo({}, find(propEq('repositoryId', id), state.repositories))
   },
