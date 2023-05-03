@@ -25,10 +25,10 @@
 
         <markdown-editor
           ref="markdownEditor"
-          value="datasetDescription"
+          :value="publishingInfo.info"
           :is-editing="false"
           :is-saving="false"
-          empty-state="datasetDescriptionEmptyState"
+          empty-state=""
           :is-loading="false"
         />
       </data-card>
@@ -43,10 +43,10 @@
 
         <markdown-editor
           ref="markdownEditor"
-          value="datasetDescription"
+          :value="publishingInfo.funding"
           :is-editing="false"
           :is-saving="false"
-          empty-state="datasetDescriptionEmptyState"
+          empty-state=""
           :is-loading="false"
         />
       </data-card>
@@ -61,10 +61,10 @@
 
         <markdown-editor
           ref="markdownEditor"
-          value="datasetDescription"
+          :value="publishingInfo.acknowledgements"
           :is-editing="false"
           :is-saving="false"
-          empty-state="datasetDescriptionEmptyState"
+          empty-state=""
           :is-loading="false"
         />
       </data-card>
@@ -97,24 +97,64 @@ export default {
 
   data() {
     return {
-      isLoading: false
+      publishingInfo: {
+        info: "",
+        funding: "",
+        acknowledgements: ""
+      },
+      isLoading: false,
     }
   },
 
-  computed: {
-    ...mapGetters([
-
-    ]),
+  mounted () {
+    this.getInfo()
   },
 
+  computed: {
+    ...mapGetters('repositoryModule', ['getPublishingInfo']),
+  },
 
   watch: {
   },
 
-
   methods: {
-    ...mapActions([]),
+    ...mapActions('repositoryModule', ['fetchPublishingInfo']),
 
+    getInfo: function() {
+      console.log("Info::getInfo()")
+      this.fetchPublishingInfo()
+        .then(_ => this.loadInfo())
+        .catch(err => {console.log(`Info::getInfo() err: ${err}`)})
+    },
+
+    loadInfo: function() {
+      console.log("Info::loadInfo()")
+      const infoTypes = ['info', 'funding', 'acknowledgements']
+
+      for (const infoType of infoTypes) {
+        console.log(`Info::loadInfo() infoType: ${infoType}`)
+        let publishingInfo = this.getPublishingInfo(infoType)
+        console.log("Info::loadInfo() publishingInfo:")
+        console.log(publishingInfo)
+        if (publishingInfo && publishingInfo.url) {
+          this.loadText(publishingInfo.url)
+            .then(result => this.publishingInfo[infoType] = result)
+            .catch(err => {console.log(`Info::loadInfo( ${infoType} ) err: ${err}`)})
+        } else {
+          console.log(`Info::loadInfo() publishingInfo for ${infoType} not found`)
+        }
+      }
+    },
+
+    loadText: async function(url) {
+      console.log(`Info::loadText() url: ${url}`)
+      let result = ""
+      let response = await fetch(url)
+        if (response.ok) {
+          result = await response.text()
+        }
+      return result
+    }
   }
 }
 </script>
