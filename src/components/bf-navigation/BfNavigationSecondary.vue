@@ -114,7 +114,7 @@
       <bf-navigation-item
         :link="{ name: 'metadata' }"
         icon="icon-explore-dataset"
-        label="Metadata"
+        label="Records"
         class="secondary"
         :condensed="secondaryNavCondensed"
 
@@ -144,14 +144,9 @@
 
 <!--      />-->
 
-      <bf-navigation-item
-        :link="{ name: 'dataset-permissions' }"
-        icon="icon-collaborators"
-        label="Permissions"
-        :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
-        :condensed="secondaryNavCondensed"
 
-      />
+
+
 
       <bf-navigation-item
           :link="{ name: 'activity' }"
@@ -161,6 +156,36 @@
           :condensed="secondaryNavCondensed"
 
         />
+
+
+      <bf-navigation-item
+        :link="{ name: 'integrations-settings' }"
+        icon="icon-integrations"
+        label="Integrations"
+        class="secondary"
+        :condensed="secondaryNavCondensed"
+        :secondary=true
+
+      />
+
+      <bf-navigation-item
+        :link="{ name: 'publishing-settings' }"
+        icon="icon-globe-check"
+        label="Publishing"
+        class="secondary"
+        :condensed="secondaryNavCondensed"
+        :secondary=true
+
+      />
+
+      <bf-navigation-item
+        :link="{ name: 'dataset-permissions' }"
+        icon="icon-collaborators"
+        label="Permissions"
+        :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
+        :condensed="secondaryNavCondensed"
+
+      />
 
       <bf-navigation-item
         v-if="getPermission('manager')"

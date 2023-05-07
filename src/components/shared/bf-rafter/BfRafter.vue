@@ -309,7 +309,8 @@ export default {
         'dataset-settings',
         'concept-search',
         'metadata',
-        'concept-instance'
+        'concept-instance',
+        'dataset-records'
       ]
     }
   },

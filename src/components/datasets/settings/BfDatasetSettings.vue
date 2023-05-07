@@ -18,32 +18,32 @@
             width="24"
           />Dataset Settings
         </h1>
-        <ul
-          slot="tabs"
-          class="tabs unstyled"
-        >
-          <li>
-            <router-link :to="{ name: 'dataset-settings' }">
-              General
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
-              :to="{ name: 'integrations-settings' }"
-            >
-              Integrations
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
-              :to="{ name: 'publishing-settings' }"
-            >
-              Publishing
-            </router-link>
-          </li>
-        </ul>
+<!--        <ul-->
+<!--          slot="tabs"-->
+<!--          class="tabs unstyled"-->
+<!--        >-->
+<!--          <li>-->
+<!--            <router-link :to="{ name: 'dataset-settings' }">-->
+<!--              General-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <router-link-->
+<!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
+<!--              :to="{ name: 'integrations-settings' }"-->
+<!--            >-->
+<!--              Integrations-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--&lt;!&ndash;          <li>&ndash;&gt;-->
+<!--&lt;!&ndash;            <router-link&ndash;&gt;-->
+<!--&lt;!&ndash;              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"&ndash;&gt;-->
+<!--&lt;!&ndash;              :to="{ name: 'publishing-settings' }"&ndash;&gt;-->
+<!--&lt;!&ndash;            >&ndash;&gt;-->
+<!--&lt;!&ndash;              Publishing&ndash;&gt;-->
+<!--&lt;!&ndash;            </router-link>&ndash;&gt;-->
+<!--&lt;!&ndash;          </li>&ndash;&gt;-->
+<!--        </ul>-->
       </bf-rafter>
       <bf-stage
         ref="bfStage"

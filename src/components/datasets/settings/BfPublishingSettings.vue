@@ -16,35 +16,8 @@
             name="icon-lock-filled"
             height="24"
             width="24"
-          />Dataset Settings
+          />Dataset Publishing
         </h1>
-
-        <ul
-          slot="tabs"
-          class="tabs unstyled"
-        >
-          <li>
-            <router-link :to="{ name: 'dataset-settings' }">
-              General
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
-              :to="{ name: 'integrations-settings' }"
-            >
-              Integrations
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
-              :to="{ name: 'publishing-settings' }"
-            >
-              Publishing
-            </router-link>
-          </li>
-        </ul>
       </bf-rafter>
       <bf-stage
         ref="bfStage"
@@ -161,7 +134,7 @@
               link the dataset owner's ORCID iD to distinguish themselves from other researchers
             </template>
           </checklist-item>
-          
+
         </data-card>
         <hr>
 

@@ -16,25 +16,7 @@
       </span>
       <ul class="selection-actions unstyled">
       <template v-if='withinDeleteMenu'>
-      <!--
-      <li class="mr-24">
-        <button
-          v-if="!searchAllDataMenu"
-          class="linked btn-selection-action"
-          :disabled="datasetLocked"
-          @click="$emit('delete')"
-        >
-          <svg-icon
-            class="mr-8"
-            icon="icon-trash"
-            height="16"
-            width="16"
-          />
-          Delete permanently
-        </button>
-      </li>
-    -->
-      
+
       <li class="mr-24">
         <button
           v-if="!searchAllDataMenu"

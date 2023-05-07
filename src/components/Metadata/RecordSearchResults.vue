@@ -141,7 +141,8 @@ const getRecordsHeading = (props) => {
           type: value.dataType
         },
         name: value.name,
-        displayName: value.displayName
+        displayName: value.displayName,
+        modelTitle: value.conceptTitle
       }
     })
     : []
@@ -327,7 +328,7 @@ export default {
      * @returns {Boolean}
      */
     noResultsFound: function() {
-      return this.records.length === 0
+      return this.mappedResult.length === 0
     },
 
     /**

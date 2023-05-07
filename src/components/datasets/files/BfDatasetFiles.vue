@@ -61,23 +61,24 @@
           <h2>This folder is empty.</h2>
         </template>
       </bf-empty-page-state>
-      <files-table
-          v-if="hasFiles"
-          :data="files"
-          :multiple-selected="multipleSelected"
-          @move="showMove"
-          @delete="showDelete"
-          @process="processFile"
-          @copy-url="getPresignedUrl"
-          @selection-change="setSelectedFiles"
-          @click-file-label="onClickLabel"
-        />
+    <files-table
+        v-if="hasFiles"
+        :data="files"
+        :multiple-selected="multipleSelected"
+        @move="showMove"
+        @delete="showDelete"
+        @process="processFile"
+        @copy-url="getPresignedUrl"
+        @selection-change="setSelectedFiles"
+        @click-file-label="onClickLabel"
+      />
 
-        <file-metadata-info
-          :selectedFiles="selectedFiles"
-          :ancestors="ancestors"
-          :folder="file"
-        />
+    <file-metadata-info
+      v-if="hasFiles"
+      :selectedFiles="selectedFiles"
+      :ancestors="ancestors"
+      :folder="file"
+    />
 
     </bf-stage>
 

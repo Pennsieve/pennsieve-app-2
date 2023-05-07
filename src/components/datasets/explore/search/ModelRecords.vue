@@ -697,7 +697,7 @@ h2 {
 }
 
 /deep/ .records-table .model-title {
-  color: $app-primary-color;
+  //color: $purple_1;
   text-decoration: none;
   &:hover, &:focus {
     outline: none;

@@ -36,6 +36,7 @@ const PeopleList = () => import('../components/people/list/PeopleList.vue')
 /**
  * Publishing Components
  */
+// const PublishingPage = () => import('@/components/Publishing/PublishingPage.vue')
 const Publishing = () => import('@/routes/Publishing/PublishingView.vue')
 const PublishingDatasetsList = () => import ('@/components/Publishing/PublishingDatasetsList/PublishingDatasetsList.vue')
 const PublishingProposalsList = () => import ('@/components/Publishing/PublishingProposalsList/PublishingProposalsList.vue')
@@ -231,6 +232,18 @@ const routes = [
     },
     children: [
       {
+        path: 'records/:conceptId/:instanceId',
+        name: 'concept-instance',
+        props: true,
+        meta: {
+          headerAux: true
+        },
+        components: {
+          stage: ConceptInstance
+        }
+      },
+
+      {
         path: 'metadata',
         components: {
           stage: ExploreRoute
@@ -239,7 +252,7 @@ const routes = [
         children: [
           {
             path: '',
-            name: 'records',
+            name: 'metadata',
             props: {
               stage: true
             },
@@ -247,12 +260,12 @@ const routes = [
               stage: DatasetRecords
             },
             redirect: {
-              name: 'metadata'
+              name: 'dataset-records'
             },
             children: [
               {
                 path: 'records',
-                name: 'metadata',
+                name: 'dataset-records',
                 props: {
                   stage: true
                 },
@@ -289,31 +302,11 @@ const routes = [
                 components: {
                   stage: GraphBrowser
                 }
-              }
+              },
+
             ]
           },
-          {
-            path: ':conceptId',
-            name: 'concept-search',
-            props: true,
-            components: {
-              stage: ModelRecords
-            },
-            meta: {
-              headerAux: true
-            }
-          },
-          {
-            path: ':conceptId/:instanceId',
-            name: 'concept-instance',
-            props: true,
-            meta: {
-              headerAux: true
-            },
-            components: {
-              stage: ConceptInstance
-            }
-          }
+
         ]
       },
       {
