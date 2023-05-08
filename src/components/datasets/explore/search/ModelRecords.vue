@@ -257,7 +257,7 @@ export default {
   mixins: [ ValidateFiltersMixin ],
 
   mounted: function() {
-    if (!this.models){
+    if (!this.models || this.models.length == 0){
       this.fetchModels()
     }
   },
