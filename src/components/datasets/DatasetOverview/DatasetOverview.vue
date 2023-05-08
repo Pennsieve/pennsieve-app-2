@@ -3,162 +3,144 @@
     <locked-banner
       slot="banner"
     />
-    <bf-rafter slot="heading" class="primary white">
-      <h1
+    <bf-rafter slot="heading" class="overview">
+      <div
         slot="heading"
         class="flex-heading"
       >
-        Dataset Overview
-      </h1>
-      <div
-        v-if="getPermission('manager')"
-        slot="buttons"
-        class="buttons"
-      >
-        <router-link
-          class="edit-link"
-          :to="{
-            name: 'dataset-settings',
-          }"
-        >
-          <bf-button
-            class="primary"
-            :disabled="datasetLocked"
-          >
-            Update Information
-          </bf-button>
-        </router-link>
-      </div>
-    </bf-rafter>
-    <bf-stage slot="stage">
-      <div class="dataset-heading">
-        <dataset-banner
-          empty-state-text="Add a banner image."
-          @click.native="goToBanner"
-        />
-
-        <div class="dataset-heading-info">
-          <h1 class="mb-8">
-            {{ datasetName }}
-          </h1>
-
-          <div class="dataset-owners">
-            <div
-              v-for="(contributor, idx) in datasetContributorsList"
-              :key="contributor.id"
-              class="contributor-item-wrap"
-            >
-              <contributor-item :contributor="contributor" />
-              <template v-if="idx < datasetContributorsList.length - 1">
-                ,
-              </template>
-            </div>
-          </div>
-
-          <!-- eslint-disable vue/no-v-html -->
-          <!-- $sanitize will sanitize the HTML injected -->
-          <div
-            class="dataset-description mb-24"
-            v-html="$sanitize(datasetSubtitle)"
+        <div class="dataset-heading">
+          <dataset-banner
+            empty-state-text="Add a banner image."
+            @click.native="goToBanner"
           />
 
-          <div class="dataset-heading-meta">
-            Last updated on <b>{{ lastUpdatedDate }}</b>
-            <template v-if="isPublished && publishedCount > 0">
-              (<a
+          <div class="dataset-heading-info">
+            <h1 class="mb-8">
+              {{ datasetName }}
+            </h1>
+
+            <div class="dataset-owners">
+              <div
+                v-for="(contributor, idx) in datasetContributorsList"
+                :key="contributor.id"
+                class="contributor-item-wrap"
+              >
+                <contributor-item :contributor="contributor" />
+                <template v-if="idx < datasetContributorsList.length - 1">
+                  ,
+                </template>
+              </div>
+            </div>
+
+            <!-- eslint-disable vue/no-v-html -->
+            <!-- $sanitize will sanitize the HTML injected -->
+            <div
+              class="dataset-description mb-24"
+              v-html="$sanitize(datasetSubtitle)"
+            />
+
+            <div class="dataset-heading-meta">
+              Last updated on <b>{{ lastUpdatedDate }}</b>
+              <template v-if="isPublished && publishedCount > 0">
+                (<a
                 :href="discoverLink"
                 target="_blank"
               >
                 Version {{ publishedVersionLabel }}
               </a>)
-            </template>
+              </template>
 
-            <div class="sharing-status">
+              <div class="sharing-status">
 
-              Last published on <b>{{ publishedDate }}</b>
-              <a
+                Last published on <b>{{ publishedDate }}</b>
+                <a
                   target="_blank"
                   :href="discoverLink"
                   class="discover-link"
                 >
                   View on Discover
                 </a>
+              </div>
+
+              <div class="sharing-status">
+                Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
+              </div>
+
+              <!--            <div class="dataset-corresponding-contributor">-->
+              <!--              <p>Dataset owner:</p>-->
+              <!--              <contributor-item :contributor="correspondingContributor" />-->
+              <!--            </div>-->
+
+              <div>
+
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div class="sharing-status">
-              Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
-            </div>
-
-<!--            <div class="dataset-corresponding-contributor">-->
-<!--              <p>Dataset owner:</p>-->
-<!--              <contributor-item :contributor="correspondingContributor" />-->
-<!--            </div>-->
-
+        <div class="dataset-info-stats">
+          <div class="dataset-info-stat">
+            <svg-icon
+              name="icon-files"
+              height="20"
+              width="20"
+            />
             <div>
-
+              <strong>{{ packageTypeCount }}</strong>
+              <router-link :to="{ name: 'dataset-files' }">
+                Files
+              </router-link>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="dataset-info-stats mb-32">
-        <div class="dataset-info-stat">
-          <svg-icon
-            name="icon-files"
-            height="20"
-            width="20"
-          />
-          <div>
-            <strong>{{ packageTypeCount }}</strong>
-            <router-link :to="{ name: 'dataset-files' }">
-              Files
-            </router-link>
+          <div class="dataset-info-stat">
+            <svg-icon
+              name="icon-storage"
+              height="20"
+              width="20"
+            />
+            <div>
+              <strong>{{ datasetStorage.number }}</strong>
+              {{ datasetStorage.unit }}
+            </div>
           </div>
-        </div>
-        <div class="dataset-info-stat">
-          <svg-icon
-            name="icon-storage"
-            height="20"
-            width="20"
-          />
-          <div>
-            <strong>{{ datasetStorage.number }}</strong>
-            {{ datasetStorage.unit }}
+          <div class="dataset-info-stat">
+            <svg-icon
+              name="icon-document"
+              height="20"
+              width="20"
+            />
+            <div>
+              <strong>{{ totalRecordsCount.toLocaleString('en') }}</strong>
+              <router-link :to="{ name: 'records-overview' }">
+                {{ totalRecordsCountLabel }}
+              </router-link>
+            </div>
           </div>
-        </div>
-        <div class="dataset-info-stat">
-          <svg-icon
-            name="icon-document"
-            height="20"
-            width="20"
-          />
-          <div>
-            <strong>{{ totalRecordsCount.toLocaleString('en') }}</strong>
-            <router-link :to="{ name: 'records-overview' }">
-              {{ totalRecordsCountLabel }}
-            </router-link>
-          </div>
-        </div>
-        <div class="dataset-info-stat">
-          <svg-icon
-            name="icon-license"
-            height="20"
-            width="20"
-          />
-          <div>
-            <router-link
-              :to="{
+          <div class="dataset-info-stat">
+            <svg-icon
+              name="icon-license"
+              height="20"
+              width="20"
+            />
+            <div>
+              <router-link
+                :to="{
                 name: 'dataset-settings',
                 query: {
                   focusInput: 'inputLicense'
                 }
               }"
-            >
-              {{ datasetLicense }}
-            </router-link>
+              >
+                {{ datasetLicense }}
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
+
+    </bf-rafter>
+    <bf-stage slot="stage">
+
 
 <!--      <data-card-->
 <!--        v-if="isChecklistDimissed === false && hasManagerPermissions"-->
@@ -892,7 +874,8 @@ h1 {
 
 .dataset-heading {
   display: flex;
-  margin-bottom: 32px;
+  padding: 32px;
+  background: $purple_tint;
 }
 
 .dataset-banner {
@@ -905,6 +888,7 @@ h1 {
 .dataset-description {
   font-size: 16px;
   line-height: 24px;
+  color: $gray_5;
 }
 
 .dataset-heading-info {
@@ -935,17 +919,23 @@ h1 {
 }
 
 .dataset-info-stats {
+  background: $purple_1;
+  color: white;
   border-bottom: 1px solid $gray_2;
   border-top: 1px solid $gray_2;
   display: flex;
-  padding: 16px;
+  padding: 16px 64px;
   justify-content: space-between;
+
+  a {
+    color: white;
+  }
 }
 .dataset-info-stat {
   align-items: center;
   display: flex;
   .svg-icon {
-    color: #000;
+    color: $white;
     margin-right: 8px;
   }
 }

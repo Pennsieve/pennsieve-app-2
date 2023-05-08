@@ -64,6 +64,22 @@
   background: $purple_1;
   z-index: 5;
 
+  &.overview {
+    background: white;
+    padding: 0;
+    margin: 0;
+
+    h1 {
+      margin: 0;
+      color: $gray_6;
+      font-size: 20px;
+      &.flex-heading {
+        align-items: center;
+        display: flex;
+      }
+    }
+  }
+
   .link-back {
     color: $gray_2;
     font-size: 12px;
