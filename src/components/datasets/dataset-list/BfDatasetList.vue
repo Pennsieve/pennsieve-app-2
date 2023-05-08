@@ -135,7 +135,7 @@
         @close-dialog="newDatasetDialogOpen = false"
       />
 
-      <bf-empty-page-state v-if="isEmptyOrg">
+      <bf-empty-page-state v-if="isEmptyOrg && !isWorkspaceGuest">
         <img
           src="/static/images/illustrations/illo-datasets.svg"
           alt="Add datasets illustration"

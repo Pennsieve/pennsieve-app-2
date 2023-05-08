@@ -29,7 +29,7 @@
         <bf-button
           v-if="showSave"
           class="primary"
-          :disabled="!readyToSave"
+          :disabled="!readyToSave || invalidName"
           @click="triggerAction(DatasetProposalAction.SAVE)"
         >
           Save Draft
@@ -90,6 +90,7 @@
           v-model="proposal.name"
           :readonly="proposalLocked"
         />
+        <p class="warning-message" v-if="invalidName">Invalid character! A dataset proposal name may not contain these characters: {{ reservedCharacters }}</p>
       </data-card>
 
       <data-card
@@ -196,6 +197,7 @@ import RepoSelector from '@/components/welcome/request-survey/RepoSelector.vue'
 import DataCard from "@/components/shared/DataCard/DataCard.vue"
 import datasetProposalEmptyState from './dataset-proposal-empty-state'
 import ProposalContributor from "./ProposalContributor";
+import SanitizeName from '../../../mixins/sanitize-name'
 
 import {
   mapState,
@@ -218,6 +220,9 @@ export default {
     RepoSelector,
     DataCard
   },
+  mixins: [
+    SanitizeName
+  ],
   props: {
     visible: {
       type: Boolean,
@@ -267,6 +272,14 @@ export default {
 
     DatasetProposalAction: function() {
       return DatasetProposalAction
+    },
+
+    invalidName: function() {
+      return this.containsReservedChars(this.proposal.name)
+    },
+
+    reservedCharacters: function() {
+      return this.reservedCharsStr
     },
 
     showSave: function() {
@@ -570,6 +583,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../../../assets/_variables';
 
 .status-info {
   display: flex;
@@ -602,6 +616,10 @@ export default {
 
 .question-card {
   margin: 8px 0;
+}
+
+.warning-message {
+  color: $red_1;
 }
 
 //.el-input__inner {

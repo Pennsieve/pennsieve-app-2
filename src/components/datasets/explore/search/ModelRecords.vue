@@ -1,5 +1,6 @@
 <template>
   <div class="records-explore">
+    <template v-if="hasModels">
       <div class="stage-wrapper">
         <div class="results">
           <h1
@@ -16,75 +17,137 @@
             />
             {{ modelDisplayName }}
           </h1>
-<!--          <h3>-->
-<!--            Filters-->
-<!--            <el-tooltip-->
-<!--              placement="right"-->
-<!--              content="Results will match the filters across linked metadata records in the dataset."-->
-<!--            >-->
-<!--              <svg-icon-->
-<!--                class="icon-filters"-->
-<!--                icon="icon-info-small"-->
-<!--                height="24"-->
-<!--                width="24"-->
-<!--              />-->
-<!--            </el-tooltip>-->
-<!--          </h3>-->
-
-          <search-filter
-            v-for="(filter, idx) in filterParams"
-            :key="filter.id"
-            ref="filters"
-            v-model="filterParams[idx]"
-            class="mb-8"
-            :targets="targets"
-            :is-loading-targets="isLoadingTargets"
-            :disabled="false"
-            :lock-target="false"
-            :show-dataset-label="false"
-            @delete="deleteFilter(idx)"
-            @enter="$emit('enter')"
-            @input-value="onInputValue"
-          />
-
-          <div v-show="recordCount > 0">
-            <div class="mb-24">
-              <button
-                class="linked"
-                :disabled="search.model === ''"
-                @click="addFilter(true)"
+          <template v-if="recordCount === 0">
+            <bf-empty-page-state
+              class="no-results"
+            >
+              <img
+                src="/static/images/illustrations/illo-missing-models.svg"
+                alt=""
               >
-                <svg-icon
-                  name="icon-plus"
-                  height="24"
-                  width="24"
-                />
-                Add Filter
-              </button>
-            </div>
+              <template v-if="propertyCount === 0">
+                <h3> There are no properties for model {{ modelDisplayName }}.</h3>
+                <p>
+                  Before you can create a record, you'll need to add some properties to this model.
+                </p>
+                <router-link
+                          :to="{
+                  name: 'models',
+                  params: {
+                    conceptId: $route.params.conceptId,
+                  }}"
+                >
+                  <bf-button
+                    v-if="getPermission('editor')"
+                    class="no-results-button"
+                    :disabled="datasetLocked"
+                  >
+                    Manage Models
+                  </bf-button>
+                </router-link>
 
-            <record-search-results
-              ref="searchResults"
-              class="mb-48"
-              empty-state-copy="Try a different combination of filters"
-              :dataset-list="[]"
-              :search-criteria="search"
-              :show-search-results="true"
-              :show-controls="false"
-              :show-dataset-column="false"
-              :show-menu-column="false"
-              :show-download-results="false"
-              :is-records-sortable="isSortable"
-              :table-search-params="tableSearchParams"
-              :model="selectedModel"
-              @reset-search-params="resetSearchParams"
-              @sort="setSort"
-              @disable-records-button="isDownloadDisabled = $event"
+              </template>
+              <template v-else>
+                <h3> There are no records for model {{ modelDisplayName }}.</h3>
+                <p>
+                  A record is an instance of a model. For example, if you have a model defined for a "Patient", each record is associated with an individual patient and has values for the properties defined in the Patient model.
+                </p>
+                <router-link
+                  v-if="propertyCount > 0"
+                  :to="{
+                name: 'concept-instance',
+                params: {
+                  conceptId: selectedModel.id,
+                  instanceId: 'new'
+                }
+              }"
+                >
+                  <bf-button
+                    v-if="getPermission('editor')"
+                    class="no-results-button"
+                    :disabled="datasetLocked"
+                  >
+                    Create a New Record
+                  </bf-button>
+                </router-link>
+
+              </template>
+            </bf-empty-page-state>
+          </template>
+          <template v-else>
+
+            <!--          <h3>-->
+            <!--            Filters-->
+            <!--            <el-tooltip-->
+            <!--              placement="right"-->
+            <!--              content="Results will match the filters across linked metadata records in the dataset."-->
+            <!--            >-->
+            <!--              <svg-icon-->
+            <!--                class="icon-filters"-->
+            <!--                icon="icon-info-small"-->
+            <!--                height="24"-->
+            <!--                width="24"-->
+            <!--              />-->
+            <!--            </el-tooltip>-->
+            <!--          </h3>-->
+
+            <search-filter
+              v-for="(filter, idx) in filterParams"
+              :key="filter.id"
+              ref="filters"
+              v-model="filterParams[idx]"
+              class="mb-8"
+              :targets="targets"
+              :is-loading-targets="isLoadingTargets"
+              :disabled="false"
+              :lock-target="false"
+              :show-dataset-label="false"
+              @delete="deleteFilter(idx)"
+              @enter="$emit('enter')"
+              @input-value="onInputValue"
             />
-          </div>
+
+            <div v-show="recordCount > 0">
+              <div class="mb-24">
+                <button
+                  class="linked"
+                  :disabled="search.model === ''"
+                  @click="addFilter(true)"
+                >
+                  <svg-icon
+                    name="icon-plus"
+                    height="24"
+                    width="24"
+                  />
+                  Add Filter
+                </button>
+              </div>
+
+              <record-search-results
+                ref="searchResults"
+                class="mb-48"
+                empty-state-copy="Try a different combination of filters"
+                :dataset-list="[]"
+                :search-criteria="search"
+                :show-search-results="true"
+                :show-controls="false"
+                :show-dataset-column="false"
+                :show-menu-column="false"
+                :show-download-results="false"
+                :is-records-sortable="isSortable"
+                :table-search-params="tableSearchParams"
+                :model="selectedModel"
+                @reset-search-params="resetSearchParams"
+                @sort="setSort"
+                @disable-records-button="isDownloadDisabled = $event"
+              />
+            </div>
+          </template>
+
+
+
         </div>
         <div
-          v-if="hasModels"
           class="models-list-wrap"
           :class="{ 'visible': modelsListVisible }"
         >
@@ -102,56 +165,38 @@
           </div>
         </div>
       </div>
+    </template>
+    <template v-else>
       <bf-empty-page-state
-        v-if="recordCount === 0"
         class="no-results"
       >
-        <img
-          src="/static/images/illustrations/illo-search.svg"
-          alt=""
+      <img
+        src="/static/images/illustrations/illo-missing-models.svg"
+        alt=""
+      >
+      <h3>No metadata models defined</h3>
+      <p>
+        Before you can create metadata records, you'll need to define one or more models.
+      </p>
+
+      <router-link
+        :to="{
+                name: 'models',
+                params: {
+                  conceptId: $route.params.conceptId,
+                }
+              }"
+      >
+        <bf-button
+          v-if="getPermission('editor')"
+          class="no-results-button"
+          :disabled="datasetLocked"
         >
-        <h3>There are no Records for {{ modelDisplayName }}.</h3>
-        <p v-if="propertyCount === 0">
-          Before you can create a record, you'll need to add some properties to this model.
-        </p>
-        <router-link
-          v-if="propertyCount > 0"
-          :to="{
-            name: 'concept-instance',
-            params: {
-              conceptId: $route.params.conceptId,
-              instanceId: 'new'
-            }
-          }"
-        >
-          <bf-button
-            v-if="getPermission('editor')"
-            class="no-results-button"
-            :disabled="datasetLocked"
-          >
-            Create a New Record
-          </bf-button>
-        </router-link>
-        <router-link
-          v-else
-          :to="{
-            name: 'concept-management',
-            params: {
-              conceptId: $route.params.conceptId
-            },
-            query: {
-              open: 1
-            }
-          }"
-        >
-          <bf-button
-            v-if="getPermission('editor')"
-            class="no-results-button"
-          >
-            Add Properties
-          </bf-button>
-        </router-link>
+          Manage Models
+        </bf-button>
+      </router-link>
       </bf-empty-page-state>
+    </template>
   </div>
 </template>
 
@@ -212,7 +257,7 @@ export default {
   mixins: [ ValidateFiltersMixin ],
 
   mounted: function() {
-    if (this.dataset.content){
+    if (!this.models){
       this.fetchModels()
     }
   },
@@ -315,21 +360,27 @@ export default {
      * @returns {Number}
      */
     recordCount: function() {
-      return this.selectedModel.count || 0
+      if (this.selectedModel){
+        return this.selectedModel.count || 0
+      }
+      return 0
     },
 
     /**
      * Compute the number of properties in the model
      */
     propertyCount: function() {
-      return this.selectedModel.propertyCount || 0
+      if (this.selectedModel) {
+        return this.selectedModel.propertyCount || 0
+      }
+      return 0
     },
 
     /**
      * Get the model's display name
      */
     modelDisplayName: function() {
-      return propOr('Unkonwn', 'displayName', this.selectedModel)
+      return propOr('Unknown', 'displayName', this.selectedModel)
       // return this.selectedModel.displayName || 'Files'
     },
 
@@ -384,12 +435,15 @@ export default {
           const m = (this.models || []).find(c => c.id === this.$route.params.conceptId) || {}
           this.setSelectedModel(m.name)
         } else {
-          this.setSelectedModel(this.models[0].name)
+          let selModel = this.models[0]
+          for (let i = 0; i < this.models.length; i++) {
+            if (this.models[i].count > selModel.count) {
+              selModel = this.models[i]
+            }
+          }
+          this.setSelectedModel(selModel.name)
         }
-
-
       }
-
     }
   },
 
@@ -605,6 +659,10 @@ h2 {
   font-size:20px;
   font-weight: 600;
   line-height: 24px;
+  margin: 0 0 16px;
+}
+
+p {
   margin: 0 0 16px;
 }
 

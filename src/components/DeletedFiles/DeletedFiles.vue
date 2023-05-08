@@ -1,6 +1,7 @@
 <template>
   <div class="deleted-files">
     <bf-dialog
+      large
       :title="dialogTitle"
       :open="isOpen"
       @close="onClose"
@@ -16,37 +17,26 @@
         <div v-if="hasFiles">
           <div class="bf-dataset-breadcrumbs">
             <breadcrumb-navigation
+              is-light-background
               :ancestors="ancestorList"
               :file="file"
               :file-id="fileId"
               @navigate-breadcrumb="handleNavigateBreadcrumb"
             />
           </div>
-          <div class="file-pagination">
-            <div><pagination-page-menu class="mr-24" :page-size="100" /></div>
-            <el-pagination
-              :page-size="100"
-              :pager-count="5"
-              :current-page="curFileSearchPage"
-              layout="prev, pager, next"
-              :total="tableResultsTotalCount"
-              @current-change="onPaginationPageChange"
+          <div class="table-container">
+            <files-table
+              v-if="hasFiles"
+              :data="files"
+              :multiple-selected="multipleSelected"
+              within-delete-menu
+              :enable-download="false"
+              @restore="moveBackToFiles"
+              @delete="showDelete2"
+              @selection-change="deleteSetSelectedFiles"
+              @click-file-label="onClickLabelDelete"
             />
           </div>
-          &nbsp;
-          <table-wrapper>
-          <files-table
-            v-if="hasFiles"
-            :data="files"
-            :multiple-selected="multipleSelected"
-            within-delete-menu
-            :enable-download="false"
-            @restore="moveBackToFiles"
-            @delete="showDelete2"
-            @selection-change="deleteSetSelectedFiles"
-            @click-file-label="onClickLabelDelete"
-          ></files-table>
-          </table-wrapper>
         </div>
       </div>
 
@@ -82,16 +72,11 @@
 import EventBus from '../../utils/event-bus'
 import BfButton from '../shared/bf-button/BfButton.vue'
 import BfDialog from '../shared/bf-dialog/bf-dialog.vue'
-import BfRafter from '../shared/bf-rafter/BfRafter.vue'
-import BfMoveDialog from '../datasets/files/bf-move-dialog/BfMoveDialog.vue'
 import BreadcrumbNavigation from '../datasets/files/BreadcrumbNavigation/BreadcrumbNavigation.vue'
-import BfEmptyPageState from '../shared/bf-empty-page-state/BfEmptyPageState.vue'
 import FilesTable from '../FilesTable/FilesTable.vue'
 import Request from '../../mixins/request/index'
 import Sorter from '../../mixins/sorter/index'
 import GetFileProperty from '../../mixins/get-file-property'
-import BfDeleteDialog from '../datasets/files/bf-delete-dialog/BfDeleteDialog.vue'
-import PaginationPageMenu from '../shared/PaginationPageMenu/PaginationPageMenu.vue'
 import { mapGetters } from 'vuex'
 import { pathOr, propOr, isEmpty } from 'ramda'
 export default {
@@ -100,12 +85,7 @@ export default {
     BfButton,
     BfDialog,
     FilesTable,
-    BfEmptyPageState,
-    BfMoveDialog,
-    BfRafter,
-    BreadcrumbNavigation,
-    BfDeleteDialog,
-    PaginationPageMenu
+    BreadcrumbNavigation
   },
 
   mixins: [Sorter, Request, GetFileProperty],
@@ -123,7 +103,7 @@ export default {
       isOpen: false,
       tableResultsTotalCount: 0,
       offset: 0,
-      limit: 10,
+      limit: 100,
       //page: 1,
       //full path, i.e. move destination for 'restore' operation
       origFilePath: '',
@@ -168,7 +148,7 @@ export default {
     deleteUrl: function() {
       if (this.config.apiUrl && this.userToken) {
         return `${this.config.apiUrl}/data/delete?api_key=${this.userToken}`
-      }
+      } else return null
     },
 
     /**
@@ -543,18 +523,16 @@ Need to reach into packages list instead of pulling stuff from url
   margin: -295px 0 0 -350px;
   width: 700px;
 }
-bf-upload-body {
-  height: 200px;
-  overflow-y: auto;
+
+.table-container {
+  overflow-y: scroll;
+  display: block;
+  max-height: 450px;
+  margin-top: 1px;
 }
-table-wrapper{
-  overflow-y:scroll;
-  display:block;
-  height:100px;
-  margin-top:1px;  
-}
-bf-dialog{
-  height: 200px;
-  width: 200px;
+
+.bf-upload-body {
+  border-bottom: 1px solid $gray_2;
+  border-radius: 5px;
 }
 </style>

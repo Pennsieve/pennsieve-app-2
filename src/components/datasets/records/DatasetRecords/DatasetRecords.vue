@@ -12,7 +12,7 @@
         class="tabs unstyled"
       >
         <li>
-          <router-link :to="{ name: 'dataset-records' }">
+          <router-link :to="{ name: 'records' }">
             Records
           </router-link>
         </li>
@@ -22,12 +22,12 @@
           </router-link>
         </li>
         <li>
-          <router-link :to="{ name: 'relationship-types' }">
+          <router-link :to="{ name: 'relationships' }">
             Relationships
           </router-link>
         </li>
         <li>
-          <router-link :to="{ name: 'graph-browser' }">
+          <router-link :to="{ name: 'graph' }">
             Graph Browser
           </router-link>
         </li>

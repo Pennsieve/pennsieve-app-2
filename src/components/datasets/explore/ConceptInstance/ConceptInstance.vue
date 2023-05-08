@@ -6,6 +6,7 @@
     <bf-rafter
       slot="heading"
       :is-editing="editingInstance"
+      :linkBack="linkBackObject"
     >
       <div slot="breadcrumb">
         <template v-if="isFile">
@@ -883,6 +884,10 @@ export default {
         'sourcefiles',
         'filecontent'
       ],
+      linkBackObject: {
+        path: "",
+        name: "Folder"
+      },
       relationships: [],
       isAddingFiles: true,
       isDraggingFiles: false,
@@ -1384,7 +1389,7 @@ export default {
         type = 'Back to Search'
       }
 
-      return lastRouteName === 'concept-search' ? 'Back to Search' : type
+      return lastRouteName === 'dataset-records' ? 'Back to Search' : type
     },
 
     /**
@@ -2400,7 +2405,7 @@ export default {
           let name = propOr('records', 'name', this.lastRoute)
           // if user is attempting to create a new record and cancels, they should go back to search
           if (name === 'concept-instance') {
-            name = 'concept-search'
+            name = 'dataset-records'
           }
           this.$router.replace({
             name
@@ -2732,7 +2737,7 @@ export default {
         method: 'DELETE'
       })
         .then(() => {
-          this.$router.replace({ name: 'concept-search' })
+          this.$router.replace({ name: 'dataset-records' })
 
           EventBus.$emit('toast', {
             detail: {

@@ -123,10 +123,6 @@ const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
 const SubmitDatasets = () => import('../components/welcome/SubmitDatasets.vue')
 const PennsieveInfo = () => import('../components/welcome/Info.vue')
 
-
-
-
-
 const routes = [
 
   /**
@@ -232,27 +228,27 @@ const routes = [
     },
     children: [
       {
-        path: 'records/:conceptId/:instanceId',
-        name: 'concept-instance',
-        props: true,
-        meta: {
-          headerAux: true
-        },
-        components: {
-          stage: ConceptInstance
-        }
-      },
-
-      {
+        name: 'metadata',
         path: 'metadata',
         components: {
           stage: ExploreRoute
         },
         props: true,
+        redirect: {
+          name: 'records'
+        },
         children: [
           {
-            path: '',
-            name: 'metadata',
+            path: 'model/:conceptId',
+            name: 'model',
+            props: true,
+            components: {
+              stage: ConceptManagement
+            }
+          },
+          {
+            path: 'management',
+            name: 'management',
             props: {
               stage: true
             },
@@ -260,12 +256,12 @@ const routes = [
               stage: DatasetRecords
             },
             redirect: {
-              name: 'dataset-records'
+              name: 'records'
             },
             children: [
               {
                 path: 'records',
-                name: 'dataset-records',
+                name: 'records',
                 props: {
                   stage: true
                 },
@@ -284,8 +280,8 @@ const routes = [
                 }
               },
               {
-                path: 'relationship-types',
-                name: 'relationship-types',
+                path: 'relationships',
+                name: 'relationships',
                 props: {
                   stage: true
                 },
@@ -294,8 +290,8 @@ const routes = [
                 }
               },
               {
-                path: 'graph-browser',
-                name: 'graph-browser',
+                path: 'graph',
+                name: 'graph',
                 props: {
                   stage: true
                 },
@@ -306,7 +302,17 @@ const routes = [
 
             ]
           },
-
+          {
+            path: 'record/:conceptId/:instanceId',
+            name: 'concept-instance',
+            props: true,
+            meta: {
+              headerAux: true
+            },
+            components: {
+              stage: ConceptInstance
+            }
+          },
         ]
       },
       {
@@ -337,13 +343,13 @@ const routes = [
           stage: ConceptInstance
         }
       },
-      {
-        path: 'graph-management',
-        components: {
-          stage: GraphManagementRoute
-        },
-        props: true,
-        children: [
+      // {
+      //   path: 'graph-management',
+      //   components: {
+      //     stage: GraphManagementRoute
+      //   },
+      //   props: true,
+      //   children: [
           // {
           //   path: '',
           //   name: 'graph-management',
@@ -371,24 +377,17 @@ const routes = [
           //     }
           //   ]
           // },
-          {
-            path: 'model-templates',
-            name: 'model-templates',
-            props: true,
-            components: {
-              stage: ModelTemplates
-            }
-          },
-          {
-            path: ':conceptId',
-            name: 'concept-management',
-            props: true,
-            components: {
-              stage: ConceptManagement
-            }
-          },
-        ]
-      },
+          // {
+          //   path: 'model-templates',
+          //   name: 'model-templates',
+          //   props: true,
+          //   components: {
+          //     stage: ModelTemplates
+          //   }
+          // },
+        //
+        // ]
+      // },
       {
         name: 'dataset-collaborators',
         path: 'collaborators',

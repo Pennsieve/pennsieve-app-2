@@ -1,9 +1,6 @@
 <template>
-  <div class="files-table">
-    <div
-      v-if="selection.length > 0"
-      class="selection-menu-wrap mb-16"
-    >
+  <div class="files-table" :class="withinDeleteMenu && 'undelete-modal'">
+    <div v-if="selection.length > 0" class="selection-menu-wrap mb-16">
       <el-checkbox
         id="check-all"
         v-model="checkAll"
@@ -11,9 +8,7 @@
         @change="onCheckAllChange"
       />
 
-      <span id="selection-count-label">
-        {{ selectionCountLabel }}
-      </span>
+      <span id="selection-count-label">{{ selectionCountLabel }}</span>
       <ul class="selection-actions unstyled">
       <template v-if='withinDeleteMenu'>
 
@@ -69,10 +64,7 @@
         </li>
          </template>
         <li>
-          <button
-            class="linked btn-selection-action"
-            @click="onDownloadClick"
-          >
+          <button class="linked btn-selection-action" @click="onDownloadClick">
             <svg-icon
               class="mr-8"
               icon="icon-upload"
@@ -90,7 +82,7 @@
       ref="table"
       :border="true"
       :data="data"
-      :default-sort="{prop: 'content.name', order: 'ascending'}"
+      :default-sort="{ prop: 'content.name', order: 'ascending' }"
       :row-class-name="getRowClassName"
       @selection-change="handleTableSelectionChange"
       @sort-change="onSortChange"
@@ -99,6 +91,7 @@
       <el-table-column
         type="selection"
         align="center"
+        :selectable="withinDeleteMenu ? canSelectRow : null"
         fixed
         width="50"
       />
@@ -129,7 +122,7 @@
           />
         </template>
       </el-table-column>
-      <template v-if='!withinDeleteMenu'>
+      <template v-if="!withinDeleteMenu">
         <el-table-column
           prop="subtype"
           label="Kind"
@@ -191,14 +184,8 @@
 </template>
 
 <script>
-import {
-  pathOr,
-  propOr
-} from 'ramda'
-import {
-  mapGetters,
-  mapState
-} from 'vuex'
+import { pathOr, propOr } from 'ramda'
+import { mapGetters, mapState } from 'vuex'
 import EventBus from '@/utils/event-bus'
 
 import BfFileLabel from '../datasets/files/bf-file/BfFileLabel.vue'
@@ -218,13 +205,7 @@ export default {
     TableMenu
   },
 
-  mixins: [
-    BfStorageMetrics,
-    FileIcon,
-    FormatDate,
-    Sorter,
-    TableFunctions
-  ],
+  mixins: [BfStorageMetrics, FileIcon, FormatDate, Sorter, TableFunctions],
 
   props: {
     data: {
@@ -253,7 +234,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       activeRow: {},
       selection: [],
@@ -263,21 +244,17 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'getPermission',
-      'datasetLocked',
-    ]),
+    ...mapGetters(['getPermission', 'datasetLocked']),
 
-    ...mapState([
-      'dataset',
-      'filesProxyId'
-    ]),
+    ...mapState(['dataset', 'filesProxyId']),
     /**
      * Compute if the checkbox is indeterminate
      * @returns {Boolean}
      */
     isIndeterminate: function() {
-      return this.selection.length > 0 && this.selection.length < this.data.length
+      return (
+        this.selection.length > 0 && this.selection.length < this.data.length
+      )
     },
 
     /**
@@ -286,9 +263,7 @@ export default {
      */
     selectionCountLabel: function() {
       const selectionCount = this.selection.length
-      const fileWord = selectionCount === 1
-        ? 'file'
-        : 'files'
+      const fileWord = selectionCount === 1 ? 'file' : 'files'
       return `${selectionCount} ${fileWord} selected`
     }
   },
@@ -301,6 +276,10 @@ export default {
      */
     selectRow: function(row, selected = null) {
       this.$refs.table.toggleRowSelection(row, selected)
+    },
+
+    canSelectRow: row => {
+      return row.state === 'DELETED'
     },
 
     /**
@@ -375,7 +354,7 @@ export default {
       }
     },
 
-    onRowClick: function(row,selected){
+    onRowClick: function(row, selected) {
       this.$refs.table.clearSelection()
       this.$refs.table.toggleRowSelection(row, true)
     },
@@ -444,9 +423,14 @@ export default {
      */
     getRowClassName: function(tableRow) {
       const { row } = tableRow
+
       const id = pathOr('', ['content', 'nodeId'], row)
       const trimmedId = id.replace(/:/g, '')
-      return `file-row-${trimmedId}`
+
+      return `${tableRow.row.state !== 'DELETED' &&
+        this.withinDeleteMenu &&
+        'disable-select'} ${tableRow.row.state === 'READY' &&
+        'allow-file-navigation'} file-row-${trimmedId}`
     }
   }
 }
@@ -457,17 +441,22 @@ export default {
 
 .files-table {
   position: relative;
-  flex:1 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
+  min-height: calc(100vh - 200px);
   border: 1px solid $gray_2;
   border-radius: 4px;
+  &.undelete-modal {
+    min-height: calc(100vh - 400px);
+    border-bottom: none;
+  }
 }
 .el-table {
   width: 100%;
 }
 
 .el-table--border /deep/ {
-  border: none
+  border: none;
 }
 
 .el-table--border /deep/ td {
@@ -502,17 +491,18 @@ export default {
 }
 .link-file {
   color: $text-color;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     color: $app-primary-color;
   }
 }
 #check-all {
-  margin-right: 37px
+  margin-right: 37px;
 }
 #selection-count-label {
   font-size: 12px;
   font-weight: 700;
-  transform: translateY(1px)
+  transform: translateY(1px);
 }
 .selection-menu-wrap {
   background: #e9edf6;
@@ -524,7 +514,7 @@ export default {
   position: absolute;
   justify-content: space-between;
   width: 100%;
-  z-index: 10
+  z-index: 10;
 }
 .selection-actions {
   display: flex;
@@ -536,13 +526,24 @@ export default {
   tr {
     transition: background-color 0.3s ease-in-out;
   }
-  td, th {
+  td,
+  th {
     padding: 8px 0;
   }
+
+  .disable-select {
+    pointer-events: none;
+  }
+
+  .allow-file-navigation button {
+    pointer-events: auto;
+  }
+
   .cell {
     padding-left: 16px;
     padding-right: 16px;
   }
+
   .caret-wrapper {
     display: none;
   }

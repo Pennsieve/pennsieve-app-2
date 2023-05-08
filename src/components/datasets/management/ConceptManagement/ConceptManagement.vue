@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       :is-editing="hasChanges"
+      :linkBack="linkBackObject"
     >
       <div
         id="concept-title"
@@ -22,6 +23,7 @@
           />
           {{ modelName }}
         </h1>
+
       </div>
 
       <template slot="breadcrumb">
@@ -104,16 +106,16 @@
         </div>
       </template>
 
-      <ul
-        slot="tabs"
-        class="tabs unstyled"
-      >
-        <li>
-          <router-link :to="{ name: 'concept-management' }">
-            Properties
-          </router-link>
-        </li>
-      </ul>
+<!--      <ul-->
+<!--        slot="tabs"-->
+<!--        class="tabs unstyled"-->
+<!--      >-->
+<!--        <li>-->
+<!--          <router-link :to="{ name: 'concept-management' }">-->
+<!--            Properties-->
+<!--          </router-link>-->
+<!--        </li>-->
+<!--      </ul>-->
     </bf-rafter>
 
     <bf-stage
@@ -234,7 +236,11 @@ export default {
       propertyDeletionState: PROPERTY_DELETION_STATES.INITIAL,
       propertyRecordUsageCount: 0,
       savingChanges: false,
-      stringSubtypes: []
+      stringSubtypes: [],
+      linkBackObject: {
+        path: "models",
+        name: "Model List"
+      }
     }
   },
 

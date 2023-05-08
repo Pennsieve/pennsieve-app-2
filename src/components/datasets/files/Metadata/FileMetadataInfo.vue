@@ -1,31 +1,7 @@
 <template>
-  <bf-page v-show="true">
+  <bf-page>
     <div class="file-meta-data-info">
-      <div class="header">
-        <div>Details</div>
-        <template v-if="onFilesPage">
-          <div class="undelete-button-container">
-            <el-tooltip
-              placement="top"
-              content="Restore Deleted Files"
-              :open-delay="300"
-            >
-              <button
-                class="undelete-button linked btn-selection-action"
-                @click="NavToDeleted"
-              >
-                <svg-icon
-                  class="mr-8"
-                  icon="icon-trash"
-                  height="22"
-                  width="22"
-                />
-              </button>
-            </el-tooltip>
-          </div>
-        </template>
-      </div>
-
+      <div class="header"><div>Details</div></div>
       <template v-if="showFileFolderInfo">
         <div class="file-info">
           <div class="key-value">
@@ -351,11 +327,6 @@ export default {
           msg: 'The package ID was copied to the clipboard'
         }
       })
-    },
-    //Navigates to dataset trash bin modal
-    NavToDeleted: function() {
-      //CONSIDER DOING SOMETHING LIKE FETCHFILES()
-      EventBus.$emit('openDeletedModal', true)
     }
   }
 }
@@ -367,15 +338,6 @@ export default {
 .dataset-info {
   margin: 8px;
   font-size: 12px;
-}
-
-.undelete-button {
-  padding: 10px;
-}
-
-.undelete-button-container {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .file-meta-data-info {

@@ -49,7 +49,7 @@
           </a>
         </template>
         -->
-        <template v-if="datasetRequest.proposalStatus === 'DRAFT'">
+        <template v-if="datasetRequest.proposalStatus === 'DRAFT' && readyToSubmit">
           <a
             href="#"
             @click.prevent="triggerRequest(DatasetProposalAction.SUBMIT)"
@@ -157,7 +157,12 @@ export default {
     statusStr: function() {
       return this.datasetRequest.proposalStatus.toUpperCase();
     },
-
+    readyToSubmit: function() {
+      let validName = this.datasetRequest.name !== null && this.datasetRequest.name !== ""
+      let validDescription = this.datasetRequest.description !== null && this.datasetRequest.description !== ""
+      let surveyCompleted = this.surveyComplete()
+      return validName && validDescription && surveyCompleted
+    },
     DatasetProposalAction: function() {
       return DatasetProposalAction
     },
@@ -177,10 +182,30 @@ export default {
         'setRepositoryDescription',
       ]
     ),
+    ...mapGetters('repositoryModule',[
+      'getRepositoryById'
+    ]),
     openInfoPanel: function(event) {
       console.log("RequestListItem::openInfoPanel() event:")
       console.log(event)
       this.$emit("open", this.datasetRequest)
+    },
+    surveyComplete: function() {
+      let result = false
+      let repositoryId = this.datasetRequest.repositoryId
+      let repository = this.getRepositoryById(repositoryId)
+
+      if (repository && repository.questions != null && this.datasetRequest && this.datasetRequest.survey != null) {
+        // for each question in repository.questions
+        // check whether this.datasetRequest.survey contains an object with the same questionId
+        // and check whether the response is not null and not the empty string
+        result = repository.questions.map(q => {
+          let answer = this.datasetRequest.survey.find(r => r.questionId === q.id)
+          return answer && answer.response !== ""
+        }).reduce((a,c) => a && c, true)
+      }
+
+      return result
     },
     triggerRequest: function(request) {
       console.log(`RequestListItem::triggerRequest() request: ${request}`)

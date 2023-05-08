@@ -8,6 +8,12 @@
         <div class="dataset-name">{{ datasetNameDisplay() }}</div>
       </div>
     </template>
+    <template v-if="backLinkVisible">
+      <div class="link-back" @click.prevent="pageBackRoute">
+          < Back to {{linkBack.name}}
+      </div>
+    </template>
+
     <div
       v-if="this.$slots['breadcrumb'] == 'has-breadcrumb'"
       class="row bf-rafter-breadcrumb"
@@ -57,6 +63,12 @@
   transition: 0.15s padding linear;
   background: $purple_1;
   z-index: 5;
+
+  .link-back {
+    color: $gray_2;
+    font-size: 12px;
+    cursor: pointer;
+  }
 
   &.primary {
     background: $gray_1;
@@ -279,6 +291,12 @@ export default {
     isEditing: {
       type: Boolean,
       default: false
+    },
+    linkBack: {
+      type: Object,
+      default: () => {
+        return {}
+      }
     }
   },
 
@@ -298,8 +316,8 @@ export default {
         'publishing-settings',
         'integrations-settings',
         'embargoed-permissions',
-        'relationship-types',
-        'graph-browser',
+        'relationships',
+        'graph',
         'collection-files',
         'records-overview',
         'dataset-files',
@@ -309,8 +327,7 @@ export default {
         'dataset-settings',
         'concept-search',
         'metadata',
-        'concept-instance',
-        'dataset-records'
+        'records'
       ]
     }
   },
@@ -322,6 +339,10 @@ export default {
       'datasetRafterVisStatus',
       'datasetRafterVisStatus2'
     ]),
+
+    backLinkVisible: function() {
+      return Object.keys(this.linkBack).length > 0
+    },
 
     ...mapGetters(['getPermission', 'userToken', 'config']),
     currentRouteName: function() {
@@ -398,6 +419,10 @@ export default {
 
   methods: {
     ...mapActions(['updateDataset', 'setDataset']),
+
+    pageBackRoute: function() {
+      this.$router.back()
+    },
 
     datasetName: function() {
       return pathOr('', ['content', 'name'], this.dataset)

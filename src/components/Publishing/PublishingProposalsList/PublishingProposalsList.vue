@@ -196,7 +196,7 @@ export default {
     },
 
     hasProposals: function() {
-      return this.proposals.length > 0
+      return this.proposals != null && this.proposals.length > 0
     },
 
     /**
@@ -337,6 +337,7 @@ export default {
     confirmedAction: async function(event) {
       console.log("PublishingProposalsList::confirmedAction() event:")
       console.log(event)
+      this.updateRequestModalVisible(false)
       this.resetConfirmation()
       if (event.action && event.resource) {
         switch (event.action) {
