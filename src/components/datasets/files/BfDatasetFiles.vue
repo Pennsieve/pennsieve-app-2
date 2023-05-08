@@ -897,7 +897,7 @@ export default {
   justify-content: flex-end;
   margin-top: 15px;
   margin-bottom: 15px;
-  margin-right: 40px;
+  margin-right: 8px;
 }
 
 .actions-item {
