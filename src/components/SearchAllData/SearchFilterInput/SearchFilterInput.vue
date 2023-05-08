@@ -73,7 +73,7 @@
         v-if="!isEnum && !isNumber && !isBoolean && !isDate && !loading"
         class="bf-menu scroll-menu"
       >
-        <ul v-if="valueSuggestions.length">
+        <ul v-if="valueSuggestions && valueSuggestions.length">
           <h2>Suggested values</h2>
           <ul>
             <li
@@ -91,7 +91,7 @@
           </ul>
         </ul>
         <p
-          v-if="valueSuggestions.length === 0"
+          v-if="valueSuggestions === null || valueSuggestions.length === 0"
           class="filter-empty-state"
         >
           No suggestions found

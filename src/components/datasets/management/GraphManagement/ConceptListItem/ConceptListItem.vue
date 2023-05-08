@@ -17,7 +17,7 @@
         >
           <router-link
             :to="{
-              name: 'concept-management',
+              name: 'model',
               params: { conceptId: concept.id }
             }"
           >

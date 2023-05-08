@@ -160,129 +160,129 @@
         </div>
       </div>
 
-      <data-card
-        v-if="isChecklistDimissed === false && hasManagerPermissions"
-        class="mb-32 grey compact"
-        title="Dataset Publishing Checklist:"
-        :padding="false"
-      >
-        <button
-          slot="title-aux"
-          class="linked"
-          @click="dismissDatasetChecklist"
-        >
-          Dismiss
-        </button>
+<!--      <data-card-->
+<!--        v-if="isChecklistDimissed === false && hasManagerPermissions"-->
+<!--        class="mb-32 grey compact"-->
+<!--        title="Dataset Publishing Checklist:"-->
+<!--        :padding="false"-->
+<!--      >-->
+<!--        <button-->
+<!--          slot="title-aux"-->
+<!--          class="linked"-->
+<!--          @click="dismissDatasetChecklist"-->
+<!--        >-->
+<!--          Dismiss-->
+<!--        </button>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasSubtitle)"
-          :route="{
-            name: 'dataset-settings',
-            query: {
-              focusInput: 'inputDescription'
-            }
-          }"
-          cta="Add a subtitle"
-        >
-          gives others a brief description of your dataset.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasSubtitle)"-->
+<!--          :route="{-->
+<!--            name: 'dataset-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'inputDescription'-->
+<!--            }-->
+<!--          }"-->
+<!--          cta="Add a subtitle"-->
+<!--        >-->
+<!--          gives others a brief description of your dataset.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasTags)"
-          :route="{
-            name: 'dataset-settings',
-            query: {
-              focusInput: 'inputTags'
-            }
-          }"
-          cta="Add tags"
-        >
-          make it easier for people to find your dataset in Discover.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasTags)"-->
+<!--          :route="{-->
+<!--            name: 'dataset-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'inputTags'-->
+<!--            }-->
+<!--          }"-->
+<!--          cta="Add tags"-->
+<!--        >-->
+<!--          make it easier for people to find your dataset in Discover.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasDescription)"
-          cta="Add a description"
-          :route="{
-            query: {
-              editDescription: true
-            }
-          }"
-        >
-          provide a detailed overview of your dataset and outline your findings and analysis for others.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasDescription)"-->
+<!--          cta="Add a description"-->
+<!--          :route="{-->
+<!--            query: {-->
+<!--              editDescription: true-->
+<!--            }-->
+<!--          }"-->
+<!--        >-->
+<!--          provide a detailed overview of your dataset and outline your findings and analysis for others.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasBanner)"
-          cta="Add an image"
-          :route="{
-            name: 'dataset-settings',
-            query: {
-              focusInput: 'bannerImage'
-            }
-          }"
-        >
-          add an image to help your dataset stand out in listings.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasBanner)"-->
+<!--          cta="Add an image"-->
+<!--          :route="{-->
+<!--            name: 'dataset-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'bannerImage'-->
+<!--            }-->
+<!--          }"-->
+<!--        >-->
+<!--          add an image to help your dataset stand out in listings.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasContributors)"
-          cta="Add contributors"
-          :route="{
-            name: 'dataset-settings',
-            query: {
-              focusInput: 'inputAddContributor'
-            }
-          }"
-        >
-          list all of the people who have contributed to this dataset.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasContributors)"-->
+<!--          cta="Add contributors"-->
+<!--          :route="{-->
+<!--            name: 'dataset-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'inputAddContributor'-->
+<!--            }-->
+<!--          }"-->
+<!--        >-->
+<!--          list all of the people who have contributed to this dataset.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasDatasetDoi)"
-          cta="Reserve a DOI"
-          :route="{
-            name: 'publishing-settings',
-            query: {
-              focusInput: 'dataciteDoi'
-            }
-          }"
-        >
-          reserve a DataCite DOI for published research.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasDatasetDoi)"-->
+<!--          cta="Reserve a DOI"-->
+<!--          :route="{-->
+<!--            name: 'publishing-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'dataciteDoi'-->
+<!--            }-->
+<!--          }"-->
+<!--        >-->
+<!--          reserve a DataCite DOI for published research.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(hasDatasetLicense)"
-          cta="Add a license"
-          :route="{
-            name: 'dataset-settings',
-            query: {
-              focusInput: 'inputLicense'
-            }
-          }"
-        >
-          let others know how they can use this data in their own research.
-        </checklist-item>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(hasDatasetLicense)"-->
+<!--          cta="Add a license"-->
+<!--          :route="{-->
+<!--            name: 'dataset-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'inputLicense'-->
+<!--            }-->
+<!--          }"-->
+<!--        >-->
+<!--          let others know how they can use this data in their own research.-->
+<!--        </checklist-item>-->
 
-        <checklist-item
-          :icon="computeChecklistIcon(datasetOwnerHasOrcidId)"
-          cta="Link ORCID Account"
-          :route="{
-            name: 'publishing-settings',
-            query: {
-              focusInput: 'orcidId'
-            }
-          }"
-          :show-link="isDatasetOwner"
-        >
-          <template v-if="isDatasetOwner">
-            link your ORCID iD to distinguish yourself from other researchers
-          </template>
-          <template v-else>
-            link the dataset owner's ORCID iD to distinguish themselves from other researchers
-          </template>
-        </checklist-item>
-      </data-card>
+<!--        <checklist-item-->
+<!--          :icon="computeChecklistIcon(datasetOwnerHasOrcidId)"-->
+<!--          cta="Link ORCID Account"-->
+<!--          :route="{-->
+<!--            name: 'publishing-settings',-->
+<!--            query: {-->
+<!--              focusInput: 'orcidId'-->
+<!--            }-->
+<!--          }"-->
+<!--          :show-link="isDatasetOwner"-->
+<!--        >-->
+<!--          <template v-if="isDatasetOwner">-->
+<!--            link your ORCID iD to distinguish yourself from other researchers-->
+<!--          </template>-->
+<!--          <template v-else>-->
+<!--            link the dataset owner's ORCID iD to distinguish themselves from other researchers-->
+<!--          </template>-->
+<!--        </checklist-item>-->
+<!--      </data-card>-->
 
       <data-card
         ref="descriptionDataCard"

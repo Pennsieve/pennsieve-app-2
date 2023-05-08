@@ -159,12 +159,11 @@
   .graph-browser {
     height: 100%;
     margin: -32px;
-    height: calc(100vh - 130px);
+    height: calc(100vh - 114px);
     overflow: hidden;
     position: relative;
   }
   .models-list-wrap {
-    background: #fff;
     box-shadow: -3px 1px 11px 0 rgba(0,0,0,0.21);
     height: 100%;
     position: absolute;
@@ -182,10 +181,11 @@
   .models-list-scroll {
     height: 100%;
     overflow: hidden;
+    background: $gray_1;
   }
   .btn-toggle-models-list {
     align-items: center;
-    background: #fff;
+    background: $gray_1;
     box-shadow: -3px 1px 11px 0 rgba(0,0,0,0.21);
     display: flex;
     height: 32px;
@@ -195,7 +195,7 @@
     top: 20px;
     width: 33px;
     &:after {
-      background: white;
+      background: $gray_1;
       content: '';
       height: 100%;
       pointer-events: none;

@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       :is-editing="hasChanges"
+      :linkBack="linkBackObject"
     >
       <div
         id="concept-title"
@@ -22,6 +23,7 @@
           />
           {{ modelName }}
         </h1>
+
       </div>
 
       <template slot="breadcrumb">
@@ -61,7 +63,7 @@
             </bf-button>
             <bf-button
               :disabled="datasetLocked"
-              class="add-property"
+              class="add-property secondary"
               @click="openCreateProperty"
             >
               Add Property
@@ -104,16 +106,16 @@
         </div>
       </template>
 
-      <ul
-        slot="tabs"
-        class="tabs unstyled"
-      >
-        <li>
-          <router-link :to="{ name: 'concept-management' }">
-            Properties
-          </router-link>
-        </li>
-      </ul>
+<!--      <ul-->
+<!--        slot="tabs"-->
+<!--        class="tabs unstyled"-->
+<!--      >-->
+<!--        <li>-->
+<!--          <router-link :to="{ name: 'concept-management' }">-->
+<!--            Properties-->
+<!--          </router-link>-->
+<!--        </li>-->
+<!--      </ul>-->
     </bf-rafter>
 
     <bf-stage
@@ -234,7 +236,11 @@ export default {
       propertyDeletionState: PROPERTY_DELETION_STATES.INITIAL,
       propertyRecordUsageCount: 0,
       savingChanges: false,
-      stringSubtypes: []
+      stringSubtypes: [],
+      linkBackObject: {
+        path: "models",
+        name: "Model List"
+      }
     }
   },
 
@@ -1145,11 +1151,11 @@ export default {
 
 .bf-concept-managment {
   header {
-    background: #fff;
+    background: $purple_1;
   }
 
   .back-to-concepts {
-    color: $purple_1;
+    color: white;
 
     svg {
       margin: -2px 8px 0 0;

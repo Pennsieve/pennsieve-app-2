@@ -7,3 +7,4 @@ export default {
   name: 'ExploreRoute'
 }
 </script>
+

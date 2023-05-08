@@ -10,6 +10,7 @@ import collectionsModule from './modules/collectionsModule'
 import integrationsModule from './modules/integrationsModule'
 import filesModule from './modules/filesModule'
 import repositoryModule from './modules/repositoryModule'
+import metadataModule from './modules/metadataModule'
 
 Vue.use(Vuex)
 
@@ -948,6 +949,7 @@ export default new Vuex.Store({
     collectionsModule,
     integrationsModule,
     filesModule,
-    repositoryModule
+    repositoryModule,
+    metadataModule
   }
 })

@@ -10,53 +10,59 @@
 
       <span id="selection-count-label">{{ selectionCountLabel }}</span>
       <ul class="selection-actions unstyled">
-        <template v-if="withinDeleteMenu">
-          <li class="mr-24">
-            <button
-              v-if="!searchAllDataMenu"
-              class="linked btn-selection-action"
-              :disabled="datasetLocked"
-              @click="$emit('restore')"
-            >
-              <svg-icon
-                class="mr-8"
-                icon="icon-move-file"
-                height="16"
-                width="16"
-              />
-              Restore the {{ selectionCountLabel }}
-            </button>
-          </li>
-        </template>
-        <template v-else>
-          <li class="mr-24">
-            <button
-              v-if="!searchAllDataMenu"
-              class="linked btn-selection-action"
-              :disabled="datasetLocked"
-              @click="$emit('delete')"
-            >
-              <svg-icon class="mr-8" icon="icon-trash" height="16" width="16" />
-              Delete
-            </button>
-          </li>
-          <li class="mr-24">
-            <button
-              v-if="!searchAllDataMenu"
-              class="linked btn-selection-action"
-              :disabled="datasetLocked"
-              @click="$emit('move')"
-            >
-              <svg-icon
-                class="mr-8"
-                icon="icon-move-file"
-                height="16"
-                width="16"
-              />
-              Move to&hellip;
-            </button>
-          </li>
-        </template>
+      <template v-if='withinDeleteMenu'>
+
+      <li class="mr-24">
+        <button
+          v-if="!searchAllDataMenu"
+          class="linked btn-selection-action"
+          :disabled="datasetLocked"
+          @click="$emit('restore')"
+        >
+          <svg-icon
+            class="mr-8"
+            icon="icon-move-file"
+            height="16"
+            width="16"
+          />
+          Restore the {{ selectionCountLabel }}
+        </button>
+      </li>
+      </template>
+       <template v-else>
+        <li class="mr-24">
+          <button
+            v-if="!searchAllDataMenu"
+            class="linked btn-selection-action"
+            :disabled="datasetLocked"
+            @click="$emit('delete')"
+          >
+            <svg-icon
+              class="mr-8"
+              icon="icon-trash"
+              height="16"
+              width="16"
+            />
+            Delete
+          </button>
+        </li>
+        <li class="mr-24">
+          <button
+            v-if="!searchAllDataMenu"
+            class="linked btn-selection-action"
+            :disabled="datasetLocked"
+            @click="$emit('move')"
+          >
+            <svg-icon
+              class="mr-8"
+              icon="icon-move-file"
+              height="16"
+              width="16"
+            />
+            Move to&hellip;
+          </button>
+        </li>
+         </template>
         <li>
           <button class="linked btn-selection-action" @click="onDownloadClick">
             <svg-icon

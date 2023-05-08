@@ -76,24 +76,28 @@
             @delete="onDeleteOperation"
           />
 
-          <search-filter-input
-            v-if="filter.operation"
-            ref="filterInput"
-            v-model="filter.value"
-            class="filter-criteria"
-            :property-type="filter.propertyType"
-            :value-suggestions="valueSuggestions"
-            :loading="isLoadingValueSuggestions"
-            @delete="onDeleteFilterValue"
-            @keyup.native.enter="$emit('enter')"
-            @input="onFilterInput"
-            @focus="getValueSuggestions"
-          />
           <div
-            v-if="filter.operation"
-          >
-            {{ propertyHasUnit(filter.propertyType) }}
+            class="filter-criteria value">
+            <search-filter-input
+              v-if="filter.operation"
+              ref="filterInput"
+              v-model="filter.value"
+              :property-type="filter.propertyType"
+              :value-suggestions="valueSuggestions"
+              :loading="isLoadingValueSuggestions"
+              @delete="onDeleteFilterValue"
+              @keyup.native.enter="$emit('enter')"
+              @input="onFilterInput"
+              @focus="getValueSuggestions"
+            />
+            <div
+              v-if="filter.operation"
+            >
+              {{ propertyHasUnit(filter.propertyType) }}
+            </div>
+
           </div>
+
         </div>
       </div>
       <button
@@ -272,6 +276,9 @@ export default {
       'activeOrganization',
       'config',
       'userToken'
+    ]),
+    ...mapState('metadataModule',[
+      'filterParams'
     ]),
 
     /**
@@ -608,9 +615,58 @@ export default {
      * @param {Event} evt
      */
     onFilterInput: function(evt) {
+      console.log("input changed")
       this.$emit('input-value')
       this.getValueSuggestions(evt)
     },
+
+    async autocomplete (prefix) {
+      const url = `${this.config.api2Url}/metadata/query/autocomplete?dataset_id=${this.$route.params.datasetId}`
+
+      let requestFilters = this.filterParams.filter(value => {
+        return value.value != ''
+      }).map(value => {
+        return {
+          "model": value.target,
+          "property": value.property,
+          "operator": value.operation,
+          "value": value.value
+        }
+      })
+      //
+      // let requestFilters = this.filterParams.map(value => {
+      //   return {
+      //     "model": value.model,
+      //     "property": value.property,
+      //     "operator": value.operator,
+      //     "value": value.value
+      //   }
+      // })
+
+      let queryBody = {
+        model: this.filter.target,
+        filters: requestFilters,
+        text: prefix,
+        property: this.filter.property
+      }
+
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.userToken}`
+        },
+        body: JSON.stringify(queryBody)
+      })
+
+      if (resp.ok) {
+        const response = await resp.json()
+        this.valueSuggestions = response.values
+      }
+
+      this.isLoadingValueSuggestions = false
+    },
+
 
     getValueSuggestions: debounce(function(evt) {
       const prefix = defaultTo('', evt)
@@ -619,7 +675,7 @@ export default {
        * Do not make the request if the prefix
        * was already requested and loaded
        */
-      if (prefix === this.valueSuggestionsPrefix) {
+      if (prefix === this.valueSuggestionsPrefix && prefix != '') {
         return
       }
 
@@ -630,35 +686,8 @@ export default {
 
       // Reset current value suggestions
       this.valueSuggestions = []
-      let url = `${this.config.conceptsUrl}/v2/organizations/${this.activeOrganizationIntId}/autocomplete/${this.filter.target}/${this.filter.property}/values?prefix=${prefix}`
-      const unit = this.propertyHasUnit(this.filter.propertyType)
-
-      if ( unit !== '' && unit !== null) {
-        url += `&unit=${unit}`
-      }
-
-      if(this.filter.datasetIntId) {
-        url += `&datasetId=${this.filter.datasetIntId}`
-      }
-
-      this.sendXhr(url, {
-        header: {
-          'Authorization': `Bearer ${this.userToken}`
-        }
-      })
-        .then(response => {
-          this.valueSuggestions = compose(
-            uniq,
-            propOr([], 'values'),
-            find(pathEq(['property', 'dataType', 'type'], this.propertyDataType))
-          )(response)
-        })
-        .catch(this.handleXhrError.bind(this))
-        .finally(() => {
-          // Set properties loading state
-          this.isLoadingValueSuggestions = false
-        })
-    }, 500)
+      this.autocomplete((prefix))
+    })
   }
 }
 </script>
@@ -702,16 +731,28 @@ export default {
   flex: 1;
   overflow-x: auto;
   overflow-y: hidden;
+  height: 24px;
 }
 .filter-criteria {
   margin-right: 8px;
   &:last-child {
-    flex: 1;
-    margin-right: 0;
+    width:100%;
+
+    /deep/ input {
+      width: 100%;
+      flex: 1;
+      max-width: none;
+      border: none;
+      border-bottom: 1px solid $gray_4;
+      padding: 4px 0 2px 4px;
+    }
+
   }
   &.no-flex {
     flex: none
   }
+
+
 }
 .msg-invalid {
   color: $error-color

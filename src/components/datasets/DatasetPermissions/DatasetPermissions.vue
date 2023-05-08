@@ -16,7 +16,7 @@
             Platform Permissions
           </router-link>
         </li>
-        <li v-if="getPermission('owner')">
+        <li>
           <router-link :to="{ name: 'embargoed-permissions' }">
             Embargoed Access
           </router-link>

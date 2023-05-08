@@ -5,7 +5,7 @@
     />
     <bf-rafter
       slot="heading"
-      title="Dataset Sharing"
+      title="Dataset Permissions"
     >
       <ul
         slot="tabs"
@@ -26,35 +26,58 @@
     <bf-stage
       element-loading-background="#fff"
     >
-      <div
-        class="mb-64"
-      >
-        <h2>Embargoed Access</h2>
-        <p>
-          Give individuals in your organization access to embargoed data on Pennsieve Discover.
-        </p>
+      <div v-if="getPermission('owner')">
         <div
-          v-if="embargoedRequests.length === 0"
-          class="embargoed-permissions__empty-state"
+          class="mb-64"
+
         >
+          <h2>Embargoed Access</h2>
           <p>
-            There are no pending requests at this time.
+            Give individuals in your organization access to embargoed data on Pennsieve Discover.
           </p>
+          <div
+            v-if="embargoedRequests.length === 0"
+            class="embargoed-permissions__empty-state"
+          >
+            <p>
+              There are no pending requests at this time.
+            </p>
+          </div>
+          <embargoed-request-list
+            v-for="request in embargoedRequests"
+            :key="request.userId"
+            :request="request"
+            @accept-request="acceptRequest(request.userId)"
+            @remove-request="rejectRequest(request)"
+          />
         </div>
-        <embargoed-request-list
-          v-for="request in embargoedRequests"
-          :key="request.userId"
-          :request="request"
-          @accept-request="acceptRequest(request.userId)"
-          @remove-request="rejectRequest(request)"
-        />
+        <dataset-permissions-data-use-agreement />
       </div>
-      <dataset-permissions-data-use-agreement />
+      <bf-empty-page-state
+        v-else
+        class="empty"
+      >
+        <img
+          src="/static/images/illustrations/illo-collaboration.svg"
+          height="240"
+          width="247"
+          alt="Teams illustration"
+        >
+        <div
+          class="copy"
+        >
+          <h2>You don't have permission to manage embargoed access.</h2>
+          <p>Only dataset owners can grant requests for early access to embargoed datasets.</p>
+        </div>
+      </bf-empty-page-state>
+
     </bf-stage>
   </bf-page>
 </template>
 
 <script>
+
+import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue'
 import BfPage from '@/components/layout/BfPage/BfPage.vue'
 import BfStage from '@/components/layout/BfStage/BfStage.vue'
 import BfRafter from '@/components/shared/bf-rafter/BfRafter.vue'
@@ -64,7 +87,7 @@ import DatasetPermissionsDataUseAgreement from '@/components/datasets/DatasetPer
 import { EmbargoedRequestStatus } from '@/utils/constants'
 import Request from '@/mixins/request/index'
 import { pathOr } from 'ramda'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 export default {
   name: 'EmbargoedPermissions',
 
@@ -74,7 +97,8 @@ export default {
     BfRafter,
     EmbargoedRequestList,
     LockedBanner,
-    DatasetPermissionsDataUseAgreement
+    DatasetPermissionsDataUseAgreement,
+    BfEmptyPageState
   },
 
    mixins: [Request],
@@ -87,7 +111,15 @@ export default {
   },
 
   computed: {
-    ...mapState(['config', 'userToken']),
+    ...mapState([
+      'config',
+      'userToken',
+      'activeOrganization'
+    ]),
+
+    ...mapGetters([
+      'getPermission'
+    ]),
 
     /**
      * Embargoed requests url

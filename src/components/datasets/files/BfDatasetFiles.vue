@@ -1,86 +1,70 @@
 <template>
   <bf-page class="bf-dataset-files">
     <locked-banner slot="banner" />
-    <bf-rafter slot="heading" title="Files">
+    <bf-rafter
+      slot="heading"
+      title="Files"
+    >
       <div slot="heading" class="bf-dataset-breadcrumbs">
         <breadcrumb-navigation
           :ancestors="ancestors"
-          :file="file"
           :file-id="$route.params.fileId"
           @navigate-breadcrumb="handleNavigateBreadcrumb"
         />
       </div>
     </bf-rafter>
     <div>
-      <div v-if="!isLoading" class="actions-container">
-        <button class="undelete-button actions-item" @click="NavToDeleted">
-          <svg-icon class="mr-8" icon="icon-trash" height="22" width="22" />
-          <div>Restore Deleted</div>
-        </button>
-        <button
-          v-if="getPermission('editor')"
-          class="actions-item"
-          :disabled="datasetLocked"
-          data-cy="createNewFolder"
-          @click="openPackageDialog"
-        >
-          <svg-icon
-            class="mr-8 actions-icon plus-icon"
-            icon="icon-plus"
-            height="36"
-            width="36"
-          />
-          <div>New Folder</div>
-        </button>
-      </div>
       <bf-stage
         class="bf-stage-file"
         slot="stage"
         v-loading="isLoading"
         element-loading-background="transparent"
       >
-        <bf-empty-page-state
-          v-if="!hasFiles && !isLoading"
-          class="bf-files-empty-state"
-        >
-          <img
-            src="/static/images/illustrations/illo-add-files.svg"
-            height="240"
-            width="247"
-            alt="Add files illustration"
+        <div>
+          <div class="actions-container">
+            <button class="undelete-button actions-item" @click="NavToDeleted">
+              <svg-icon class="mr-8" icon="icon-trash" height="22" width="22" />
+              <div>Restore Deleted</div>
+            </button>
+            <button
+              v-if="getPermission('editor')"
+              class="actions-item"
+              :disabled="datasetLocked"
+              data-cy="createNewFolder"
+              @click="openPackageDialog"
+            >
+              <svg-icon
+                class="mr-8 actions-icon plus-icon"
+                icon="icon-plus"
+                height="36"
+                width="36"
+              />
+              <div>New Folder</div>
+            </button>
+          </div>
+        </div>
+        <div class="file-meta-wrapper">
+          <files-table
+            :data="files"
+            :multiple-selected="multipleSelected"
+            @move="showMove"
+            @delete="showDelete"
+            @process="processFile"
+            @copy-url="getPresignedUrl"
+            @selection-change="setSelectedFiles"
+            @click-file-label="onClickLabel"
           />
 
-          <template v-if="getPermission('editor')">
-            <h2>Drag and drop your files.</h2>
-            <p>
-              Add files to your dataset by dragging and dropping them here or by
-              clicking
-              <br />
-              the 'Upload Files' button.
-            </p>
-          </template>
-          <template v-else>
-            <h2>This folder is empty.</h2>
-          </template>
-        </bf-empty-page-state>
-        <files-table
-          v-if="hasFiles"
-          :data="files"
-          :multiple-selected="multipleSelected"
-          @move="showMove"
-          @delete="showDelete"
-          @process="processFile"
-          @copy-url="getPresignedUrl"
-          @selection-change="setSelectedFiles"
-          @click-file-label="onClickLabel"
-        />
-        <file-metadata-info
-          v-if="!isLoading"
-          :selectedFiles="selectedFiles"
-          :ancestors="ancestors"
-          :folder="file"
-        />
-      </bf-stage>
+          <file-metadata-info
+            :selectedFiles="selectedFiles"
+            :ancestors="ancestors"
+            :folder="file"
+          />
+        </div>
+
+
+
+    </bf-stage>
     </div>
 
     <bf-package-dialog
@@ -192,7 +176,7 @@ export default {
       showUploadInfo: false,
       sortDirection: 'asc',
       singleFile: {},
-      deletedDialogOpen: false
+      deletedDialogOpen: false,
     }
   },
 
@@ -903,12 +887,17 @@ export default {
 <style scoped lang="scss">
 @import '../../../assets/_variables.scss';
 
+.file-meta-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
 .actions-container {
   display: flex;
   justify-content: flex-end;
   margin-top: 15px;
   margin-bottom: 15px;
-  margin-right: 40px;
+  margin-right: 8px;
 }
 
 .actions-item {
@@ -931,6 +920,7 @@ export default {
   display: flex;
   flex-direction: row;
   padding-top: 0px;
+  flex-direction: column;
 }
 
 .file-meta-wrapper {
