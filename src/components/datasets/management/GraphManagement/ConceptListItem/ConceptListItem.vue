@@ -172,7 +172,7 @@
         const conceptId = propOr('', 'id', this.concept)
 
         this.$router.push({
-          name: 'concept-management',
+          name: 'models',
           params: {
             conceptId
           }

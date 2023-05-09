@@ -226,10 +226,7 @@
         this.updateConcepts(sortedConcepts).then(() => {
           // Redirect user to new concept instance page
           this.$router.replace({
-            name: 'concept-management',
-            params: {
-              conceptId
-            }
+            name: 'models',
           })
           this.closeDialog()
           this.processing = false

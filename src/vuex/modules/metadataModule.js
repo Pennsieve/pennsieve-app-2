@@ -39,7 +39,6 @@ export const state = initialState()
 
 export const mutations = {
   SET_MODELS(state, models) {
-    console.log("SETTING MODELS")
     state.models = models
   },
   SET_RECORDS_FOR_MODEL(state, response) {
@@ -64,7 +63,6 @@ export const mutations = {
     state.filterParams = []
   },
   SET_PROPS_FOR_MODEL(state, response) {
-    console.log(response)
     const objIndex = state.models.findIndex((obj => obj.name == response.model));
     state.models[objIndex].props = response.props
   },

@@ -134,7 +134,6 @@ const getRecordsV1Params = (params, isRecordsSortable) => {
 const getRecordsHeading = (props) => {
   return props
     ? props.map(value => {
-      console.log(value)
       return {
         dataType: {
           format: null,
@@ -236,7 +235,6 @@ export default {
   },
 
   mounted: function() {
-    console.log('mounted recordSearchResults')
 
     // Subscribe to changes to the records of the model.
     this.unsubscribe = this.$store.subscribe((mutation) => {
@@ -270,7 +268,6 @@ export default {
     })
 
     if (this.model.name != '') {
-      console.log('fetch records mounted')
       this.fetchRecords( {
         modelName: this.model.name,
         limit: this.tableSearchParams.limit,
@@ -361,7 +358,6 @@ export default {
   watch: {
     model: {
       handler: function(ev) {
-        console.log('fetch records --model')
         this.recordHeadings = getRecordsHeading(this.model.props)
         this.fetchRecords( {
           modelName: this.model.name,
@@ -388,7 +384,6 @@ export default {
       deep: true,
       handler: function() {
         if (this.dataset.content) {
-          console.log('fetch records --filters')
           this.fetchRecords( {
             modelName: this.model.name,
             limit: this.tableSearchParams.limit,
@@ -421,7 +416,6 @@ export default {
      */
     updateTableSearchLimit: function(limit) {
       this.tableSearchParams.limit = limit
-      console.log('fetch records -- search limit')
       this.fetchRecords( {
         modelName: this.model.name,
         limit: this.tableSearchParams.limit,
@@ -436,7 +430,6 @@ export default {
     onPaginationPageChange: function(page) {
       const offset = (page - 1) * this.tableSearchParams.limit
       this.tableSearchParams.offset = offset
-      console.log('fetch records pagination')
       this.fetchRecords( {
         modelName: this.model.name,
         limit: this.tableSearchParams.limit,

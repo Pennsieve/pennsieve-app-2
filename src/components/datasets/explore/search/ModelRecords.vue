@@ -434,7 +434,7 @@ export default {
         if (this.$route.params.conceptId){
           const m = (this.models || []).find(c => c.id === this.$route.params.conceptId) || {}
           this.setSelectedModel(m.name)
-        } else {
+        } else if (this.models.length >0 ) {
           let selModel = this.models[0]
           for (let i = 0; i < this.models.length; i++) {
             if (this.models[i].count > selModel.count) {

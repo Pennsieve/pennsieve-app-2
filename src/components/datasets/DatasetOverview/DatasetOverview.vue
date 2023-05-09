@@ -48,23 +48,26 @@
               >
                 Version {{ publishedVersionLabel }}
               </a>)
+                <div class="sharing-status">
+
+                  Last published on <b>{{ publishedDate }}</b>
+                  <a
+                    target="_blank"
+                    :href="discoverLink"
+                    class="discover-link"
+                  >
+                    View on Discover
+                  </a>
+                </div>
+
+                <div class="sharing-status">
+                  Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
+                </div>
               </template>
 
-              <div class="sharing-status">
 
-                Last published on <b>{{ publishedDate }}</b>
-                <a
-                  target="_blank"
-                  :href="discoverLink"
-                  class="discover-link"
-                >
-                  View on Discover
-                </a>
-              </div>
 
-              <div class="sharing-status">
-                Published dataset DOI: <a :href="doiUrl">{{datasetDoi.doi}}</a>
-              </div>
+
 
               <!--            <div class="dataset-corresponding-contributor">-->
               <!--              <p>Dataset owner:</p>-->
@@ -111,7 +114,7 @@
             />
             <div>
               <strong>{{ totalRecordsCount.toLocaleString('en') }}</strong>
-              <router-link :to="{ name: 'records-overview' }">
+              <router-link :to="{ name: 'records' }">
                 {{ totalRecordsCountLabel }}
               </router-link>
             </div>

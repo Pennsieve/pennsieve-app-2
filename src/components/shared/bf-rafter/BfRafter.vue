@@ -78,7 +78,11 @@
         display: flex;
       }
     }
+    &.condensed {
+      padding: 0;
+    }
   }
+
 
   .link-back {
     color: $gray_2;
@@ -171,12 +175,16 @@
     }
   }
   .condensed & {
-    background: $purple_1;
-    //box-shadow: 1px 1px 0 0 $gray_2;
-    padding: 8px 32px;
+    background: $purple_1 ;
+    //padding: 8px 32px;
     &.with-tabs {
       padding-bottom: 2px;
     }
+
+    &.primary {
+      background: $gray_1;
+    }
+
   }
   .row {
     display: flex;

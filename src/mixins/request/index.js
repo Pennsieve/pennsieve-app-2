@@ -97,6 +97,7 @@ export default {
         })
       } // logout
       else if (status === 401) {
+        // debugger
         return this.handleLogout()
       } // unauthorized
       // else if (status === 403) {

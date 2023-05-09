@@ -8,6 +8,7 @@
       <div slot="heading" class="bf-dataset-breadcrumbs">
         <breadcrumb-navigation
           :ancestors="ancestors"
+          :file="file"
           :file-id="$route.params.fileId"
           @navigate-breadcrumb="handleNavigateBreadcrumb"
         />

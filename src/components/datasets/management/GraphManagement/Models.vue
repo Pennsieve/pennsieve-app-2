@@ -261,11 +261,12 @@
       },
       concepts: {
         handler: function(val) {
-          if (val && !this.isLoadingConcepts && !this.combinedConcepts) {
+          if (val && (!this.isLoadingConcepts && !this.combinedConcepts) || this.combinedConcepts.length != this.concepts.length) {
             this.getLinkedProps(val)
           }
         },
-        immediate: true
+        immediate: true,
+        deep: true
       }
     },
 

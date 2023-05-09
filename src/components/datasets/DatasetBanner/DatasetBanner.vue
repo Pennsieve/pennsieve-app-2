@@ -105,6 +105,7 @@
     width: 100%;
   }
   .empty-state-wrap {
+    background: $white;
     align-items: center;
     height: 100%;
     display: flex;

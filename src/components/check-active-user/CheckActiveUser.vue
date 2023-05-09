@@ -40,6 +40,7 @@ export default {
      */
     userToken: function(userToken) {
       if (userToken !== '') {
+        console.log("Pinging active user")
         this.pingUserActive()
       }
     }

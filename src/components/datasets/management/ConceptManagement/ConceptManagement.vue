@@ -111,7 +111,7 @@
 <!--        class="tabs unstyled"-->
 <!--      >-->
 <!--        <li>-->
-<!--          <router-link :to="{ name: 'concept-management' }">-->
+<!--          <router-link :to="{ name: 'models' }">-->
 <!--            Properties-->
 <!--          </router-link>-->
 <!--        </li>-->

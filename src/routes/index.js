@@ -125,26 +125,26 @@ const PennsieveInfo = () => import('../components/welcome/Info.vue')
 
 const routes = [
 
-  /**
-   * Welcome Org routes
-   */
-  {
-    path: '/:orgId/welcome',
-    components: {
-      page: WelcomePage,
-      navigation: BfNavigation
-    },
-    props: true,
-    children: [
-      {
-        name: 'welcome',
-        path: '',
-        components: {
-          stage: WelcomeInfo
-        }
-      },
-    ],
-  },
+  // /**
+  //  * Welcome Org routes
+  //  */
+  // {
+  //   path: '/:orgId/welcome',
+  //   components: {
+  //     page: WelcomePage,
+  //     navigation: BfNavigation
+  //   },
+  //   props: true,
+  //   children: [
+  //     {
+  //       name: 'welcome',
+  //       path: '',
+  //       components: {
+  //         stage: WelcomeInfo
+  //       }
+  //     },
+  //   ],
+  // },
   {
     path: '/:orgId/submit',
     components: {
@@ -690,7 +690,7 @@ const routes = [
     },
     children: [
       {
-        name: 'setup-profile',
+        name: 'setup-profile-accept',
         path: 'accept/:username/:password',
         components: {
           stage: SetupProfile
