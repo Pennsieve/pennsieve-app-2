@@ -930,6 +930,9 @@ h1 {
   padding: 16px 64px;
   justify-content: space-between;
 
+  .link {
+    text-decoration: underline;
+  }
   a {
     color: white;
   }

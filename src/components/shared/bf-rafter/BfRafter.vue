@@ -92,15 +92,15 @@
 
   &.primary {
     background: $gray_1;
-    margin-top: 24px;
+    padding-top: 24px;
 
     &.white {
       background: white;
     }
     h1 {
       margin: 0;
-      color: $gray_5;
-      font-size: 20px;
+      color: $purple_2;
+      font-size: 24px;
       &.flex-heading {
         align-items: center;
         display: flex;

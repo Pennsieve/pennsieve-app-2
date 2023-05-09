@@ -163,6 +163,24 @@
         />
       </bf-stage>
     </template>
+    <template v-else>
+      <bf-empty-page-state
+        class="empty"
+      >
+        <img
+          src="/static/images/illustrations/illo-collaboration.svg"
+          height="240"
+          width="247"
+          alt="Teams illustration"
+        >
+        <div
+          class="copy"
+        >
+          <h2>You don't have permission to manage publishing for this dataset.</h2>
+          <p>Only dataset managers can access this page.</p>
+        </div>
+      </bf-empty-page-state>
+    </template>
   </bf-page>
 </template>
 
@@ -172,6 +190,7 @@ import DatasetSettingsDoi from './DatasetSettingsDoi/DatasetSettingsDoi.vue'
 import OwnerOrcid from './DatasetSettingsPublishing/OwnerOrcid.vue'
 import DatasetSettingsContributors from './DatasetSettingsContributors/DatasetSettingsContributors.vue'
 import DatasetSettingsPublishing from './DatasetSettingsPublishing/DatasetSettingsPublishing.vue'
+import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue'
 import LockedBanner from '../LockedBanner/LockedBanner'
 import DataCard from '../../shared/DataCard/DataCard.vue'
 import ChecklistItem from '../../shared/ChecklistItem/ChecklistItem.vue'
@@ -192,7 +211,8 @@ import { pathOr } from 'ramda'
       DatasetSettingsDoi,
       DatasetSettingsPublishing,
       OwnerOrcid,
-      DatasetSettingsContributors
+      DatasetSettingsContributors,
+      BfEmptyPageState
     },
 
     mixins: [
@@ -427,6 +447,23 @@ import { pathOr } from 'ramda'
   hr {
     margin: 32px 0 24px;
   }
+}
+.copy {
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  p {
+    color: #71747C;
+    font-size: 14px;
+    line-height: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
 }
 
 </style>

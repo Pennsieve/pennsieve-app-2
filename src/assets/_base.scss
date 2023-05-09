@@ -17,7 +17,7 @@ h2 {
 }
 
 a {
-  color: $app-primary-color;
+  color: $purple_2;
   text-decoration: none;
   &:hover, &:focus {
     outline: none;
@@ -68,7 +68,7 @@ button {
     opacity: .6;
   }
   &.linked {
-    color: $app-primary-color;
+    color: $purple_3;
     &:hover, &:focus {
       text-decoration: underline;
     }

@@ -112,6 +112,24 @@
 
       </bf-stage>
     </template>
+    <template v-else>
+      <bf-empty-page-state
+        class="empty"
+      >
+        <img
+          src="/static/images/illustrations/illo-collaboration.svg"
+          height="240"
+          width="247"
+          alt="Teams illustration"
+        >
+        <div
+          class="copy"
+        >
+          <h2>You don't have permission to manage integrations for this dataset.</h2>
+          <p>Only dataset managers can access this page.</p>
+        </div>
+      </bf-empty-page-state>
+    </template>
   </bf-page>
 </template>
 
@@ -437,7 +455,6 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 85px 190px;
 }
 
 .copy {
