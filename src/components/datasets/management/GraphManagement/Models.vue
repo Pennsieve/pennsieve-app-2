@@ -261,7 +261,7 @@
       },
       concepts: {
         handler: function(val) {
-          if (val && (!this.isLoadingConcepts && !this.combinedConcepts) || this.combinedConcepts.length != this.concepts.length) {
+          if (val && (!this.isLoadingConcepts && !this.combinedConcepts) || (this.combinedConcepts && this.combinedConcepts.length !== this.concepts.length)) {
             this.getLinkedProps(val)
           }
         },

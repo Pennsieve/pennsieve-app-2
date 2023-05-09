@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div class="changelog-component">>
       <button
         class="linked"
@@ -12,6 +13,8 @@
       :visible.sync="isDialogVisible"
       :changelog-component="changelogComponent"
     />
+  </div>
+
 </template>
 
 <script>
