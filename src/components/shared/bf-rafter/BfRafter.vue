@@ -10,7 +10,7 @@
     </template>
     <template v-if="backLinkVisible">
       <div class="link-back" @click.prevent="pageBackRoute">
-          < Back to {{linkBack.name}}
+        < Back to {{linkBack.name}}
       </div>
     </template>
 

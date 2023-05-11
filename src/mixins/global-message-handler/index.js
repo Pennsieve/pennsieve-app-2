@@ -384,7 +384,7 @@ export default {
       if (redirect) {
         window.location.replace(redirect)
       } else if (this.isWelcomeOrg() ){
-        this.$router.push(`/${orgId}/welcome`)
+        this.$router.push(`/${orgId}/overview`)
       } else {
           this.$router.push(`/${orgId}/datasets`)
           this.launchOnboarding()
