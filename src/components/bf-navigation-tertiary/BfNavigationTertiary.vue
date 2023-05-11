@@ -26,7 +26,6 @@
       ...mapGetters([
         'hasFeature',
         'isWelcomeOrg'
-
       ]),
 
       ...mapState([

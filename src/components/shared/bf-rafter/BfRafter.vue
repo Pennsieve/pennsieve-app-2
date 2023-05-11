@@ -3,6 +3,7 @@
     class="bf-rafter"
     :class="[$slots['tabs'] ? 'with-tabs' : '', isEditing ? 'editing' : '']"
   >
+
     <template v-if="datasetNameVisible">
       <div class="parent">
         <div class="dataset-name">{{ datasetNameDisplay() }}</div>
@@ -320,6 +321,90 @@ export default {
       type: Object,
       default: () => {
         return {}
+      }
+    },
+
+  mixins: [Request],
+
+  data: function() {
+    return {
+      datasetNameTruncated: false,
+      datasetname: '',
+      datasetFilterOpen: false,
+      datasetPageList: ['records-overview', 'dataset-files', 'models', 'dataset-permissions', 'activity-log', 'dataset-settings'],
+    }
+  }
+
+    ,
+  computed: {
+    ...mapState(['dataset', 'orgDatasetStatuses','datasetRafterVisStatus','datasetRafterVisStatus2']),
+
+    ...mapGetters([
+      'getPermission',
+      'userToken',
+      'config'
+    ]),
+    currentRouteName: function() {
+      return this.$route.name;
+    },
+
+    /**
+     * Filters empty status names from orgDatasetStatuses
+     * @returns {Array}
+     */
+    filterOrgStatusList: function() {
+        return this.orgDatasetStatuses.filter(status => {
+          return status.displayName !== ''
+      })
+    },
+
+
+    /**
+     * Returns the dataset status displayName
+     * @returns {String}
+     */
+    formatDatasetStatus: function() {
+      return pathOr('', ['status', 'displayName'], this.dataset)
+    },
+
+    datasetNameDisplay: function() {
+      const name = this.datasetName
+      this.datasetNameTruncated = false
+
+      return name
+    },
+
+    getDatasetUpdateUrl: function() {
+      const url = pathOr('', ['config', 'apiUrl'])(this)
+      const datasetId = path(['content', 'id'], this.dataset)
+
+      if (!url) {
+        return ''
+      }
+
+      return `${url}/datasets/${datasetId}?api_key=${this.userToken}`
+    },
+    /**
+     * Returns dataset filter arrow direction
+     * @returns {String}
+     */
+    datasetFilterArrowDir: function() {
+      return this.datasetFilterOpen ? 'up' : 'down'
+    },
+    /**
+     * Returns color for dataset status
+     * @returns {String}
+     */
+    checkStatusColor: function() {
+      return pathOr('', ['status', 'color'], this.dataset)
+    },
+
+    datasetNameVisible: function() {
+      if ( this.datasetPageList.includes(this.currentRouteName) ) {
+        return true
+      }
+      else  {
+        return false
       }
     }
   },
