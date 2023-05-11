@@ -701,7 +701,7 @@ p {
   //top: 0px;
   transform: translate3d(100%, 0, 0);
   transition: transform .3s ease-out;
-  width: 300px;
+  width: 250px;
   will-change: transform;
   z-index: 3;
   &.visible {
@@ -748,7 +748,7 @@ p {
   .results {
     flex: 1;
     min-width: 0;
-    margin-right: 16px;
+    //margin-right: 16px;
     display: flex;
     flex-direction: column;
   }
