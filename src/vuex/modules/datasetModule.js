@@ -67,8 +67,6 @@ const initialState = () => ({
     userId: DATASET_ACTIVITY_ALL_CONTRIBUTORS
   },
   datasetManifestParams: {
-
-
   },
   isLoadingDatasetActivity: false,
   isLoadingManifestsActivity: false,
