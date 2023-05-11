@@ -9,9 +9,20 @@
     >
       <div slot="body" class="bf-upload-body">
         <div class="undelete-warning-container">
-          <svg-icon icon="icon-warning-circle" width="18" height="18" />
-          <div class="undelete-warning-text">
-            <p>Deleted files will be permanently deleted after 30 days</p>
+          <div class="undelete-warning-item">
+            <svg-icon icon="icon-warning-circle" width="18" height="18" />
+            <div class="undelete-warning-text">
+              <p>Deleted files will be permanently deleted after 30 days</p>
+            </div>
+          </div>
+          <div class="undelete-warning-item">
+            <svg-icon icon="icon-warning-circle" width="18" height="18" />
+            <div class="undelete-warning-text">
+              <p>
+                Please note that there may be a delay between when a file is
+                deleted and when it is available to be restored.
+              </p>
+            </div>
           </div>
         </div>
         <div v-if="hasFiles">
@@ -515,6 +526,11 @@ Need to reach into packages list instead of pulling stuff from url
 }
 
 .undelete-warning-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.undelete-warning-item {
   display: flex;
 }
 
