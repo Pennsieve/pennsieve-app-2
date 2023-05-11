@@ -175,7 +175,6 @@
         class="secondary"
         :condensed="secondaryNavCondensed"
         :secondary=true
-
       />
 
       <bf-navigation-item
@@ -184,7 +183,6 @@
         label="Permissions"
         :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
         :condensed="secondaryNavCondensed"
-
       />
 
       <bf-navigation-item
@@ -466,6 +464,7 @@ hr {
   box-sizing: border-box;
   color: $gray_6;
   padding: 21px 24px 0px;
+
   //background-color: $gray_2;
   //border-bottom: 1px solid $gray_2;
   display: flex;

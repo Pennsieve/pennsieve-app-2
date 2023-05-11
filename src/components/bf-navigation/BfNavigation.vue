@@ -8,7 +8,6 @@
         v-if="!pageNotFound"
         tag="button"
         :to="logoRoute"
-
       >
         <svg-icon
           v-show="!primaryNavCondensed || secondaryNavOpen"
@@ -235,7 +234,7 @@
         'togglePrimaryNav',
         'condensePrimaryNav'
       ]),
-
+      
       /**
        * Toggles primary nav open and closed
        */
