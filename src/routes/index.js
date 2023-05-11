@@ -129,7 +129,7 @@ const routes = [
    * Welcome Org routes
    */
   {
-    path: '/:orgId/welcome',
+    path: '/:orgId/overview',
     components: {
       page: WelcomePage,
       navigation: BfNavigation
@@ -706,7 +706,7 @@ const routes = [
     ]
   },
   {
-    name: 'welcome',
+    name: 'setup',
     path: '/:orgId/welcome',
     components: {
       page: Welcome
