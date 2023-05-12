@@ -6,7 +6,7 @@ import EventBus from '../../../../utils/event-bus'
 import flushPromises from 'flush-promises'
 
 const $route = {
-  name: 'concept-management',
+  name: 'models',
   params:{
     orgId: 'N:organization:c905919f-56f5-43ae-9c2a-8d5d542c133b',
     datasetId: 'N:dataset:d356b163-b316-424a-a74b-cfeb95195006',

@@ -44,6 +44,52 @@
   }
 }
 
+.bf-dataset-list-item,
+.proposed-dataset-list-item {
+  border-bottom: 1px solid $gray_2;
+  padding: 16px 0;
+
+  flex-direction: row;
+  align-items: center;
+
+  &:first-child {
+    padding-top: 0;
+  }
+  &:last-child {
+    border: none;
+    padding-bottom: 0;
+  }
+  h2 {
+    color: $gray_6;
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 8px 0 16px;
+    &.publish-in-progress {
+      color: $gray_4;
+    }
+    .svg-icon {
+      color: #000
+    }
+  }
+  h2 a {
+    display: flex;
+    .svg-icon {
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+  }
+  div .svg-icon {
+    flex-shrink: 0;
+  }
+  .col-label {
+    @extend h2;
+    margin: 0;
+    padding-bottom: 8px;
+    padding-top: 4px;
+  }
+}
+
 .bf-dataset-list-item-stat, .bf-workspace-list-item-stat {
   text-align: right;
   padding-top: 25px;

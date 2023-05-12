@@ -156,7 +156,7 @@
       <router-link
         v-else
         :to="{
-          name: 'concept-management',
+          name: 'models',
           params: {
             conceptId: conceptId
           },
@@ -185,7 +185,7 @@
       <h3>No Results found.</h3>
       <p>
         Try removing some filters or <router-link
-          :to="{ name: 'records-overview' }"
+          :to="{ name: 'records' }"
           class=""
         >
           browse

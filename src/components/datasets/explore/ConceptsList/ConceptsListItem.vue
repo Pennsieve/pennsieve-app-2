@@ -122,6 +122,7 @@ export default {
      */
     onClick: function() {
       EventBus.$emit('concepts-list-item-click', this.item)
+      this.$emit('click', this.item)
     },
 
     /**

@@ -52,6 +52,7 @@
                   :search-text="searchText"
                   :is-link="isLink"
                   class="mb-16"
+                  @click="clickModel"
                 />
               </div>
             </div>
@@ -89,7 +90,7 @@
       >
 
       <p slot="copy">
-        Once you set up <router-link :to="{ name: 'graph-management' }">
+        Once you set up <router-link :to="{ name: 'models' }">
           models
         </router-link>, you'll see a list of records here.
       </p>
@@ -212,6 +213,9 @@
     },
 
     methods: {
+      clickModel: function(ev) {
+        this.$emit('click', ev)
+      },
       /**
        * Allow user to press enter key to navigate to the first item in the list
        */
@@ -236,7 +240,7 @@
       box-sizing: border-box;
       flex: 1;
       overflow: scroll;
-      padding: 0 16px 16px;
+      padding: 0 0 16px 16px;
     }
     .models-list-loading-wrap {
       display: flex;
@@ -244,7 +248,7 @@
       height: 100%;
     }
     .input-wrap {
-      padding: 16px 16px 8px;
+      padding: 0px 0px 0 16px;
     }
     .el-input {
       margin-bottom: 0;
@@ -286,10 +290,12 @@
 <style lang="scss">
   @import '../../../../assets/_variables.scss';
 
+
   .models-list {
     .el-input__inner {
       background: $gray_1;
       border: none;
+      border-bottom: 1px solid $gray_3;
       border-radius: 0;
       padding-left: 32px;
     }

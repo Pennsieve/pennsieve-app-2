@@ -3,50 +3,36 @@
     <locked-banner
       slot="banner"
     />
-    <bf-rafter slot="heading">
-      <h1
-        slot="heading"
-        class="flex-heading"
-      >
-        <svg-icon
-          v-if="datasetLocked"
-          class="mr-8"
-          color="#71747C"
-          name="icon-lock-filled"
-          height="24"
-          width="24"
-        />
-        Records
-      </h1>
+    <bf-rafter
+      slot="heading"
+      title="Metadata Records"
+    >
 
       <ul
         slot="tabs"
         class="tabs unstyled"
       >
         <li>
-          <router-link :to="{ name: 'records-overview' }">
-            Overview
+          <router-link :to="{ name: 'records' }">
+            Records
           </router-link>
         </li>
         <li>
-          <router-link :to="{ name: 'graph-browser' }">
+          <router-link :to="{ name: 'models' }">
+            Models
+          </router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'relationships' }">
+            Relationships
+          </router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'graph' }">
             Graph Browser
           </router-link>
         </li>
       </ul>
-
-      <template slot="stats">
-        <stat-block
-          class="mr-32"
-          :stat="totalRecords"
-          label="Unique Records"
-        />
-        <stat-block
-          class="mr-32"
-          :stat="totalModels"
-          label="Graph Models"
-        />
-      </template>
     </bf-rafter>
 
     <bf-stage
@@ -56,6 +42,8 @@
       <router-view name="stage" />
     </bf-stage>
   </bf-page>
+
+
 </template>
 
 <script>
@@ -68,9 +56,11 @@
     pathOr
   } from 'ramda'
 
-  import BfRafter from '../../../shared/bf-rafter/BfRafter.vue'
   import LockedBanner from '../../LockedBanner/LockedBanner';
   import StatBlock from '../../../shared/StatBlock/StatBlock.vue'
+  import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue'
+  import BfRafter from '@/components/shared/bf-rafter/BfRafter.vue'
+  import BfStage from '@/components/layout/BfStage/BfStage.vue'
 
   const formatNumber = (number) => new Intl.NumberFormat('en-EN').format(number)
 
@@ -80,7 +70,10 @@
     components: {
       BfRafter,
       StatBlock,
-      LockedBanner
+      LockedBanner,
+      BfEmptyPageState,
+      BfRafter,
+      BfStage,
     },
 
     data() {
@@ -141,7 +134,7 @@
       line-height: 32px;
     }
     .stat-block {
-      color: #000;
+      color: white;
       text-align: center;
       .stat {
         font-size: 16px;

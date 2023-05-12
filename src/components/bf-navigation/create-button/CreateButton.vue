@@ -54,7 +54,7 @@
         <h3>You don't have any records</h3>
         <p>
           Once you set up <router-link
-            :to="{ name: 'graph-management' }"
+            :to="{ name: 'models' }"
             class=""
           >
             models
@@ -179,7 +179,7 @@
                 <router-link
                   class="bf-menu-item"
                   :to="{
-                    name: 'relationship-types',
+                    name: 'relationships',
                     query: {
                       createRelationshipType: true
                     }
@@ -192,7 +192,7 @@
             </ul>
           </template>
 
-          
+
         </div>
       </template>
     </el-popover>

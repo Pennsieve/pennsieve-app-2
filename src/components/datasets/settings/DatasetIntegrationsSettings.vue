@@ -16,35 +16,35 @@
             name="icon-lock-filled"
             height="24"
             width="24"
-          />Dataset Settings
+          />Dataset Integrations
         </h1>
 
-        <ul
-          slot="tabs"
-          class="tabs unstyled"
-        >
-          <li>
-            <router-link :to="{ name: 'dataset-settings' }">
-              General
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
-              :to="{ name: 'integrations-settings' }"
-            >
-              Integrations
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"
-              :to="{ name: 'publishing-settings' }"
-            >
-              Publishing
-            </router-link>
-          </li>
-        </ul>
+<!--        <ul-->
+<!--          slot="tabs"-->
+<!--          class="tabs unstyled"-->
+<!--        >-->
+<!--          <li>-->
+<!--            <router-link :to="{ name: 'dataset-settings' }">-->
+<!--              General-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <router-link-->
+<!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
+<!--              :to="{ name: 'integrations-settings' }"-->
+<!--            >-->
+<!--              Integrations-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <router-link-->
+<!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
+<!--              :to="{ name: 'publishing-settings' }"-->
+<!--            >-->
+<!--              Publishing-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--        </ul>-->
       </bf-rafter>
       <bf-stage
         ref="bfStage"
@@ -77,8 +77,58 @@
           />
         </div>
 
+        <bf-empty-page-state
+          v-else
+          class="empty"
+        >
+          <img
+            src="/static/images/illustrations/illo-collaboration.svg"
+            height="240"
+            width="247"
+            alt="Teams illustration"
+          >
+          <div
+            v-if="hasAdminRights"
+            class="copy"
+          >
+            <h2>There are no integrations yet</h2>
+            <p>Integrations allow external services to be notified when certain events occur on Pennsieve. These integrations are available to all members within the organization and can be managed at the dataset level under settings.</p>
+            <bf-button
+              class="create-team-button"
+              @click="openAddIntegration"
+            >
+              Add Global Integration
+            </bf-button>
+          </div>
+          <div
+            v-if="!hasAdminRights"
+            class="copy"
+          >
+            <h2>{{ orgName }} doesn't have any integrations yet.</h2>
+            <p>Contact your administrator to get started working with Integrations.</p>
+          </div>
+        </bf-empty-page-state>
+
 
       </bf-stage>
+    </template>
+    <template v-else>
+      <bf-empty-page-state
+        class="empty"
+      >
+        <img
+          src="/static/images/illustrations/illo-collaboration.svg"
+          height="240"
+          width="247"
+          alt="Teams illustration"
+        >
+        <div
+          class="copy"
+        >
+          <h2>You don't have permission to manage integrations for this dataset.</h2>
+          <p>Only dataset managers can access this page.</p>
+        </div>
+      </bf-empty-page-state>
     </template>
   </bf-page>
 </template>
@@ -89,8 +139,9 @@ import LockedBanner from '../LockedBanner/LockedBanner'
 import BfRafter from '../../shared/bf-rafter/BfRafter'
 import Request from '@/mixins/request/index'
 import { mapGetters, mapState, mapActions } from 'vuex'
-import { pathOr } from 'ramda'
+import { pathOr, propOr } from 'ramda'
 import IntegrationListItem from "../../Integrations/integration-list-item/IntegrationListItem";
+import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
 
 
 export default {
@@ -99,7 +150,9 @@ export default {
   components: {
     LockedBanner,
     BfRafter,
-    IntegrationListItem
+    IntegrationListItem,
+    BfEmptyPageState,
+
 
   },
 
@@ -124,6 +177,7 @@ export default {
       'datasetOwner',
       'datasetOwnerHasOrcidId',
       'hasFeature',
+      'activeOrganization'
     ]),
     ...mapState('integrationsModule', [
       'integrations'
@@ -139,6 +193,18 @@ export default {
       'config',
       'userToken',
     ]),
+
+    orgName: function() {
+      return pathOr('', ['organization', 'name'], this.activeOrganization)
+    },
+
+    hasAdminRights: function() {
+      if (this.activeOrganization) {
+        const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
+        const isOwner = propOr(false, 'isOwner', this.activeOrganization)
+        return isAdmin || isOwner
+      } else { return null}
+    },
 
     /**
      * Retrieves URL for ORCID redirect, based on environment
@@ -383,11 +449,37 @@ export default {
 <style lang="scss" scoped>
 @import '../../../assets/_variables.scss';
 
+.empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.copy {
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  p {
+    color: #71747C;
+    font-size: 14px;
+    line-height: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+}
+
 .integrations-info-title {
   margin-top: 0px;
   font-weight: 500;
 }
-.bf-publishing-settings {
+.dataset-integrations-settings {
   background: $white;
   hr {
     margin: 32px 0 24px;

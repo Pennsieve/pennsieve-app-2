@@ -137,6 +137,9 @@ export default {
   },
 
   methods: {
+    ...mapGetters([
+      "isWelcomeOrg"
+    ]),
     ...mapActions([
       'updateActiveOrganization',
       'updateOrganizations',
@@ -380,9 +383,11 @@ export default {
       const redirect = pathOr('', ['query', 'redirectTo'], this.$route)
       if (redirect) {
         window.location.replace(redirect)
+      } else if (this.isWelcomeOrg() ){
+        this.$router.push(`/${orgId}/overview`)
       } else {
-        this.$router.push(`/${orgId}/datasets`)
-        this.launchOnboarding()
+          this.$router.push(`/${orgId}/datasets`)
+          this.launchOnboarding()
       }
     },
 
@@ -405,6 +410,7 @@ export default {
      */
     onSwitchOrganization: function(evt, redirect = true) {
       const newOrg = propOr({}, 'organization', evt)
+      const newDestNodeId = pathOr('', ['destination', 'datasetNodeId'], evt)
       const newOrgId = propOr(1, 'id', newOrg)
       const newOrgIntId = propOr(1, 'intId', newOrg)
       const activeOrgId = pathOr(0, ['organization', 'id'], this.activeOrganization)
@@ -445,6 +451,9 @@ export default {
             } else {
               this.setDefaultRoute(newOrgId)
             }
+          }
+          if (newDestNodeId !== '') {
+            this.$router.replace(`/${newOrgId}/datasets/${newDestNodeId}/overview`)
           }
           return this.getOrgMembers()
                   .then(this.getTeams.bind(this))

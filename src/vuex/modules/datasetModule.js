@@ -51,8 +51,8 @@ const initialState = () => ({
     limit: 25,
     offset: 0,
     query: '',
-    orderBy: 'Name',
-    orderDirection: 'Asc',
+    orderBy: 'IntId',
+    orderDirection: 'Desc',
     onlyMyDatasets: false,
     status: '',
     withRole: '',
@@ -67,8 +67,6 @@ const initialState = () => ({
     userId: DATASET_ACTIVITY_ALL_CONTRIBUTORS
   },
   datasetManifestParams: {
-
-
   },
   isLoadingDatasetActivity: false,
   isLoadingManifestsActivity: false,

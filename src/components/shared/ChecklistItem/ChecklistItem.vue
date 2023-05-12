@@ -71,7 +71,7 @@
       border: none;
     }
     a {
-      font-weight: 600;
+      font-weight: 500;
     }
   }
   .icon-link-wrap {
@@ -79,7 +79,7 @@
     display: flex;
   }
   .icon-done-check-circle {
-    color: #017c39
+    color: $green_2
   }
   .svg-icon {
     flex-shrink: 0;

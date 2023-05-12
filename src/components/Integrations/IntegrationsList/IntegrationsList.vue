@@ -3,6 +3,7 @@
     <bf-rafter
       slot="heading"
       title="Integrations"
+      class="primary"
     >
       <div
         slot="description"

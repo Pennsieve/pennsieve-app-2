@@ -14,7 +14,7 @@
   import Request from '../../mixins/request'
   import Sorter from '../../mixins/sorter'
   import EventBus from '../../utils/event-bus'
-  import GetDatasetDoi from '@/mixins/get-dataset-doi'
+  import GetDatasetDoi from '../../mixins/get-dataset-doi'
 
   export default {
     name: 'BfDatasets',

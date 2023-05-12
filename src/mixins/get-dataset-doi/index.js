@@ -34,7 +34,9 @@ export default {
       .then(response => {
         return this.setDatasetDoi(response)
       })
-      .catch(this.handleXhrError.bind(this))
+      .catch(() => {
+        this.handleXhrError.bind(this)
+      })
       .finally(() => {
         this.setIsLoadingDatasetDoi(false)
       })

@@ -17,7 +17,7 @@
         >
           <router-link
             :to="{
-              name: 'concept-management',
+              name: 'model',
               params: { conceptId: concept.id }
             }"
           >
@@ -172,7 +172,7 @@
         const conceptId = propOr('', 'id', this.concept)
 
         this.$router.push({
-          name: 'concept-management',
+          name: 'models',
           params: {
             conceptId
           }

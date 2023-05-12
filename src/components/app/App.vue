@@ -40,6 +40,8 @@
       :visible.sync="searchModalVisible"
     />
 
+
+
     <office-365-dialog />
 
     <link-orcid-dialog
@@ -62,7 +64,7 @@
   }
 
   body {
-    background-color: $gray_1;
+    background-color: $white;
     color: $text-color;
     margin: 0;
     min-height: 100vh;

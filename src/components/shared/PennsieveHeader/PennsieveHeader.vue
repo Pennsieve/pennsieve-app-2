@@ -39,19 +39,6 @@
           color="#fff"
         />{{ helpLinkCopy }}
       </a>
-      <router-link
-        tag="a"
-        class="mr-16"
-        :to="signupRoute"
-      >
-        <svg-icon
-          :class="iconSpacing"
-          icon="icon-upload"
-          height="22"
-          width="22"
-          color="#fff"
-        />{{ createAccountCopy }}
-      </router-link>
       <bf-user-dropdown-menu
         :is-mobile="isMobile"
         :icon-spacing="iconSpacing"

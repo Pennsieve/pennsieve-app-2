@@ -39,7 +39,7 @@ export default {
     BfUploadExternalFile,
     SearchAllData,
     Office365Dialog,
-    LinkOrcidDialog
+    LinkOrcidDialog,
   },
 
   mixins: [
@@ -72,6 +72,7 @@ export default {
     ...mapState('datasetModule', [
       'datasetSearchParams'
     ]),
+
     ...mapGetters([
       'activeOrganization',
       'getActiveOrganization',
@@ -160,17 +161,20 @@ export default {
      * Watch to compute new dataset list
      */
     '$route.params.orgId' (to, from) {
-      this.onSwitchOrganization({
-        organization: {
-          id: to
-        }
-      })
-      this.$nextTick(() => {
-        const token = Cookies.get('user_token')
-        if (token) {
-          this.bootUp(token)
-        }
-      })
+      if (to){
+        this.onSwitchOrganization({
+          organization: {
+            id: to
+          }
+        })
+        this.$nextTick(() => {
+          const token = Cookies.get('user_token')
+          if (token) {
+            this.bootUp(token)
+          }
+        })
+      }
+
     },
 
     /**

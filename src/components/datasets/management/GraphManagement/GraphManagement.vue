@@ -29,7 +29,7 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'relationship-types' }">
+            <router-link :to="{ name: 'relationships' }">
               Relationship Types
             </router-link>
           </li>

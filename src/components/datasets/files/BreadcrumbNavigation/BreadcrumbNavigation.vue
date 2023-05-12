@@ -7,14 +7,11 @@
       <el-dropdown
         trigger="click"
         placement="bottom-start"
+        :class="isLightBackground && 'dark-text'"
         @command="breadcrumbNavigate"
       >
         <span class="el-dropdown-link button-icon">
-          <svg-icon
-            name="icon-menu"
-            height="20"
-            width="20"
-          />
+          <svg-icon name="icon-menu" height="20" width="20" />
         </span>
         <el-dropdown-menu
           slot="dropdown"
@@ -40,7 +37,7 @@
         width="12"
       />
 
-      <span class="collection-name">
+      <span class="collection-name" :class="isLightBackground && 'dark-text'">
         {{ file.content.name }}
       </span>
     </template>
@@ -54,6 +51,10 @@ export default {
   name: 'BreadcrumbNavigation',
 
   props: {
+    isLightBackground: {
+      type: Boolean,
+      default: false
+    },
     fileId: {
       type: String,
       default: ''
@@ -74,21 +75,22 @@ export default {
      * @returns {Array}
      */
     breadcrumbs: function() {
-      return defaultTo([], this.ancestors).reverse()
+      //return defaultTo([], this.ancestors).reverse()
+      return defaultTo([], this.ancestors)
     }
   },
 
   methods: {
     /**
-      * Handler for breadcrumb overflow navigation
-      * @param {String} id
-      */
+     * Handler for breadcrumb overflow navigation
+     * @param {String} id
+     */
     breadcrumbNavigate: function(id = '') {
       if (id) {
         return this.$emit('navigate-breadcrumb', id)
       }
       this.$emit('navigate-breadcrumb')
-    },
+    }
   }
 }
 </script>
@@ -99,11 +101,16 @@ export default {
 .breadcrumb-navigation {
   align-items: center;
   display: flex;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 40px;
   margin: 0;
   white-space: nowrap;
+
+  .el-dropdown {
+    color: $white;
+    display: inline-flex;
+  }
 
   .breadcrumb-menu {
     max-width: 256px;
@@ -119,13 +126,13 @@ export default {
   }
   .collection-name {
     align-items: center;
-    color: $text-color;
+    color: $white;
     outline: none;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .el-dropdown {
-    display: inline-flex;
+  .dark-text {
+    color: $black;
   }
 }
 </style>

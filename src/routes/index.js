@@ -12,6 +12,7 @@ const Login = () => import('./login/Login.vue')
 const Viewer = () => import('../components/viewer/BfViewer/BfViewer.vue')
 const ResetPassword = () => import('./ResetPassword/ResetPassword.vue')
 const DocsLogin = () => import('./DocsLogin/DocsLogin.vue')
+const JupyterLogin = () => import('./JupyterLogin/JupyterLogin.vue')
 const CreateAccount = () => import('./CreateAccount/CreateAccount.vue')
 const CreateOrg = () => import('./CreateOrg/CreateOrg.vue')
 
@@ -35,8 +36,10 @@ const PeopleList = () => import('../components/people/list/PeopleList.vue')
 /**
  * Publishing Components
  */
+// const PublishingPage = () => import('@/components/Publishing/PublishingPage.vue')
 const Publishing = () => import('@/routes/Publishing/PublishingView.vue')
 const PublishingDatasetsList = () => import ('@/components/Publishing/PublishingDatasetsList/PublishingDatasetsList.vue')
+const PublishingProposalsList = () => import ('@/components/Publishing/PublishingProposalsList/PublishingProposalsList.vue')
 
 /**
  * Integrations Components
@@ -68,6 +71,7 @@ const Datasets = () => import('./datasets/Datasets.vue')
 
 const BfDatasetList = () => import('../components/datasets/dataset-list/BfDatasetList.vue')
 const BfDatasetFiles = () => import('../components/datasets/files/BfDatasetFiles.vue')
+const BfDatasetFilesDeleted = () => import('../components/datasets/files/BfDatasetFilesDeleted.vue')
 const BfDatasetCollaborators = () => import('../components/datasets/collaborators/BfDatasetCollaborators.vue')
 const DatasetPermissions = () => import('../components/datasets/DatasetPermissions/DatasetPermissions.vue')
 const DatasetActivity = () => import('../components/datasets/DatasetActivity/DatasetActivity.vue')
@@ -109,7 +113,72 @@ const Bf404 = () => import('../components/Bf-404/Bf-404.vue')
 const ORCIDRedirect = () => import('../components/ORCID/ORCIDRedirect.vue')
 const ORCID = () => import('../components/ORCID/ORCID.vue')
 
+/**
+ * WelcomeOrg
+ */
+const WelcomePage = () => import('./welcomePage/WelcomePage.vue')
+const SubmitDatastPage = () => import('./welcomePage/SubmitDatasetPage.vue')
+
+const WelcomeInfo = () => import('../components/welcome/Welcome.vue')
+const SubmitDatasets = () => import('../components/welcome/SubmitDatasets.vue')
+const PennsieveInfo = () => import('../components/welcome/Info.vue')
+
 const routes = [
+
+  /**
+   * Welcome Org routes
+   */
+  {
+    path: '/:orgId/overview',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'welcome',
+        path: '',
+        components: {
+          stage: WelcomeInfo
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/submit',
+    components: {
+      page: SubmitDatastPage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'submit',
+        path: '',
+        components: {
+          stage: SubmitDatasets
+        }
+      },
+    ],
+  },
+  {
+    path: '/:orgId/info',
+    components: {
+      page: WelcomePage,
+      navigation: BfNavigation
+    },
+    props: true,
+    children: [
+      {
+        name: 'info',
+        path: '',
+        components: {
+          stage: PennsieveInfo
+        }
+      },
+    ],
+  },
 
   /**
    * Datasets routes
@@ -159,15 +228,27 @@ const routes = [
     },
     children: [
       {
-        path: 'records',
+        name: 'metadata',
+        path: 'metadata',
         components: {
           stage: ExploreRoute
         },
         props: true,
+        redirect: {
+          name: 'records'
+        },
         children: [
           {
-            path: '',
-            name: 'records',
+            path: 'model/:conceptId',
+            name: 'model',
+            props: true,
+            components: {
+              stage: ConceptManagement
+            }
+          },
+          {
+            path: 'management',
+            name: 'management',
             props: {
               stage: true
             },
@@ -175,44 +256,54 @@ const routes = [
               stage: DatasetRecords
             },
             redirect: {
-              name: 'records-overview'
+              name: 'records'
             },
             children: [
               {
-                path: 'overview',
-                name: 'records-overview',
+                path: 'records',
+                name: 'records',
                 props: {
                   stage: true
                 },
                 components: {
-                  stage: RecordsOverview
+                  stage: ModelRecords
                 }
               },
               {
-                path: 'graph-browser',
-                name: 'graph-browser',
+                path: 'models',
+                name: 'models',
+                props: {
+                  stage: true
+                },
+                components: {
+                  stage: Models
+                }
+              },
+              {
+                path: 'relationships',
+                name: 'relationships',
+                props: {
+                  stage: true
+                },
+                components: {
+                  stage: RelationshipTypes
+                }
+              },
+              {
+                path: 'graph',
+                name: 'graph',
                 props: {
                   stage: true
                 },
                 components: {
                   stage: GraphBrowser
                 }
-              }
+              },
+
             ]
           },
           {
-            path: ':conceptId',
-            name: 'concept-search',
-            props: true,
-            components: {
-              stage: ModelRecords
-            },
-            meta: {
-              headerAux: true
-            }
-          },
-          {
-            path: ':conceptId/:instanceId',
+            path: 'record/:conceptId/:instanceId',
             name: 'concept-instance',
             props: true,
             meta: {
@@ -221,7 +312,7 @@ const routes = [
             components: {
               stage: ConceptInstance
             }
-          }
+          },
         ]
       },
       {
@@ -236,6 +327,11 @@ const routes = [
             name: 'collection-files',
             path: ':fileId',
             props: true
+          },
+          {
+            name: 'collection-files-deleted',
+            path: ':fileId',
+            props: true
           }
         ]
       },
@@ -247,58 +343,51 @@ const routes = [
           stage: ConceptInstance
         }
       },
-      {
-        path: 'graph-management',
-        components: {
-          stage: GraphManagementRoute
-        },
-        props: true,
-        children: [
-          {
-            path: '',
-            name: 'graph-management',
-            props: true,
-            components: {
-              stage: GraphManagement
-            },
-            redirect: 'models',
-            children: [
-              {
-                path: 'models',
-                name: 'models',
-                props: true,
-                components: {
-                  stage: Models
-                }
-              },
-              {
-                path: 'relationship-types',
-                name: 'relationship-types',
-                props: true,
-                components: {
-                  stage: RelationshipTypes
-                }
-              }
-            ]
-          },
-          {
-            path: 'model-templates',
-            name: 'model-templates',
-            props: true,
-            components: {
-              stage: ModelTemplates
-            }
-          },
-          {
-            path: ':conceptId',
-            name: 'concept-management',
-            props: true,
-            components: {
-              stage: ConceptManagement
-            }
-          },
-        ]
-      },
+      // {
+      //   path: 'graph-management',
+      //   components: {
+      //     stage: GraphManagementRoute
+      //   },
+      //   props: true,
+      //   children: [
+          // {
+          //   path: '',
+          //   name: 'graph-management',
+          //   props: true,
+          //   components: {
+          //     stage: GraphManagement
+          //   },
+          //   redirect: 'models',
+          //   children: [
+          //     {
+          //       path: 'models',
+          //       name: 'models',
+          //       props: true,
+          //       components: {
+          //         stage: Models
+          //       }
+          //     },
+          //     {
+          //       path: 'relationship-types',
+          //       name: 'relationship-types',
+          //       props: true,
+          //       components: {
+          //         stage: RelationshipTypes
+          //       }
+          //     }
+          //   ]
+          // },
+          // {
+          //   path: 'model-templates',
+          //   name: 'model-templates',
+          //   props: true,
+          //   components: {
+          //     stage: ModelTemplates
+          //   }
+          // },
+        //
+        // ]
+      // },
       {
         name: 'dataset-collaborators',
         path: 'collaborators',
@@ -526,6 +615,18 @@ const routes = [
             publicationStatus: [PublicationStatus.REJECTED],
           }
         }
+      },
+      {
+        name: PublicationTabs.PROPOSED,
+        path: PublicationTabs.PROPOSED,
+        components: {
+          stage: PublishingProposalsList
+        },
+        props: {
+          stage: {
+            publicationStatus: [PublicationStatus.PROPOSED],
+          }
+        }
       }
     ],
     props: true
@@ -589,7 +690,7 @@ const routes = [
     },
     children: [
       {
-        name: 'setup-profile',
+        name: 'setup-profile-accept',
         path: 'accept/:username/:password',
         components: {
           stage: SetupProfile
@@ -605,7 +706,7 @@ const routes = [
     ]
   },
   {
-    name: 'welcome',
+    name: 'setup',
     path: '/:orgId/welcome',
     components: {
       page: Welcome
@@ -684,6 +785,13 @@ const routes = [
       page: Login
     },
     props: true
+  },
+  {
+    name: 'jupyter-login',
+    path: '/jupyter-login',
+    components: {
+      page: JupyterLogin
+    }
   },
   {
     name: 'docs-login',

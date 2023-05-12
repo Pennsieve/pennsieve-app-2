@@ -44,7 +44,7 @@
                   height="80"
                 >
                 <p>
-                  Set up <router-link :to="{ name: 'relationship-types' }">
+                  Set up <router-link :to="{ name: 'relationships' }">
                   relationship types
                 </router-link> for your models to enable linking metadata records.
                 </p>

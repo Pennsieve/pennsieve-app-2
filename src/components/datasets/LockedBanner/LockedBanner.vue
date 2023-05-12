@@ -85,8 +85,8 @@
   @import '../../../assets/_variables';
 
   .locked-banner {
-    background-color: $app-primary-color;
-    padding: 18px 0 21px 0;
+    background-color: $status_orange;
+    padding: 8px 0 8px 0;
     color: white;
     display: flex;
     justify-content: center;

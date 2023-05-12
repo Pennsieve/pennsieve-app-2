@@ -112,7 +112,7 @@
       />
 
       <bf-navigation-item
-        :link="{ name: 'records' }"
+        :link="{ name: 'metadata' }"
         icon="icon-explore-dataset"
         label="Records"
         class="secondary"
@@ -134,24 +134,19 @@
         />
       </bf-navigation-item>
 
-      <bf-navigation-item
-        v-if="getPermission('manager')"
-        :link="{ name: 'models' }"
-        icon="icon-graph"
-        label="Models"
-        class="secondary"
-        :condensed="secondaryNavCondensed"
+<!--      <bf-navigation-item-->
+<!--        v-if="getPermission('manager')"-->
+<!--        :link="{ name: 'models' }"-->
+<!--        icon="icon-graph"-->
+<!--        label="Models"-->
+<!--        class="secondary"-->
+<!--        :condensed="secondaryNavCondensed"-->
 
-      />
+<!--      />-->
 
-      <bf-navigation-item
-        :link="{ name: 'dataset-permissions' }"
-        icon="icon-collaborators"
-        label="Permissions"
-        :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
-        :condensed="secondaryNavCondensed"
 
-      />
+
+
 
       <bf-navigation-item
           :link="{ name: 'activity' }"
@@ -161,6 +156,34 @@
           :condensed="secondaryNavCondensed"
 
         />
+
+
+      <bf-navigation-item
+        :link="{ name: 'integrations-settings' }"
+        icon="icon-integrations"
+        label="Integrations"
+        class="secondary"
+        :condensed="secondaryNavCondensed"
+        :secondary=true
+
+      />
+
+      <bf-navigation-item
+        :link="{ name: 'publishing-settings' }"
+        icon="icon-globe-check"
+        label="Publishing"
+        class="secondary"
+        :condensed="secondaryNavCondensed"
+        :secondary=true
+      />
+
+      <bf-navigation-item
+        :link="{ name: 'dataset-permissions' }"
+        icon="icon-collaborators"
+        label="Permissions"
+        :class="hasFeature('sandbox_org_feature') ? 'disabled' : 'secondary' "
+        :condensed="secondaryNavCondensed"
+      />
 
       <bf-navigation-item
         v-if="getPermission('manager')"
@@ -441,7 +464,9 @@ hr {
   box-sizing: border-box;
   color: $gray_6;
   padding: 21px 24px 0px;
-  border-bottom: 1px solid $purple_1;
+
+  //background-color: $gray_2;
+  //border-bottom: 1px solid $gray_2;
   display: flex;
   justify-content: space-between;
   white-space: nowrap;

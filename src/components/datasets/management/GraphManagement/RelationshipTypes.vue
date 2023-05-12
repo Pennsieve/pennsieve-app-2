@@ -6,12 +6,12 @@
         class="empty-state"
       >
         <img
-          src="/static/images/illustrations/illo-missing-relationships.svg"
+          src="/static/images/illustrations/illo-missing-models.svg"
           alt=""
           width="120"
           height="80"
         >
-        <h2>Something's Missing</h2>
+        <h3>Something's Missing</h3>
         <p>
           Once you create Models in your graph, you can then link them here.
         </p>
@@ -34,35 +34,38 @@
         class="empty-state"
       >
         <img
-          src="/static/images/illustrations/illo-missing-relationships.svg"
+          src="/static/images/illustrations/illo-missing-models.svg"
           alt=""
           width="120"
           height="80"
         >
-        <h2>Something's Missing</h2>
+        <h3>Something's Missing</h3>
         <p>
           Relationships connect models in your graph and allow you to link individual records.
         </p>
 
-        <bf-button
-          class="learn-more-button"
-          :disabled="datasetLocked"
-          @click="openRelationshipTypeModal"
-        >
-          Get Started
-        </bf-button>
+        <div>
+          <bf-button
+            class="learn-more-button"
+            :disabled="datasetLocked"
+            @click="openRelationshipTypeModal"
+          >
+            Create Relationship between models
+          </bf-button>
+        </div>
+
       </bf-empty-page-state>
     </template>
 
     <template v-if="hasRelationships">
-      <data-model-graph
-        ref="dataModelGraph"
-        :show-relationship-types="true"
-        :relationship-linked-props="relationshipLinkedProps"
-        :show-title="false"
-        :height="216"
-        :strength="-50"
-      />
+<!--      <data-model-graph-->
+<!--        ref="dataModelGraph"-->
+<!--        :show-relationship-types="true"-->
+<!--        :relationship-linked-props="relationshipLinkedProps"-->
+<!--        :show-title="false"-->
+<!--        :height="216"-->
+<!--        :strength="-50"-->
+<!--      />-->
 
       <button
         class="add-relationship-type-btn"
@@ -821,6 +824,10 @@
 
   .relationship-types {
     .empty-state {
+      h3 {
+        margin: 0 0 16px;
+      }
+
       h2 {
         font-size: 16px;
       }

@@ -3,13 +3,14 @@
     <bf-rafter
       slot="heading"
       title="Publishing"
+      class="primary"
     >
       <div
         slot="buttons"
         class="buttons"
       >
         <bf-button
-          class="secondary"
+          class="primary"
           @click="$router.push(publisherTeamRoute)"
         >
           {{ activeOrganization.isAdmin ? 'Manage Publishers' : 'View Publishers' }}
@@ -120,6 +121,13 @@ export default {
           },
           label: 'Rejected',
           type: PublicationTabs.REJECTED
+        },
+        {
+          route: {
+            name: PublicationTabs.PROPOSED,
+          },
+          label: 'Proposed',
+          type: PublicationTabs.PROPOSED
         }
       ]
     },
@@ -149,7 +157,8 @@ export default {
   methods: {
     ...mapActions('publishingModule', [
       'updateDatasetTotalCount',
-      'getDatasetCount'
+      'getDatasetCount',
+      'getDatasetProposalCount'
     ]),
     ...mapActions(['togglePrimaryNav']),
 
@@ -191,6 +200,8 @@ export default {
       this.getDatasetCount(PublicationTabs.PUBLISHED)
 
       this.getDatasetCount(PublicationTabs.REJECTED)
+
+      this.getDatasetProposalCount(PublicationTabs.PROPOSED)
     }
   }
 }

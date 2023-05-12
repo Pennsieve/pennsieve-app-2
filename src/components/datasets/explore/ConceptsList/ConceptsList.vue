@@ -17,7 +17,7 @@
         alt=""
       >
       <p slot="copy">
-        Once you set up <router-link :to="{ name: 'graph-management' }">
+        Once you set up <router-link :to="{ name: 'models' }">
           models
         </router-link>, you'll see a list of records here.
       </p>

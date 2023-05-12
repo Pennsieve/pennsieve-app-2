@@ -36,9 +36,6 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
-import Cookies from 'js-cookie'
-import { DATASET_ACTIVITY_ALL_CATEGORIES, DATASET_ACTIVITY_ALL_CONTRIBUTORS, DATASET_ACTIVITY_DATE_RANGE_30 } from '@/utils/constants'
-
 import DatasetActivityPanel from '@/components/datasets/DatasetActivity/DatasetActivityPanel/DatasetActivityPanel.vue'
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import BfEmptyPageState from '@/components/shared/bf-empty-page-state/BfEmptyPageState.vue'
@@ -118,6 +115,7 @@ export default {
 .dataset-activity {
   background: #fff;
 }
+
 /deep/ .bf-stage-content {
   display: flex;
   flex-direction: column;
