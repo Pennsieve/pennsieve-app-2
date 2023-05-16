@@ -13,7 +13,7 @@
       </p>
       <router-link
         class="bf-menu-item"
-        :to="{ name: 'my-settings-container', params: {orgId: activeOrganizationId} }"
+        :to="{ name: 'my-settings-container', params: {orgId: this.activeOrganizationId} }"
       >
         Connect ORCID iD in user profile menu
       </router-link>
@@ -108,9 +108,17 @@ export default {
     ]),
 
     ...mapState([
-      'config'
+      'config',
+      'activeOrganization'
     ]),
 
+    /**
+     * Compute active organization id
+     * @returns {String}
+     */
+    activeOrganizationId: function() {
+      return pathOr('Organization', ['organization', 'id'], this.activeOrganization)
+    },
     /**
      * Retrieves Url to display with name once ORCID is connected to user profile
      */

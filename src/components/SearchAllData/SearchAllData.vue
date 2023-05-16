@@ -617,7 +617,6 @@ h2 {
   margin-top: 16px !important;
   .el-dialog__header {
     border-bottom: none;
-    padding-bottom: 0px;
   }
 
   .el-dialog__body {

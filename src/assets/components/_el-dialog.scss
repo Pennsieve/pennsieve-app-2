@@ -13,7 +13,9 @@
   padding: 24px 32px;
 }
 .el-dialog__header {
-  border-bottom: 1px solid $gray_2;
+  background: $purple_2;
+  color: $white;
+  border-bottom: 1px solid $purple_3;
 }
 .el-dialog__footer {
   border-top: 1px solid $gray_2;
