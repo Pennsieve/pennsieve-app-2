@@ -886,7 +886,7 @@ export default {
       ],
       linkBackObject: {
         path: "",
-        name: "Folder"
+        name: "Records"
       },
       relationships: [],
       isAddingFiles: true,

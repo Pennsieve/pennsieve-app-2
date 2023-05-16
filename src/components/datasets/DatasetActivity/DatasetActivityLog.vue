@@ -82,7 +82,14 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
 import Cookies from 'js-cookie'
-import { DATASET_ACTIVITY_ALL_CATEGORIES, DATASET_ACTIVITY_ALL_CONTRIBUTORS, DATASET_ACTIVITY_DATE_RANGE_30 } from '@/utils/constants'
+import { DATASET_ACTIVITY_ALL_CATEGORIES,
+  DATASET_ACTIVITY_ALL_CONTRIBUTORS,
+  DATASET_ACTIVITY_DATE_RANGE_30,
+  DATASET_ACTIVITY_DATE_RANGE_90,
+  DATASET_ACTIVITY_DATE_RANGE_YEAR,
+  DATASET_ACTIVITY_DATE_RANGE_2_YEAR,
+  DATASET_ACTIVITY_DATE_RANGE_ALL
+} from '@/utils/constants'
 
 import DatasetActivityPanel from '@/components/datasets/DatasetActivity/DatasetActivityPanel/DatasetActivityPanel.vue'
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
@@ -139,14 +146,10 @@ export default {
       ],
       datasetDateRangeOptions: [
         DATASET_ACTIVITY_DATE_RANGE_30,
-        {
-          value: 90,
-          label: 'Last 90 Days',
-        },
-        {
-          value: null,
-          label: 'All Activity',
-        }
+        DATASET_ACTIVITY_DATE_RANGE_90,
+        DATASET_ACTIVITY_DATE_RANGE_YEAR,
+        DATASET_ACTIVITY_DATE_RANGE_2_YEAR,
+        DATASET_ACTIVITY_DATE_RANGE_ALL
       ],
       datasetUsers: []
     }
