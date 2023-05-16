@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { pathOr, propOr} from 'ramda'
+import { pathOr, propOr, find, propEq} from 'ramda'
 import { mapGetters, mapState, mapActions } from 'vuex'
 
 import RecordsTable from '../SearchAllData/SearchResults/RecordsTable/RecordsTable.vue'
@@ -96,6 +96,10 @@ import GetFileProperty from '@/mixins/get-file-property'
 import Request from '@/mixins/request/index'
 import FormatDate from '@/mixins/format-date'
 import EventBus from '@/utils/event-bus'
+import FormatDisplay from '../../components/datasets/explore/ConceptInstance/format-display-value'
+
+// import TableFunctions from '../../mixins/table-functions'
+
 import { getFormatter } from '@/mixins/data-type/utils';
 
 /**
@@ -155,7 +159,7 @@ export default {
     PaginationPageMenu
   },
 
-  mixins: [GetFileProperty, Request, FormatDate],
+  mixins: [GetFileProperty, Request, FormatDate, FormatDisplay],
 
   props: {
     searchCriteria: {
@@ -211,6 +215,12 @@ export default {
       type: Boolean,
       default: false
     },
+    dataset: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
     model: {
       type: Object,
       default: () => {
@@ -252,10 +262,10 @@ export default {
               recordId: record.id,
               datasetId: this.$route.params.datasetId,
               modelId: this.model.id,
-              ...record.props
+              values: record.props
             }
           })
-          this.mappedResult = result
+          this.mappedResult = this.formatSearchResults(result, this.model)
 
         } else {
           this.mappedResult = []
@@ -286,7 +296,7 @@ export default {
   computed: {
     ...mapGetters(['getModelById']),
 
-    ...mapState(['config', 'userToken', 'activeOrganization', 'dataset', 'concepts']),
+    ...mapState(['config', 'userToken', 'activeOrganization', 'concepts']),
 
     ...mapState('metadataModule',[
       'filterParams','records', 'models'
@@ -405,6 +415,47 @@ export default {
       'fetchModels',
       'fetchModelProps'
     ]),
+
+    /**
+     * Formats and flattens search results before rendering
+     * @param {Array} results
+     * @returns {Array}
+     */
+    formatSearchResults: function(results, model) {
+
+      const propMap = new Map(model.props.map((obj) => [obj.name, obj]));
+
+      const recordResults = results.map(record => {
+        const formattedValues = Object.fromEntries(
+          Object.entries(record.values).map(propertyItem => {
+            const propType = propMap.get(propertyItem[0]).dataType
+
+            const dataType = typeof  propType=== 'object'
+              ? propType
+              : {type: propType}
+            const formatter = getFormatter(dataType)
+
+            const formattedValue = Array.isArray(propertyItem[1])
+              ? propertyItem[1].map(v => formatter(v)).join(", ")
+              : formatter(propertyItem[1])
+
+            return [propertyItem[0], formattedValue]
+          })
+        )
+        return {
+          recordId: record.recordId,
+          datasetId: record.datasetId,
+          modelId: record.modelId,
+          ...formattedValues
+        }
+      })
+
+      return recordResults
+
+
+
+
+    },
 
     downloadRecordCsv: function() {
       EventBus.$emit('trigger-record-csv-download', this.recordDownloadQuery)

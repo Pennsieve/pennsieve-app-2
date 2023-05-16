@@ -381,3 +381,23 @@ export const DATASET_ACTIVITY_DATE_RANGE_30 = {
   value: 30,
   label: 'Last 30 Days',
 }
+
+export const DATASET_ACTIVITY_DATE_RANGE_90 = {
+  value: 90,
+  label: 'Last 90 Days',
+}
+
+export const DATASET_ACTIVITY_DATE_RANGE_YEAR = {
+  value: 365,
+  label: 'Last Year',
+}
+
+export const DATASET_ACTIVITY_DATE_RANGE_2_YEAR = {
+  value: 730,
+  label: 'Last 2 Years',
+}
+
+export const DATASET_ACTIVITY_DATE_RANGE_ALL = {
+  value: null,
+  label: 'All Activity',
+}

@@ -45,7 +45,8 @@ export default {
      */
     isUser: function() {
       const team = prop('email', this.item)
-      return Boolean(team)
+      const isIntegrationUser = prop('isIntegrationUser', this.item)
+      return Boolean(team || isIntegrationUser)
     },
 
     /**
