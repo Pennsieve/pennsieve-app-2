@@ -144,9 +144,6 @@
               />
             </div>
           </template>
-
-
-
         </div>
         <div
           class="models-list-wrap"

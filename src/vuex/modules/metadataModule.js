@@ -93,7 +93,6 @@ export const mutations = {
 
 export const actions = {
   fetchModelProps: async({commit, rootState}, model) => {
-
     const datasetId = rootState.route.params.datasetId
 
     try {
@@ -119,11 +118,11 @@ export const actions = {
 
   },
   fetchModels: async({commit, rootState, dispatch}) => {
-
     const datasetId = rootState.route.params.datasetId
 
     try {
       const url = `${rootState.config.apiUrl}/models/datasets/${datasetId}/concepts`
+
       const resp = await fetch(url, {
         method: 'GET',
         headers: {
@@ -148,10 +147,6 @@ export const actions = {
       commit('SET_MODELS', [])
       return Promise.reject(err)
     }
-
-
-
-
   },
   fetchRecords: async({commit, rootState, state}, params) => {
     try {
