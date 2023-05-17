@@ -376,7 +376,7 @@ export default {
         })
     },
     /**
-     * method moves selection(s) back to the datasets file storage (unmarked as deleted)
+     * Method calls the restore endpoint which moves selection(s) back to the datasets file storage (unmarked as deleted).
      * @param {String} destination}
      * @param {Array} items
      */
