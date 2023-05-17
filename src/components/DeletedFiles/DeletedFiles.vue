@@ -381,10 +381,6 @@ export default {
      * @param {Array} items
      */
     moveBackToFiles: function() {
-      const id =
-        this.$route.name === 'dataset-files'
-          ? this.$route.params.datasetId
-          : this.$route.params.fileId
       const nodeIds = this.selectedDeletedFiles.map(item => item.node_id)
       const options = {
         method: 'POST',
@@ -395,7 +391,12 @@ export default {
         },
         body: JSON.stringify({ nodeIds })
       }
-      fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
+      fetch(
+        `${this.config.api2Url}/packages/restore?dataset_id=${
+          this.$route.params.datasetId
+        }`,
+        options
+      )
         .then(response => {
           if (response.ok) {
             this.onRestoreItems(response.json())
