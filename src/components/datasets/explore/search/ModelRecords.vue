@@ -127,6 +127,7 @@
                 ref="searchResults"
                 class="mb-48"
                 empty-state-copy="Try a different combination of filters"
+                :dataset="dataset"
                 :dataset-list="[]"
                 :search-criteria="search"
                 :show-search-results="true"
@@ -143,9 +144,6 @@
               />
             </div>
           </template>
-
-
-
         </div>
         <div
           class="models-list-wrap"
@@ -205,6 +203,7 @@ import { mapState, mapGetters, mapActions} from 'vuex'
 import { pathOr, propOr, compose } from 'ramda'
 import uuidv1 from 'uuid/v1'
 import debounce from 'lodash/debounce'
+import Cookies from 'js-cookie'
 
 import BfRafter from '@/components/shared/bf-rafter/BfRafter.vue'
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
@@ -257,14 +256,15 @@ export default {
   mixins: [ ValidateFiltersMixin ],
 
   mounted: function() {
-    if (!this.models || this.models.length == 0){
+    const token = Cookies.get('user_token')
+    if (token) {
       this.fetchModels()
     }
+    console.log("fetch models")
   },
 
   data() {
     return {
-      // model: {},
       search: {
         model: null,
         isModelInvalid: false,
@@ -290,8 +290,9 @@ export default {
 
     ...mapState([
       'concepts',
-      'dataset',
       'lastRoute',
+      'dataset',
+      'userToken'
     ]),
 
     ...mapGetters([
@@ -299,7 +300,8 @@ export default {
       'totalRecordsCount',
       'datasetIntId',
       'getPermission',
-      'datasetLocked'
+      'datasetLocked',
+      'getDataset'
     ]),
 
     /**
@@ -409,23 +411,20 @@ export default {
   },
 
   watch: {
-    dataset: {
-      handler: function() {
-        if (this.dataset.content){
-          this.fetchModels()
-        }
+    /**
+     * Watch token in state, and get docs login
+     * when it is populated. This will happen
+     * when a user uses the form to log in
+     * @params {String} token
+     */
+    userToken: function(token) {
+      if (token) {
+        this.fetchModels()
       }
     },
     selectedModel: {
       handler: function(models) {
         this.executeSearch()
-        // if (models.length) {
-        //   const model = (models || []).find(c => c.id === this.$route.params.conceptId) || {}
-        //   this.model = model
-        //
-        //   // this.search.model = model.name
-        //   this.executeSearch()
-        // }
       },
       immediate: true
     },
@@ -479,9 +478,11 @@ export default {
      * Add filter
      */
     addFilter: function(shouldFocus = false) {
-      const datasetId = pathOr('', ['content', 'id'], this.dataset)
-      const datasetIntId = pathOr('', ['content', 'intId'], this.dataset)
-      const datasetName = pathOr('', ['content', 'name'], this.dataset)
+      const ds = this.getDataset()
+
+      const datasetId = pathOr('', ['content', 'id'], ds)
+      const datasetIntId = pathOr('', ['content', 'intId'], ds)
+      const datasetName = pathOr('', ['content', 'name'], ds)
 
       const newFilter = {
         id: uuidv1(),
@@ -701,7 +702,7 @@ p {
   //top: 0px;
   transform: translate3d(100%, 0, 0);
   transition: transform .3s ease-out;
-  width: 300px;
+  width: 250px;
   will-change: transform;
   z-index: 3;
   &.visible {
@@ -748,7 +749,7 @@ p {
   .results {
     flex: 1;
     min-width: 0;
-    margin-right: 16px;
+    //margin-right: 16px;
     display: flex;
     flex-direction: column;
   }

@@ -9,9 +9,20 @@
     >
       <div slot="body" class="bf-upload-body">
         <div class="undelete-warning-container">
-          <svg-icon icon="icon-warning-circle" width="18" height="18" />
-          <div class="undelete-warning-text">
-            <p>Deleted files will be permanently deleted after 30 days</p>
+          <div class="undelete-warning-item">
+            <svg-icon icon="icon-warning-circle" width="18" height="18" />
+            <div class="undelete-warning-text">
+              <p>Deleted files will be permanently deleted after 30 days</p>
+            </div>
+          </div>
+          <div class="undelete-warning-item">
+            <svg-icon icon="icon-warning-circle" width="18" height="18" />
+            <div class="undelete-warning-text">
+              <p>
+                Please note that there may be a delay between when a file is
+                deleted and when it is available to be restored.
+              </p>
+            </div>
           </div>
         </div>
         <div v-if="hasFiles">
@@ -365,15 +376,11 @@ export default {
         })
     },
     /**
-     * method moves selection(s) back to the datasets file storage (unmarked as deleted)
+     * Method calls the restore endpoint which moves selection(s) back to the datasets file storage (unmarked as deleted).
      * @param {String} destination}
      * @param {Array} items
      */
     moveBackToFiles: function() {
-      const id =
-        this.$route.name === 'dataset-files'
-          ? this.$route.params.datasetId
-          : this.$route.params.fileId
       const nodeIds = this.selectedDeletedFiles.map(item => item.node_id)
       const options = {
         method: 'POST',
@@ -384,7 +391,12 @@ export default {
         },
         body: JSON.stringify({ nodeIds })
       }
-      fetch(`${this.config.api2Url}/packages/restore?dataset_id=${id}`, options)
+      fetch(
+        `${this.config.api2Url}/packages/restore?dataset_id=${
+          this.$route.params.datasetId
+        }`,
+        options
+      )
         .then(response => {
           if (response.ok) {
             this.onRestoreItems(response.json())
@@ -515,6 +527,11 @@ Need to reach into packages list instead of pulling stuff from url
 }
 
 .undelete-warning-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.undelete-warning-item {
   display: flex;
 }
 

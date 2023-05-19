@@ -93,8 +93,10 @@ export const mutations = {
 
 export const actions = {
   fetchModelProps: async({commit, rootState}, model) => {
+    const datasetId = rootState.route.params.datasetId
+
     try {
-      const url = `${rootState.config.apiUrl}/models/datasets/${rootState.dataset.content.id}/concepts/${model}/properties`
+      const url = `${rootState.config.apiUrl}/models/datasets/${datasetId}/concepts/${model}/properties`
 
       const resp = await fetch(url, {
         method: 'GET',
@@ -116,8 +118,10 @@ export const actions = {
 
   },
   fetchModels: async({commit, rootState, dispatch}) => {
+    const datasetId = rootState.route.params.datasetId
+
     try {
-      const url = `${rootState.config.apiUrl}/models/datasets/${rootState.dataset.content.id}/concepts`
+      const url = `${rootState.config.apiUrl}/models/datasets/${datasetId}/concepts`
 
       const resp = await fetch(url, {
         method: 'GET',

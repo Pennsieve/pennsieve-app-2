@@ -751,7 +751,7 @@ export default {
 
       function handleNodeTextClick(d) {
         if (vm.hasLinks && !vm.showRelationshipTypes) {
-          vm.$router.push({ name: 'concept-search', params: { conceptId: d.id } })
+          vm.$router.push({ name: 'records', params: { conceptId: d.id } })
         }
       }
 

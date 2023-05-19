@@ -351,6 +351,9 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'toggleDatasetVis'
+    ]),
 
     /**
      * Open Create Organization Dialog
@@ -368,12 +371,20 @@ export default {
       this.isCreateOrgDialogVisible = false
     },
 
+    /*
+     * Sets the dataset name visibility flag to false
+     */
+    setDatasetVis: function() {
+      console.log("SETTING VISIBILITY TO FALSE")
+      this.toggleDatasetVis(false)
+    },
     /**
      * Close all menus
      */
     closeMenus: function() {
       this.orgMenuOpen = false
       this.menuOpen = false
+      this.setDatasetVis()
     },
 
     /**

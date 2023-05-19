@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="this.datasetManifests.length > 0"
+    v-if="showManifests"
     class="bf-table"
   >
     <div class="bf-table-header">
@@ -51,6 +51,32 @@
       />
     </div>
   </div>
+  <bf-empty-page-state
+    v-else
+    class="empty"
+  >
+    <div v-if="isLoadingManifestsActivity">
+      <el-spinner
+        class="button-spinner"
+        :radius="80"
+      />
+    </div>
+    <div v-else>
+      <img
+        src="/static/images/illustrations/illo-add-files.svg"
+        height="240"
+        width="247"
+        alt="Add Files illustration"
+      >
+      <div
+        class="copy"
+      >
+        <h2>There are no upload manifests yet.</h2>
+        <p>Upload manifests are created as part of the data upload workflow on Pennsieve.</p>
+      </div>
+    </div>
+
+  </bf-empty-page-state>
 </template>
 
 <script>
@@ -112,6 +138,10 @@ export default {
     ...mapGetters([
       'getOrgMembersById'
     ]),
+
+    showManifests: function() {
+      return this.datasetManifests && this.datasetManifests.length > 0
+    },
 
     sortedManifests: function() {
       return this.datasetManifests.sort(function Comparator(a, b) {

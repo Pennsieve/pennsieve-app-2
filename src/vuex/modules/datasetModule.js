@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 import moment from 'moment'
 
-import { DATASET_ACTIVITY_ALL_CATEGORIES, DATASET_ACTIVITY_ALL_CONTRIBUTORS, DATASET_ACTIVITY_DATE_RANGE_30 } from '@/utils/constants'
+import { DATASET_ACTIVITY_ALL_CATEGORIES, DATASET_ACTIVITY_ALL_CONTRIBUTORS, DATASET_ACTIVITY_DATE_RANGE_2_YEAR } from '@/utils/constants'
 import toQueryParams from '@/utils/toQueryParams.js'
 import EventBus from '@/utils/event-bus'
 
@@ -63,12 +63,10 @@ const initialState = () => ({
     cursor: '',
     orderDirection: 'Asc',
     category: DATASET_ACTIVITY_ALL_CATEGORIES,
-    dateRange: DATASET_ACTIVITY_DATE_RANGE_30,
+    dateRange: DATASET_ACTIVITY_DATE_RANGE_2_YEAR,
     userId: DATASET_ACTIVITY_ALL_CONTRIBUTORS
   },
   datasetManifestParams: {
-
-
   },
   isLoadingDatasetActivity: false,
   isLoadingManifestsActivity: false,

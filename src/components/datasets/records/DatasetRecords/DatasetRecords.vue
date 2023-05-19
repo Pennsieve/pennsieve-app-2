@@ -7,6 +7,7 @@
       slot="heading"
       title="Metadata Records"
     >
+
       <ul
         slot="tabs"
         class="tabs unstyled"
