@@ -26,8 +26,8 @@
             <template>
               <div v-if="email">
               <p class="dataset-meta">
-                Submitter's email address
-                <strong>{{ updated }}</strong>
+                Email address
+                <strong>{{ email }}</strong>
               </p>
             </div>
           </template>
