@@ -1,10 +1,7 @@
 <template>
   <bf-page class="bf-dataset-files">
     <locked-banner slot="banner" />
-    <bf-rafter
-      slot="heading"
-      title="Files"
-    >
+    <bf-rafter slot="heading" title="Files">
       <div slot="heading" class="bf-dataset-breadcrumbs">
         <breadcrumb-navigation
           :ancestors="ancestors"
@@ -55,17 +52,18 @@
             @selection-change="setSelectedFiles"
             @click-file-label="onClickLabel"
           />
-
+          <infinite-loading
+            slot="append"
+            @infinite="infiniteHandler"
+            force-use-infinite-wrapper=".el-table__body-wrapper"
+          />
           <file-metadata-info
             :selectedFiles="selectedFiles"
             :ancestors="ancestors"
             :folder="file"
           />
         </div>
-
-
-
-    </bf-stage>
+      </bf-stage>
     </div>
 
     <bf-package-dialog
@@ -138,6 +136,7 @@ import GetFileProperty from '../../../mixins/get-file-property'
 import FileMetadataInfo from './Metadata/FileMetadataInfo.vue'
 import Cookie from 'js-cookie'
 import LockedBanner from '../LockedBanner/LockedBanner'
+import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
   name: 'BfDatasetFiles',
@@ -156,7 +155,8 @@ export default {
     FilesTable,
     LockedBanner,
     DeletedFiles,
-    FileMetadataInfo
+    FileMetadataInfo,
+    InfiniteLoading
   },
 
   mixins: [Sorter, Request, GetFileProperty],
@@ -178,6 +178,8 @@ export default {
       sortDirection: 'asc',
       singleFile: {},
       deletedDialogOpen: false,
+      limit: 5,
+      offset: 0
     }
   },
 
@@ -215,7 +217,7 @@ export default {
 
         return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${
           this.userToken
-        }&includeAncestors=true`
+        }&includeAncestors=true&limit=${this.limit}&offset=${this.offset}`
       }
     },
 
@@ -880,6 +882,9 @@ export default {
         .catch(response => {
           this.handleXhrError(response)
         })
+    },
+    infiniteHandler: $state => {
+      this.fetchFiles()
     }
   }
 }
