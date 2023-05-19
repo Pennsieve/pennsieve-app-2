@@ -139,7 +139,7 @@ export default {
     },
     //proposer's email will render if the email is provided adn not an empty string
     email() {
-      if (this.proposal.emailAddress && this.proposal.emailAddress.trim() !== ''){
+      if (this.proposal.emailAddress.length && this.proposal.emailAddress.trim().length){
         return this.proposal.emailAddress;
       } else {
         return '';
