@@ -15,7 +15,7 @@
       <bf-stage
         class="bf-stage-file"
         slot="stage"
-        v-loading="isLoading"
+        v-loading="files.length > 0 && isLoading"
         element-loading-background="transparent"
       >
         <div>
