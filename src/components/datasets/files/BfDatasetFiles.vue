@@ -57,8 +57,11 @@
               @selection-change="setSelectedFiles"
               @click-file-label="onClickLabel"
             />
-            <div v-if="filesLoading && !lastPage">
-              <el-spinner></el-spinner>
+            <div
+              class="loading-spinner-container"
+              v-if="filesLoading && !lastPage"
+            >
+              <el-spinner class="loading-spinner" />
             </div>
           </div>
           <file-metadata-info
@@ -400,39 +403,34 @@ export default {
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.filesLoading = true
-          setTimeout(
-            () => {
-              this.file = response
-              const newFiles = response.children.map(file => {
-                if (!file.storage) {
-                  file.storage = 0
-                }
-                file.icon =
-                  file.icon || this.getFilePropertyVal(file.properties, 'icon')
-                file.subtype = this.getSubType(file)
-                return file
-              })
-              if (newFiles.length < this.limit) {
-                this.lastPage = true
-              }
-              this.files =
-                this.offset > 0 ? [...this.files, ...newFiles] : newFiles
-              this.sortedFiles = this.returnSort(
-                'content.name',
-                this.files,
-                this.sortDirection
-              )
-              this.ancestors = response.ancestors
 
-              const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
-              if (pkgId) {
-                this.scrollToFile(pkgId)
-              }
-              this.allowFetch = true
-              this.filesLoading = false
-            },
-            this.offset > 0 ? 5000 : 0
+          this.file = response
+          const newFiles = response.children.map(file => {
+            if (!file.storage) {
+              file.storage = 0
+            }
+            file.icon =
+              file.icon || this.getFilePropertyVal(file.properties, 'icon')
+            file.subtype = this.getSubType(file)
+            return file
+          })
+          if (newFiles.length < this.limit) {
+            this.lastPage = true
+          }
+          this.files = this.offset > 0 ? [...this.files, ...newFiles] : newFiles
+          this.sortedFiles = this.returnSort(
+            'content.name',
+            this.files,
+            this.sortDirection
           )
+          this.ancestors = response.ancestors
+
+          const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
+          if (pkgId) {
+            this.scrollToFile(pkgId)
+          }
+          this.allowFetch = true
+          this.filesLoading = false
         })
         .catch(response => {
           this.handleXhrError(response)
@@ -917,6 +915,11 @@ export default {
 
 <style scoped lang="scss">
 @import '../../../assets/_variables.scss';
+
+.loading-spinner-container {
+  display: flex;
+  justify-content: center;
+}
 
 .file-meta-wrapper {
   display: flex;
