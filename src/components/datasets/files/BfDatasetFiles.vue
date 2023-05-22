@@ -225,7 +225,7 @@ export default {
         return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${
           this.userToken
         }&includeAncestors=true&limit=${this.limit}&offset=${this.offset}`
-      } else return null
+      }
     },
 
     /**
@@ -449,7 +449,9 @@ export default {
      * @param {Object} file
      */
     onClickLabel: function(file) {
-      this.fetchFiles()
+      this.files = []
+      this.offset = 0
+      this.getFilesUrl
       const id = pathOr('', ['content', 'id'], file)
       const packageType = pathOr('', ['content', 'packageType'], file)
 
@@ -487,6 +489,9 @@ export default {
      * @param {String} id
      */
     handleNavigateBreadcrumb: function(id = '') {
+      this.files = []
+      this.offset = 0
+      this.getFilesUrl
       if (id) {
         this.navigateToFile(id)
       } else {
