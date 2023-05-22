@@ -183,7 +183,7 @@ export default {
       sortDirection: 'asc',
       singleFile: {},
       deletedDialogOpen: false,
-      limit: 20,
+      limit: 100,
       offset: 0,
       allowFetch: true,
       filesLoading: false,
