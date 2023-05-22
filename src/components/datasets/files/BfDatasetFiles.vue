@@ -42,21 +42,25 @@
           </div>
         </div>
         <div class="file-meta-wrapper">
-          <files-table
-            :data="files"
-            :multiple-selected="multipleSelected"
-            @move="showMove"
-            @delete="showDelete"
-            @process="processFile"
-            @copy-url="getPresignedUrl"
-            @selection-change="setSelectedFiles"
-            @click-file-label="onClickLabel"
-          />
-          <infinite-loading
-            slot="append"
-            @infinite="infiniteHandler"
-            force-use-infinite-wrapper=".el-table__body-wrapper"
-          />
+          <div
+            class="table-container"
+            ref="tableContainer"
+            @scroll="handleScroll"
+          >
+            <files-table
+              :data="files"
+              :multiple-selected="multipleSelected"
+              @move="showMove"
+              @delete="showDelete"
+              @process="processFile"
+              @copy-url="getPresignedUrl"
+              @selection-change="setSelectedFiles"
+              @click-file-label="onClickLabel"
+            />
+            <div v-if="filesLoading && !lastPage">
+              <el-spinner></el-spinner>
+            </div>
+          </div>
           <file-metadata-info
             :selectedFiles="selectedFiles"
             :ancestors="ancestors"
@@ -136,7 +140,6 @@ import GetFileProperty from '../../../mixins/get-file-property'
 import FileMetadataInfo from './Metadata/FileMetadataInfo.vue'
 import Cookie from 'js-cookie'
 import LockedBanner from '../LockedBanner/LockedBanner'
-import InfiniteLoading from 'vue-infinite-loading'
 
 export default {
   name: 'BfDatasetFiles',
@@ -155,8 +158,7 @@ export default {
     FilesTable,
     LockedBanner,
     DeletedFiles,
-    FileMetadataInfo,
-    InfiniteLoading
+    FileMetadataInfo
   },
 
   mixins: [Sorter, Request, GetFileProperty],
@@ -178,8 +180,11 @@ export default {
       sortDirection: 'asc',
       singleFile: {},
       deletedDialogOpen: false,
-      limit: 5,
-      offset: 0
+      limit: 20,
+      offset: 0,
+      allowFetch: true,
+      filesLoading: false,
+      lastPage: false
     }
   },
 
@@ -194,7 +199,6 @@ export default {
       'getPermission',
       'datasetLocked'
     ]),
-
     /**
      * Item has files
      */
@@ -218,7 +222,7 @@ export default {
         return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${
           this.userToken
         }&includeAncestors=true&limit=${this.limit}&offset=${this.offset}`
-      }
+      } else return null
     },
 
     /**
@@ -228,7 +232,7 @@ export default {
     moveUrl: function() {
       if (this.config.apiUrl && this.userToken) {
         return `${this.config.apiUrl}/data/move?api_key=${this.userToken}`
-      }
+      } else return null
     },
 
     /**
@@ -273,12 +277,10 @@ export default {
       }
     }
   },
-
   mounted: function() {
     if (this.getFilesUrl && !this.files.length) {
-      this.fetchFiles()
+      this.getFilesUrl
     }
-
     this.$el.addEventListener('dragenter', this.onDragEnter.bind(this))
     EventBus.$on('add-uploaded-file', this.onAddUploadedFile.bind(this))
     EventBus.$on('dismiss-upload-info', this.onDismissUploadInfo.bind(this))
@@ -324,6 +326,20 @@ export default {
   },
 
   methods: {
+    handleScroll: function(event) {
+      const { clientHeight, scrollTop, scrollHeight } = event.currentTarget
+
+      const atBottomOfWindow = clientHeight === scrollHeight - scrollTop
+      if (
+        atBottomOfWindow &&
+        this.files.length >= this.limit &&
+        this.allowFetch
+      ) {
+        this.allowFetch = false
+        this.offset = this.offset + this.limit
+        event.currentTarget.scrollTop = scrollTop - scrollTop * 0.25
+      }
+    },
     //Navigates to dataset trash bin modal
     NavToDeleted: function() {
       //CONSIDER DOING SOMETHING LIKE FETCHFILES()
@@ -383,33 +399,45 @@ export default {
     fetchFiles: function() {
       this.sendXhr(this.getFilesUrl)
         .then(response => {
-          this.file = response
-          this.files = response.children.map(file => {
-            if (!file.storage) {
-              file.storage = 0
-            }
-            file.icon =
-              file.icon || this.getFilePropertyVal(file.properties, 'icon')
-            file.subtype = this.getSubType(file)
-            return file
-          })
-          this.sortedFiles = this.returnSort(
-            'content.name',
-            this.files,
-            this.sortDirection
-          )
-          this.ancestors = response.ancestors
+          this.filesLoading = true
+          setTimeout(
+            () => {
+              this.file = response
+              const newFiles = response.children.map(file => {
+                if (!file.storage) {
+                  file.storage = 0
+                }
+                file.icon =
+                  file.icon || this.getFilePropertyVal(file.properties, 'icon')
+                file.subtype = this.getSubType(file)
+                return file
+              })
+              if (newFiles.length < this.limit) {
+                this.lastPage = true
+              }
+              this.files =
+                this.offset > 0 ? [...this.files, ...newFiles] : newFiles
+              this.sortedFiles = this.returnSort(
+                'content.name',
+                this.files,
+                this.sortDirection
+              )
+              this.ancestors = response.ancestors
 
-          const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
-          if (pkgId) {
-            this.scrollToFile(pkgId)
-          }
+              const pkgId = pathOr('', ['query', 'pkgId'], this.$route)
+              if (pkgId) {
+                this.scrollToFile(pkgId)
+              }
+              this.allowFetch = true
+              this.filesLoading = false
+            },
+            this.offset > 0 ? 5000 : 0
+          )
         })
         .catch(response => {
           this.handleXhrError(response)
         })
     },
-
     /**
      * Sort table by column
      * @param {String} path
@@ -882,9 +910,6 @@ export default {
         .catch(response => {
           this.handleXhrError(response)
         })
-    },
-    infiniteHandler: $state => {
-      this.fetchFiles()
     }
   }
 }
@@ -896,6 +921,15 @@ export default {
 .file-meta-wrapper {
   display: flex;
   flex-direction: row;
+}
+
+.table-container {
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  display: block;
+  max-height: calc(100vh - 200px);
+  margin-top: 1px;
+  border: 1px solid $gray_2;
 }
 
 .actions-container {
