@@ -403,7 +403,6 @@ export default {
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.filesLoading = true
-
           this.file = response
           const newFiles = response.children.map(file => {
             if (!file.storage) {
@@ -417,7 +416,10 @@ export default {
           if (newFiles.length < this.limit) {
             this.lastPage = true
           }
-          this.files = this.offset > 0 ? [...this.files, ...newFiles] : newFiles
+          this.files =
+            this.files > this.limit && this.offset > 0
+              ? [...this.files, ...newFiles]
+              : newFiles
           this.sortedFiles = this.returnSort(
             'content.name',
             this.files,
