@@ -417,7 +417,7 @@ export default {
             this.lastPage = true
           }
           this.files =
-            this.files > this.limit && this.offset > 0
+            this.files.length >= this.limit && this.offset > 0
               ? [...this.files, ...newFiles]
               : newFiles
           this.sortedFiles = this.returnSort(
