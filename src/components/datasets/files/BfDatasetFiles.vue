@@ -340,7 +340,7 @@ export default {
       ) {
         this.allowFetch = false
         this.offset = this.offset + this.limit
-        event.currentTarget.scrollTop = scrollTop - scrollTop * 0.25
+        event.currentTarget.scrollTop = scrollTop - 20
       }
     },
     //Navigates to dataset trash bin modal
@@ -400,7 +400,6 @@ export default {
      * Send API request to get files for item
      */
     fetchFiles: function() {
-      console.log(this.files)
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.filesLoading = true
@@ -450,7 +449,7 @@ export default {
      * @param {Object} file
      */
     onClickLabel: function(file) {
-      this.offset = 0
+      this.fetchFiles()
       const id = pathOr('', ['content', 'id'], file)
       const packageType = pathOr('', ['content', 'packageType'], file)
 
