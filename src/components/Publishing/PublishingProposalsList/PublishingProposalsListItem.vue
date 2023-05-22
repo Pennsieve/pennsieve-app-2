@@ -23,6 +23,14 @@
               Submitted on
               <strong>{{ updated }}</strong>
             </p>
+            <template>
+              <div v-if="email">
+              <p class="dataset-meta">
+                Email address
+                <strong>{{ email }}</strong>
+              </p>
+            </div>
+          </template>
           </div>
         </div>
       </el-col>
@@ -128,6 +136,14 @@ export default {
      */
     owner: function() {
       return this.proposal.ownerName
+    },
+    //proposer's email will render if the email is provided adn not an empty string
+    email() {
+      if (this.proposal.emailAddress.length && this.proposal.emailAddress.trim().length){
+        return this.proposal.emailAddress;
+      } else {
+        return '';
+      }
     },
 
     storage: function() { return 0},
