@@ -400,6 +400,7 @@ export default {
      * Send API request to get files for item
      */
     fetchFiles: function() {
+      console.log(this.files)
       this.sendXhr(this.getFilesUrl)
         .then(response => {
           this.filesLoading = true
@@ -416,10 +417,7 @@ export default {
           if (newFiles.length < this.limit) {
             this.lastPage = true
           }
-          this.files =
-            this.files.length >= this.limit && this.offset > 0
-              ? [...this.files, ...newFiles]
-              : newFiles
+          this.files = this.offset > 0 ? [...this.files, ...newFiles] : newFiles
           this.sortedFiles = this.returnSort(
             'content.name',
             this.files,
@@ -452,6 +450,7 @@ export default {
      * @param {Object} file
      */
     onClickLabel: function(file) {
+      this.offset = 0
       const id = pathOr('', ['content', 'id'], file)
       const packageType = pathOr('', ['content', 'packageType'], file)
 
