@@ -15,7 +15,7 @@
       <bf-stage
         class="bf-stage-file"
         slot="stage"
-        v-loading="files.length > 0 && isLoading"
+        v-loading="isLoading"
         element-loading-background="transparent"
       >
         <div>
@@ -282,7 +282,7 @@ export default {
   },
   mounted: function() {
     if (this.getFilesUrl && !this.files.length) {
-      this.getFilesUrl
+      this.fetchFiles()
     }
     this.$el.addEventListener('dragenter', this.onDragEnter.bind(this))
     EventBus.$on('add-uploaded-file', this.onAddUploadedFile.bind(this))
