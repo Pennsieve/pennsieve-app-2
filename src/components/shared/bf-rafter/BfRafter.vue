@@ -374,7 +374,7 @@ export default {
     },
 
     isFileRecord: function() {
-      return this.$route.name == "file-record";
+      return this.$route.name === "file-record";
     },
 
     ...mapGetters(['getPermission', 'userToken', 'config']),
