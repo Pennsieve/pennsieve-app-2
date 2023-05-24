@@ -1,10 +1,7 @@
 <template>
   <bf-page class="bf-dataset-files">
     <locked-banner slot="banner" />
-    <bf-rafter
-      slot="heading"
-      title="Files"
-    >
+    <bf-rafter slot="heading" title="Files">
       <div slot="heading" class="bf-dataset-breadcrumbs">
         <breadcrumb-navigation
           :ancestors="ancestors"
@@ -45,27 +42,35 @@
           </div>
         </div>
         <div class="file-meta-wrapper">
-          <files-table
-            :data="files"
-            :multiple-selected="multipleSelected"
-            @move="showMove"
-            @delete="showDelete"
-            @process="processFile"
-            @copy-url="getPresignedUrl"
-            @selection-change="setSelectedFiles"
-            @click-file-label="onClickLabel"
-          />
-
+          <div
+            class="table-container"
+            ref="tableContainer"
+            @scroll="handleScroll"
+          >
+            <files-table
+              :data="files"
+              :multiple-selected="multipleSelected"
+              @move="showMove"
+              @delete="showDelete"
+              @process="processFile"
+              @copy-url="getPresignedUrl"
+              @selection-change="setSelectedFiles"
+              @click-file-label="onClickLabel"
+            />
+            <div
+              class="loading-spinner-container"
+              v-if="filesLoading && !lastPage"
+            >
+              <el-spinner class="loading-spinner" />
+            </div>
+          </div>
           <file-metadata-info
             :selectedFiles="selectedFiles"
             :ancestors="ancestors"
             :folder="file"
           />
         </div>
-
-
-
-    </bf-stage>
+      </bf-stage>
     </div>
 
     <bf-package-dialog
@@ -178,6 +183,11 @@ export default {
       sortDirection: 'asc',
       singleFile: {},
       deletedDialogOpen: false,
+      limit: 100,
+      offset: 0,
+      allowFetch: true,
+      filesLoading: false,
+      lastPage: false
     }
   },
 
@@ -192,7 +202,6 @@ export default {
       'getPermission',
       'datasetLocked'
     ]),
-
     /**
      * Item has files
      */
@@ -215,7 +224,7 @@ export default {
 
         return `${this.config.apiUrl}/${baseUrl}/${id}?api_key=${
           this.userToken
-        }&includeAncestors=true`
+        }&includeAncestors=true&limit=${this.limit}&offset=${this.offset}`
       }
     },
 
@@ -226,7 +235,7 @@ export default {
     moveUrl: function() {
       if (this.config.apiUrl && this.userToken) {
         return `${this.config.apiUrl}/data/move?api_key=${this.userToken}`
-      }
+      } else return null
     },
 
     /**
@@ -271,12 +280,10 @@ export default {
       }
     }
   },
-
   mounted: function() {
     if (this.getFilesUrl && !this.files.length) {
       this.fetchFiles()
     }
-
     this.$el.addEventListener('dragenter', this.onDragEnter.bind(this))
     EventBus.$on('add-uploaded-file', this.onAddUploadedFile.bind(this))
     EventBus.$on('dismiss-upload-info', this.onDismissUploadInfo.bind(this))
@@ -322,6 +329,20 @@ export default {
   },
 
   methods: {
+    handleScroll: function(event) {
+      const { clientHeight, scrollTop, scrollHeight } = event.currentTarget
+
+      const atBottomOfWindow = clientHeight === scrollHeight - scrollTop
+      if (
+        atBottomOfWindow &&
+        this.files.length >= this.limit &&
+        this.allowFetch
+      ) {
+        this.allowFetch = false
+        this.offset = this.offset + this.limit
+        event.currentTarget.scrollTop = scrollTop - 20
+      }
+    },
     //Navigates to dataset trash bin modal
     NavToDeleted: function() {
       //CONSIDER DOING SOMETHING LIKE FETCHFILES()
@@ -381,8 +402,9 @@ export default {
     fetchFiles: function() {
       this.sendXhr(this.getFilesUrl)
         .then(response => {
+          this.filesLoading = true
           this.file = response
-          this.files = response.children.map(file => {
+          const newFiles = response.children.map(file => {
             if (!file.storage) {
               file.storage = 0
             }
@@ -391,6 +413,10 @@ export default {
             file.subtype = this.getSubType(file)
             return file
           })
+          if (newFiles.length < this.limit) {
+            this.lastPage = true
+          }
+          this.files = this.offset > 0 ? [...this.files, ...newFiles] : newFiles
           this.sortedFiles = this.returnSort(
             'content.name',
             this.files,
@@ -402,12 +428,13 @@ export default {
           if (pkgId) {
             this.scrollToFile(pkgId)
           }
+          this.allowFetch = true
+          this.filesLoading = false
         })
         .catch(response => {
           this.handleXhrError(response)
         })
     },
-
     /**
      * Sort table by column
      * @param {String} path
@@ -422,6 +449,9 @@ export default {
      * @param {Object} file
      */
     onClickLabel: function(file) {
+      this.files = []
+      this.offset = 0
+      this.getFilesUrl
       const id = pathOr('', ['content', 'id'], file)
       const packageType = pathOr('', ['content', 'packageType'], file)
 
@@ -459,6 +489,9 @@ export default {
      * @param {String} id
      */
     handleNavigateBreadcrumb: function(id = '') {
+      this.files = []
+      this.offset = 0
+      this.getFilesUrl
       if (id) {
         this.navigateToFile(id)
       } else {
@@ -888,9 +921,23 @@ export default {
 <style scoped lang="scss">
 @import '../../../assets/_variables.scss';
 
+.loading-spinner-container {
+  display: flex;
+  justify-content: center;
+}
+
 .file-meta-wrapper {
   display: flex;
   flex-direction: row;
+}
+
+.table-container {
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  display: block;
+  max-height: calc(100vh - 200px);
+  margin-top: 1px;
+  border: 1px solid $gray_2;
 }
 
 .actions-container {
