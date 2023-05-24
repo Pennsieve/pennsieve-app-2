@@ -10,7 +10,12 @@
     </template>
     <template v-if="backLinkVisible">
       <div class="link-back" @click.prevent="pageBackRoute">
-        < Back to {{linkBack.name}}
+        <div v-if="isFileRecord">
+          < Back to Files
+        </div>
+        <div v-else>
+          < Back to {{linkBack.name}}
+        </div>
       </div>
     </template>
 
@@ -366,6 +371,10 @@ export default {
 
     backLinkVisible: function() {
       return Object.keys(this.linkBack).length > 0
+    },
+
+    isFileRecord: function() {
+      return this.$route.name === "file-record";
     },
 
     ...mapGetters(['getPermission', 'userToken', 'config']),
