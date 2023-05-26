@@ -178,9 +178,6 @@ const router = new VueRouter({
 sync(store, router)
 
 const isAuthorized = (to, from, next) => {
-  console.log('to', to)
-  console.log('from', from)
-  console.log('next', next)
   const token = Cookies.get('user_token')
   const savedOrgId = Cookies.get('preferred_org_id')
   const allowList = ['home', 'password', 'welcome', 'setup-profile', 'setup-profile-accept', 'verify-account','welcome-to-pennsieve', 'docs-login', 'jupyter-login','create-account']
