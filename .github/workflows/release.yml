@@ -1,9 +1,29 @@
 name: Jenkins Deploy on Tag Release
 
 on:
+  push:
+    tags:
+      - '*'
+      
   release:
-  types:
-    - created
+    types:
+      - created
     
 jobs:
+  jenkins-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        
+      - name: Trigger Jenkins Job
+        uses: jakejarvis/jenkins-action@master
+        with:
+          url: 'https://replace-with-jenkins-server/'
+          username: ${{ secrets.JENKINS_USERNAME }} #import username
+          token: ${{ secrets.JENKINS_API_TOKEN }} ##import token
+          crumbIssuer: true
+          job: 'deploy_pipeline'
+          parameters: 'TAG=${{ github.ref }}'
   
