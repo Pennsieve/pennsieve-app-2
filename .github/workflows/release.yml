@@ -1,10 +1,6 @@
 name: Jenkins Deploy on Tag Release
 
-on:
-  push:
-    tags:
-      - '*'
-      
+on:      
   release:
     types:
       - created
@@ -24,6 +20,6 @@ jobs:
           username: ${{ secrets.JENKINS_USERNAME }} #import username
           token: ${{ secrets.JENKINS_API_TOKEN }} ##import token
           crumbIssuer: true
-          job: 'deploy_pipeline'
+          job: 'deploy_pipeline' #rename
           parameters: 'TAG=${{ github.ref }}'
   
