@@ -236,7 +236,7 @@ export default {
       type: Object,
       default: {
         name: "",
-        repositoryId: 0,
+        organizationNodeId: "",
         description: "",
         status: ""
       }
@@ -520,7 +520,6 @@ export default {
         nodeId: propOr(undefined, "nodeId", this.datasetRequest),
         name: this.proposal.name,
         description: this.proposal.description,
-        repositoryId: this.selectedRepoForRequest.repositoryId,
         organizationNodeId: this.selectedRepoForRequest.organizationNodeId,
         datasetNodeId: propOr(undefined, "datasetNodeId", this.datasetRequest),
         status: propOr("DRAFT", "status", this.datasetRequest),
