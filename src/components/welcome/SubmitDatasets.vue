@@ -40,7 +40,12 @@
       </div>
 
       <bf-empty-page-state v-if="!hasProposals">
-        You have not created any dataset proposals yet. Click <strong>New Request</strong> to get started.
+        <img
+          src="/static/images/illustrations/illo-datasets.svg"
+          alt="Add datasets illustration"
+        >
+        <h3>Create a dataset proposal</h3>
+        You have not created any dataset proposals yet. <p>Create a <strong><a href="#" @click="startNewRequest">New Request</a></strong> to get started.</p>
       </bf-empty-page-state>
 
       <request-survey
