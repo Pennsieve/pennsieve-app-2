@@ -1,1 +1,9 @@
 name: Jenkins Deploy on Tag Release
+
+on:
+  release:
+  types:
+    - created
+    
+jobs:
+  
