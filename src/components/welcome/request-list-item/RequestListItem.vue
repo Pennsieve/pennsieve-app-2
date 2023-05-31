@@ -143,11 +143,11 @@ export default {
 
   computed: {
     ...mapGetters('repositoryModule',[
-      'getRepositoryById',
+      'getRepositoryByNodeId',
     ]),
     logoPath: function() {
       if (this.datasetRequest) {
-        let repository = this.getRepositoryById(this.datasetRequest.repositoryId)
+        let repository = this.getRepositoryByNodeId(this.datasetRequest.organizationNodeId)
         if (repository) {
           return repository.logoFile
         }
@@ -183,7 +183,7 @@ export default {
       ]
     ),
     ...mapGetters('repositoryModule',[
-      'getRepositoryById'
+      'getRepositoryByNodeId'
     ]),
     openInfoPanel: function(event) {
       console.log("RequestListItem::openInfoPanel() event:")
@@ -192,8 +192,8 @@ export default {
     },
     surveyComplete: function() {
       let result = false
-      let repositoryId = this.datasetRequest.repositoryId
-      let repository = this.getRepositoryById(repositoryId)
+      let organizationNodeId = this.datasetRequest.organizationNodeId
+      let repository = this.getRepositoryByNodeId(organizationNodeId)
 
       if (repository && repository.questions != null && this.datasetRequest && this.datasetRequest.survey != null) {
         // for each question in repository.questions

@@ -104,7 +104,7 @@ export default {
       'requestModalVisible',
     ]),
     ...mapGetters('repositoryModule',[
-      'getRepositoryById',
+      'getRepositoryByNodeId',
     ]),
 
     hasProposals: function() {
@@ -167,7 +167,7 @@ export default {
       }
       // set the selected repository, if one is designated on the proposal
       if (proposal && proposal.repositoryId) {
-        let repository = this.getRepositoryById(proposal.repositoryId)
+        let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
         if (repository) {
           this.setSelectedRepo(repository)
         }
@@ -240,7 +240,7 @@ export default {
       console.log("SubmitDatasets::submitDatasetProposalRequest() proposal:")
       console.log(proposal)
       let repositoryName = "???"
-      let repository = this.getRepositoryById(proposal.repositoryId)
+      let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
       if (repository) {
         repositoryName = repository.displayName
       }
@@ -260,7 +260,7 @@ export default {
       console.log("SubmitDatasets::withdrawDatasetProposalRequest() proposal:")
       console.log(proposal)
       let repositoryName = "???"
-      let repository = this.getRepositoryById(proposal.repositoryId)
+      let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
       if (repository) {
         repositoryName = repository.displayName
       }

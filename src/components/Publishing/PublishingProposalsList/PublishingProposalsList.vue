@@ -187,7 +187,7 @@ export default {
     ]),
 
     ...mapGetters('repositoryModule',[
-        'getRepositoryById'
+        'getRepositoryByNodeId'
       ]
     ),
 
@@ -311,7 +311,7 @@ export default {
       // set selected repo
       if (proposal && proposal.repositoryId) {
         console.log(`PublishingProposalsList::viewProposal() proposal.repositoryId: ${proposal.repositoryId}`)
-        let repository = this.getRepositoryById(proposal.repositoryId)
+        let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
         console.log("PublishingProposalsList::viewProposal() repository:")
         console.log(repository)
         this.setSelectedRepo(repository)
