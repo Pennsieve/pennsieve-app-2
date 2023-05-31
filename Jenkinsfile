@@ -40,8 +40,14 @@ node('executor') {
 
             stage('Deploy') {
                 when {
-                    expression {
+                    //executing on build OR release (are we only interested in release?)
+                    anyOf {
+                        expression {
                         env.EVENT_NAME == 'release'
+                    }
+                        expression {
+                        env.GITHUB_EVENT_NAME == 'push' && env.GITHUB_REF.startsWith('refs/tags/')
+                    }
                     }
                 }
                 steps {
