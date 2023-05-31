@@ -14,12 +14,13 @@ jobs:
         uses: actions/checkout@v2
         
       - name: Trigger Jenkins Job
-        uses: jakejarvis/jenkins-action@master
-        with:
-          url: 'https://replace-with-jenkins-server/'
-          username: ${{ secrets.JENKINS_USERNAME }} #import username
-          token: ${{ secrets.JENKINS_API_TOKEN }} ##import token
-          crumbIssuer: true
-          job: 'deploy_pipeline' #rename
-          parameters: 'TAG=${{ github.ref }}'
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_USERNAME: ${{ secrets.JENKINS_USERNAME }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+          JOB_NAME: 'deploy_pipeline' #Get from env?
+        run: |
+          curl -X POST -u "${JENKINS_USERNAME}:${JENKINS_API_TOKEN}" \
+            "${JENKINS_URL}job/${JOB_NAME}/buildWithParameters?TAG=${{ github.ref }}"
+        
   
