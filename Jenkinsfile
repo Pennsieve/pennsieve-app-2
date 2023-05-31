@@ -36,8 +36,15 @@ node('executor') {
                 throw e
             }
         }
-        if (["main", "prod"].contains(env.BRANCH_NAME)) {
+        //if (["main", "prod"].contains(env.BRANCH_NAME)) {
+
             stage('Deploy') {
+                when {
+                    expression {
+                        env.EVENT_NAME == 'release'
+                    }
+                }
+                steps {
                 node("${executorEnv}-executor") {
                     def bucketName = "pennsieve-${executorEnv}-app-use1"
 
@@ -64,6 +71,7 @@ node('executor') {
                 }
             }
         }
+        //}
       slackSend(color: '#006600', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName}")
     }
 }
