@@ -51,6 +51,15 @@
       </div>
     </div>
     <div
+      v-if="eventDetail.eventType === 'RESTORE_PACKAGE'"
+      class="dataset-activity-detail__info"
+    >
+      <p>File Name:</p>
+      <div class="dataset-activity-detail__info-link">
+        <p> {{ eventDetail.detail.name }} </p>
+      </div>
+  </div>
+    <div
       v-if="eventDetail.eventType === 'RENAME_PACKAGE'"
       class="dataset-activity-detail__info"
     >
@@ -438,6 +447,7 @@ import DatasetReference from '@/components/shared/DatasetReference/DatasetRefere
 
 import RenderPermissionsMixin from '../RenderPermissionsMixin'
 import { referenceTypeOptions } from '@/utils/constants'
+import composeP from 'ramda/src/composeP'
 
   export default {
     name: 'DatasetActivityDetail',
@@ -484,7 +494,6 @@ import { referenceTypeOptions } from '@/utils/constants'
         return this.eventDetail.detail.hasOwnProperty('newParent')
       }
     },
-
     methods: {
       /**
        * Get reference type
