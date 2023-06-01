@@ -447,7 +447,6 @@ import DatasetReference from '@/components/shared/DatasetReference/DatasetRefere
 
 import RenderPermissionsMixin from '../RenderPermissionsMixin'
 import { referenceTypeOptions } from '@/utils/constants'
-import composeP from 'ramda/src/composeP'
 
   export default {
     name: 'DatasetActivityDetail',
