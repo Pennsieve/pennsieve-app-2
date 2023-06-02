@@ -31,7 +31,7 @@
         </el-row>
         <el-row>
           <p class="repository-description">
-            {{datasetRequest.description}}
+            {{datasetRequest.description.substring(0,239)}}
           </p>
         </el-row>
       </el-col>
