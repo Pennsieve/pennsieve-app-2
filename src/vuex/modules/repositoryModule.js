@@ -440,8 +440,8 @@ export const getters = {
   getPublishingInfo: state => (tag) => {
     return defaultTo({}, find(propEq('tag', tag), state.publishingInfo))
   },
-  getRepositoryById: state => (id) => {
-    return defaultTo({}, find(propEq('repositoryId', id), state.repositories))
+  getRepositoryByNodeId: state => (nodeId) => {
+    return defaultTo({}, find(propEq('organizationNodeId', nodeId), state.repositories))
   },
   getProposalByNodeId: state => (nodeId) => {
     return defaultTo({}, find(propEq('nodeId', nodeId), state.datasetProposals))

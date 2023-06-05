@@ -161,6 +161,11 @@ export const ChangelogMessage = Object.freeze({
     singular: 'File deleted'
   },
 
+  RESTORE_PACKAGE: {
+    plural: 'files restored',
+    singular: 'File restored'
+  },
+
   MOVE_PACKAGE: {
     plural: 'files moved',
     singular: 'File moved'
