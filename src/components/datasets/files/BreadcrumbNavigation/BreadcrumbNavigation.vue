@@ -75,8 +75,7 @@ export default {
      * @returns {Array}
      */
     breadcrumbs: function() {
-      //return defaultTo([], this.ancestors).reverse()
-      return defaultTo([], this.ancestors)
+      return defaultTo([], this.ancestors).reverse()
     }
   },
 
