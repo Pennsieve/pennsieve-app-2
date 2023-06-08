@@ -1572,8 +1572,7 @@ export default {
         prepend('Files'),
         map(ancestor => {
           return ancestor.content.name
-        }),
-        reverse()
+        })
       )(ancestors)
 
       const route = this.proxyRecord.parent
