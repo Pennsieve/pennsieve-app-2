@@ -1574,6 +1574,7 @@ export default {
           return ancestor.content.name
         })
       )(ancestors)
+      
 
       const route = this.proxyRecord.parent
         ? {
