@@ -76,7 +76,7 @@
       >
         <publishing-proposals-list-item
           v-for="proposal in proposals"
-          :key="proposals.nodeId"
+          :key="proposal.nodeId"
           :proposal="proposal"
           @view="viewProposal"
           @accept="acceptDatasetProposalRequest"
@@ -187,7 +187,7 @@ export default {
     ]),
 
     ...mapGetters('repositoryModule',[
-        'getRepositoryById'
+        'getRepositoryByNodeId'
       ]
     ),
 
@@ -309,9 +309,9 @@ export default {
         this.setSelectedProposal(proposal)
       }
       // set selected repo
-      if (proposal && proposal.repositoryId) {
-        console.log(`PublishingProposalsList::viewProposal() proposal.repositoryId: ${proposal.repositoryId}`)
-        let repository = this.getRepositoryById(proposal.repositoryId)
+      if (proposal && proposal.organizationNodeId) {
+        console.log(`PublishingProposalsList::viewProposal() proposal.organizationNodeId: ${proposal.organizationNodeId}`)
+        let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
         console.log("PublishingProposalsList::viewProposal() repository:")
         console.log(repository)
         this.setSelectedRepo(repository)

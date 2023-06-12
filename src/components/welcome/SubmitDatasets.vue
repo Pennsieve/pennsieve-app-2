@@ -40,7 +40,12 @@
       </div>
 
       <bf-empty-page-state v-if="!hasProposals">
-        You have not created any dataset proposals yet. Click <strong>New Request</strong> to get started.
+        <img
+          src="/static/images/illustrations/illo-datasets.svg"
+          alt="Add datasets illustration"
+        >
+        <h3>Create a dataset proposal</h3>
+        You have not created any dataset proposals yet. <p>Create a <strong><a href="#" @click="startNewRequest">New Request</a></strong> to get started.</p>
       </bf-empty-page-state>
 
       <request-survey
@@ -99,7 +104,7 @@ export default {
       'requestModalVisible',
     ]),
     ...mapGetters('repositoryModule',[
-      'getRepositoryById',
+      'getRepositoryByNodeId',
     ]),
 
     hasProposals: function() {
@@ -162,7 +167,7 @@ export default {
       }
       // set the selected repository, if one is designated on the proposal
       if (proposal && proposal.repositoryId) {
-        let repository = this.getRepositoryById(proposal.repositoryId)
+        let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
         if (repository) {
           this.setSelectedRepo(repository)
         }
@@ -235,7 +240,7 @@ export default {
       console.log("SubmitDatasets::submitDatasetProposalRequest() proposal:")
       console.log(proposal)
       let repositoryName = "???"
-      let repository = this.getRepositoryById(proposal.repositoryId)
+      let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
       if (repository) {
         repositoryName = repository.displayName
       }
@@ -255,7 +260,7 @@ export default {
       console.log("SubmitDatasets::withdrawDatasetProposalRequest() proposal:")
       console.log(proposal)
       let repositoryName = "???"
-      let repository = this.getRepositoryById(proposal.repositoryId)
+      let repository = this.getRepositoryByNodeId(proposal.organizationNodeId)
       if (repository) {
         repositoryName = repository.displayName
       }
