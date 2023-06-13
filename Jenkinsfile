@@ -53,6 +53,7 @@ node('executor') {
                 slackSend(color: '#006600', message: "SUCCESSFULLY TRIGGERED BUILD ON RELEASE ('${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName})")
 
 //              UNCOMMENT BELOW WHEN TRIGGERS ARE VERIFIED
+//              TEST-1
 //                   try {
 //                        unstash 'dist'
 ////                         unstash 'buildComponents'
