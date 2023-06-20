@@ -138,9 +138,9 @@ export default {
      */
     formatCustomIntegrationsOptions: function() {
       this.options = this.integrations.map(integration => {
-        // if (integration.eventTarget && integration.eventTarget.length && integration.eventTarget.target === 'PACKAGE') {
         if (true) {
-          // TODO: remove before PR
+          // TODO: remove and replace with eventTarget logic
+          // if (integration.eventTarget && integration.eventTarget.length && integration.eventTarget.target === 'PACKAGE') {
           return {
             value: integration.name,
             label: integration.displayName
