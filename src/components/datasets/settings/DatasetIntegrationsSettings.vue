@@ -1,9 +1,14 @@
 <template>
   <bf-page class="dataset-integrations-settings">
-    <locked-banner slot="banner" />
+    <locked-banner
+      slot="banner"
+    />
     <template v-if="hasPermission">
       <bf-rafter slot="heading">
-        <h1 slot="heading" class="flex-heading">
+        <h1
+          slot="heading"
+          class="flex-heading"
+        >
           <svg-icon
             v-if="datasetLocked"
             class="mr-8"
@@ -11,42 +16,44 @@
             name="icon-lock-filled"
             height="24"
             width="24"
-          />
-          Dataset Integrations
+          />Dataset Integrations
         </h1>
 
-        <!--        <ul-->
-        <!--          slot="tabs"-->
-        <!--          class="tabs unstyled"-->
-        <!--        >-->
-        <!--          <li>-->
-        <!--            <router-link :to="{ name: 'dataset-settings' }">-->
-        <!--              General-->
-        <!--            </router-link>-->
-        <!--          </li>-->
-        <!--          <li>-->
-        <!--            <router-link-->
-        <!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
-        <!--              :to="{ name: 'integrations-settings' }"-->
-        <!--            >-->
-        <!--              Integrations-->
-        <!--            </router-link>-->
-        <!--          </li>-->
-        <!--          <li>-->
-        <!--            <router-link-->
-        <!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
-        <!--              :to="{ name: 'publishing-settings' }"-->
-        <!--            >-->
-        <!--              Publishing-->
-        <!--            </router-link>-->
-        <!--          </li>-->
-        <!--        </ul>-->
+<!--        <ul-->
+<!--          slot="tabs"-->
+<!--          class="tabs unstyled"-->
+<!--        >-->
+<!--          <li>-->
+<!--            <router-link :to="{ name: 'dataset-settings' }">-->
+<!--              General-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <router-link-->
+<!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
+<!--              :to="{ name: 'integrations-settings' }"-->
+<!--            >-->
+<!--              Integrations-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <router-link-->
+<!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
+<!--              :to="{ name: 'publishing-settings' }"-->
+<!--            >-->
+<!--              Publishing-->
+<!--            </router-link>-->
+<!--          </li>-->
+<!--        </ul>-->
       </bf-rafter>
-      <bf-stage ref="bfStage" slot="stage">
+      <bf-stage
+        ref="bfStage"
+        slot="stage"
+      >
         <h4 class="integrations-info-title">Integrations</h4>
         <p class="mb-16">
-          Integrations allow third-party applications to receive events and
-          interact with datasets. Activate integrations for this dataset here.
+          Integrations allow third-party applications to receive events and interact with datasets.
+          Activate integrations for this dataset here.
 
           <a
             href="https://docs.pennsieve.io/docs/preventing-files-from-being-included-during-publishing"
@@ -56,58 +63,69 @@
           </a>
         </p>
 
-        <div v-if="integrations.length > 0" class="integration-list">
+        <div
+          v-if="integrations.length > 0"
+          class="integration-list"
+        >
           <integration-list-item
             v-for="integration in integrations"
             :key="integration.id"
             :integration="integration"
             :active-integrations="activeIntegrations"
-            :enable-switch="true"
+            :enable-switch=true
             @toggle-integration="toggleIntegration"
           />
         </div>
 
-        <bf-empty-page-state v-else class="empty">
+        <bf-empty-page-state
+          v-else
+          class="empty"
+        >
           <img
             src="/static/images/illustrations/illo-collaboration.svg"
             height="240"
             width="247"
             alt="Teams illustration"
-          />
-          <div v-if="hasAdminRights" class="copy">
+          >
+          <div
+            v-if="hasAdminRights"
+            class="copy"
+          >
             <h2>There are no integrations yet</h2>
-            <p>
-              Integrations allow external services to be notified when certain
-              events occur on Pennsieve. These integrations are available to all
-              members within the organization and can be managed at the dataset
-              level under settings.
-            </p>
-            <bf-button class="create-team-button" @click="openAddIntegration">
+            <p>Integrations allow external services to be notified when certain events occur on Pennsieve. These integrations are available to all members within the organization and can be managed at the dataset level under settings.</p>
+            <bf-button
+              class="create-team-button"
+              @click="openAddIntegration"
+            >
               Add Global Integration
             </bf-button>
           </div>
-          <div v-if="!hasAdminRights" class="copy">
+          <div
+            v-if="!hasAdminRights"
+            class="copy"
+          >
             <h2>{{ orgName }} doesn't have any integrations yet.</h2>
-            <p>
-              Contact your administrator to get started working with
-              Integrations.
-            </p>
+            <p>Contact your administrator to get started working with Integrations.</p>
           </div>
         </bf-empty-page-state>
+
+
       </bf-stage>
     </template>
     <template v-else>
-      <bf-empty-page-state class="empty">
+      <bf-empty-page-state
+        class="empty"
+      >
         <img
           src="/static/images/illustrations/illo-collaboration.svg"
           height="240"
           width="247"
           alt="Teams illustration"
-        />
-        <div class="copy">
-          <h2>
-            You don't have permission to manage integrations for this dataset.
-          </h2>
+        >
+        <div
+          class="copy"
+        >
+          <h2>You don't have permission to manage integrations for this dataset.</h2>
           <p>Only dataset managers can access this page.</p>
         </div>
       </bf-empty-page-state>
@@ -116,13 +134,15 @@
 </template>
 
 <script>
+
 import LockedBanner from '../LockedBanner/LockedBanner'
 import BfRafter from '../../shared/bf-rafter/BfRafter'
 import Request from '@/mixins/request/index'
 import { mapGetters, mapState, mapActions } from 'vuex'
 import { pathOr, propOr } from 'ramda'
-import IntegrationListItem from '../../Integrations/integration-list-item/IntegrationListItem'
+import IntegrationListItem from "../../Integrations/integration-list-item/IntegrationListItem";
 import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
+
 
 export default {
   name: 'DatasetIntegrationsSettings',
@@ -131,10 +151,14 @@ export default {
     LockedBanner,
     BfRafter,
     IntegrationListItem,
-    BfEmptyPageState
+    BfEmptyPageState,
+
+
   },
 
-  mixins: [Request],
+  mixins: [
+    Request
+  ],
 
   data() {
     return {
@@ -143,7 +167,8 @@ export default {
     }
   },
 
-  props: {},
+  props: {
+  },
 
   computed: {
     ...mapGetters([
@@ -154,7 +179,9 @@ export default {
       'hasFeature',
       'activeOrganization'
     ]),
-    ...mapState('integrationsModule', ['integrations']),
+    ...mapState('integrationsModule', [
+      'integrations'
+    ]),
 
     ...mapState([
       'dataset',
@@ -164,7 +191,7 @@ export default {
       'isDatasetOwner',
       'datasetBanner',
       'config',
-      'userToken'
+      'userToken',
     ]),
 
     orgName: function() {
@@ -176,9 +203,7 @@ export default {
         const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
         const isOwner = propOr(false, 'isOwner', this.activeOrganization)
         return isAdmin || isOwner
-      } else {
-        return null
-      }
+      } else { return null}
     },
 
     /**
@@ -233,6 +258,7 @@ export default {
         ? this.getPermission('manager')
         : false
     },
+
 
     /**
      * Compute if the dataset has a DOI
@@ -290,23 +316,21 @@ export default {
      */
     hasContributors: function() {
       return this.datasetContributors.length > 0
-    }
+    },
   },
 
   watch: {
     dataset: {
       handler: function(dataset) {
-        if (pathOr(false, ['content', 'id'], dataset)) {
-          const url = `${this.config.apiUrl}/datasets/${
-            dataset.content.id
-          }/webhook`
+        if (pathOr(false, ['content','id'],dataset)) {
+          const url = `${this.config.apiUrl}/datasets/${dataset.content.id}/webhook`
 
           // Set loading state
           this.isLoadingIntegrations = true
 
           this.sendXhr(url, {
             header: {
-              Authorization: `Bearer ${this.userToken}`
+              'Authorization': `Bearer ${this.userToken}`
             }
           })
             .then(response => {
@@ -350,40 +374,37 @@ export default {
   },
 
   methods: {
-    ...mapActions(['updateProfile']),
+    ...mapActions([
+      'updateProfile'
+    ]),
 
     toggleIntegration: function(item) {
-      const url = `${this.config.apiUrl}/datasets/${
-        this.dataset.content.id
-      }/webhook/${item.integration.id}`
+      const url = `${this.config.apiUrl}/datasets/${this.dataset.content.id}/webhook/${item.integration.id}`
 
-      let method = 'PUT'
+      let method = "PUT"
       if (!item.isActive) {
-        method = 'DELETE'
+        method = "DELETE"
       }
 
       this.sendXhr(url, {
         method: method,
         header: {
-          Authorization: `Bearer ${this.userToken}`
+          'Authorization': `Bearer ${this.userToken}`
         }
       })
         // .then(response => {
         //   console.log('Integration enabled')
         // })
         .catch(this.handleXhrError.bind(this))
-        .finally(() => {})
+        .finally(() => {
+        })
     },
 
     /**
      * Logic to connect to user's ORCID
      */
     openORCID: function() {
-      this.oauthWindow = window.open(
-        this.getORCIDUrl,
-        '_blank',
-        'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500'
-      )
+      this.oauthWindow = window.open(this.getORCIDUrl, "_blank", "toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500");
       const self = this
       window.addEventListener('message', function(event) {
         this.oauthCode = event.data
@@ -392,14 +413,13 @@ export default {
             return
           }
 
-          self
-            .sendXhr(self.getORCIDApiUrl, {
-              method: 'POST',
-              body: {
-                authorizationCode: this.oauthCode
-              }
-            })
-            .then(response => {
+          self.sendXhr(self.getORCIDApiUrl, {
+            method: 'POST',
+            body: {
+              "authorizationCode": this.oauthCode
+            }
+          })
+            .then((response) => {
               // response logic goes here
               self.oauthInfo = response
 
@@ -407,6 +427,7 @@ export default {
                 ...self.profile,
                 orcid: self.oauthInfo
               })
+
             })
             .catch(self.handleXhrError.bind(this))
         }
@@ -421,7 +442,7 @@ export default {
     computeChecklistIcon: function(prop = false) {
       return prop ? 'icon-done-check-circle' : 'icon-info'
     }
-  }
+  },
 }
 </script>
 
@@ -445,12 +466,13 @@ export default {
   }
 
   p {
-    color: #71747c;
+    color: #71747C;
     font-size: 14px;
     line-height: 16px;
     text-align: center;
     margin-bottom: 16px;
   }
+
 }
 
 .integrations-info-title {
@@ -463,4 +485,5 @@ export default {
     margin: 32px 0 24px;
   }
 }
+
 </style>
