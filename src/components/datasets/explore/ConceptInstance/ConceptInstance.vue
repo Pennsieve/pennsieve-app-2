@@ -1,8 +1,5 @@
 <template>
-  <bf-page
-    class="concept-instance"
-    :class="[editingInstance ? 'editing' : '']"
-  >
+  <bf-page class="concept-instance" :class="[editingInstance ? 'editing' : '']">
     <bf-rafter
       slot="heading"
       :is-editing="editingInstance"
@@ -10,16 +7,8 @@
     >
       <div slot="breadcrumb">
         <template v-if="isFile">
-          <router-link
-            class="back-to-search"
-            :to="fileBreadcrumbLink"
-          >
-            <svg-icon
-              name="icon-arrow-up"
-              dir="left"
-              height="10"
-              width="10"
-            />
+          <router-link class="back-to-search" :to="fileBreadcrumbLink">
+            <svg-icon name="icon-arrow-up" dir="left" height="10" width="10" />
             {{ fileBreadcrumbText }}
           </router-link>
         </template>
@@ -31,45 +20,26 @@
             href="#"
             @click.prevent="breadcrumbNavigate"
           >
-            <svg-icon
-              name="icon-arrow-up"
-              dir="left"
-              height="10"
-              width="10"
-            />
+            <svg-icon name="icon-arrow-up" dir="left" height="10" width="10" />
             {{ breadcrumb }}
           </a>
-          <span
-            v-else
-            class="instance-type"
-          >
-            {{ instance.type }}
-          </span>
+          <span v-else class="instance-type">{{ instance.type }}</span>
         </template>
       </div>
 
       <template v-if="isFile">
-        <h1 slot="heading">
-          {{ packageDisplayName }}
-        </h1>
+        <h1 slot="heading">{{ packageDisplayName }}</h1>
       </template>
 
       <template v-else>
         <template v-if="dataType === 'String'">
-          <div
-            slot="heading"
-            class="blinded-review-heading"
-          >
+          <div slot="heading" class="blinded-review-heading">
             <h2 class="model-name" v-html="modelName" />
             <h1 v-html="$sanitize(formattedConceptTitle)" />
-
           </div>
         </template>
 
-        <h1
-          v-else
-          slot="heading"
-        >
+        <h1 v-else slot="heading">
           <svg-icon
             v-if="datasetLocked"
             class="mr-8"
@@ -82,18 +52,12 @@
         </h1>
       </template>
 
-
       <!-- BEGIN BUTTONS TEMPLATE -->
       <template slot="buttons">
         <div class="buttons">
           <!-- BEGIN CREATE RECORD, CANCEL, and SAVE CHANGES BUTTONS -->
           <template v-if="editingInstance">
-            <bf-button
-              class="secondary"
-              @click="cancelEdit"
-            >
-              Cancel
-            </bf-button>
+            <bf-button class="secondary" @click="cancelEdit">Cancel</bf-button>
             <bf-button
               v-if="isCreating"
               :processing="savingChanges"
@@ -126,20 +90,18 @@
             </bf-button>
 
             <el-dropdown
-              v-if="computePackageType === 'TimeSeries' && getFileStatus === 'Processed'"
+              v-if="
+                computePackageType === 'TimeSeries' &&
+                  getFileStatus === 'Processed'
+              "
               trigger="click"
               placement="bottom-end"
               @command="exportFile"
             >
-              <bf-button
-                class="secondary save-button"
-              >
+              <bf-button class="secondary save-button">
                 Save as&hellip;
               </bf-button>
-              <el-dropdown-menu
-                slot="dropdown"
-                class="bf-menu"
-              >
+              <el-dropdown-menu slot="dropdown" class="bf-menu">
                 <el-dropdown-item
                   class="bf-menu-item"
                   command="NeuroDataWithoutBorders"
@@ -148,7 +110,6 @@
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-
 
             <a
               v-if="isExternalFile && isExternalFileClickable"
@@ -204,15 +165,9 @@
               :disabled="datasetLocked"
               class="secondary icon el-dropdown-link"
             >
-              <svg-icon
-                icon="icon-menu"
-                color="#71747C"
-              />
+              <svg-icon icon="icon-menu" color="#71747C" />
             </bf-button>
-            <el-dropdown-menu
-              slot="dropdown"
-              class="bf-menu"
-            >
+            <el-dropdown-menu slot="dropdown" class="bf-menu">
               <template v-if="isFile === false">
                 <el-dropdown-item
                   v-if="getPermission('manager')"
@@ -273,16 +228,9 @@
       <!-- END BUTTONS TEMPLATE -->
     </bf-rafter>
 
-    <bf-stage
-      slot="stage"
-      ref="bfStage"
-      :is-editing="editingInstance"
-    >
+    <bf-stage slot="stage" ref="bfStage" :is-editing="editingInstance">
       <template v-if="!editingInstance">
-        <div
-          class="concept-instance-section"
-        >
-
+        <div class="concept-instance-section">
           <div class="relationships-list">
             <link-record-menu
               v-if="getPermission('editor')"
@@ -304,9 +252,7 @@
                 >
                   <pill-link :href="`#${relationship.displayName}`">
                     {{ relationship.displayName.slice(0, 17) }}...
-                    <template
-                      slot="suffix"
-                    >
+                    <template slot="suffix">
                       {{ relationship.count }}
                     </template>
                   </pill-link>
@@ -324,11 +270,12 @@
           </div>
         </div>
 
-        <div files-section
-             class="file-list"
-             v-if="isFile">
-
-          <concept-instance-static-property class="highlight-property" :label="fileNameLabel" :helpUrl="computePackageHelpUrl">
+        <div files-section class="file-list" v-if="isFile">
+          <concept-instance-static-property
+            class="highlight-property"
+            :label="fileNameLabel"
+            :helpUrl="computePackageHelpUrl"
+          >
             {{ packageDisplayName }}
           </concept-instance-static-property>
 
@@ -348,7 +295,6 @@
           </concept-instance-static-property>
 
           <concept-instance-static-property label="Location">
-
             <template v-if="isExternalFile">
               <a
                 v-if="isExternalFileClickable"
@@ -357,15 +303,11 @@
               >
                 {{ externalFile.location }}
               </a>
-              <span v-else>
-                {{ externalFile.location }}
-              </span>
+              <span v-else>{{ externalFile.location }}</span>
             </template>
 
             <template v-else>
-              <router-link
-                :to="fileLocation.route"
-              >
+              <router-link :to="fileLocation.route">
                 {{ fileLocation.path }}
               </router-link>
             </template>
@@ -387,7 +329,6 @@
             :user="ownerId"
             :date="proxyRecord.content.createdAt"
           />
-
         </div>
 
         <el-collapse
@@ -409,8 +350,7 @@
         </el-collapse>
 
         <!-- BEGIN PROPERTIES TABLE -->
-        <div class="property-list"
-           v-if="!isFile && !isRecordsLoading">
+        <div class="property-list" v-if="!isFile && !isRecordsLoading">
           <concept-instance-property
             v-for="property in properties"
             :key="property.name"
@@ -451,7 +391,13 @@
 
         <!-- BEGIN FILES TABLE EMPTY STATE -->
         <template
-          v-if="!isFile && !isFilesLoading && !hasFiles && !isRecordsLoading && !datasetLocked"
+          v-if="
+            !isFile &&
+              !isFilesLoading &&
+              !hasFiles &&
+              !isRecordsLoading &&
+              !datasetLocked
+          "
         >
           <el-collapse
             v-if="getPermission('editor')"
@@ -459,14 +405,8 @@
             v-model="activeSections"
             class="concept-instance-section files-empty-state"
           >
-            <el-collapse-item
-              title="Files"
-              name="package"
-            >
-              <div
-                slot="title"
-                class="relationship-title"
-              >
+            <el-collapse-item title="Files" name="package">
+              <div slot="title" class="relationship-title">
                 <svg-icon
                   name="icon-arrow-up"
                   :dir="arrowDirection('package')"
@@ -490,12 +430,12 @@
                     <img
                       class="svg-icon icon-item pdf icon-upload-extra outside"
                       :src="fileIcon('PDF', 'PDF')"
-                    >
+                    />
 
                     <img
                       class="svg-icon icon-item timeseries icon-upload-extra outside"
                       :src="fileIcon('Timeseries', 'TimeSeries')"
-                    >
+                    />
 
                     <iron-icon
                       class="icon-upload"
@@ -505,29 +445,24 @@
                     <img
                       class="svg-icon icon-item image icon-upload-extra outside"
                       :src="fileIcon('Image', 'Image')"
-                    >
+                    />
 
                     <img
                       class="svg-icon icon-item slide icon-upload-extra outside"
                       :src="fileIcon('Microscope', 'Slide')"
-                    >
+                    />
                   </div>
                   <h3>
                     Drag and drop files here or
-                    <a
-                      href="#"
-                      @click.prevent="handleChooseExistingFiles"
-                    >
+                    <a href="#" @click.prevent="handleChooseExistingFiles">
                       choose your files.
                     </a>
                   </h3>
                   <p>
-                    We don’t recommend uploading more than 10GB through the web UI, due to browser
-                    limitations. If you’re uploading large amounts of data, please use the
-                    <a
-                      href="https://docs.pennsieve.io/"
-                      target="_blank"
-                    >
+                    We don’t recommend uploading more than 10GB through the web
+                    UI, due to browser limitations. If you’re uploading large
+                    amounts of data, please use the
+                    <a href="https://docs.pennsieve.io/" target="_blank">
                       Pennsieve API
                     </a>
                     .
@@ -539,7 +474,7 @@
                   type="file"
                   multiple="multiple"
                   @change="onInputFileChange"
-                >
+                />
               </div>
             </el-collapse-item>
           </el-collapse>
@@ -576,14 +511,8 @@
           v-model="activeSections"
           class="concept-instance-section zero-padding no-border"
         >
-          <el-collapse-item
-            name="filecontent"
-            title="File Content"
-          >
-            <div
-              slot="title"
-              class="relationship-title"
-            >
+          <el-collapse-item name="filecontent" title="File Content">
+            <div slot="title" class="relationship-title">
               <svg-icon
                 class="icon-collapse"
                 name="icon-arrow-up"
@@ -612,23 +541,19 @@
             <h3>Create Relationships</h3>
             <div>
               <p class="relationship-inner-text">
-                Connect <b>{{ $sanitize(formattedConceptTitle) }}</b> with other objects in your graph by clicking the "Link to ..." button above.
+                Connect
+                <b>{{ $sanitize(formattedConceptTitle) }}</b>
+                with other objects in your graph by clicking the "Link to ..."
+                button above.
               </p>
               <a
                 href="https://docs.pennsieve.io/docs/creating-links-between-metadata-records"
                 target="_blank"
               >
-                <bf-button class="primary learn-more">
-                  Learn More
-                </bf-button>
+                <bf-button class="primary learn-more">Learn More</bf-button>
               </a>
               <div>
-                <a
-                  href="#"
-                  @click.prevent="dismissRelationshipsInfo"
-                >
-                  Got it
-                </a>
+                <a href="#" @click.prevent="dismissRelationshipsInfo">Got it</a>
               </div>
             </div>
           </div>
@@ -660,12 +585,8 @@
 
       <!-- this renders a template with some properties for the model in it -->
       <template v-else>
-        <h2 v-if="properties.length > 0">
-          Properties
-        </h2>
-        <div class="required">
-          *Required
-        </div>
+        <h2 v-if="properties.length > 0">Properties</h2>
+        <div class="required">*Required</div>
         <div>
           <concept-instance-property
             v-for="property in properties"
@@ -736,14 +657,11 @@
       primary-btn-class="red"
       @confirm="archiveRecord"
     >
-      <svg-icon
-        name="icon-trash"
-        height="32"
-        width="32"
-        color="#e94b4b"
-      />
+      <svg-icon name="icon-trash" height="32" width="32" color="#e94b4b" />
       <h3>Delete {{ getConceptTitleVal('value', instance.values) }}?</h3>
-      <p>This will also remove any links to other records you may have created.</p>
+      <p>
+        This will also remove any links to other records you may have created.
+      </p>
       <p class="archive-model-warning">
         <strong>This can't be undone.</strong>
       </p>
@@ -870,7 +788,7 @@ export default {
     ConfirmChanges,
     GetConceptTitleVal,
     FileIcon,
-    DataType,
+    DataType
   ],
 
   data() {
@@ -885,8 +803,8 @@ export default {
         'filecontent'
       ],
       linkBackObject: {
-        path: "",
-        name: "Records"
+        path: '',
+        name: 'Records'
       },
       relationships: [],
       isAddingFiles: true,
@@ -928,12 +846,11 @@ export default {
       packageSourceFiles: {},
       isDisabled: false,
       sourceFilesUrl: '',
-      stringSubtypes: [],
+      stringSubtypes: []
     }
   },
 
   computed: {
-
     ...mapGetters([
       'userToken',
       'config',
@@ -957,9 +874,7 @@ export default {
      */
     packageDisplayName: function() {
       const name = this.proxyRecord.content.name
-      return name
-        ? name
-        : ''
+      return name ? name : ''
     },
 
     /**
@@ -968,12 +883,14 @@ export default {
      * @returns {Boolean}
      */
     isOpenViewerBtnEnabled: function() {
-      return this.isFile
-             && !this.isUploading
-             && this.getFileStatus !== 'Failed'
-             && this.computePackageType !== 'Unknown'
-             && !this.displayDirectoryViewer
-             && this.fileType !== 'External File'
+      return (
+        this.isFile &&
+        !this.isUploading &&
+        this.getFileStatus !== 'Failed' &&
+        this.computePackageType !== 'Unknown' &&
+        !this.displayDirectoryViewer &&
+        this.fileType !== 'External File'
+      )
     },
 
     /**
@@ -982,7 +899,9 @@ export default {
      */
     exportFileUrl: function() {
       const packageId = pathOr('', ['content', 'id'], this.proxyRecord)
-      return `${this.config.apiUrl}/packages/${packageId}/export?api_key=${this.userToken}`
+      return `${this.config.apiUrl}/packages/${packageId}/export?api_key=${
+        this.userToken
+      }`
     },
 
     /**
@@ -997,16 +916,20 @@ export default {
       return pathOr(0, ['content', 'ownerId'], this.proxyRecord)
     },
     fileTypeLabel: function() {
-      return this.packageSourceFiles.length > 1 ? "Package type": "File type"
+      return this.packageSourceFiles.length > 1 ? 'Package type' : 'File type'
     },
     fileNameLabel: function() {
-      return this.packageSourceFiles.length > 1 ? "Package name": "File name"
+      return this.packageSourceFiles.length > 1 ? 'Package name' : 'File name'
     },
     computePackageHelpUrl: function() {
-      return this.packageSourceFiles.length > 1 ? "https://docs.pennsieve.io/docs/what-is-a-package-and-what-are-source-files" : null
+      return this.packageSourceFiles.length > 1
+        ? 'https://docs.pennsieve.io/docs/what-is-a-package-and-what-are-source-files'
+        : null
     },
     fileStatusLabel: function() {
-      return this.packageSourceFiles.length > 1 ? "Package status": "File status"
+      return this.packageSourceFiles.length > 1
+        ? 'Package status'
+        : 'File status'
     },
 
     /**
@@ -1086,7 +1009,10 @@ export default {
      * @returns {String}
      */
     getDisplayFileStatus: function() {
-      return this.computePackageType === 'Unknown' && this.getFileStatus === 'Processed' ? 'Processed: Unable to View' : this.getFileStatus
+      return this.computePackageType === 'Unknown' &&
+        this.getFileStatus === 'Processed'
+        ? 'Processed: Unable to View'
+        : this.getFileStatus
     },
 
     /**
@@ -1154,7 +1080,6 @@ export default {
      * @returns {String}
      */
     buttonText: function() {
-
       let states = {}
 
       if (this.isMSOfficeFile) {
@@ -1175,7 +1100,9 @@ export default {
         }
       }
 
-      states[this.getFileStatus] === 'Processing' ? this.isDisabled = true : this.isDisabled = false
+      states[this.getFileStatus] === 'Processing'
+        ? (this.isDisabled = true)
+        : (this.isDisabled = false)
 
       return states[this.getFileStatus]
     },
@@ -1186,16 +1113,16 @@ export default {
      */
     buttonMenu: function() {
       let menu = {}
-      if (this.isMSOfficeFile){
+      if (this.isMSOfficeFile) {
         menu = {
           Unprocessed: this.processFile,
           Processed: this.openMSOfficeFile
         }
       } else {
-      menu = {
-        Unprocessed: this.processFile,
-        Processed: this.openViewer
-       }
+        menu = {
+          Unprocessed: this.processFile,
+          Processed: this.openViewer
+        }
       }
       return menu[this.getFileStatus]
     },
@@ -1247,14 +1174,14 @@ export default {
       if (this.conceptTitle) {
         return this.formatUniqueDisplayValues(this.conceptTitle)
       }
-      return '';
+      return ''
     },
 
     modelName: function() {
       if (this.model) {
         return this.model.name
       }
-      return '';
+      return ''
     },
 
     /**
@@ -1409,8 +1336,10 @@ export default {
       if (this.config.apiUrl && this.userToken) {
         const datasetId = pathOr('', ['params', 'datasetId'], this.$route)
         const modelId = pathOr('', ['params', 'conceptId'], this.$route)
-          return `${this.config.conceptsUrl}/datasets/${datasetId}/concepts/${modelId}`
-        }
+        return `${
+          this.config.conceptsUrl
+        }/datasets/${datasetId}/concepts/${modelId}`
+      }
 
       return ''
     },
@@ -1549,7 +1478,11 @@ export default {
      * @returns {Boolean}
      */
     isMSOfficeFile: function() {
-      return this.fileType === 'MS Word' || this.fileType === 'MS Powerpoint' || this.fileType === "MS Excel"
+      return (
+        this.fileType === 'MS Word' ||
+        this.fileType === 'MS Powerpoint' ||
+        this.fileType === 'MS Excel'
+      )
     },
 
     /**
@@ -1574,7 +1507,6 @@ export default {
           return ancestor.content.name
         })
       )(ancestors)
-      
 
       const route = this.proxyRecord.parent
         ? {
@@ -1698,15 +1630,17 @@ export default {
     stringSubtypeUrl: function() {
       const datasetId = pathOr('', ['params', 'datasetId'], this.$route)
       if (this.config.apiUrl && this.userToken && datasetId) {
-        return `${this.config.apiUrl}/models/datasets/${datasetId}/properties/strings?api_key=${this.userToken}`
+        return `${
+          this.config.apiUrl
+        }/models/datasets/${datasetId}/properties/strings?api_key=${
+          this.userToken
+        }`
       }
       return ''
     }
   },
 
   watch: {
-
-
     recordUrl: {
       handler: function(val) {
         if (val) {
@@ -1794,7 +1728,9 @@ export default {
            *
            * Clearing the `name` query parameter once we have handled it here prevents the endless loop for occurring.
            */
-          this.$router.replace({ query: { ...this.$route.query, name: undefined }})
+          this.$router.replace({
+            query: { ...this.$route.query, name: undefined }
+          })
           this.enableEditFocus(name)
         }
       },
@@ -1845,7 +1781,6 @@ export default {
     }
 
     EventBus.$on('update-external-file', this.onExternalFileUpdate)
-
   },
 
   beforeDestroy() {
@@ -1864,9 +1799,7 @@ export default {
       'updateOnboardingEvents'
     ]),
 
-    ...mapActions('filesModule', [
-       'openOffice365File'
-    ]),
+    ...mapActions('filesModule', ['openOffice365File']),
     /**
      * retrieves the string subtype configuration used to populate the AddEditPropertyDialog
      */
@@ -1874,7 +1807,10 @@ export default {
       this.sendXhr(this.stringSubtypeUrl)
         .then(subTypes => {
           this.stringSubtypes = Object.entries(subTypes).reduce(
-            (options, [val, config]) => ([...options, {value: val, label: config.label, regex: config.regex}]),
+            (options, [val, config]) => [
+              ...options,
+              { value: val, label: config.label, regex: config.regex }
+            ],
             []
           )
         })
@@ -1896,7 +1832,6 @@ export default {
      */
 
     exportFile: function(command) {
-
       const payload = {
         fileType: command
       }
@@ -1907,17 +1842,20 @@ export default {
           Authorization: `bearer ${this.userToken}`
         },
         body: payload
-      }).then(response => {
-        const fileName = pathOr('', ['content', 'name'], response)
-        const filePath = propOr('', 'path', this.fileLocation.route)
-        EventBus.$emit('toast', {
-          detail: {
-            type: 'success',
-            msg: `Copy of ${fileName} has been saved to <a href="${filePath}">${this.fileLocation.path}</a>`
-          }
-        })
       })
-      .catch(this.handleXhrError.bind(this))
+        .then(response => {
+          const fileName = pathOr('', ['content', 'name'], response)
+          const filePath = propOr('', 'path', this.fileLocation.route)
+          EventBus.$emit('toast', {
+            detail: {
+              type: 'success',
+              msg: `Copy of ${fileName} has been saved to <a href="${filePath}">${
+                this.fileLocation.path
+              }</a>`
+            }
+          })
+        })
+        .catch(this.handleXhrError.bind(this))
     },
 
     /**
@@ -2207,7 +2145,6 @@ export default {
         this.lastRelationshipCount = relationship.count
         const state = 'Deleted File'
         table.refreshTable()
-
       }
     },
 
@@ -2467,7 +2404,9 @@ export default {
 
         const datasetId = this.$route.params.datasetId
         const conceptId = this.$route.params.conceptId
-        const url = `${this.config.conceptsUrl}/datasets/${datasetId}/concepts/${conceptId}/instances`
+        const url = `${
+          this.config.conceptsUrl
+        }/datasets/${datasetId}/concepts/${conceptId}/instances`
 
         const values = this.formatSavedValues()
 
@@ -2483,9 +2422,11 @@ export default {
             }
           })
 
-
           const batchUrl = `${url}/${record.id}/linked/batch`
-          await this.createBatchLinkedProperties(batchUrl, this.linkedProperties)
+          await this.createBatchLinkedProperties(
+            batchUrl,
+            this.linkedProperties
+          )
 
           // check for onboarding event state for creating a record
           if (!this.onboardingEvents.some(e => e === 'CreatedRecord')) {
@@ -2517,10 +2458,10 @@ export default {
             this.errorProperties = []
           })
         } catch (e) {
-            this.processing = false
-            this.savingChanges = false
-            this.handleXhrError(e)
-          }
+          this.processing = false
+          this.savingChanges = false
+          this.handleXhrError(e)
+        }
       }
     },
 
@@ -2529,15 +2470,17 @@ export default {
        * Remove all empty linked properties, and then transform
        * the shape to match the endpoint's body
        */
-      const properties = linkedProperties.filter(property => {
-        return property.to.recordId !== ''
-      }).map(property => {
-        return {
-          name: property.schemaLinkedProperty.name,
-          schemaLinkedPropertyId: property.schemaLinkedProperty.id,
-          to: property.to.recordId
-        }
-      })
+      const properties = linkedProperties
+        .filter(property => {
+          return property.to.recordId !== ''
+        })
+        .map(property => {
+          return {
+            name: property.schemaLinkedProperty.name,
+            schemaLinkedPropertyId: property.schemaLinkedProperty.id,
+            to: property.to.recordId
+          }
+        })
 
       return this.sendXhr(url, {
         header: {
@@ -2607,7 +2550,11 @@ export default {
     validateRequiredFields: function() {
       const nullVals = this.properties.filter(obj => {
         const isArray = pathEq(['dataType', 'type'], 'array', obj)
-        return (isEmpty(obj.value) || isNil(obj.value)) && (obj.required || obj.conceptTitle) && !isArray
+        return (
+          (isEmpty(obj.value) || isNil(obj.value)) &&
+          (obj.required || obj.conceptTitle) &&
+          !isArray
+        )
       })
       const arrayNullVals = Object.keys(this.arrayValues).filter(key => {
         const prop = find(propEq('name', key), this.properties)
@@ -3106,28 +3053,28 @@ export default {
             things
           }
         })
-        .then(response => {
-          if (response.success.length > 0) {
-            /*
+          .then(response => {
+            if (response.success.length > 0) {
+              /*
               Get the file again to update all values of the file.
               Move response doesn't give as much info as needed
             */
-            this.getInstanceDetails()
+              this.getInstanceDetails()
 
-            EventBus.$emit('toast', {
-              detail: {
-                type: 'success',
-                msg: `File moved`
-              }
-            })
-          }
-          if (response.failures.length > 0) {
-            this.onMoveFailure(response)
-          }
-        })
-        .catch(response => {
-          this.handleXhrError(response)
-        })
+              EventBus.$emit('toast', {
+                detail: {
+                  type: 'success',
+                  msg: `File moved`
+                }
+              })
+            }
+            if (response.failures.length > 0) {
+              this.onMoveFailure(response)
+            }
+          })
+          .catch(response => {
+            this.handleXhrError(response)
+          })
       }
     },
 
@@ -3384,7 +3331,7 @@ export default {
       this.isCreating
         ? this.onRemoveLinkedProperty(property)
         : this.openLinkedPropertyModal(property)
-     }
+    }
   }
 }
 </script>
@@ -3394,13 +3341,11 @@ export default {
 @import '../../../../assets/_icon-item-colors.scss';
 @import '../../../../assets/components/_uploader-empty-state.scss';
 
-
-.model-name{
+.model-name {
   margin: 16px 0 0 0;
   color: white;
   font-weight: 300;
 }
-
 </style>
 
 <style lang="scss">
@@ -3445,7 +3390,7 @@ export default {
     }
   }
 
-  .static-prop-section{
+  .static-prop-section {
     margin-top: 8px;
   }
   .collapse-properties .el-collapse-item__wrap {
@@ -3519,10 +3464,8 @@ export default {
 
   .bf-button.secondary.save-button {
     height: 40px;
+  }
 }
-
-}
-
 
 #btn-show-all-props {
   display: block;
@@ -3541,7 +3484,6 @@ export default {
     }
   }
 }
-
 
 .relationships-list {
   display: flex;
@@ -3662,17 +3604,17 @@ export default {
   }
 }
 
-  .file-checkbox {
-    margin-right: 16px;
-  }
+.file-checkbox {
+  margin-right: 16px;
+}
 
-  .blinded-review-heading {
-    align-items: flex-start;
-    display: flex;
-    flex-direction: column;
-  }
+.blinded-review-heading {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+}
 
-  .instance-type {
+.instance-type {
   color: $gray_4;
   font-weight: 600;
   text-transform: capitalize;
