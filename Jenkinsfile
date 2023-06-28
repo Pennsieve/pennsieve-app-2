@@ -10,7 +10,7 @@ if (env.EVENT_NAME == "release") {
 }
 
 // determine if this build should include the Deploy step
-if ((env.BRANCH_NAME == "main") || (env.EVENT_NAME == "release")) {
+if (execDeploy) {
     execDeploy = true
 } else { 
     execDeploy = false
