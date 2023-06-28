@@ -10,11 +10,11 @@ if (env.EVENT_NAME == "release") {
 }
 
 // determine if this build should include the Deploy step
-if ((env.BRANCH_NAME == "main") || (env.EVENT_NAME == "release")) {
-    execDeploy = true
-} else { 
-    execDeploy = false
-}
+// if ((env.BRANCH_NAME == "main") || (env.EVENT_NAME == "release")) {
+//     execDeploy = true
+// } else { 
+//     execDeploy = false
+// }
 
 node('executor') {
     ws("/tmp/${env.JOB_NAME}/${env.BRANCH_NAME}") {
@@ -44,7 +44,7 @@ node('executor') {
                 throw e
             }
         }
-      if (execDeploy) {
+      if (["main", "prod"].contains(env.BRANCH_NAME)) {
             stage('Deploy') {
                 node("${executorEnv}-executor") {
                     def bucketName = "pennsieve-${executorEnv}-app-use1"
