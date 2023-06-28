@@ -116,7 +116,7 @@
       <bf-navigation-item
         v-if="!(pageNotFound || isWelcomeOrg) && !isWorkspaceGuest"
         id="nav-integrations"
-        :link="{ name: 'integrations-list', params: {orgId: activeOrganizationId} }"
+        :link="{ name: 'integrations', params: {orgId: activeOrganizationId} }"
         label="Integrations"
         icon="icon-integrations"
         :condensed="primaryNavCondensed"
@@ -234,7 +234,7 @@
         'togglePrimaryNav',
         'condensePrimaryNav'
       ]),
-      
+
       /**
        * Toggles primary nav open and closed
        */

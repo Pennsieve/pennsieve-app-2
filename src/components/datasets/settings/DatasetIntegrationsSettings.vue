@@ -475,12 +475,18 @@ export default {
 
 }
 
+.integration-list {
+  flex-flow: wrap;
+  display: flex;
+}
+
 .integrations-info-title {
   margin-top: 0px;
   font-weight: 500;
 }
 .dataset-integrations-settings {
   background: $white;
+
   hr {
     margin: 32px 0 24px;
   }

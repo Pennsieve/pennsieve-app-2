@@ -198,7 +198,7 @@ const topLevelRoutes = [
   'datasets-list',
   'people-list',
   'teams-list',
-  'integrations-list',
+  'integrations',
   'settings',
   'my-settings-container'
 ]
