@@ -46,7 +46,7 @@ const PublishingProposalsList = () => import ('@/components/Publishing/Publishin
  */
 const Integrations = () => import('@/routes/Integrations/Integrations.vue')
 const IntegrationsList = () => import ('@/components/Integrations/IntegrationsList/IntegrationsList.vue')
-const ApplicationsList = () => import ('@/components/Integrations/ApplicationsList/ApplicationsList.vue')
+const ApplicationsList = () => import ('@/components/Integrations/applicationsList/ApplicationsList.vue')
 
 
 
