@@ -1,20 +1,12 @@
 #!groovy
 
-// determine which environment we should execute this build
-if (env.EVENT_NAME == "release") {
+if (env.BRANCH_NAME == "prod") {
     buildEnv = "production"
     executorEnv = "prod"
 } else {
     buildEnv = "dev"
     executorEnv = "dev"
 }
-
-// determine if this build should include the Deploy step
-// if ((env.BRANCH_NAME == "main") || (env.EVENT_NAME == "release")) {
-//     execDeploy = true
-// } else { 
-//     execDeploy = false
-// }
 
 node('executor') {
     ws("/tmp/${env.JOB_NAME}/${env.BRANCH_NAME}") {
@@ -44,37 +36,33 @@ node('executor') {
                 throw e
             }
         }
-      if (["main", "prod"].contains(env.BRANCH_NAME)) {
+        if (["main", "prod"].contains(env.BRANCH_NAME)) {
             stage('Deploy') {
                 node("${executorEnv}-executor") {
                     def bucketName = "pennsieve-${executorEnv}-app-use1"
-                slackSend(color: '#006600', message: "SUCCESSFULLY TRIGGERED BUILD ON RELEASE ('${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName})")
 
-//              UNCOMMENT BELOW WHEN TRIGGERS ARE VERIFIED
-//              TEST-1
-//                   try {
-//                        unstash 'dist'
-////                         unstash 'buildComponents'
-//                        sh "aws s3 --region us-east-1 rm --recursive s3://$bucketName/"
-//                        sh "aws s3 --region us-east-1 cp --recursive dist s3://$bucketName"
-//                        sh "aws s3 --region us-east-1 cp --cache-control 0 dist/index.html s3://$bucketName/"
-////                         sh "aws s3 --region us-east-1 cp --recursive web-components/build s3://$bucketName/web-components"
-//                        def distributionId = sh(
-//                            script: "aws cloudfront list-distributions --query \"DistributionList.Items[?contains(Origins.Items[0].DomainName, '${bucketName}.s3.amazonaws.com')].Id\" --output text",
-//                            returnStdout: true
-//                        ).trim()
-//                        def response = sh(returnStdout: true, script: "aws cloudfront create-invalidation --distribution-id ${distributionId} --paths '/*'").trim()
-//                        println "$response"
-//                        def responseMap = new groovy.json.JsonSlurperClassic().parseText(response)
-//                        def invalidation = responseMap.Invalidation
-//                        sh "aws cloudfront wait invalidation-completed --distribution-id ${distributionId} --id ${invalidation.Id}"
-//                    } catch (e) {
-//                        slackSend(color: '#b20000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName}")
-//                        throw e
-//                    }
+                    try {
+                        unstash 'dist'
+//                         unstash 'buildComponents'
+                        sh "aws s3 --region us-east-1 rm --recursive s3://$bucketName/"
+                        sh "aws s3 --region us-east-1 cp --recursive dist s3://$bucketName"
+                        sh "aws s3 --region us-east-1 cp --cache-control 0 dist/index.html s3://$bucketName/"
+//                         sh "aws s3 --region us-east-1 cp --recursive web-components/build s3://$bucketName/web-components"
+                        def distributionId = sh(
+                            script: "aws cloudfront list-distributions --query \"DistributionList.Items[?contains(Origins.Items[0].DomainName, '${bucketName}.s3.amazonaws.com')].Id\" --output text",
+                            returnStdout: true
+                        ).trim()
+                        def response = sh(returnStdout: true, script: "aws cloudfront create-invalidation --distribution-id ${distributionId} --paths '/*'").trim()
+                        println "$response"
+                        def responseMap = new groovy.json.JsonSlurperClassic().parseText(response)
+                        def invalidation = responseMap.Invalidation
+                        sh "aws cloudfront wait invalidation-completed --distribution-id ${distributionId} --id ${invalidation.Id}"
+                    } catch (e) {
+                        slackSend(color: '#b20000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName}")
+                        throw e
+                    }
                 }
             }
-          }
         }
       slackSend(color: '#006600', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName}")
     }
