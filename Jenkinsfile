@@ -44,10 +44,8 @@ node('executor') {
                 throw e
             }
         }
-      if (execDeploy) {
+      if (["main", "prod"].contains(env.BRANCH_NAME)) {
             stage('Deploy') {
-
-                steps {
                 node("${executorEnv}-executor") {
                     def bucketName = "pennsieve-${executorEnv}-app-use1"
                 slackSend(color: '#006600', message: "SUCCESSFULLY TRIGGERED BUILD ON RELEASE ('${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName})")
