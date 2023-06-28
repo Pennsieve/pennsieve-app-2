@@ -53,7 +53,7 @@
 
 
   export default {
-    name: 'Integrations ',
+    name: 'IntegrationView',
     components: {
       BfPage,
       BfStage,

@@ -29,7 +29,7 @@
             v-if="hasAdminRights"
             @click="openAddIntegration"
           >
-            Register Webhook
+            Register Application
           </bf-button>
         </div>
 
@@ -85,6 +85,7 @@
     <add-edit-integration-dialog
       :visible.sync="addEditIntegrationDialogVisible"
       :integration-edit.sync="integrationEdit"
+      integrationType="Application"
       @add-integration="onAddIntegrationConfirm"
       @edit-integration="onEditIntegrationConfirm"
     />
@@ -275,11 +276,45 @@ export default {
      */
     onAddIntegrationConfirm: function(integration) {
 
-      let eventTargets = []
-      for (const [key, value] of Object.entries(integration.eventTypeList)) {
-        if (value) {
-          eventTargets.push(key)
+      let customTargets = {}
+      for (const [key, value] of Object.entries(integration.customTargets)) {
+        switch (value.target) {
+          case "DATASET":
+            customTargets.DATASET = null
+            break;
+          case "PACKAGE":
+            if (!('PACKAGE' in customTargets)) {
+              customTargets.PACKAGE = []
+            }
+            customTargets.PACKAGE.push(value.filter)
+            break;
+          case "PACKAGES":
+            if (!('PACKAGES' in customTargets)) {
+              customTargets.PACKAGES = []
+            }
+            customTargets.PACKAGES.push(value.filter)
+            break;
         }
+      }
+
+      let customTargetDTO = []
+      for (const [key, value] of Object.entries(customTargets)) {
+        let targetEntry = {
+          target: key,
+        }
+        if (value && value.filter && value.filter.length > 0 ) {
+          switch (key) {
+            case "PACKAGE":
+            case "PACKAGES":
+              targetEntry.filter = {
+                packageFilter: {
+                  fileType: value
+                }
+              }
+              break;
+          }
+        }
+        customTargetDTO.push(targetEntry)
       }
 
       let integrationDTO = {
@@ -291,8 +326,11 @@ export default {
         imageUrl: integration.imageUrl,
         isDefault: integration.isDefault,
         hasAccess: integration.integrationType === 'viewer'? false: true,
-        targetEvents: eventTargets
+        customTargets: customTargetDTO,
+        targetEvents: ["CUSTOM"]
       }
+
+      console.log(integrationDTO)
 
       this.createIntegration(integrationDTO).then(response => {
           let detailPopup = this.$refs.apiKeyDetails
@@ -316,8 +354,8 @@ export default {
 .addIntegrationContainer {
   display: flex;
   flex-direction: row;
-  margin-bottom: 8px;
-  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 .empty {
@@ -334,6 +372,10 @@ export default {
   flex-direction: column;
   flex-flow: wrap;
   margin: 16px 0;
+}
+
+.description {
+  max-width: 500px;
 }
 
 .reg-button {

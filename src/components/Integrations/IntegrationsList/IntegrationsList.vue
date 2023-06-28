@@ -89,6 +89,7 @@
     <add-edit-integration-dialog
       :visible.sync="addEditIntegrationDialogVisible"
       :integration-edit.sync="integrationEdit"
+      integrationType="Webhook"
       @add-integration="onAddIntegrationConfirm"
       @edit-integration="onEditIntegrationConfirm"
     />
