@@ -264,6 +264,7 @@ export default {
   min-height: 3em;
   max-width: 500px;
   margin: 0 8px;
+  overflow-wrap: break-word;
 }
 
 .list-item-col-spacer {
