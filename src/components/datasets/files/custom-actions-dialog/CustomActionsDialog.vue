@@ -2,38 +2,40 @@
   <el-dialog
     :visible.sync="visible"
     data-cy="customActionsDialog"
-    class="bf-delete-dialog simple"
+    class="bf-delete-dialog"
     :show-close="false"
     @close="closeDialog"
   >
-    <bf-dialog-header slot="title" />
+    <bf-dialog-header slot="title" title="Actions" />
     <dialog-body>
-      <h2>Run Custom Event on {{ totalFiles }} {{ headline }}</h2>
-      <el-select v-model="value" placeholder="Select">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        ></el-option>
-      </el-select>
-      <div class="dialog-simple-buttons">
-        <bf-button
-          class="secondary"
-          data-cy="closeDeleteDialog"
-          @click="closeDialog"
-        >
-          Cancel
-        </bf-button>
-        <bf-button
-          class="green"
-          data-cy="run-custom-event"
-          @click="runCustomEvent"
-        >
-          Run Event
-        </bf-button>
+      <div class="flex">
+        <h2>Run Custom Event on {{ totalFiles }} {{ headline }}</h2>
+        <el-select v-model="value" placeholder="Select">
+          <el-option
+            v-for="(item, i) in options"
+            :key="i"
+            :label="item ? item.label : ''"
+            :value="item ? item.value : ''"
+          ></el-option>
+        </el-select>
       </div>
     </dialog-body>
+    <div slot="footer" class="dialog-footer">
+      <bf-button
+        class="secondary"
+        data-cy="closeDeleteDialog"
+        @click="closeDialog"
+      >
+        Cancel
+      </bf-button>
+      <bf-button
+        data-cy="run-custom-event"
+        @click="runCustomEvent"
+        :disabled="false"
+      >
+        Run Event
+      </bf-button>
+    </div>
   </el-dialog>
 </template>
 
@@ -42,6 +44,7 @@ import BfButton from '../../../shared/bf-button/BfButton.vue'
 import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
 import DialogBody from '../../../shared/dialog-body/DialogBody.vue'
 import Request from '../../../../mixins/request/index'
+import EventBus from '../../../../utils/event-bus'
 
 import { mapGetters, mapState } from 'vuex'
 
@@ -77,8 +80,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['userToken', 'config']),
+    ...mapGetters(['userToken', 'config', 'dataset', 'activeOrganization']),
     ...mapState('integrationsModule', ['integrations']),
+    /**
+     * Checks for whether submit action should be allowed
+     * @returns {Boolean}
+     */
+    disableRunAction: function() {
+      return 'false'
+    },
 
     /**
      * Computes form URL based on type of action user is taking (rename vs creating)
@@ -137,11 +147,10 @@ export default {
      * Access integrations from global state and format options for input select
      */
     formatCustomIntegrationsOptions: function() {
-      console.log('this.integrations', this.integrations)
       this.options = this.integrations.map(integration => {
-        if (true) {
-          // TODO: remove and replace with eventTarget logic
-          // if (integration.eventTarget && integration.eventTarget.length && integration.eventTarget.target === 'PACKAGE') {
+        console.log('integration.eventTargets', ...integration.eventTargets)
+        const [eventTargetType] = [...integration.eventTargets]
+        if (eventTargetType === 'FILES') {
           return {
             value: integration.name,
             label: integration.displayName
@@ -160,13 +169,32 @@ export default {
      * Makes API Call to run custom event on target
      */
     runCustomEvent: function() {
-      const fileIds = this.selectedFiles.map(item => item.content.id)
-      this.sendXhr(this.customEventUrl, {
+      // const fileIds = this.selectedFiles.map(item => item.content.id)
+      const url = `https://api.pennsieve.net/datasets/N:dataset:e2eaa76a-e0e0-4f25-97a8-6fa2bf6dd83f/event`
+      const message = JSON.stringify({
+        organizationId: `${this.activeOrganization.organization.id}`,
+        datasetId: `${this.dataset.content.id}`,
+        eventCategory: 'CATEGORY',
+        eventType: 'CUSTOM'
+      })
+      this.sendXhr(url, {
         method: 'POST',
-        body: { things: fileIds }
+        header: {
+          Authorization: `bearer ${this.userToken}`
+        },
+        body: {
+          message: message,
+          eventType: 'CUSTOM'
+        }
       })
         .then(response => {
-          //   this.$emit('custom-event', response)
+          EventBus.$emit('toast', {
+            detail: {
+              msg: 'The selected event has been successfully initiated!',
+              type: 'success'
+            }
+          })
+          this.closeDialog()
         })
         .catch(response => {
           this.handleXhrError(response)
@@ -182,7 +210,10 @@ export default {
 .svg-icon {
   color: $app-primary-color;
 }
-.dialog-body {
-  text-align: center;
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 </style>
