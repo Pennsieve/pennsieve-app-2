@@ -135,9 +135,7 @@ export default {
      * Access integrations from global state and format options for input select
      */
     formatCustomIntegrationsOptions: function() {
-      console.log('this.integrations', this.integrations)
       this.options = this.integrations.map(integration => {
-        console.log('integration.eventTargets', ...integration.eventTargets)
         const [eventTargetType] = [...integration.eventTargets]
         if (eventTargetType === 'CUSTOM') {
           return {
