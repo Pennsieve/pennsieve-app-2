@@ -91,18 +91,6 @@ export default {
     },
 
     /**
-     * Computes form URL based on type of action user is taking (rename vs creating)
-     * @returns {String}
-     */
-    customEventUrl: function() {
-      if (this.config.apiUrl && this.userToken) {
-        console.log('make the API call')
-        // TODO: Update with action api endpoint when available
-        // return `${this.config.apiUrl}/addTheEndpointHere?api_key=${this.userToken}`
-      }
-    },
-
-    /**
      * Compute total files
      * @return {Number}
      */

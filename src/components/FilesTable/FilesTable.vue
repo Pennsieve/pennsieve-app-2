@@ -56,7 +56,7 @@
               Move to&hellip;
             </button>
           </li>
-          <li class="mr-24">
+          <li class="mr-24" v-if="false">
             <button
               v-if="!searchAllDataMenu"
               class="linked btn-selection-action"
