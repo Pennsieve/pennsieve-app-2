@@ -9,7 +9,7 @@
     <bf-dialog-header slot="title" title="Actions" />
     <dialog-body>
       <div class="flex">
-        <h2>Run Custom Event on {{ totalFiles }} {{ headline }}</h2>
+        <h2>Run the Custom Event on {{ totalFiles }} {{ headline }}</h2>
         <el-select v-model="value" placeholder="Select">
           <el-option
             v-for="(item, i) in options"
