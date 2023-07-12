@@ -56,6 +56,22 @@
               Move to&hellip;
             </button>
           </li>
+          <li class="mr-24" v-if="false">
+            <button
+              v-if="!searchAllDataMenu"
+              class="linked btn-selection-action"
+              :disabled="datasetLocked"
+              @click="$emit('custom-actions-click')"
+            >
+              <svg-icon
+                class="mr-8"
+                icon="icon-done-check-circle"
+                height="16"
+                width="16"
+              />
+              Actions
+            </button>
+          </li>
         </template>
         <li>
           <button class="linked btn-selection-action" @click="onDownloadClick">
