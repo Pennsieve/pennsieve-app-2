@@ -1,11 +1,19 @@
 #!groovy
 
-if (env.BRANCH_NAME == "prod") {
+if (env.EVENT_NAME == "release") {
     buildEnv = "production"
     executorEnv = "prod"
 } else {
     buildEnv = "dev"
     executorEnv = "dev"
+}
+
+
+// determine if this build should include the Deploy step
+if ((env.BRANCH_NAME == "main") || (env.EVENT_NAME == "release")) {
+    execDeploy = true
+} else { 
+    execDeploy = false
 }
 
 node('executor') {
@@ -36,10 +44,12 @@ node('executor') {
                 throw e
             }
         }
-        if (["main", "prod"].contains(env.BRANCH_NAME)) {
+        if (execDeploy) {
             stage('Deploy') {
                 node("${executorEnv}-executor") {
                     def bucketName = "pennsieve-${executorEnv}-app-use1"
+
+                    slackSend(color: '#006600', message: "SUCCESSFULLY TRIGGERED BUILD ON RELEASE ('${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName})")
 
                     try {
                         unstash 'dist'
