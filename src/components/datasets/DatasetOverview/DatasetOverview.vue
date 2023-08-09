@@ -338,7 +338,6 @@
             Save
           </button>
           <button
-            v-else
             slot="title-aux"
             class="linked-9"
             :disabled="datasetLocked"
