@@ -353,6 +353,7 @@
         :is-editing="isEditingMarkdown2"
         :is-saving="isSavingMarkdown"
         :empty-state="changelogDescriptionEmptyState"
+        @save="onChangelogSave"
 
       />
       </data-card>
@@ -463,7 +464,7 @@ export default {
       'datasetContributors',
       'activeOrganization',
       'changelogComponent',
-      //'isLoadingChangelog'
+      'isLoadingChangelog'
     ]),
 
     doiUrl: function(){
@@ -741,7 +742,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(['setDatasetDescription', 'setDatasetDescriptionEtag']),
+    ...mapActions(['setDatasetDescription', 'setDatasetDescriptionEtag', 'setChangelogText']),
 
     /**
      * Check if the dataset checklist
@@ -802,7 +803,7 @@ export default {
     },
 
     /**
-     * On reaadme save, emitted from the MarkdownEditor
+     * On readme save, emitted from the MarkdownEditor
      * Make a request to the API to save the readme
      * @params {String} markdown
      */
@@ -834,25 +835,57 @@ export default {
         .catch(this.handleXhrError.bind(this))
     },
 
-    getChangelog: function(datasetId) {
-      //this.setIsLoadingDatasetDescription(true)
-      const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
-      fetch(url)
+    /**
+     * On changelog save, emitted from the MarkdownEditor
+     * Make a request to the API to save the readme
+     * @params {String} markdown
+     */
+
+    onChangelogSave: function(markdown) {
+      fetch(this.datasetChangelogUrl, {
+        body: JSON.stringify({
+          changelog: markdown
+        }),
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
         .then(response => {
           if (response.ok) {
-            response.json().then(data => {
-              const changelog = propOr('', 'changelog', data)
-              this.setChangelogText(changelog)
+            this.setChangelogText(markdown).finally(() => {
+              this.isSavingMarkdown = false
+              this.isEditingMarkdown2 = false
             })
+          } else if (response.status === 412) {
+            this.isSavingMarkdown = false
+            this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
           }
         })
         .catch(this.handleXhrError.bind(this))
-        .finally(() => {
-          //this.setIsLoadingChangelog(false)
-        })
     },
+
+    // getChangelog: function(datasetId) {
+    //   //this.setIsLoadingDatasetDescription(true)
+    //   const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
+    //   fetch(url)
+    //     .then(response => {
+    //       if (response.ok) {
+    //         response.json().then(data => {
+    //           const changelog = propOr('', 'changelog', data)
+    //           this.setChangelogText(changelog)
+    //         })
+    //       } else {
+    //         throw response
+    //       }
+    //     })
+    //     .catch(this.handleXhrError.bind(this))
+    //     .finally(() => {
+    //       //this.setIsLoadingChangelog(false)
+    //     })
+    // },
 
     /**
      * Go to the banner image section of the settings page
