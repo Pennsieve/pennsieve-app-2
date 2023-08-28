@@ -157,22 +157,30 @@ export default {
      */
     runCustomEvent: function() {
       // const fileIds = this.selectedFiles.map(item => item.content.id)
-      const url = `https://api.pennsieve.net/datasets/N:dataset:e2eaa76a-e0e0-4f25-97a8-6fa2bf6dd83f/event`
-      const message = JSON.stringify({
-        organizationId: `${this.activeOrganization.organization.id}`,
-        datasetId: `${this.dataset.content.id}`,
-        eventCategory: 'CATEGORY',
-        eventType: 'CUSTOM'
+      const url = `https://api2.pennsieve.net/integrations`
+      const body = JSON.stringify({
+        sessionToken: 'ae5t678999-a345ds',
+        applicationId: 1,
+        organizationId: 1,
+        payload: {
+          input: {
+            type: 'S3',
+            bucket: 'data-analysis-pipeline',
+            directory: ''
+          },
+          output: {
+            type: 'S3',
+            bucket: 'data-analysis-pipelines',
+            directory: 'out'
+          }
+        }
       })
       this.sendXhr(url, {
         method: 'POST',
         header: {
           Authorization: `bearer ${this.userToken}`
         },
-        body: {
-          message: message,
-          eventType: 'CUSTOM'
-        }
+        body: body
       })
         .then(response => {
           EventBus.$emit('toast', {
