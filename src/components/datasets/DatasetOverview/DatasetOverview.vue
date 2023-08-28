@@ -333,7 +333,7 @@
           <button
             v-if="isEditingMarkdown2"
             class="linked"
-            @click="isSavingMarkdown = true"
+            @click="isSavingMarkdown2 = true"
           >
             Save
           </button>
@@ -351,7 +351,7 @@
         ref="markdownEditor"
         :value="changelogText"
         :is-editing="isEditingMarkdown2"
-        :is-saving="isSavingMarkdown"
+        :is-saving="isSavingMarkdown2"
         :empty-state="changelogDescriptionEmptyState"
         @save="onChangelogSave"
 
@@ -429,6 +429,7 @@ export default {
       isEditingMarkdown1: false,
       isEditingMarkdown2: false,
       isSavingMarkdown: false,
+      isSavingMarkdown2: false,
       datasetDescriptionEmptyState,
       changelogDescriptionEmptyState,
       packageTypeCount: 0,
@@ -854,11 +855,11 @@ export default {
         .then(response => {
           if (response.ok) {
             this.setChangelogText(markdown).finally(() => {
-              this.isSavingMarkdown = false
+              this.isSavingMarkdown2 = false
               this.isEditingMarkdown2 = false
             })
           } else if (response.status === 412) {
-            this.isSavingMarkdown = false
+            this.isSavingMarkdown2 = false
             this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
