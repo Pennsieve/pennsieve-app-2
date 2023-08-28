@@ -868,25 +868,26 @@ export default {
         .catch(this.handleXhrError.bind(this))
     },
 
-    // getChangelog: function(datasetId) {
-    //   //this.setIsLoadingDatasetDescription(true)
-    //   const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
-    //   fetch(url)
-    //     .then(response => {
-    //       if (response.ok) {
-    //         response.json().then(data => {
-    //           const changelog = propOr('', 'changelog', data)
-    //           this.setChangelogText(changelog)
-    //         })
-    //       } else {
-    //         throw response
-    //       }
-    //     })
-    //     .catch(this.handleXhrError.bind(this))
-    //     .finally(() => {
-    //       //this.setIsLoadingChangelog(false)
-    //     })
-    // },
+    // Note: this function is not being used
+    getChangelog: function(datasetId) {
+      //this.setIsLoadingDatasetDescription(true)
+      const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
+      fetch(url)
+        .then(response => {
+          if (response.ok) {
+            response.json().then(data => {
+              const changelog = propOr('', 'changelog', data)
+              this.setChangelogText(changelog)
+            })
+          } else {
+            throw response
+          }
+        })
+        .catch(this.handleXhrError.bind(this))
+        .finally(() => {
+          //this.setIsLoadingChangelog(false)
+        })
+    },
 
     /**
      * Go to the banner image section of the settings page
