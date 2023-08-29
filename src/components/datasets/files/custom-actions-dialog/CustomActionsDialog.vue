@@ -160,20 +160,10 @@ export default {
       const url = `https://api2.pennsieve.net/integrations`
 
       const body = JSON.stringify({
-        sessionToken: 'ae5t678999-a345ds',
-        applicationId: 1,
-        organizationId: 1,
+        applicationId: 1, // make this dynamic
+        organizationId: 1, // make this dynamicn
         payload: {
-          input: {
-            type: 'S3',
-            bucket: 'data-analysis-pipeline',
-            directory: ''
-          },
-          output: {
-            type: 'S3',
-            bucket: 'data-analysis-pipelines',
-            directory: 'out'
-          }
+          presignedURLs: ['', '']
         }
       })
       this.sendXhr(url, {
