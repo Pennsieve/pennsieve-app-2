@@ -278,17 +278,17 @@
       >
         <template slot="title-aux">
           <button
-            v-if="isEditingMarkdown1"
+            v-if="isEditingMarkdownDescription"
             class="linked mr-8"
-            @click="isEditingMarkdown1 = false"
+            @click="isEditingMarkdownDescription = false"
           >
             Cancel
           </button>
           <button
-            v-if="isEditingMarkdown1"
+            v-if="isEditingMarkdownDescription"
             class="linked"
             :disabled="datasetLocked"
-            @click="isSavingMarkdown = true"
+            @click="isSavingMarkdownDescription = true"
           >
             Save
           </button>
@@ -298,7 +298,7 @@
             slot="title-aux"
             class="linked-9"
             :disabled="datasetLocked"
-            @click="isEditingMarkdown1 = true"
+            @click="isEditingMarkdownDescription = true"
           >
             Update
           </button>
@@ -307,8 +307,8 @@
         <markdown-editor
           ref="markdownEditor"
           :value="datasetDescription"
-          :is-editing="isEditingMarkdown1"
-          :is-saving="isSavingMarkdown"
+          :is-editing="isEditingMarkdownDescription"
+          :is-saving="isSavingMarkdownDescription"
           :empty-state="datasetDescriptionEmptyState"
           :is-loading="isLoadingDatasetDescription"
           @save="onReadmeSave"
@@ -324,16 +324,16 @@
       >
         <template slot="title-aux">
           <button
-            v-if="isEditingMarkdown2"
+            v-if="isEditingMarkdownChangelog"
             class="linked mr-8"
-            @click="isEditingMarkdown2 = false"
+            @click="isEditingMarkdownChangelog = false"
           >
             Cancel
           </button>
           <button
-            v-if="isEditingMarkdown2"
+            v-if="isEditingMarkdownChangelog"
             class="linked"
-            @click="isSavingMarkdown2 = true"
+            @click="isSavingMarkdownChangelog = true"
           >
             Save
           </button>
@@ -342,7 +342,7 @@
             slot="title-aux"
             class="linked-9"
             :disabled="datasetLocked"
-            @click="isEditingMarkdown2 = true"
+            @click="isEditingMarkdownChangelog = true"
           >
             Update
           </button>
@@ -350,8 +350,8 @@
       <markdown-editor
         ref="markdownEditor"
         :value="changelogText"
-        :is-editing="isEditingMarkdown2"
-        :is-saving="isSavingMarkdown2"
+        :is-editing="isEditingMarkdownChangelog"
+        :is-saving="isSavingMarkdownChangelog"
         :empty-state="changelogDescriptionEmptyState"
         @save="onChangelogSave"
 
@@ -426,10 +426,10 @@ export default {
   data() {
     return {
       isChecklistDimissed: false,
-      isEditingMarkdown1: false,
-      isEditingMarkdown2: false,
-      isSavingMarkdown: false,
-      isSavingMarkdown2: false,
+      isEditingMarkdownDescription: false,
+      isEditingMarkdownChangelog: false,
+      isSavingMarkdownDescription: false,
+      isSavingMarkdownChangelog: false,
       datasetDescriptionEmptyState,
       changelogDescriptionEmptyState,
       packageTypeCount: 0,
@@ -775,7 +775,7 @@ export default {
      * Set edit description and scroll to description
      */
     setEditDescription: function() {
-      this.isEditingMarkdown1 = true
+      this.isEditingMarkdownDescription = true
       this.$nextTick(() => {
         this.$refs.descriptionDataCard.$el.scrollIntoView()
         this.$refs.markdownEditor.focus()
@@ -823,11 +823,11 @@ export default {
           if (response.ok) {
             this.setDatasetDescriptionEtag(response.headers.get('etag'))
             this.setDatasetDescription(markdown).finally(() => {
-              this.isSavingMarkdown = false
-              this.isEditingMarkdown1 = false
+              this.isSavingMarkdownDescription = false
+              this.isEditingMarkdownDescription = false
             })
           } else if (response.status === 412) {
-            this.isSavingMarkdown = false
+            this.isSavingMarkdownDescription = false
             this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
@@ -855,11 +855,11 @@ export default {
         .then(response => {
           if (response.ok) {
             this.setChangelogText(markdown).finally(() => {
-              this.isSavingMarkdown2 = false
-              this.isEditingMarkdown2 = false
+              this.isSavingMarkdownChangelog = false
+              this.isEditingMarkdownChangelog = false
             })
           } else if (response.status === 412) {
-            this.isSavingMarkdown2 = false
+            this.isSavingMarkdownChangelog = false
             this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
