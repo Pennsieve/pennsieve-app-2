@@ -158,6 +158,7 @@ export default {
     runCustomEvent: function() {
       // const fileIds = this.selectedFiles.map(item => item.content.id)
       const url = `https://api2.pennsieve.net/integrations`
+
       const body = JSON.stringify({
         sessionToken: 'ae5t678999-a345ds',
         applicationId: 1,
