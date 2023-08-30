@@ -10,7 +10,11 @@
     <dialog-body>
       <div class="flex">
         <h2>Run the Custom Event on {{ totalFiles }} {{ headline }}</h2>
-        <el-select v-model="value" placeholder="Select">
+        <el-select
+          v-model="value"
+          placeholder="Select"
+          @change="onSelect(value)"
+        >
           <el-option
             v-for="(item, i) in options"
             :key="i"
@@ -45,6 +49,7 @@ import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
 import DialogBody from '../../../shared/dialog-body/DialogBody.vue'
 import Request from '../../../../mixins/request/index'
 import EventBus from '../../../../utils/event-bus'
+import { pathOr } from 'ramda'
 
 import { mapGetters, mapState } from 'vuex'
 
@@ -61,26 +66,35 @@ export default {
 
   props: {
     selectedFiles: {
-      type: Array
+      type: Array,
+      default: () => {}
     },
     callingFromDeleted: {
       type: Boolean,
       default: false
     },
     selectedDeletedFiles: {
-      type: Array
+      type: Array,
+      default: () => {}
     }
   },
   data: function() {
     return {
       visible: false,
       options: [],
-      value: ''
+      value: '',
+      selectedApplication: {}
     }
   },
 
   computed: {
-    ...mapGetters(['userToken', 'config', 'dataset', 'activeOrganization']),
+    ...mapGetters([
+      'userToken',
+      'config',
+      'dataset',
+      'activeOrganization',
+      'userToken'
+    ]),
     ...mapState('integrationsModule', ['integrations']),
     /**
      * Checks for whether submit action should be allowed
@@ -131,6 +145,11 @@ export default {
   },
 
   methods: {
+    onSelect: function(value) {
+      this.selectedApplication = this.integrations.find(
+        integration => integration.name === value
+      )
+    },
     /**
      * Access integrations from global state and format options for input select
      */
@@ -153,17 +172,38 @@ export default {
       this.visible = false
     },
     /**
+     * Formats the data from the selected files for the integrations API.
+     */
+    formatSelectedFilesForAPI: function() {
+      console.log('selectedFiles', this.selectedFiles)
+
+      const presignedUrls = []
+
+      this.selectedFiles.forEach(file => {
+        const packageId = pathOr('', ['content', 'id'], file)
+        presignedUrls.push({
+          filename: file.content.name,
+          url: `${this.config.apiUrl}/packages/${packageId}/files/${
+            file.content.id
+          }?short=true&api_key=${this.userToken}`
+        })
+      })
+      return presignedUrls
+    },
+    /**
      * Makes API Call to run custom event on target
      */
     runCustomEvent: function() {
       // const fileIds = this.selectedFiles.map(item => item.content.id)
+
       const url = `https://api2.pennsieve.net/integrations`
 
       const body = JSON.stringify({
-        applicationId: 1, // make this dynamic
-        organizationId: 1, // make this dynamicn
+        sessionToken: this.userToken,
+        applicationId: this.selectedApplication.id,
+        organizationId: this.activeOrganization.organization.id,
         payload: {
-          presignedURLs: ['', '']
+          presignedURLs: this.formatSelectedFilesForAPI()
         }
       })
       this.sendXhr(url, {
