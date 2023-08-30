@@ -224,6 +224,13 @@ export default {
         })
         .catch(response => {
           this.handleXhrError(response)
+          EventBus.$emit('toast', {
+            detail: {
+              msg: 'Sorry! There was an issue initiating your event',
+              type: 'error'
+            }
+          })
+          this.closeDialog()
         })
     }
   }
