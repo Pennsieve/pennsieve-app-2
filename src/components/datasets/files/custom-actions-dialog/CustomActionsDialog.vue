@@ -199,7 +199,6 @@ export default {
       const url = `https://api2.pennsieve.net/integrations`
 
       const body = JSON.stringify({
-        sessionToken: this.userToken,
         applicationId: this.selectedApplication.id,
         organizationId: this.activeOrganization.organization.id,
         payload: {
