@@ -175,8 +175,6 @@ export default {
      * Formats the data from the selected files for the integrations API.
      */
     formatSelectedFilesForAPI: function() {
-      console.log('selectedFiles', this.selectedFiles)
-
       const presignedUrls = []
 
       this.selectedFiles.forEach(file => {
@@ -194,12 +192,9 @@ export default {
      * Makes API Call to run custom event on target
      */
     runCustomEvent: function() {
-      // const fileIds = this.selectedFiles.map(item => item.content.id)
-
-      const url = `https://api2.pennsieve.net/integrations`
+      const url = `${this.config.apiUrl}/integrations`
 
       const body = JSON.stringify({
-        sessionToken: this.userToken,
         applicationId: this.selectedApplication.id,
         organizationId: this.activeOrganization.organization.id,
         payload: {
@@ -224,6 +219,13 @@ export default {
         })
         .catch(response => {
           this.handleXhrError(response)
+          EventBus.$emit('toast', {
+            detail: {
+              msg: 'Sorry! There was an issue initiating your event',
+              type: 'error'
+            }
+          })
+          this.closeDialog()
         })
     }
   }
