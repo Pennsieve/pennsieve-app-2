@@ -191,14 +191,24 @@ export default {
     /**
      * Makes API Call to run custom event on target
      */
+
     runCustomEvent: function() {
-      const url = `${this.config.apiUrl}/integrations`
+      const url = `https://api2.pennsieve.net/integrations`
 
       const body = JSON.stringify({
-        applicationId: this.selectedApplication.id,
-        organizationId: this.activeOrganization.organization.id,
+        applicationId: 84,
+
         payload: {
-          presignedURLs: this.formatSelectedFilesForAPI()
+          presignedURLs: [
+            {
+              filename: '20230531_IH_gating_AALC_IHCV.csv',
+              url: 'https://bit.ly/3R3g4Cd'
+            },
+            {
+              filename: '20230531_counts_renamed_with_meta.csv',
+              url: 'https://bit.ly/3qNF45Y'
+            }
+          ]
         }
       })
       this.sendXhr(url, {
