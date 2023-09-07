@@ -187,7 +187,7 @@ export default {
         applicationId: this.selectedApplication.id,
         datasetId: pathOr('', ['content', 'id'], this.dataset),
         packageIds: packageIds,
-        params: {} // creating a UI for users to configure params is a future feature
+        params: {}
       }
       this.sendXhr(url, {
         method: 'POST',
