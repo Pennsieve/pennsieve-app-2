@@ -179,11 +179,15 @@ export default {
     runCustomEvent: function() {
       const url = `${this.config.api2Url}/integrations`
 
+      const packageIds = this.selectedFiles.map(file => {
+        return pathOr('', ['content', 'id'], file)
+      })
+
       const body = {
         applicationId: this.selectedApplication.id,
-        datasetId: null,
-        packageIds: [],
-        params: {}
+        datasetId: pathOr('', ['content', 'id'], this.dataset),
+        packageIds: packageIds,
+        params: {} // creating a UI for users to configure params is a future feature
       }
       this.sendXhr(url, {
         method: 'POST',
