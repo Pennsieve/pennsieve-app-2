@@ -187,7 +187,7 @@ export default {
         applicationId: this.selectedApplication.id,
         datasetId: pathOr('', ['content', 'id'], this.dataset),
         packageIds: packageIds,
-        params: {}
+        params: {} // intentionally passing an empty object - params is a future feature
       }
       this.sendXhr(url, {
         method: 'POST',
