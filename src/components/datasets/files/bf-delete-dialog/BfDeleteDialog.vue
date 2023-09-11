@@ -2,11 +2,11 @@
   <el-dialog
     :visible.sync="visible"
     data-cy="bfDeleteDialog"
-    class="bf-delete-dialog simple"
+    class="bf-delete-dialog"
     :show-close="false"
     @close="closeDialog"
   >
-    <bf-dialog-header slot="title" />
+    <bf-dialog-header slot="title" title="Delete" />
 
     <dialog-body>
       <svg-icon

@@ -48,7 +48,7 @@
     display: flex;
     position: relative;
     .icon-close {
-      color: $gray_4;
+      color: $white;
       cursor: pointer;
     }
   }
