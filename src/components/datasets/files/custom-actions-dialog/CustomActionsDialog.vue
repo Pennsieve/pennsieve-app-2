@@ -171,50 +171,28 @@ export default {
     closeDialog: function() {
       this.visible = false
     },
-    /**
-     * Formats the data from the selected files for the integrations API.
-     */
-    formatSelectedFilesForAPI: function() {
-      const presignedUrls = []
 
-      this.selectedFiles.forEach(file => {
-        const packageId = pathOr('', ['content', 'id'], file)
-        presignedUrls.push({
-          filename: file.content.name,
-          url: `${this.config.apiUrl}/packages/${packageId}/files/${
-            file.content.id
-          }?short=true&api_key=${this.userToken}`
-        })
-      })
-      return presignedUrls
-    },
     /**
      * Makes API Call to run custom event on target
      */
 
     runCustomEvent: function() {
-      const url = `https://api2.pennsieve.net/integrations`
+      const url = `${this.config.api2Url}/integrations`
 
-      const body = JSON.stringify({
-        applicationId: 84,
-
-        payload: {
-          presignedURLs: [
-            {
-              filename: '20230531_IH_gating_AALC_IHCV.csv',
-              url: 'https://bit.ly/3R3g4Cd'
-            },
-            {
-              filename: '20230531_counts_renamed_with_meta.csv',
-              url: 'https://bit.ly/3qNF45Y'
-            }
-          ]
-        }
+      const packageIds = this.selectedFiles.map(file => {
+        return pathOr('', ['content', 'id'], file)
       })
+
+      const body = {
+        applicationId: this.selectedApplication.id,
+        datasetId: pathOr('', ['content', 'id'], this.dataset),
+        packageIds: packageIds,
+        params: {} // intentionally passing an empty object - params is a future feature
+      }
       this.sendXhr(url, {
         method: 'POST',
         header: {
-          Authorization: `bearer ${this.userToken}`
+          Authorization: `Bearer ${this.userToken}`
         },
         body: body
       })
