@@ -95,16 +95,7 @@ export default {
             }
           })
         })
-      } // logout
-      else if (status === 401) {
-        // debugger
-        EventBus.$emit('ajaxError', err)
-      } // unauthorized
-      // else if (status === 403) {
-      //   return this.$router.replace({name: 'datasets-list'})
-        // }
-      else {
-        // emit ajaxError
+      } else {
         EventBus.$emit('ajaxError', err)
       }
     }
