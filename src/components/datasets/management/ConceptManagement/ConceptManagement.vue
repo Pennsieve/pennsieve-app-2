@@ -581,7 +581,7 @@ export default {
       }
     },
     /**
-     * Opens modal to create new propery
+     * Opens modal to create new property
     */
     openCreateProperty: function() {
       this.addEditPropertyDialogVisible = true

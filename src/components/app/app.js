@@ -124,7 +124,7 @@ export default {
     },
 
     /**
-     * Wrapper to work around visible sync witha vuex
+     * Wrapper to work around visible sync with a vuex
      * state property
      */
     isLinkOrcidDialogVisibleWrapper: {

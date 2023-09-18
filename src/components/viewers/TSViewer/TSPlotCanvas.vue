@@ -1698,8 +1698,8 @@
             },
             sendFilterMessage: function(msg) {
               if (this._websocket && this._websocket.readyState === 1) {
-                const parms = msg.filterParameters || [];
-                parms.forEach( p => {
+                const params = msg.filterParameters || [];
+                params.forEach( p => {
                     if (!this.isTruthy(p)) {
                         return;
                     }
