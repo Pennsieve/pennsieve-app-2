@@ -166,7 +166,7 @@ export default {
 
   methods: {
     /**
-     * Open intercom to contact supprt
+     * Open intercom to contact support
      */
     openIntercom: function() {
       window.Intercom('show')

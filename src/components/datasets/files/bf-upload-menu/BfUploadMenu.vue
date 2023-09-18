@@ -77,7 +77,7 @@ export default {
     },
 
     /**
-     * Hanlde visible-change event
+     * Handle visible-change event
      */
     onVisibleChange: function(visible) {
       this.isOpen = visible

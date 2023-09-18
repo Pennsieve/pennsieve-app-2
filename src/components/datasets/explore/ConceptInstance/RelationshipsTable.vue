@@ -1377,7 +1377,7 @@ export default {
       this.formatHeaders(data)
       // transform response
       const formattedData = this.formatResults(data)
-      // udpate concepts
+      // update concepts
       this.concepts = formattedData
 
       if (this.isFilesType) {

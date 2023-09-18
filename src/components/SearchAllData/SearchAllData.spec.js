@@ -13,7 +13,7 @@ const mockWindowProperty = (property, value) => {
       value,
     });
   });
-  afterAll(() => {
+  after all(() => {
     window[property] = originalProperty;
   });
 };

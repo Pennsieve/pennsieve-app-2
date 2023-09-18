@@ -73,7 +73,7 @@ export default {
 
   computed: {
     /**
-     * Returns the default scale of PDF on inital load
+     * Returns the default scale of PDF on initial load
      * page.getViewport is a function call from PDF.js library
      * @returns {Object}
      */

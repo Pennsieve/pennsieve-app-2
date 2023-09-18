@@ -323,7 +323,7 @@ export default {
      * Add a new filter to the query builder
      */
     addFilter: function() {
-      // If the user is search files, use the hardcoded proerties
+      // If the user is search files, use the hardcoded properties
       if (this.isFilesProxy) {
         this.queryFilters.push(this.proxyProperties)
       } else {
@@ -451,7 +451,7 @@ export default {
       const conceptFilters = filters.filter(fil => fil.selectedConcept === conceptName).map(buildFilters)
       const relatedFilters = filters.filter(fil => fil.selectedConcept !== conceptName).map(buildJoins)
 
-      // Set up defualt type for all models
+      // Set up default type for all models
       let type = {
         concept: {
           type: conceptName

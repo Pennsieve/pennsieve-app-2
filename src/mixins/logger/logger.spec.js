@@ -26,7 +26,7 @@ describe('logger Mixin', () => {
     expect(console.log.mock.calls.length).toBe(1)
   })
 
-  it('logger does NOT fire non-existant console function', () => {
+  it('logger does NOT fire non-existent console function', () => {
     log.methods.logger('test', 'rando')
     expect(console.log.mock.calls.length).toBe(0)
   })

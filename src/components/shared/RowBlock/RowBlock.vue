@@ -2,7 +2,7 @@
   <div
     class="row-block"
     :class="[
-      collapsable ? 'collapsable' : '',
+      collapsible ? 'collapsible' : '',
       open ? 'open' : ''
     ]"
   >
@@ -42,7 +42,7 @@
     name: 'RowBlock',
 
     props: {
-      collapsable: {
+      collapsible: {
         type: Boolean,
         default: false
       },
@@ -72,7 +72,7 @@
     flex-shrink: 0;
     display: flex;
     padding: 24px;
-    .collapsable &:hover {
+    .collapsible &:hover {
       background: $gray_1;
       cursor: pointer;
     }

@@ -311,7 +311,7 @@
         this.$emit('edit-instance', this)
       },
       /**
-       * Handles adding mulitple inputs for a given field
+       * Handles adding multiple inputs for a given field
        */
       addAnotherInput: function() {
         const newProp = clone(this.property)

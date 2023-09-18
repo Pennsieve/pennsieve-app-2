@@ -894,7 +894,7 @@ export default {
     },
 
     /**
-     * Checks for existance of 1 model title amongst properities
+     * Checks for existence of 1 model title amongst properties
      * @param {Array} props
      * @returns {Boolean}
      */

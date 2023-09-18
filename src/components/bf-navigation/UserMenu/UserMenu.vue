@@ -493,7 +493,7 @@ export default {
 
     /**
      * Show the intercom window to allow
-     * user to talk to supprt to create an
+     * user to talk to support to create an
      * organization
      */
     requestCreateOrganization: function() {

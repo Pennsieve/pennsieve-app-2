@@ -137,7 +137,7 @@ export default {
     owner: function() {
       return this.proposal.ownerName
     },
-    //proposer's email will render if the email is provided adn not an empty string
+    //proposer's email will render if the email is provided and not an empty string
     email() {
       if (this.proposal.emailAddress.length && this.proposal.emailAddress.trim().length){
         return this.proposal.emailAddress;

@@ -275,7 +275,7 @@ export default {
     },
 
     /**
-     * Compute realted models list that are related to the selected model
+     * Compute related models list that are related to the selected model
      * @returns {Array}
      */
     relatedModelsList: function() {

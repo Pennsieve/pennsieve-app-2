@@ -75,7 +75,7 @@ import { mockData } from './mock-graph-data'
 // D3 Helpers
 import { positionEdge, positionNode, tickActions } from '../../../utils/d3Helpers'
 
-// NOTE: Defining simulation variable in global scope becuase we need to initiate d3 force simulation
+// NOTE: Defining simulation variable in global scope because we need to initiate d3 force simulation
 // within the context onf the renderChart function but we also need access to simulation in update chart function
 let simulation
 let zoom
@@ -305,7 +305,7 @@ export default {
       // else, get active node based on concept with the most relationships
       const edgeCounts = this.getCounts('source', edges)
 
-      // set inital max value
+      // set initial max value
       let max = { name: '', value: 0 }
 
       edgeCounts.forEach(edgeCount => {
@@ -387,7 +387,7 @@ export default {
 
     /**
      * Transform API GET Response
-     * @param {Arrray} data
+     * @param {Array} data
      * @returns {Object}
      */
     transformApiResponse: function(data) {

@@ -264,7 +264,7 @@ import { ChangelogMessage, PublicationStatus } from '@/utils/constants'
       },
 
       /**
-       * Indicator label for publishing changlog items
+       * Indicator label for publishing changelog items
        * @param {String} eventType
        * @returns {Boolean}
        */

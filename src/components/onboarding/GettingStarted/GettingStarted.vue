@@ -80,7 +80,7 @@ export default {
           link: 'https://docs.pennsieve.io/docs/creating-metadata-models',
           name: 'Graph',
           heading: 'Set Up Your Graph',
-          blurb: 'Create a knowlege graph unique to your metadata.',
+          blurb: 'Create a knowledge graph unique to your metadata.',
           visible: true,
           icon: {
             type: 'svg',

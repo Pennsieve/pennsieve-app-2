@@ -25,7 +25,7 @@ export default {
         link.setAttribute('async', '');
       }
       // NOTE: the link may now be in 3 states: (1) pending insertion,
-      // (2) inflight, (3) already laoded. In each case, we need to add
+      // (2) inflight, (3) already loaded. In each case, we need to add
       // event listeners to process callbacks.
       let cleanup = function() {
         link.removeEventListener('load', loadListener);

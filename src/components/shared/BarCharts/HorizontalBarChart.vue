@@ -28,7 +28,7 @@ const responsify = function(svg) {
   }
 
   // add viewBox and preserveAspectRatio properties,
-  // and call resize so that svg resizes on inital page load
+  // and call resize so that svg resizes on initial page load
   svg.attr('viewBox', `0 0 ${width} ${height}`)
     .attr('preserveAspectRatio', 'xMinYMid')
     .call(resize)

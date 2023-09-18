@@ -245,7 +245,7 @@ export default {
     },
 
     /**
-     * Updates the scale value everytime there is a change in resolution
+     * Updates the scale value every time there is a change in resolution
      * @param {number} scale
      * @param {Boolean} isOptimal
      */

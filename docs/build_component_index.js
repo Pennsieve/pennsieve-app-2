@@ -1,5 +1,5 @@
 /**
- * The following script creates a json file that includes the name, path, and documenation page status
+ * The following script creates a json file that includes the name, path, and documentation page status
  * for every component in our codebase.
  *
  * component_index.json is consumed by our web component browser.
@@ -28,7 +28,7 @@ const components = [];
 
 /**
  * pull tagname and path properties from each element
- * programatically determine if component has a doc page and update components array
+ * programmatically determine if component has a doc page and update components array
  */
 for (let x = 0; x < elements.length; x++) {
   const component = {

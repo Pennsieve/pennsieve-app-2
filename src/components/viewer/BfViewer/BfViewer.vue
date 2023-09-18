@@ -305,7 +305,7 @@ export default {
       return (eventName === this.viewerSidePanelView && this.viewerSidePanelOpen) ? 'selected' : ''
     },
     /**
-     * Toggle the palatte panel open/close and change palette
+     * Toggle the palette panel open/close and change palette
      * @param {String} palette
      */
     togglePanel: function(palette) {

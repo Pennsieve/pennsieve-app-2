@@ -419,7 +419,7 @@ export default {
     },
 
     /**
-     * Removes files already releated to record
+     * Removes files already related to record
      * @param {Object} payload
      * @returns {Array}
      */

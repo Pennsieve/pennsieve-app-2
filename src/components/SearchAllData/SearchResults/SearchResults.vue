@@ -308,7 +308,7 @@ export default {
     },
 
     /**
-     * Returns the current page postion for files table in pagination ticker
+     * Returns the current page position for files table in pagination ticker
      * @returns {Number}
      */
     curFileSearchPage: function() {
@@ -655,7 +655,7 @@ export default {
 
     /**
      * Updates file search limit based on pagination selection
-     * @param {Nunber} limit
+     * @param {Number} limit
      */
     updateTableSearchLimit: function(limit) {
       this.tableSearchParams.limit = limit

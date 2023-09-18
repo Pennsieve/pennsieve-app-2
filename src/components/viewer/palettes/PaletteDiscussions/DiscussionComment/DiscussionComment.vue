@@ -163,7 +163,7 @@
 
       /**
        * Compute timestamp
-       * Objects with separate properties to display HTML in betwen values
+       * Objects with separate properties to display HTML in between values
        * @return {Object}
        */
       timestamp: function() {

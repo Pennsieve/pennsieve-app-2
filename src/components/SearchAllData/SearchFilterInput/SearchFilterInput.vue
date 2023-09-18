@@ -98,7 +98,7 @@
         </p>
       </div>
 
-      <!-- Show range for number and datee property type -->
+      <!-- Show range for number and date property type -->
       <div
         v-if="isNumber && !loading"
         class="bf-menu scroll-menu"

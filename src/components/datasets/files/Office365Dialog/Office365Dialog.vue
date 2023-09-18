@@ -108,7 +108,7 @@ export default {
     },
 
     /**
-     * Computed property to generate endpoint url to retreive
+     * Computed property to generate endpoint url to retrieve
      * package file information
      * @returns {String}
      */

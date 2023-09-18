@@ -244,7 +244,7 @@
       },
 
       /**
-       * Toggle visibilty for a group
+       * Toggle visibility for a group
        * @params {String} channelType
        */
       toggleGroupVisibility: function(channelType) {
@@ -315,7 +315,7 @@
         this.setBulkEditingChannels(!this.bulkEditingChannels)
           .then(() => {
             const channels = this.viewerChannels.map(channel => {
-              // short ciruit if bulk editing and channel is in edit state
+              // short circuit if bulk editing and channel is in edit state
               if (this.bulkEditingChannels && channel.isEditing) {
                 return channel
               }

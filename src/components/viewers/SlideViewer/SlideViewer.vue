@@ -537,7 +537,7 @@
         }
       },
       /**
-      * Event handler for zoom funcionality
+      * Event handler for zoom functionality
       * @param {Object} e
       */
       onZoom: function(evt) {

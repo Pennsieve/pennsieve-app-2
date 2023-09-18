@@ -303,7 +303,7 @@
             checkAnnotationRange: function(RStart, REnd) {
 
                 // If part of the viewport is not cached, request up to limit.
-                // Start with full width --> split on exisiting ranges
+                // Start with full width --> split on existing ranges
                 const reqRange = [];
                 reqRange.push({start: RStart, end: this.tsEnd});
 

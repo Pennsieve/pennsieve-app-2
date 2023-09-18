@@ -322,7 +322,7 @@
 
         EventBus.$emit('toast', {
           detail: {
-            msg: 'Model template successfuly created. You can select your new template by creating a new Dataset.',
+            msg: 'Model template successfully created. You can select your new template by creating a new Dataset.',
             type: 'success',
             duration: 6000,
             class: 'width-auto'
@@ -382,7 +382,7 @@
 
         EventBus.$emit('toast', {
           detail: {
-            msg: 'Model template successfuly updated.',
+            msg: 'Model template successfully updated.',
             type: 'success'
           }
         })

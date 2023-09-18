@@ -66,7 +66,7 @@
      * zoomable image at the original image size. If null, the scale bar is not
      * displayed. default: null
      * @param {Integer} options.referenceItemIdx Specify the item from
-     * viewer.world to which options.pixelsPerMeter is refering.
+     * viewer.world to which options.pixelsPerMeter is referring.
      * default: 0
      * @param (String} options.minWidth The minimal width of the scale bar as a
      * CSS string (ex: 100px, 1em, 1% etc...) default: 150px
@@ -216,7 +216,7 @@
          * zoomable image at the original image size. If null, the scale bar is not
          * displayed. default: null
          * @param {Integer} options.referenceItemIdx Specify the item from
-         * viewer.world to which options.pixelsPerMeter is refering.
+         * viewer.world to which options.pixelsPerMeter is referring.
          * default: 0
          * @param (String} options.minWidth The minimal width of the scale bar as a
          * CSS string (ex: 100px, 1em, 1% etc...) default: 150px

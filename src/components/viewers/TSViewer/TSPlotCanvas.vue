@@ -629,7 +629,7 @@
                 this.requestData(showChannels, this.start, this.duration);
                 // }
             },
-            // Getting data from cache and queue new reqeusts from server
+            // Getting data from cache and queue new requests from server
             requestData: function(showChannels, start, duration ) {
 
                 // If number of requestedpages is getting to big, reset websocket connection
@@ -1808,7 +1808,7 @@
                     if (addData) {
                         curSegments.push(obj.data);
 
-                        // Resort segments in each channel afer adding data
+                        // Resort segments in each channel after adding data
                         curSegments.sort(function Comparator(a, b) {
                             if (a.startTs < b.startTs) return -1;
                             if (a.startTs > b.startTs) return 1;

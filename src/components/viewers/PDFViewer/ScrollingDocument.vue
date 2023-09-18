@@ -112,7 +112,7 @@ export default {
 
   methods: {
     /**
-     * Emits an event that fetchs PDF page based on current page viewed
+     * Emits an event that fetches PDF page based on current page viewed
      * @param {number} currentPage
      */
     fetchPages(currentPage) {

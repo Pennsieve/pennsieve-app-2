@@ -185,7 +185,7 @@ export default {
 
   watch: {
     /**
-     * Watch for initialization of activeViewer in vuex. Once initalized
+     * Watch for initialization of activeViewer in vuex. Once initialized
      * we can pull in the package properties and populate propertiesList
      */
     activeViewer: {

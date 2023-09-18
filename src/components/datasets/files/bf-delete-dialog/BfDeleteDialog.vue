@@ -159,7 +159,7 @@
     },
 
     methods: {
-      //deletes files permenantly. NOTE: should have toast message that confirms
+      //deletes files permanently. NOTE: should have toast message that confirms
       deletePermanently: function(){
         const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 

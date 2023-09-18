@@ -55,7 +55,7 @@
 
         <row-block
           class="mb-8 condensed"
-          :collapsable="true"
+          :collapsible="true"
           :open="selectTypeOpen"
           @header-click="selectTypeOpen = !selectTypeOpen"
         >
@@ -128,7 +128,7 @@
 
       <row-block
         class="choose-destination-wrap mb-16 condensed"
-        :collapsable="true"
+        :collapsible="true"
         :open="chooseDestinationOpen"
         @header-click="chooseDestinationOpen = !chooseDestinationOpen"
       >
@@ -468,7 +468,7 @@ export default {
 
     /**
      * Compute relationship types url
-     * @param {String} direciton
+     * @param {String} direction
      * @returns {String}
      */
     relationshipTypesUrl: function(direction) {

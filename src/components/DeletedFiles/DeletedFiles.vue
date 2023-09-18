@@ -352,7 +352,7 @@ export default {
     showDelete2: function() {
       this.$refs.deleteDialog.visible = true
     },
-    //deletes files permenantly. NOTE: should have toast message that confirms
+    //deletes files permanently. NOTE: should have toast message that confirms
     showDelete: function() {
       const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
@@ -471,7 +471,7 @@ path field is empty
 Need to reach into packages list instead of pulling stuff from url
 */
     fetchDeletedFunc: function(offset, limit, root_node = undefined) {
-      //NOTE: we will  want to make sure that this isnt a flat map
+      //NOTE: we will  want to make sure that this isn't a flat map
       const options = {
         method: 'GET',
         headers: {
