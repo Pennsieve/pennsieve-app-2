@@ -1,4 +1,3 @@
 [codespell]
-skip = .git,*.pdf,*.svg,package-lock.json,yarn.lock
-#
-# ignore-words-list =
+skip = .git,*.pdf,*.svg,package-lock.json,yarn.lock,*.min.*,*.map,files.tsv,*.conf.js
+ignore-words-list = nd,goup,datea
