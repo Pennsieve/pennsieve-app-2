@@ -1,0 +1,4 @@
+[codespell]
+skip = .git,*.pdf,*.svg,package-lock.json,yarn.lock
+#
+# ignore-words-list =
