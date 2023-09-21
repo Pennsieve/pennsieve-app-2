@@ -278,17 +278,17 @@
       >
         <template slot="title-aux">
           <button
-            v-if="isEditingMarkdown1"
+            v-if="isEditingMarkdownDescription"
             class="linked mr-8"
-            @click="isEditingMarkdown1 = false"
+            @click="isEditingMarkdownDescription = false"
           >
             Cancel
           </button>
           <button
-            v-if="isEditingMarkdown1"
+            v-if="isEditingMarkdownDescription"
             class="linked"
             :disabled="datasetLocked"
-            @click="isSavingMarkdown = true"
+            @click="isSavingMarkdownDescription = true"
           >
             Save
           </button>
@@ -298,7 +298,7 @@
             slot="title-aux"
             class="linked-9"
             :disabled="datasetLocked"
-            @click="isEditingMarkdown1 = true"
+            @click="isEditingMarkdownDescription = true"
           >
             Update
           </button>
@@ -307,8 +307,8 @@
         <markdown-editor
           ref="markdownEditor"
           :value="datasetDescription"
-          :is-editing="isEditingMarkdown1"
-          :is-saving="isSavingMarkdown"
+          :is-editing="isEditingMarkdownDescription"
+          :is-saving="isSavingMarkdownDescription"
           :empty-state="datasetDescriptionEmptyState"
           :is-loading="isLoadingDatasetDescription"
           @save="onReadmeSave"
@@ -324,26 +324,36 @@
       >
         <template slot="title-aux">
           <button
-            v-if="isEditingMarkdown2"
+            v-if="isEditingMarkdownChangelog"
             class="linked mr-8"
-            @click="isEditingMarkdown2 = false"
+            @click="isEditingMarkdownChangelog = false"
           >
             Cancel
           </button>
           <button
-            v-if="isEditingMarkdown2"
+            v-if="isEditingMarkdownChangelog"
             class="linked"
-            @click="isSavingMarkdown = true"
+            @click="isSavingMarkdownChangelog = true"
           >
             Save
+          </button>
+          <button
+            v-else
+            slot="title-aux"
+            class="linked-9"
+            :disabled="datasetLocked"
+            @click="isEditingMarkdownChangelog = true"
+          >
+            Update
           </button>
         </template>
       <markdown-editor
         ref="markdownEditor"
         :value="changelogText"
-        :is-editing="isEditingMarkdown2"
-        :is-saving="isSavingMarkdown"
+        :is-editing="isEditingMarkdownChangelog"
+        :is-saving="isSavingMarkdownChangelog"
         :empty-state="changelogDescriptionEmptyState"
+        @save="onChangelogSave"
 
       />
       </data-card>
@@ -416,9 +426,10 @@ export default {
   data() {
     return {
       isChecklistDimissed: false,
-      isEditingMarkdown1: false,
-      isEditingMarkdown2: false,
-      isSavingMarkdown: false,
+      isEditingMarkdownDescription: false,
+      isEditingMarkdownChangelog: false,
+      isSavingMarkdownDescription: false,
+      isSavingMarkdownChangelog: false,
       datasetDescriptionEmptyState,
       changelogDescriptionEmptyState,
       packageTypeCount: 0,
@@ -454,7 +465,7 @@ export default {
       'datasetContributors',
       'activeOrganization',
       'changelogComponent',
-      //'isLoadingChangelog'
+      'isLoadingChangelog'
     ]),
 
     doiUrl: function(){
@@ -732,7 +743,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(['setDatasetDescription', 'setDatasetDescriptionEtag']),
+    ...mapActions(['setDatasetDescription', 'setDatasetDescriptionEtag', 'setChangelogText']),
 
     /**
      * Check if the dataset checklist
@@ -764,7 +775,7 @@ export default {
      * Set edit description and scroll to description
      */
     setEditDescription: function() {
-      this.isEditingMarkdown1 = true
+      this.isEditingMarkdownDescription = true
       this.$nextTick(() => {
         this.$refs.descriptionDataCard.$el.scrollIntoView()
         this.$refs.markdownEditor.focus()
@@ -793,7 +804,7 @@ export default {
     },
 
     /**
-     * On reaadme save, emitted from the MarkdownEditor
+     * On readme save, emitted from the MarkdownEditor
      * Make a request to the API to save the readme
      * @params {String} markdown
      */
@@ -812,11 +823,11 @@ export default {
           if (response.ok) {
             this.setDatasetDescriptionEtag(response.headers.get('etag'))
             this.setDatasetDescription(markdown).finally(() => {
-              this.isSavingMarkdown = false
-              this.isEditingMarkdown1 = false
+              this.isSavingMarkdownDescription = false
+              this.isEditingMarkdownDescription = false
             })
           } else if (response.status === 412) {
-            this.isSavingMarkdown = false
+            this.isSavingMarkdownDescription = false
             this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
@@ -825,24 +836,36 @@ export default {
         .catch(this.handleXhrError.bind(this))
     },
 
-    getChangelog: function(datasetId) {
-      //this.setIsLoadingDatasetDescription(true)
-      const url = `${this.config.apiUrl}/datasets/${datasetId}/changelog?api_key=${this.userToken}`
-      fetch(url)
+    /**
+     * On changelog save, emitted from the MarkdownEditor
+     * Make a request to the API to save the readme
+     * @params {String} markdown
+     */
+
+    onChangelogSave: function(markdown) {
+      fetch(this.datasetChangelogUrl, {
+        body: JSON.stringify({
+          changelog: markdown
+        }),
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
         .then(response => {
           if (response.ok) {
-            response.json().then(data => {
-              const changelog = propOr('', 'changelog', data)
-              this.setChangelogText(changelog)
+            this.setChangelogText(markdown).finally(() => {
+              this.isSavingMarkdownChangelog = false
+              this.isEditingMarkdownChangelog = false
             })
+          } else if (response.status === 412) {
+            this.isSavingMarkdownChangelog = false
+            this.$refs.staleUpdateDialog.dialogVisible = true
           } else {
             throw response
           }
         })
         .catch(this.handleXhrError.bind(this))
-        .finally(() => {
-          //this.setIsLoadingChangelog(false)
-        })
     },
 
     /**
@@ -945,7 +968,6 @@ h1 {
     margin-right: 8px;
   }
 }
-
 .dataset-owners {
   align-items: center;
   display: flex;

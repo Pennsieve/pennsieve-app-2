@@ -1,14 +1,9 @@
 <template>
   <bf-page class="bf-publishing-settings">
-    <locked-banner
-      slot="banner"
-    />
+    <locked-banner slot="banner" />
     <template v-if="hasPermission">
       <bf-rafter slot="heading">
-        <h1
-          slot="heading"
-          class="flex-heading"
-        >
+        <h1 slot="heading" class="flex-heading">
           <svg-icon
             v-if="datasetLocked"
             class="mr-8"
@@ -16,13 +11,11 @@
             name="icon-lock-filled"
             height="24"
             width="24"
-          />Dataset Publishing
+          />
+          Dataset Publishing
         </h1>
       </bf-rafter>
-      <bf-stage
-        ref="bfStage"
-        slot="stage"
-      >
+      <bf-stage ref="bfStage" slot="stage">
         <data-card
           v-if="isChecklistDimissed === false && hasManagerPermissions"
           class="mb-32 grey compact"
@@ -65,7 +58,8 @@
               }
             }"
           >
-            provide a detailed overview of your dataset and outline your findings and analysis for others.
+            provide a detailed overview of your dataset and outline your
+            findings and analysis for others.
           </checklist-item>
 
           <checklist-item
@@ -131,31 +125,30 @@
               link your ORCID iD to distinguish yourself from other researchers
             </template>
             <template v-else>
-              link the dataset owner's ORCID iD to distinguish themselves from other researchers
+              link the dataset owner's ORCID iD to distinguish themselves from
+              other researchers
             </template>
           </checklist-item>
-
         </data-card>
-        <hr>
+        <hr />
 
         <dataset-settings-ignore-files />
 
-        <hr>
+        <hr />
 
         <dataset-settings-doi ref="dataciteDoi" />
 
-        <hr>
+        <hr />
 
         <dataset-settings-contributors ref="inputAddContributor" />
 
-        <hr>
+        <div v-if="isOwner">
+          <hr />
 
-        <owner-orcid
-          ref="orcidId"
-          @open-orcid="openORCID"
-        />
+          <owner-orcid ref="orcidId" @open-orcid="openORCID" />
 
-        <hr>
+          <hr />
+        </div>
 
         <dataset-settings-publishing
           :orcid-api-url="getORCIDApiUrl"
@@ -164,19 +157,17 @@
       </bf-stage>
     </template>
     <template v-else>
-      <bf-empty-page-state
-        class="empty"
-      >
+      <bf-empty-page-state class="empty">
         <img
           src="/static/images/illustrations/illo-collaboration.svg"
           height="240"
           width="247"
           alt="Teams illustration"
-        >
-        <div
-          class="copy"
-        >
-          <h2>You don't have permission to manage publishing for this dataset.</h2>
+        />
+        <div class="copy">
+          <h2>
+            You don't have permission to manage publishing for this dataset.
+          </h2>
           <p>Only dataset managers can access this page.</p>
         </div>
       </bf-empty-page-state>
@@ -199,72 +190,80 @@ import Request from '@/mixins/request/index'
 import { mapGetters, mapState, mapActions } from 'vuex'
 import { pathOr } from 'ramda'
 
-  export default {
-    name: 'BfPublishingSettings',
+export default {
+  name: 'BfPublishingSettings',
 
-    components: {
-      DataCard,
-      ChecklistItem,
-      LockedBanner,
-      BfRafter,
-      DatasetSettingsIgnoreFiles,
-      DatasetSettingsDoi,
-      DatasetSettingsPublishing,
-      OwnerOrcid,
-      DatasetSettingsContributors,
-      BfEmptyPageState
+  components: {
+    DataCard,
+    ChecklistItem,
+    LockedBanner,
+    BfRafter,
+    DatasetSettingsIgnoreFiles,
+    DatasetSettingsDoi,
+    DatasetSettingsPublishing,
+    OwnerOrcid,
+    DatasetSettingsContributors,
+    BfEmptyPageState
+  },
+
+  mixins: [Request],
+
+  data() {
+    return {
+      isChecklistDimissed: false,
+      loadingOrcid: false,
+      deleteOrcidDialogVisible: false
+    }
+  },
+
+  computed: {
+    ...mapGetters([
+      'getPermission',
+      'datasetLocked',
+      'datasetOwner',
+      'datasetOwnerHasOrcidId',
+      'hasFeature'
+    ]),
+
+    ...mapState([
+      'profile',
+      'dataset',
+      'datasetDoi',
+      'datasetContributors',
+      'datasetDescription',
+      'isDatasetOwner',
+      'datasetBanner',
+      'config',
+      'userToken'
+    ]),
+
+    /**
+     * Compute if the current user is the
+     * owner of the dataset
+     * @returns {Boolean}
+     */
+    isOwner: function() {
+      return this.dataset.owner === this.profile.id
     },
 
-    mixins: [
-      Request
-    ],
+    /**
+     * Retrieves URL for ORCID redirect, based on environment
+     * @returns {String}
+     */
+    getORCIDUrl: function() {
+      const url = pathOr('', ['config', 'ORCIDUrl'])(this)
 
-    data() {
-      return {
-        isChecklistDimissed: false,
-        loadingOrcid: false,
-        deleteOrcidDialogVisible: false
+      if (!url) {
+        return ''
       }
+      return url
     },
-
-    computed: {
-      ...mapGetters([
-        'getPermission',
-        'datasetLocked',
-        'datasetOwner',
-        'datasetOwnerHasOrcidId',
-        'hasFeature'
-      ]),
-
-      ...mapState([
-        'dataset',
-        'datasetDoi',
-        'datasetContributors',
-        'datasetDescription',
-        'isDatasetOwner',
-        'datasetBanner',
-        'config',
-        'userToken'
-      ]),
-
-      /**
-       * Retrieves URL for ORCID redirect, based on environment
-       * @returns {String}
-       */
-      getORCIDUrl: function() {
-        const url = pathOr('', ['config', 'ORCIDUrl'])(this)
-
-        if (!url) {
-          return ''
-        }
-        return url
-      },
 
     /**
      * Retrieves the API URL for adding ORCID
      * @returns {String}
      */
-      getORCIDApiUrl: function() {
+    getORCIDApiUrl: function() {
       const url = pathOr('', ['config', 'apiUrl'])(this)
 
       if (!url) {
@@ -285,7 +284,7 @@ import { pathOr } from 'ramda'
     /**
      * Compute if the user has permission to see the settings page
      * @returns {Boolean}
-    */
+     */
     hasPermission: function() {
       return this.getPermission('manager')
     },
@@ -293,13 +292,12 @@ import { pathOr } from 'ramda'
     /**
      * Compute if the user has at least manager permissions
      * @returns {Boolean}
-    */
+     */
     hasManagerPermissions: function() {
       return this.datasetRole !== 'viewer'
         ? this.getPermission('manager')
         : false
     },
-
 
     /**
      * Compute if the dataset has a DOI
@@ -357,7 +355,7 @@ import { pathOr } from 'ramda'
      */
     hasContributors: function() {
       return this.datasetContributors.length > 0
-    },
+    }
   },
 
   watch: {
@@ -366,54 +364,56 @@ import { pathOr } from 'ramda'
      * to scroll into view for right items
      * @param {String} val
      */
-  '$route.query.focusInput': {
-    handler: function(val) {
-      if (val === 'dataciteDoi') {
-        this.$nextTick(() => {
-        this.$refs.dataciteDoi.$el.scrollIntoView()
-        })
-      }
-      if (val === 'orcidId') {
+    '$route.query.focusInput': {
+      handler: function(val) {
+        if (val === 'dataciteDoi') {
+          this.$nextTick(() => {
+            this.$refs.dataciteDoi.$el.scrollIntoView()
+          })
+        }
+        if (val === 'orcidId') {
           this.$nextTick(() => {
             this.$refs.orcidId.$el.scrollIntoView()
-        })
-      }
-      if (val === 'inputAddContributor') {
-        this.$nextTick(() => {
-        this.$refs.inputAddContributor.$el.scrollIntoView()
-        })
-      }
-    },
+          })
+        }
+        if (val === 'inputAddContributor') {
+          this.$nextTick(() => {
+            this.$refs.inputAddContributor.$el.scrollIntoView()
+          })
+        }
+      },
       immediate: true
+    }
   },
-},
 
   methods: {
-    ...mapActions([
-      'updateProfile'
-    ]),
-
+    ...mapActions(['updateProfile']),
 
     /**
      * Logic to connect to user's ORCID
      */
     openORCID: function() {
-      this.oauthWindow = window.open(this.getORCIDUrl, "_blank", "toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500");
+      this.oauthWindow = window.open(
+        this.getORCIDUrl,
+        '_blank',
+        'toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500'
+      )
       const self = this
       window.addEventListener('message', function(event) {
         this.oauthCode = event.data
         if (this.oauthCode !== '') {
-           if (!self.getORCIDApiUrl) {
+          if (!self.getORCIDApiUrl) {
             return
           }
 
-          self.sendXhr(self.getORCIDApiUrl, {
-            method: 'POST',
-            body: {
-                "authorizationCode": this.oauthCode
+          self
+            .sendXhr(self.getORCIDApiUrl, {
+              method: 'POST',
+              body: {
+                authorizationCode: this.oauthCode
               }
             })
-            .then((response) => {
+            .then(response => {
               // response logic goes here
               self.oauthInfo = response
 
@@ -421,7 +421,6 @@ import { pathOr } from 'ramda'
                 ...self.profile,
                 orcid: self.oauthInfo
               })
-
             })
             .catch(self.handleXhrError.bind(this))
         }
@@ -429,15 +428,15 @@ import { pathOr } from 'ramda'
     },
 
     /**
-      * Compute checklist icon based on prop
-      * @param {Boolean} prop
-      * @returns {String}
-    */
+     * Compute checklist icon based on prop
+     * @param {Boolean} prop
+     * @returns {String}
+     */
     computeChecklistIcon: function(prop = false) {
       return prop ? 'icon-done-check-circle' : 'icon-info'
     }
-  },
   }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -457,13 +456,11 @@ import { pathOr } from 'ramda'
   }
 
   p {
-    color: #71747C;
+    color: #71747c;
     font-size: 14px;
     line-height: 16px;
     text-align: center;
     margin-bottom: 16px;
   }
-
 }
-
 </style>
