@@ -30,7 +30,7 @@ You can also run `nvm use` which will use the node version defined in the .nvmrc
 
 ## Development server
 
-Serve local files with hot reload at localhost:3000.
+Serve the local files with hot reload at localhost:3000.
 
 ### Development API
 
