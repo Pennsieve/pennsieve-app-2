@@ -192,7 +192,7 @@ const isAuthorized = (to, from, next) => {
     if (destination && destination.name !== 'page-not-found') {
       next(`/?redirectTo=${destination}`)
     } else {
-      next('/
+      next('/')
     }
   } else if (token && to.name === 'home' && savedOrgId) {
     next(`/${savedOrgId}/datasets`)
