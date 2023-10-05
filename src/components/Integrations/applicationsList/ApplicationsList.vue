@@ -1,12 +1,13 @@
 <template>
-  <bf-page class="integrations-list">
+  <bf-page class="applications-list">
     <bf-stage slot="stage" element-loading-background="transparent">
       <div class="addIntegrationContainer">
         <div class="description">
           <p class="mb-16">
-            Webhooks provide mechanisms to notify external applications of
-            events that happen on the Pennsieve platform, such as "File
-            Uploaded", or "Description updated".
+            Applications support actions on various entities on the platform
+            such as "Files", "Records", and "Datasets". Registered applications
+            can be triggered from the action-menu associated with the targeted
+            entities.
 
             <a
               href="https://docs.pennsieve.io/docs/preventing-files-from-being-included-during-publishing"
@@ -19,14 +20,13 @@
 
         <div class="reg-button">
           <bf-button v-if="hasAdminRights" @click="openAddIntegration">
-            Register Webhook
+            Register Application
           </bf-button>
         </div>
       </div>
-
       <div v-if="integrations.length > 0" class="integration-list">
         <integration-list-item
-          v-for="integration in filteredWebhooks"
+          v-for="integration in filteredApplications"
           :key="integration.id"
           :integration="integration"
           @open-remove-integration="openDeleteIntegrationDialog"
@@ -65,7 +65,7 @@
     <add-edit-integration-dialog
       :visible.sync="addEditIntegrationDialogVisible"
       :integration-edit.sync="integrationEdit"
-      integrationType="Webhook"
+      integrationType="Application"
       @add-integration="onAddIntegrationConfirm"
       @edit-integration="onEditIntegrationConfirm"
     />
@@ -101,7 +101,7 @@ import DeleteApiKey from '../../my-settings/windows/DeleteApiKey'
 import IntegrationApiKeyDetails from '../integrationApiKeyDetails'
 
 export default {
-  name: 'IntegrationsList',
+  name: 'ApplicationsList',
 
   components: {
     IntegrationApiKeyDetails,
@@ -136,11 +136,10 @@ export default {
   computed: {
     ...mapGetters(['activeOrganization', 'userToken', 'config', 'hasFeature']),
 
-    filteredWebhooks: function() {
+    filteredApplications: function() {
       let filteredArray = this.integrations.filter(
-        x => !x.customTargets || x.customTargets.length == 0
+        x => x.customTargets && x.customTargets.length > 0
       )
-
       return filteredArray
     },
 
@@ -244,11 +243,45 @@ export default {
      * @param {Object} integration
      */
     onAddIntegrationConfirm: function(integration) {
-      let eventTargets = []
-      for (const [key, value] of Object.entries(integration.eventTypeList)) {
-        if (value) {
-          eventTargets.push(key)
+      let customTargets = {}
+      for (const [key, value] of Object.entries(integration.customTargets)) {
+        switch (value.target) {
+          case 'DATASET':
+            customTargets.DATASET = null
+            break
+          case 'PACKAGE':
+            if (!('PACKAGE' in customTargets)) {
+              customTargets.PACKAGE = []
+            }
+            customTargets.PACKAGE.push(value.filter)
+            break
+          case 'PACKAGES':
+            if (!('PACKAGES' in customTargets)) {
+              customTargets.PACKAGES = []
+            }
+            customTargets.PACKAGES.push(value.filter)
+            break
         }
+      }
+
+      let customTargetDTO = []
+      for (const [key, value] of Object.entries(customTargets)) {
+        let targetEntry = {
+          target: key
+        }
+        if (value && value.filter && value.filter.length > 0) {
+          switch (key) {
+            case 'PACKAGE':
+            case 'PACKAGES':
+              targetEntry.filter = {
+                packageFilter: {
+                  fileType: value
+                }
+              }
+              break
+          }
+        }
+        customTargetDTO.push(targetEntry)
       }
 
       let integrationDTO = {
@@ -260,8 +293,11 @@ export default {
         imageUrl: integration.imageUrl,
         isDefault: integration.isDefault,
         hasAccess: integration.integrationType === 'viewer' ? false : true,
-        targetEvents: eventTargets
+        customTargets: customTargetDTO,
+        targetEvents: ['CUSTOM']
       }
+
+      console.log(integrationDTO)
 
       this.createIntegration(integrationDTO).then(response => {
         let detailPopup = this.$refs.apiKeyDetails
@@ -289,7 +325,7 @@ export default {
 
 .empty {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -304,7 +340,6 @@ export default {
 }
 
 .description {
-  //margin-left: 8px;
   max-width: 500px;
 }
 
