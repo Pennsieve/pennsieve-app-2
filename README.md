@@ -10,7 +10,7 @@ You can install [Yarn](https://yarnpkg.com/en/docs/install) through the Homebrew
 
 `brew install yarn`
 
-If you ever use nvm or similar, you should exclude installing Node.js so that nvm’s version of Node.js is used.
+If you ever use nvm (node version manager) or similar, you should exclude installing Node.js so that nvm’s version of Node.js is used.
 
 `brew install yarn --ignore-dependencies`
 
