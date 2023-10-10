@@ -182,19 +182,17 @@ export default {
      */
     activeOrganization: {
       handler: function(val, oldVal) {
-        if (this.getDatasetsUrl && this.datasets.length === 0) {
-          this.fetchDatasets()
-          this.fetchDatasetPublishedData()
-          this.fetchCollections()
-          this.fetchIntegrations()
-        }
+        const oldOrgId = pathOr("NONE",['organization','id'],oldVal)
+        const newOrgId = pathOr("NONE",['organization','id'],val)
 
-        if (this.getDatasetTemplatesUrl && this.hasFeature('dataset_templates_feature')) {
-          this.fetchDatasetTemplates()
-        }
-
-        if (this.getDatasetStatusUrl) {
-          this.fetchDatasetStatuses()
+        // Only fetch Org assets if there is an actual change in organization and if the userToken is set.
+        if (this.userToken && oldOrgId !== newOrgId) {
+          this.setActiveOrgSynced()
+            .then(() => this.fetchDatasets())
+            .then(() => this.fetchDatasetPublishedData())
+            .then(() => this.fetchCollections())
+            .then(() => this.fetchIntegrations())
+            .then(() => this.fetchDatasetStatuses())
         }
       },
       immediate: true

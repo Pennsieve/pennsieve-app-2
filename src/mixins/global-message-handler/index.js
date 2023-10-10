@@ -415,7 +415,7 @@ export default {
       const newOrgIntId = propOr(1, 'intId', newOrg)
       const activeOrgId = pathOr(0, ['organization', 'id'], this.activeOrganization)
       // Do nothing if the user is trying to switch to the organization that is already active or if no userToken found
-      if (newOrgId === activeOrgId || !this.userToken) {
+      if (newOrgId === activeOrgId || !this.isOrgSynced) {
         return
       }
       // switch org in vue app

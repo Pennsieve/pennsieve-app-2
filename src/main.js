@@ -177,21 +177,22 @@ const router = new VueRouter({
 })
 sync(store, router)
 
-const isAuthorized = (to, from, next) => {
-  const token = Cookies.get('user_token')
-  const savedOrgId = Cookies.get('preferred_org_id')
-  const allowList = ['home', 'password', 'welcome', 'setup-profile', 'setup-profile-accept', 'verify-account','welcome-to-pennsieve', 'docs-login', 'jupyter-login','create-account']
-  if (allowList.indexOf(to.name) < 0 && !token) {
-    const destination = to.fullPath
-    if (destination && destination.name !== 'page-not-found') {
-      next(`/?redirectTo=${destination}`)
-    } else {
-      next('/')
-    }
-  } else if (token && to.name === 'home' && savedOrgId) {
-    next(`/${savedOrgId}/datasets`)
-  }
-}
+
+// const isAuthorized = (to, from, next) => {
+//   const token = Cookies.get('user_token')
+//   const savedOrgId = Cookies.get('preferred_org_id')
+//   const allowList = ['home', 'password', 'welcome', 'setup-profile', 'setup-profile-accept', 'verify-account','welcome-to-pennsieve', 'docs-login', 'jupyter-login','create-account']
+//   if (allowList.indexOf(to.name) < 0 && !token) {
+//     const destination = to.fullPath
+//     if (destination && destination.name !== 'page-not-found') {
+//       next(`/?redirectTo=${destination}`)
+//     } else {
+//       next('/')
+//     }
+//   } else if (token && to.name === 'home' && savedOrgId) {
+//     next(`/${savedOrgId}/datasets`)
+//   }
+// }
 
 // Top level routes allowList
 const topLevelRoutes = [
@@ -203,16 +204,56 @@ const topLevelRoutes = [
   'my-settings-container'
 ]
 
-router.beforeEach((to, from, next) => {
-  // ensure user is authorized to use the app
-  isAuthorized(to, from, next)
+// Users should be able to access the following routes without authentication
+const allowList = [
+  'home',
+  'password',
+  'welcome',
+  'setup-profile',
+  'setup-profile-accept',
+  'verify-account',
+  'welcome-to-pennsieve',
+  'docs-login',
+  'jupyter-login',
+  'create-account']
 
-    // Store the last route for history
-  if (from.name && from.name !== 'viewer') {
-    store.dispatch('setLastRoute', from)
-  }
 
-  next()
+  router.beforeEach((to, from, next) => {
+    // ensure user is authorized to use the app
+
+    if (allowList.indexOf(to.name) >= 0) {
+        // Support Unauthenticated Access for AllowList Routes
+        next()
+    } else {
+        // Requires Authenticated Access
+
+        const token = Cookies.get('user_token')
+        const savedOrgId = Cookies.get('preferred_org_id')
+        const stateToken = store.state.userToken
+
+        if (token && !stateToken) {
+            console.log('Update token in beforeEach')
+            store.dispatch('updateUserToken', token)
+        }
+
+        if (!token) {
+            // Not authenticated --> Route to login with optional redirect after login.
+            const destination = to.fullPath
+            if (destination && destination.name !== 'page-not-found') {
+                next(`/?redirectTo=${destination}`)
+            } else {
+                next('/')
+            }
+        } else {
+            // Is Authenticated --> Route to destination, or Dataset Overview if route is login route.
+
+            if (token && to.name === 'home' && savedOrgId) {
+                next(`/${savedOrgId}/datasets`)
+            } else {
+                next()
+            }
+        }
+    }
 })
 
 router.afterEach((to, from) => {
