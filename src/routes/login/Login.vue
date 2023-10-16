@@ -90,7 +90,6 @@
     </div>
 
     <div class="org-section">
-      <img ref="img" src="/static/logos/nih-logo.png" alt="NIH" class="logo" />
       <img
         ref="img"
         src="/static/logos/psom_logo_blue.svg"
