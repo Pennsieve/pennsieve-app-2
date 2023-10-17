@@ -318,7 +318,7 @@ export default Vue.component('bf-login', {
     },
 
     /**
-     * Handles successful login response
+     * Handles successful login response.
      * @param {Object} response
      */
      handleLoginSuccess: function(user) {
