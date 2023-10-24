@@ -169,13 +169,6 @@ import Request from '@/mixins/request'
 export default {
   name: 'SetupProfile',
 
-  props: {
-    // setupNewUser: {
-    //   type: Boolean,
-    //   default: false
-    // },
-  },
-
   components: {
     BfButton
   },
