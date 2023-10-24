@@ -663,7 +663,14 @@ const routes = [
         path: 'accept/:username/:password',
         components: {
           stage: SetupProfile
-        }
+        },
+      },
+      {
+        name: 'complete-profile-accept',
+        path: 'complete/:username/:password',
+        components: {
+          stage: SetupProfile
+        },
       },
       {
         name: 'verify-account',
