@@ -10,7 +10,11 @@
     <dialog-body>
       <div class="flex">
         <h2>Run the Custom Event on {{ totalFiles }} {{ headline }}</h2>
-        <el-select v-model="value" placeholder="Select">
+        <el-select
+          v-model="value"
+          placeholder="Select"
+          @change="onSelect(value)"
+        >
           <el-option
             v-for="(item, i) in options"
             :key="i"
@@ -45,6 +49,7 @@ import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
 import DialogBody from '../../../shared/dialog-body/DialogBody.vue'
 import Request from '../../../../mixins/request/index'
 import EventBus from '../../../../utils/event-bus'
+import { pathOr } from 'ramda'
 
 import { mapGetters, mapState } from 'vuex'
 
@@ -61,26 +66,35 @@ export default {
 
   props: {
     selectedFiles: {
-      type: Array
+      type: Array,
+      default: () => {}
     },
     callingFromDeleted: {
       type: Boolean,
       default: false
     },
     selectedDeletedFiles: {
-      type: Array
+      type: Array,
+      default: () => {}
     }
   },
   data: function() {
     return {
       visible: false,
       options: [],
-      value: ''
+      value: '',
+      selectedApplication: {}
     }
   },
 
   computed: {
-    ...mapGetters(['userToken', 'config', 'dataset', 'activeOrganization']),
+    ...mapGetters([
+      'userToken',
+      'config',
+      'dataset',
+      'activeOrganization',
+      'userToken'
+    ]),
     ...mapState('integrationsModule', ['integrations']),
     /**
      * Checks for whether submit action should be allowed
@@ -131,6 +145,11 @@ export default {
   },
 
   methods: {
+    onSelect: function(value) {
+      this.selectedApplication = this.integrations.find(
+        integration => integration.name === value
+      )
+    },
     /**
      * Access integrations from global state and format options for input select
      */
@@ -152,27 +171,30 @@ export default {
     closeDialog: function() {
       this.visible = false
     },
+
     /**
      * Makes API Call to run custom event on target
      */
+
     runCustomEvent: function() {
-      // const fileIds = this.selectedFiles.map(item => item.content.id)
-      const url = `https://api.pennsieve.net/datasets/N:dataset:e2eaa76a-e0e0-4f25-97a8-6fa2bf6dd83f/event`
-      const message = JSON.stringify({
-        organizationId: `${this.activeOrganization.organization.id}`,
-        datasetId: `${this.dataset.content.id}`,
-        eventCategory: 'CATEGORY',
-        eventType: 'CUSTOM'
+      const url = `${this.config.api2Url}/integrations`
+
+      const packageIds = this.selectedFiles.map(file => {
+        return pathOr('', ['content', 'id'], file)
       })
+
+      const body = {
+        applicationId: this.selectedApplication.id,
+        datasetId: pathOr('', ['content', 'id'], this.dataset),
+        packageIds: packageIds,
+        params: {} // intentionally passing an empty object - params is a future feature
+      }
       this.sendXhr(url, {
         method: 'POST',
         header: {
-          Authorization: `bearer ${this.userToken}`
+          Authorization: `Bearer ${this.userToken}`
         },
-        body: {
-          message: message,
-          eventType: 'CUSTOM'
-        }
+        body: body
       })
         .then(response => {
           EventBus.$emit('toast', {
@@ -185,6 +207,13 @@ export default {
         })
         .catch(response => {
           this.handleXhrError(response)
+          EventBus.$emit('toast', {
+            detail: {
+              msg: 'Sorry! There was an issue initiating your event',
+              type: 'error'
+            }
+          })
+          this.closeDialog()
         })
     }
   }
