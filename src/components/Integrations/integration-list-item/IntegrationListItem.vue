@@ -13,28 +13,18 @@
           {{isPrivateStr}}
         </div>
       </el-col>
+<!--      <el-col-->
+<!--        :sm="8"-->
+<!--      >-->
+
+<!--      </el-col>-->
+<!--      <el-col-->
+<!--        :sm="8"-->
+<!--      >-->
+<!--        {{ created }}-->
+<!--      </el-col>-->
       <el-col
         :sm="8"
-      >
-        <el-tooltip
-          popper-class="bf-tooltip"
-          :content="userName"
-          placement="top-start"
-          :open-delay="300"
-        >
-          <avatar
-            class="icon condensed"
-            :user="user"
-          />
-        </el-tooltip>
-      </el-col>
-      <el-col
-        :sm="8"
-      >
-        {{ created }}
-      </el-col>
-      <el-col
-        :sm="4"
         v-if="enableSwitch"
         class="activeSwitch"
       >
@@ -93,6 +83,22 @@
 
       </p>
     </el-row>
+    <el-row class="userIcon">
+
+      <el-tooltip
+        popper-class="bf-tooltip"
+        :content="userName"
+        placement="top-start"
+        :open-delay="300"
+      >
+        <avatar
+          class="icon condensed"
+          :user="user"
+        />
+      </el-tooltip>
+    </el-row>
+
+
 
   </div>
 
@@ -215,21 +221,35 @@ export default {
 @import '../../../assets/_variables.scss';
 
 .integration-menu {
+
   width: 24px;
 }
 
 .integration-list-item {
+  width: 230px;
+  height: 300px;
   border: 1px solid $gray_3;
-  margin: 0 0 16px 0;
-  padding:  16px 24px 8px 24px;
+  //margin: 0 0 16px 0;
+  margin: 0 8px 16px 8px;
+  //padding:  16px 24px 8px 24px;
   background-color: white;
   display:flex;
   flex-direction: column;
+
 }
+.info {
+  background: $purple_tint;
+  padding: 8px 16px;
+  height: 64px;
+
+}
+
 .integration-title {
   font-size: 16px;
-  margin-bottom: 8px;
+  margin: 16px 4px;
   color: black;
+  text-align: center;
+
 }
 
 .intergration-type {
@@ -243,10 +263,25 @@ export default {
   color: $gray_5;
   min-height: 3em;
   max-width: 500px;
+  margin: 0 8px;
+  overflow-wrap: break-word;
 }
 
 .list-item-col-spacer {
   padding-top: 32px;
+}
+
+.userIcon {
+
+  /* bottom: 0; */
+  height: 100%;
+  /* right: 0; */
+  /* place-self: flex-end; */
+  align-self: self-end;
+  /* flex-direction: column; */
+  display: flex;
+  flex-direction: column-reverse;
+  margin: 8px;
 }
 
 </style>

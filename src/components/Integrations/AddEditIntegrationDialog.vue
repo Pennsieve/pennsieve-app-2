@@ -14,7 +14,7 @@
     <dialog-body>
       <!-- Step 1 -->
       <el-form
-        v-show="shouldShow(1)"
+        v-show="shouldShow(1,'All')"
         ref="integrationFormStep1"
         :model="integration"
         :rules="rules"
@@ -77,7 +77,7 @@
 
       <!-- Step 2 -->
       <div class="form-container"
-        v-show="shouldShow(2)">
+        v-show="shouldShow(2, 'All')">
         <el-form
           ref="integrationFormStep2"
           :model="integration"
@@ -153,11 +153,11 @@
         </el-form>
       </div>
 
-      <!-- Step 3 -->
+      <!-- Step 3 (Webhook) -->
       <div class="form-container"
-           v-show="shouldShow(3)">
+           v-show="shouldShow(3, 'Webhook')">
         <el-form
-          ref="integrationFormStep3">
+          ref="integrationFormStep3a">
 
           <el-form-item prop="triggers">
             <template slot="label">
@@ -230,6 +230,67 @@
         </el-form>
       </div>
 
+      <!-- Step 3 (Application) -->
+      <div class="form-container"
+           v-show="shouldShow(3, 'Application')">
+
+        <div>
+          The application will be available as an action for the selected targets.
+          Optionally, you can provide a filter to restrict objects that can invoke the application.
+          You can select the same target multiple times with different filters.
+          Valid targets include: Dataset, File, and Files.
+          <br><br>
+
+          <b>Select targets</b> <span class="label-helper">required</span>
+        </div>
+
+        <el-form
+          ref="integrationFormStep3b"
+          :model="integration"
+          :rules="rules">
+
+          <el-form-item prop="customTargets">
+
+            <div v-for="(item, index) in integration.customTargets" class="targetOptions">
+              <el-select
+                ref="enum"
+                v-model="item.target"
+                class="input-property target"
+                filterable
+              >
+                <el-option
+                  v-for="item in customTargets"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              <el-select
+                v-show="showFilter(item.target)"
+                ref="enum"
+                v-model="item.filter"
+                class="input-property filter"
+                filterable
+              >
+                <el-option
+                  v-for="item in fileTypes"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              <el-button icon="el-icon-minus" size="mini" @click="removeCustomTarget(index)"></el-button>
+
+
+            </div>
+
+
+          </el-form-item>
+          <el-button icon="el-icon-plus" size="mini" @click="addCustomTarget"></el-button>
+
+        </el-form>
+      </div>
+
     </dialog-body>
 
     <!-- Overview buttons -->
@@ -265,7 +326,7 @@ import GetDataType from '../../mixins/data-type'
 import AutoFocus from '../../mixins/auto-focus'
 import checkUniqueName from '../../mixins/check-unique-names'
 import CharacterCountInput from '../shared/CharacterCountInput/CharacterCountInput.vue'
-
+import FileTypeMapper from '../../mixins/FileTypeMapper'
 
 /**
  * Returns the default values for a property
@@ -283,6 +344,7 @@ const defaultIntegration = () => (
     isPublic: false,
     name: '',
     integrationType: 'viewer',
+    customTargets: [{target: "DATASET", filter: null}],
     eventTypeList: {
       METADATA: false,
       STATUS: false,
@@ -310,10 +372,12 @@ export default {
     AutoFocus,
     checkUniqueName,
     GetDataType,
+    FileTypeMapper
   ],
 
   props: {
     visible: Boolean,
+    integrationType: String,
     integrationEdit: {
       type: Object,
       default: function(){
@@ -322,6 +386,10 @@ export default {
     },
   },
   mounted: function() {
+    this.fileTypes.unshift({
+      value: '',
+      label: '(No Filter)'
+    })
   },
   data: function() {
     return {
@@ -345,6 +413,9 @@ export default {
         ],
         apiUrl: [
           { required: true, validator: this.validateApiUrl, trigger: 'false' },
+        ],
+        customTargets: [
+          { required: true, validator: this.validateCustomTargets, trigger: 'false'}
         ]
       },
       subscriptionKeys: [
@@ -363,6 +434,20 @@ export default {
         {
           value: 'manager',
           label: 'Manager'
+        }
+      ],
+      customTargets: [
+        {
+          value: 'DATASET',
+          label: 'Dataset'
+        },
+        {
+          value: 'PACKAGE',
+          label: 'File'
+        },
+        {
+          value: 'PACKAGES',
+          label: 'Files'
         }
       ],
     }
@@ -385,7 +470,7 @@ export default {
      */
     createText: function() {
       let createText = 'Add Integration'
-      if (this.integrationEdit) {
+      if (this.editingIntegration) {
         createText = 'Update Integration'
       }
 
@@ -436,6 +521,10 @@ export default {
   },
 
   methods: {
+
+    showFilter: function(target){
+      return target === "PACKAGE" || target === "PACKAGES"
+    },
     generateSecret: function() {
       this.integration.secret = this.generateId(16)
     },
@@ -449,10 +538,11 @@ export default {
     /**
      * Determines if tab content is active
      * @param {String} key
+     * @param {String} type
      * @returns {Boolean}
      */
-    shouldShow: function(key) {
-      return this.processStep === key
+    shouldShow: function(key, type) {
+      return this.processStep === key && (this.integrationType === type || type === "All")
     },
 
     /**
@@ -483,8 +573,12 @@ export default {
 
       this.autoFocus()
     },
-
-
+    addCustomTarget: function() {
+      this.integration.customTargets.push( {target: "Dataset", filter: ""})
+    },
+    removeCustomTarget: function(index) {
+      this.integration.customTargets.splice(index,1)
+    },
 
     /**
      * Closes the dialog
@@ -498,7 +592,8 @@ export default {
         this.integration = defaultIntegration()
         this.$refs.integrationFormStep1.resetFields()
         this.$refs.integrationFormStep2.resetFields()
-        this.$refs.integrationFormStep3.resetFields()
+        this.$refs.integrationFormStep3a.resetFields()
+        this.$refs.integrationFormStep3b.resetFields()
         this.$emit('update:integrationEdit', {})
       }, 500)
     },
@@ -508,6 +603,7 @@ export default {
       if (this.processStep === 0) {
         this.closeDialog()
       }
+
       if (this.processStep === 4) {
         this.createIntegration()
       }
@@ -531,6 +627,24 @@ export default {
           // switch tab views
           isValid = false
           return this.processStep = 2
+        }
+
+      })
+
+      this.$refs.integrationFormStep3a.validate((valid) => {
+        if (!valid) {
+          // switch tab views
+          isValid = false
+          return this.processStep = 3
+        }
+
+      })
+
+      this.$refs.integrationFormStep3b.validate((valid) => {
+        if (!valid) {
+          // switch tab views
+          isValid = false
+          return this.processStep = 3
         }
 
       })
@@ -586,6 +700,16 @@ export default {
       }
       callback()
     },
+    validateCustomTargets: function(rule, value, callback) {
+      // Check unique rows
+      const uniques = new Set(value.map(item => item.target + item.filter))
+      if ([...uniques].length !== value.length) {
+        callback(new Error(`Please remove duplicate entries`))
+      }
+      callback()
+
+
+    },
     dec2hex: function(dec) {
       return dec.toString(16).padStart(2, "0")
     },
@@ -615,6 +739,15 @@ export default {
   .el-select {
     &.input-property {
       width: 100%;
+
+      &.target {
+        max-width: 200px;
+        margin-right: 8px;
+      }
+
+      &.filter {
+        margin-right: 8px;
+      }
     }
   }
 
@@ -642,6 +775,12 @@ export default {
   .el-checkbox__label, .el-form-item__label {
     color: $gray_6;
     font-weight: 400;
+  }
+
+  .targetOptions {
+    flex-direction: row;
+    display:flex;
+    margin: 8px 0;
   }
 
   .disabled-label {

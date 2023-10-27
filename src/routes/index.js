@@ -44,8 +44,10 @@ const PublishingProposalsList = () => import ('@/components/Publishing/Publishin
 /**
  * Integrations Components
  */
- const Integrations = () => import('@/routes/Integrations/Integrations.vue')
- const IntegrationsList = () => import ('@/components/Integrations/IntegrationsList/IntegrationsList.vue')
+const Integrations = () => import('@/routes/Integrations/Integrations.vue')
+const IntegrationsList = () => import ('@/components/Integrations/IntegrationsList/IntegrationsList.vue')
+const ApplicationsList = () => import ('@/components/Integrations/applicationsList/ApplicationsList.vue')
+
 
 
 /**
@@ -202,21 +204,33 @@ const routes = [
     ]
   },
   {
+    name: 'integrations',
     path: '/:orgId/integrations',
     components: {
       page: Integrations,
       navigation: BfNavigation
     },
+    redirect: {
+      name: 'applications'
+    },
     props: true,
     children: [
       {
-        name: 'integrations-list',
-        path: '',
+        name: 'applications',
+        path: 'applications',
         components: {
-          stage: IntegrationsList
+          stage: ApplicationsList,
         },
         props: true
-      }
+      },
+      {
+        name: 'webhooks',
+        path: 'webhooks',
+        components: {
+          stage: IntegrationsList,
+        },
+        props: true
+      },
     ]
   },
   {
@@ -343,51 +357,6 @@ const routes = [
           stage: ConceptInstance
         }
       },
-      // {
-      //   path: 'graph-management',
-      //   components: {
-      //     stage: GraphManagementRoute
-      //   },
-      //   props: true,
-      //   children: [
-          // {
-          //   path: '',
-          //   name: 'graph-management',
-          //   props: true,
-          //   components: {
-          //     stage: GraphManagement
-          //   },
-          //   redirect: 'models',
-          //   children: [
-          //     {
-          //       path: 'models',
-          //       name: 'models',
-          //       props: true,
-          //       components: {
-          //         stage: Models
-          //       }
-          //     },
-          //     {
-          //       path: 'relationship-types',
-          //       name: 'relationship-types',
-          //       props: true,
-          //       components: {
-          //         stage: RelationshipTypes
-          //       }
-          //     }
-          //   ]
-          // },
-          // {
-          //   path: 'model-templates',
-          //   name: 'model-templates',
-          //   props: true,
-          //   components: {
-          //     stage: ModelTemplates
-          //   }
-          // },
-        //
-        // ]
-      // },
       {
         name: 'dataset-collaborators',
         path: 'collaborators',
@@ -694,7 +663,14 @@ const routes = [
         path: 'accept/:username/:password',
         components: {
           stage: SetupProfile
-        }
+        },
+      },
+      {
+        name: 'complete-profile-accept',
+        path: 'complete/:username/:password',
+        components: {
+          stage: SetupProfile
+        },
       },
       {
         name: 'verify-account',

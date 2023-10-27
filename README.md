@@ -16,7 +16,7 @@ If you ever use nvm or similar, you should exclude installing Node.js so that nv
 
 ### Node
 
-Use node version `14.21.1` to run the app. You can use [nvm](https://github.com/creationix/nvm) to install or change version.
+Use node version `14.21.1` to run the app. You can use [nvm](https://github.com/creationix/nvm) to install or change version
 
 With nvm installed: `nvm install 14.21.1`
 

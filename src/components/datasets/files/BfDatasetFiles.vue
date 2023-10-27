@@ -52,6 +52,7 @@
               :multiple-selected="multipleSelected"
               @move="showMove"
               @delete="showDelete"
+              @custom-actions-click="showCustomActionsDialog"
               @process="processFile"
               @copy-url="getPresignedUrl"
               @selection-change="setSelectedFiles"
@@ -101,6 +102,11 @@
       @file-delete="onDelete"
     />
 
+    <custom-actions-dialog
+      ref="customActionsDialog"
+      :selected-files="selectedFiles"
+    />
+
     <bf-drop-info
       v-if="showDropInfo"
       :show-drop-info.sync="showDropInfo"
@@ -128,6 +134,7 @@ import BfRafter from '../../shared/bf-rafter/BfRafter.vue'
 import BfButton from '../../shared/bf-button/BfButton.vue'
 import BfPackageDialog from './bf-package-dialog/BfPackageDialog.vue'
 import BfDeleteDialog from './bf-delete-dialog/BfDeleteDialog.vue'
+import CustomActionsDialog from './custom-actions-dialog/CustomActionsDialog.vue'
 import BfMoveDialog from './bf-move-dialog/BfMoveDialog.vue'
 import BreadcrumbNavigation from './BreadcrumbNavigation/BreadcrumbNavigation.vue'
 import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
@@ -153,6 +160,7 @@ export default {
     BfEmptyPageState,
     BfPackageDialog,
     BfDeleteDialog,
+    CustomActionsDialog,
     BfMoveDialog,
     BfDropInfo,
     BfUploadInfo,
@@ -549,6 +557,13 @@ export default {
      */
     showDelete: function() {
       this.$refs.deleteDialog.visible = true
+    },
+
+    /**
+     * Show customActions dialog
+     */
+    showCustomActionsDialog: function() {
+      this.$refs.customActionsDialog.visible = true
     },
 
     /**
