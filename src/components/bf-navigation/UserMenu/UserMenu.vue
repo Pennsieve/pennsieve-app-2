@@ -90,6 +90,15 @@
           <ul>
             <li>
               <a
+                v-if="activeOrganizationId === 'add-nih-org-id-here'"
+                class="bf-menu-item"
+                href="https://docs.pennsieve.io/page/nih-pennsieve-terms-of-use"
+                target="_blank"
+              >
+                NIH Terms of Use
+              </a>
+              <a
+                v-else
                 class="bf-menu-item"
                 href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
                 target="_blank"
