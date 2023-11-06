@@ -48,7 +48,7 @@ You will need to copy the oauth property from src/site-config/dev.json to src/si
 
 `yarn build`
 
-### Build for production and view the bundle analyzer report
+### Build for production and view the bundle analyzer report.
 
 `yarn build --report`
 
