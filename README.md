@@ -44,7 +44,7 @@ You will need to copy the oauth property from src/site-config/dev.json to src/si
 
 ## Build
 
-### Build for production with minification
+### Build for production with minification.
 
 `yarn build`
 
