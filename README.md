@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Used to run the development server, build, and to test components.
+Used to run the development server, build, and to test components
 
 ### Install Yarn
 
