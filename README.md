@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Used to run the development server, build, and to test components.
+Used to run the development server, build, and to test components
 
 ### Install Yarn
 
@@ -44,11 +44,11 @@ You will need to copy the oauth property from src/site-config/dev.json to src/si
 
 ## Build
 
-### Build for production with minification
+### Build for production with minification.
 
 `yarn build`
 
-### Build for production and view the bundle analyzer report
+### Build for production and view the bundle analyzer report.
 
 `yarn build --report`
 
