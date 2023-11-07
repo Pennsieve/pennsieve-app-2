@@ -95,7 +95,7 @@
                 href="https://docs.pennsieve.io/page/pennsieve-terms-of-service-nih"
                 target="_blank"
               >
-                NIH Terms of Use
+                Terms of Use
               </a>
               <a
                 v-else
