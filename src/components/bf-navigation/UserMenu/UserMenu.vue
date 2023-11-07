@@ -90,6 +90,15 @@
           <ul>
             <li>
               <a
+                v-if="organizationName === 'NIH Intramural Research'"
+                class="bf-menu-item"
+                href="https://docs.pennsieve.io/page/pennsieve-terms-of-service-nih"
+                target="_blank"
+              >
+                Terms of Use
+              </a>
+              <a
+                v-else
                 class="bf-menu-item"
                 href="https://docs.pennsieve.io/page/pennsieve-terms-of-use"
                 target="_blank"
@@ -107,9 +116,7 @@
               </a>
             </li>
           </ul>
-
           <hr>
-
           <ul>
             <li>
               <router-link
