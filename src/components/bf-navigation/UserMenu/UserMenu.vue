@@ -90,9 +90,9 @@
           <ul>
             <li>
               <a
-                v-if="activeOrganizationId === 'add-nih-org-id-here'"
+                v-if="organizationName === 'NIH Intramural Research'"
                 class="bf-menu-item"
-                href="https://docs.pennsieve.io/page/nih-pennsieve-terms-of-use"
+                href="https://docs.pennsieve.io/page/pennsieve-terms-of-service-nih"
                 target="_blank"
               >
                 NIH Terms of Use
