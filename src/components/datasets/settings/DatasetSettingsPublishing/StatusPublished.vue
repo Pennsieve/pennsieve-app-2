@@ -4,6 +4,7 @@
       Request to publish a new version of your dataset to Pennsieve Discover.
     </p>
     <p class="sharing-blurb">This requires approval by the Publishing team.</p>
+    
     <div class="sharing-status mb-16">
       <p class="published-blurb">
         <svg-icon
