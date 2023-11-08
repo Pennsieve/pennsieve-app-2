@@ -2,11 +2,11 @@
   <el-dialog
     :visible.sync="visible"
     data-cy="bfDeleteDialog"
-    class="bf-delete-dialog simple"
+    class="bf-delete-dialog"
     :show-close="false"
     @close="closeDialog"
   >
-    <bf-dialog-header slot="title" />
+    <bf-dialog-header slot="title" title="Delete" />
 
     <dialog-body>
       <svg-icon
@@ -16,157 +16,147 @@
         width="32"
         color="#e94b4b"
       />
-      <template v-if="callingFromDeleted"
-      >
-      <!-- THIS SHOULD BE DISABLED FOR NOW-->
-      <h2>Delete {{ totalFiles }} {{ headline }}</h2>
-      <p>Delete {{ copy }}. This action cannot be undone. </p>
+      <template v-if="callingFromDeleted">
+        <!-- THIS SHOULD BE DISABLED FOR NOW-->
+        <h2>Delete {{ totalFiles }} {{ headline }}</h2>
+        <p>Delete {{ copy }}. This action cannot be undone.</p>
 
-      <div class="dialog-simple-buttons">
-        <bf-button
-          class="secondary"
-          data-cy="closeDeleteDialog"
-          @click="closeDialog"
-        >
-          Cancel
-        </bf-button>
-        <bf-button
-          class="red"
-          data-cy="deleteFiles"
-          @click="deletePermanently"
-        >
-          Delete
-        </bf-button>
-      </div>
+        <div class="dialog-simple-buttons">
+          <bf-button
+            class="secondary"
+            data-cy="closeDeleteDialog"
+            @click="closeDialog"
+          >
+            Cancel
+          </bf-button>
+          <bf-button
+            class="red"
+            data-cy="deleteFiles"
+            @click="deletePermanently"
+          >
+            Delete
+          </bf-button>
+        </div>
       </template>
       <template v-else>
-      <h2>Delete {{ totalFiles }} {{ headline }}</h2>
-      <p>{{ copy }} will be deleted permanently after 30 days. </p>
+        <h2>Delete {{ totalFiles }} {{ headline }}</h2>
+        <p>{{ copy }} will be deleted permanently after 30 days.</p>
 
-      <div class="dialog-simple-buttons">
-        <bf-button
-          class="secondary"
-          data-cy="closeDeleteDialog"
-          @click="closeDialog"
-        >
-          Cancel
-        </bf-button>
-        <bf-button
-          class="red"
-          data-cy="deleteFiles"
-          @click="deleteFiles"
-        >
-          Delete
-        </bf-button>
-      </div>
+        <div class="dialog-simple-buttons">
+          <bf-button
+            class="secondary"
+            data-cy="closeDeleteDialog"
+            @click="closeDialog"
+          >
+            Cancel
+          </bf-button>
+          <bf-button class="red" data-cy="deleteFiles" @click="deleteFiles">
+            Delete
+          </bf-button>
+        </div>
       </template>
     </dialog-body>
   </el-dialog>
 </template>
 
 <script>
-  import BfButton from '../../../shared/bf-button/BfButton.vue'
-  import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
-  import DialogBody from '../../../shared/dialog-body/DialogBody.vue'
-  import BfFileLabel from '../bf-file/BfFileLabel.vue'
-  import Request from '../../../../mixins/request/index'
+import BfButton from '../../../shared/bf-button/BfButton.vue'
+import BfDialogHeader from '../../../shared/bf-dialog-header/BfDialogHeader.vue'
+import DialogBody from '../../../shared/dialog-body/DialogBody.vue'
+import BfFileLabel from '../bf-file/BfFileLabel.vue'
+import Request from '../../../../mixins/request/index'
 
-  import { mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 
-  export default {
-    name: 'BfDeleteDialog',
+export default {
+  name: 'BfDeleteDialog',
 
-    components: {
-      BfDialogHeader,
-      DialogBody,
-      BfButton,
-      BfFileLabel
+  components: {
+    BfDialogHeader,
+    DialogBody,
+    BfButton,
+    BfFileLabel
+  },
+
+  mixins: [Request],
+
+  props: {
+    selectedFiles: {
+      type: Array
     },
+    callingFromDeleted: {
+      type: Boolean,
+      default: false
+    },
+    selectedDeletedFiles: {
+      type: Array
+    }
+  },
 
-    mixins: [
-      Request
-    ],
+  data: function() {
+    return {
+      visible: false
+    }
+  },
 
-    props: {
-      selectedFiles: {
-        type: Array
-      },
-      callingFromDeleted: {
-        type: Boolean,
-        default: false
-      },
-      selectedDeletedFiles: {
-        type: Array
+  computed: {
+    ...mapGetters(['userToken', 'config']),
+
+    /**
+     * Computes form URL based on type of action user is taking (rename vs creating)
+     * @returns {String}
+     */
+    deleteUrl: function() {
+      if (this.config.apiUrl && this.userToken) {
+        return `${this.config.apiUrl}/data/delete?api_key=${this.userToken}`
       }
     },
 
-    data: function() {
-      return {
-        visible: false
-      }
+    /**
+     * Compute total files
+     * @return {Number}
+     */
+    totalFiles: function() {
+      return this.selectedFiles.length
     },
 
-    computed: {
-      ...mapGetters([
-        'userToken',
-        'config'
-      ]),
-
-      /**
-       * Computes form URL based on type of action user is taking (rename vs creating)
-       * @returns {String}
-       */
-      deleteUrl: function() {
-        if (this.config.apiUrl && this.userToken) {
-          return `${this.config.apiUrl}/data/delete?api_key=${this.userToken}`
-        }
-      },
-
-      /**
-       * Compute total files
-       * @return {Number}
-       */
-      totalFiles: function() {
-        return this.selectedFiles.length
-      },
-
-      /**
-       * Compute headline based on total files
-       * @return {String}
-       */
-      headline: function() {
-        return this.totalFiles > 1 ? 'items' : 'item'
-      },
-
-      /**
-       * Compute copy based on total files
-       * @return {String}
-       */
-      copy: function() {
-        return this.totalFiles > 1 ? 'these items' : 'this item'
-      }
+    /**
+     * Compute headline based on total files
+     * @return {String}
+     */
+    headline: function() {
+      return this.totalFiles > 1 ? 'items' : 'item'
     },
 
-    watch: {
-      /**
-       * Watch file
-       */
-      file: function(file) {
-        if (Object.keys(file).length) {
-          this.packageForm.name = file.content.name
-        }
+    /**
+     * Compute copy based on total files
+     * @return {String}
+     */
+    copy: function() {
+      return this.totalFiles > 1 ? 'these items' : 'this item'
+    }
+  },
+
+  watch: {
+    /**
+     * Watch file
+     */
+    file: function(file) {
+      if (Object.keys(file).length) {
+        this.packageForm.name = file.content.name
       }
-    },
+    }
+  },
 
-    methods: {
-      //deletes files permenantly. NOTE: should have toast message that confirms
-      deletePermanently: function(){
-        const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
+  methods: {
+    //deletes files permenantly. NOTE: should have toast message that confirms
+    deletePermanently: function() {
+      const fileIds = this.selectedDeletedFiles.map(item => item.content.id)
 
-        this.sendXhr(this.deleteUrl, {
-          method: 'POST',
-          body: { things: fileIds }
-        })
+      this.sendXhr(this.deleteUrl, {
+        method: 'POST',
+        body: { things: fileIds }
+      })
         .then(response => {
           this.$emit('file-delete', response)
           const msg = 'File(s) permanently deleted.'
@@ -181,20 +171,20 @@
         .catch(response => {
           this.handleXhrError(response)
         })
-      },
-      /**
-       * Closes the dialog
-       */
-      closeDialog: function() {
-        this.visible = false
-      },
+    },
+    /**
+     * Closes the dialog
+     */
+    closeDialog: function() {
+      this.visible = false
+    },
 
-      deleteFiles: function() {
-        const fileIds = this.selectedFiles.map(item => item.content.id)
-        this.sendXhr(this.deleteUrl, {
-          method: 'POST',
-          body: { things: fileIds }
-        })
+    deleteFiles: function() {
+      const fileIds = this.selectedFiles.map(item => item.content.id)
+      this.sendXhr(this.deleteUrl, {
+        method: 'POST',
+        body: { things: fileIds }
+      })
         .then(response => {
           this.$emit('file-delete', response)
           this.closeDialog()
@@ -202,18 +192,18 @@
         .catch(response => {
           this.handleXhrError(response)
         })
-      }
     }
   }
+}
 </script>
 
 <style scoped lang="scss">
-  @import '../../../../assets/_variables.scss';
+@import '../../../../assets/_variables.scss';
 
-  .svg-icon {
-    color: $app-primary-color;
-  }
-  .dialog-body {
-    text-align: center
-  }
+.svg-icon {
+  color: $app-primary-color;
+}
+.dialog-body {
+  text-align: center;
+}
 </style>

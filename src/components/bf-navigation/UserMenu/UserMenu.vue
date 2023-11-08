@@ -116,9 +116,7 @@
               </a>
             </li>
           </ul>
-
           <hr>
-
           <ul>
             <li>
               <router-link
