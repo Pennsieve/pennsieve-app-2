@@ -95,6 +95,7 @@
 
 
     <div class="org-section">
+      <img ref="img" src="/static/logos/nih-logo.png" alt="NIH" class="logo" />
       <img
         ref="img"
         src="/static/logos/psom_logo_blue.svg"
@@ -317,7 +318,7 @@ export default Vue.component('bf-login', {
     },
 
     /**
-     * Handles successful login response
+     * Handles successful login response.
      * @param {Object} response
      */
      handleLoginSuccess: function(user) {
