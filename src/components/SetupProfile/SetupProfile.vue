@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div
-      v-if="!isUserSignInFailed"
+      v-if="!isUserSignInFailed && !isUserPasswordUpdated"
       class="login-wrap"
     >
       <h2 class="sharp-sans">
@@ -106,6 +106,27 @@
       </p>
     </div>
     <div
+      v-if="isUserPasswordUpdated"
+      class="login-wrap"
+    >
+      <h2 class="sharp-sans">
+        Account creation completed.
+      </h2>
+      <p> You successfully created your Pennsieve account. You can now log in with your email and password.</p>
+      <p> We hope you will be able to use the platform to manage your scientific data and publish your datasets to the public domain when you are ready! </p>
+      <p> Please feel free to reach out to our support team if you have any questions or suggestions on how to improve the platform. You can leave us messages directly from within the app.</p>
+      <div class="user-already-created-wrap">
+        <router-link
+          class="btn-back-to-sign-in"
+          :to="{name: 'home' }"
+        >
+          <bf-button>
+            Return to Login Page
+          </bf-button>
+        </router-link>
+      </div>
+    </div>
+    <div
       v-if="isUserSignInFailed"
       class="login-wrap"
     >
@@ -203,6 +224,7 @@ export default {
       isSavingProfile: false,
       isPasswordFormValid: false,
       user: {},
+      isUserPasswordUpdated: false,
       isUserSignInFailed: false
     }
   },
@@ -287,7 +309,8 @@ export default {
           }
         )
 
-        this.createUser(newUser.signInUserSession.accessToken.jwtToken)
+        await this.createUser(newUser.signInUserSession.accessToken.jwtToken, this.$route.name)
+
       } catch (error) {
         this.handleFailedUserCreation()
       }
@@ -297,10 +320,14 @@ export default {
      * Create the user on Pennsieve
      * @param {String} jwt
      */
-    async createUser(jwt) {
+    async createUser(jwt, routeName) {
       try {
+        let apiMethod = "POST"
+        if (routeName === "complete-profile-accept") {
+          apiMethod = "PUT"
+        }
         const user = await this.sendXhr(this.createUserUrl, {
-          method: 'POST',
+          method: apiMethod,
           header: {
             'Authorization': `bearer ${jwt}`
           },
@@ -310,7 +337,7 @@ export default {
             title: this.profileForm.jobTitle,
           }
         })
-        this.handleCreateUserSuccess(user, jwt)
+        this.handleCreateUserSuccess(user, jwt, routeName)
       } catch (error) {
         this.handleFailedUserCreation()
       }
@@ -322,7 +349,7 @@ export default {
      * @param {String} jwt
      *
      */
-    handleCreateUserSuccess: function(response, jwt) {
+    handleCreateUserSuccess: function(response, jwt, routeName) {
       this.isSavingProfile = false
       let loginBody = {
         token: jwt,
@@ -330,19 +357,24 @@ export default {
         firstTimeSignOn: true
       }
 
-      const orgId = response.orgIds[0]
-      const switchOrgUrl = `${this.config.apiUrl}/session/switch-organization?organization_id=${orgId}`
+      if (routeName === "setup-profile-accept") {
+        const orgId = response.orgIds[0]
+        const switchOrgUrl = `${this.config.apiUrl}/session/switch-organization?organization_id=${orgId}`
 
-      this.sendXhr(switchOrgUrl, {
-        method: 'PUT',
-        header: {
-          'Authorization': `Bearer ${jwt}`
-        }
-      })
-      .then(() => {
-        EventBus.$emit('login', loginBody)
-      })
-      .catch(this.handleFailedUserCreation.bind(this))
+        this.sendXhr(switchOrgUrl, {
+          method: 'PUT',
+          header: {
+            'Authorization': `Bearer ${jwt}`
+          }
+        })
+          .then(() => {
+            EventBus.$emit('login', loginBody)
+          })
+          .catch(this.handleFailedUserCreation.bind(this))
+      } else {
+        // set flag variable to toggle showing the "you succeeded" message with "continue to login" button
+        this.isUserPasswordUpdated = true
+      }
     },
 
     /**
@@ -385,7 +417,8 @@ export default {
         })
         })
     }
-  }
+  },
+
 }
 </script>
 
