@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <p class="sharing-blurb">
       Request to publish a new version of your dataset to Pennsieve Discover.
     </p>
