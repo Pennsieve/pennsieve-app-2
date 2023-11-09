@@ -14,65 +14,12 @@
           color="#000"
         />
         Published on {{ publishedDate }}
-        <a
-          target="_blank"
-          :href="discoverLink"
-          class="discover-link"
-        >
+        <a target="_blank" :href="discoverLink" class="discover-link">
           View on Discover
         </a>
       </p>
     </div>
-    <div v-if="hasCompletedChangelog">
-      <p>You have successfully saved the changelog and the dataset is ready to be submitted for review.</p>
-    </div>
-    <div v-else>
-      <p>NOTE: You have not yet saved a changelog file. Please consider completing and saving a changelog file below.</p>
-
-
-    <data-card
-      ref="changelogDataCard"
-      class="grey compact"
-      title="Changelog"
-      :is-expandable="true"
-      :padding="false"
-    >
-      <template slot="title-aux">
-        <button
-          v-if="isEditingMarkdown"
-          class="linked mr-8"
-          @click="isEditingMarkdown = false"
-        >
-          Cancel
-        </button>
-        <button
-          v-if="isEditingMarkdown"
-          class="linked"
-          @click="isSavingMarkdown = true"
-        >
-          Save
-        </button>
-        <button
-          v-else
-          slot="title-aux"
-          class="linked"
-          @click="isEditingMarkdown = true"
-        >
-          Update
-        </button>
-      </template>
-    <markdown-editor
-      ref="markdownEditor"
-      :value="changelogText"
-      :is-editing="isEditingMarkdown"
-      :is-saving="isSavingMarkdown"
-      :empty-state="changelogTextEmptyState"
-      :is-loading="isLoadingChangelog"
-      @save="onChangelogSave"
-    />
-    </data-card>
-    </div>
-    <br>
+    <br />
     <div class="published-btn-wrap mb-16">
       <submit-for-publication
         :has-dataset="true"
@@ -80,13 +27,15 @@
         :dataset-id="datasetId"
       />
     </div>
-    <p
-      v-if="!hasPublishingPermission"
-      class="sharing-blurb"
-    >
-      Editing capabilities such as releasing a new version or making a dataset private are restricted to owners only.
-      To change the owner of your dataset, please contact
-      <a :href="`mailto:${datasetOwnerEmail}?subject=Dataset Publishing Permissions`">
+    <p v-if="!hasPublishingPermission" class="sharing-blurb">
+      Editing capabilities such as releasing a new version or making a dataset
+      private are restricted to owners only. To change the owner of your
+      dataset, please contact
+      <a
+        :href="
+          `mailto:${datasetOwnerEmail}?subject=Dataset Publishing Permissions`
+        "
+      >
         {{ datasetOwnerName }}
       </a>
     </p>
@@ -94,117 +43,52 @@
 </template>
 
 <script>
-import {mapActions, mapGetters, mapState} from 'vuex'
+import { mapState } from 'vuex'
 import SubmitForPublication from './SubmitForPublication'
 import { PublicationTabs } from '../../../../utils/constants'
- // may need to change file path
-import DataCard from '../../../shared/DataCard/DataCard.vue'
-import MarkdownEditor from '../../../shared/MarkdownEditor/MarkdownEditor'
-import changelogDescriptionEmptyState from './changelog-description-empty-state'
 
 export default {
   components: {
-    SubmitForPublication,
-    DataCard,
-    MarkdownEditor,
+    SubmitForPublication
   },
   props: {
     datasetId: {
       type: String,
-      required: true,
+      required: true
     },
     discoverLink: {
       type: String,
-      required: true,
+      required: true
     },
     canPublish: {
       type: Boolean,
-      required: true,
+      required: true
     },
     hasPublishingPermission: {
       type: Boolean,
-      required: true,
+      required: true
     },
     datasetOwnerName: {
       type: String,
-      required: true,
+      required: true
     },
     datasetOwnerEmail: {
       type: String,
-      required: true,
+      required: true
     },
     publishedDate: {
       type: String,
-      required: true,
-    }
-  },
-  data() {
-    return {
-      hasCompletedChangelog: false,
-      changelogText: '',
-      isEditingMarkdown: false,
-      isSavingMarkdown: false,
-      changelogTextEmptyState: '',
-      isLoadingChangelog: false
+      required: true
     }
   },
   computed: {
     PublicationTabs: function() {
       return PublicationTabs
-    },
-  },
-  methods: {
-    ...mapActions(['setChangelogText']),
-    ...mapState([
-      'config',
-      'userToken'
-    ]),
-
-    datasetChangelogUrl: function() {
-      console.log("apiUrl")
-      console.log(this.config.apiUrl)
-      return this.userToken
-        ? `${this.config().apiUrl}/datasets/${this.datasetId}/changelog?api_key=${
-          this.userToken()
-        }`
-        : ''
-    },
-
-    /**
-     * On Changelog save, emitted from the MarkdownEditor
-     * Make a request to the API to save the changelog
-     * PUT request: URL, but it has a body with one element: changelog
-     * @params {String} markdown
-     */
-    onChangelogSave: function(markdown) {
-      fetch(this.datasetChangelogUrl(), {
-        body: JSON.stringify({
-          changelog: markdown
-        }),
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
-      //LEFT OFF HERE
-        .then(response => {
-          if (response.ok) {
-            //CHANGE THIS... set the changelog.body here
-            this.setChangelogText(markdown).finally(() => {
-              this.isSavingMarkdown = false
-              this.isEditingMarkdown = false
-              this.hasCompletedChangelog = true
-            })
-          } else if (response.status === 412) {
-            this.isSavingMarkdown = false
-            this.$refs.staleUpdateDialog.dialogVisible = true
-          } else {
-            throw response
-          }
-        })
-        .catch(this.handleXhrError.bind(this))
     }
   },
+  methods: {
+    ...mapState(['config', 'userToken'])
+  }
 }
 //TO UPDATE, need to perform a GET and modify with a PUT
 </script>
