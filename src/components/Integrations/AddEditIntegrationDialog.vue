@@ -6,15 +6,12 @@
     @open="onOpen"
     @close="closeDialog"
   >
-    <bf-dialog-header
-      slot="title"
-      :title="dialogTitle"
-    />
+    <bf-dialog-header slot="title" :title="dialogTitle" />
 
     <dialog-body>
       <!-- Step 1 -->
       <el-form
-        v-show="shouldShow(1,'All')"
+        v-show="shouldShow(1, 'All')"
         ref="integrationFormStep1"
         :model="integration"
         :rules="rules"
@@ -22,9 +19,8 @@
       >
         <el-form-item prop="displayName">
           <template slot="label">
-            Name <span class="label-helper">
-              required
-            </span>
+            Name
+            <span class="label-helper">required</span>
           </template>
           <el-input
             v-model="integration.displayName"
@@ -34,11 +30,9 @@
         </el-form-item>
 
         <el-form-item prop="description">
-
           <template slot="label">
-            Description <span class="label-helper">
-              required
-            </span>
+            Description
+            <span class="label-helper">required</span>
           </template>
           <character-count-input
             ref="inputDescription"
@@ -50,9 +44,13 @@
 
         <el-form-item prop="isPublic">
           <template slot="label">
-            Integration permissions <span class="label-helper">
-            </span>
-            <div class="info">Allow the integration to be used by everyone in the organization. By default the integration is private and can only be managed by the current user.</div>
+            Integration permissions
+            <span class="label-helper"></span>
+            <div class="info">
+              Allow the integration to be used by everyone in the organization.
+              By default the integration is private and can only be managed by
+              the current user.
+            </div>
           </template>
           <el-checkbox
             v-model="integration.isPublic"
@@ -60,34 +58,29 @@
           />
         </el-form-item>
 
-        <el-form-item prop="isDefault"
-                      v-show="integration.isPublic">
+        <el-form-item prop="isDefault" v-show="integration.isPublic">
           <template slot="label">
-            Enable by default <span class="label-helper">
-            </span>
-            <div class="info">Enable this integration for all new datasets added to your organization. Individual dataset owners can opt-out or turn off.</div>
+            Enable by default
+            <span class="label-helper"></span>
+            <div class="info">
+              Enable this integration for all new datasets added to your
+              organization. Individual dataset owners can opt-out or turn off.
+            </div>
           </template>
           <el-checkbox
             v-model="integration.isDefault"
             label="Enable by default on new datasets"
           />
         </el-form-item>
-
       </el-form>
 
       <!-- Step 2 -->
-      <div class="form-container"
-        v-show="shouldShow(2, 'All')">
-        <el-form
-          ref="integrationFormStep2"
-          :model="integration"
-          :rules="rules">
-
+      <div class="form-container" v-show="shouldShow(2, 'All')">
+        <el-form ref="integrationFormStep2" :model="integration" :rules="rules">
           <el-form-item prop="integrationType">
             <template slot="label">
-              Integration Type <span class="label-helper">
-                required
-              </span>
+              Integration Type
+              <span class="label-helper">required</span>
             </template>
             <el-select
               ref="enum"
@@ -102,14 +95,12 @@
                 :value="item.value"
               />
             </el-select>
-
           </el-form-item>
 
           <el-form-item prop="apiUrl">
             <template slot="label">
-              API URL <span class="label-helper">
-              required
-            </span>
+              API URL
+              <span class="label-helper">required</span>
             </template>
             <el-input
               v-model="integration.apiUrl"
@@ -119,9 +110,8 @@
 
           <el-form-item prop="imageUrl">
             <template slot="label">
-              Image URL <span class="label-helper">
-              optional
-            </span>
+              Image URL
+              <span class="label-helper">optional</span>
             </template>
             <el-input
               v-model="integration.imageUrl"
@@ -129,40 +119,34 @@
             />
           </el-form-item>
 
-          <el-form-item
-            prop="secret">
+          <el-form-item prop="secret">
             <template slot="label">
-              Secret <span class="label-helper">
-            </span>
-              <p class="info">This unique string is sent with all published events to this webhook and can be used to validate the origin of the message.</p>
+              Secret
+              <span class="label-helper"></span>
+              <p class="info">
+                This unique string is sent with all published events to this
+                webhook and can be used to validate the origin of the message.
+              </p>
             </template>
             <el-input
               v-if="showSecret"
               v-model="integration.secret"
               placeholder="TODO: Create secret"
             />
-            <bf-button
-              v-else
-              class="secondary"
-              @click="generateSecret"
-            >
+            <bf-button v-else class="secondary" @click="generateSecret">
               Generate new secret
             </bf-button>
           </el-form-item>
-
         </el-form>
       </div>
 
       <!-- Step 3 (Webhook) -->
-      <div class="form-container"
-           v-show="shouldShow(3, 'Webhook')">
-        <el-form
-          ref="integrationFormStep3a">
-
+      <div class="form-container" v-show="shouldShow(3, 'Webhook')">
+        <el-form ref="integrationFormStep3a">
           <el-form-item prop="triggers">
             <template slot="label">
-              Select Triggers <span class="label-helper">
-            </span>
+              Select Triggers
+              <span class="label-helper"></span>
             </template>
 
             <el-checkbox
@@ -171,7 +155,8 @@
               label="Metadata"
             />
             <div class="check-description">
-              Dataset name, subtitle, licences, description, image, references, tags, contributors, collections, or ignore files list
+              Dataset name, subtitle, licences, description, image, references,
+              tags, contributors, collections, or ignore files list
             </div>
 
             <el-checkbox
@@ -179,27 +164,21 @@
               class="input-property"
               label="Status"
             />
-            <div class="check-description">
-              All changes to dataset status
-            </div>
+            <div class="check-description">All changes to dataset status</div>
 
             <el-checkbox
               v-model="integration.eventTypeList.RECORDS_AND_MODELS"
               class="input-property"
               label="Records and Models"
             />
-            <div class="check-description">
-              Creating, managing, or removing
-            </div>
+            <div class="check-description">Creating, managing, or removing</div>
 
             <el-checkbox
               v-model="integration.eventTypeList.FILES"
               class="input-property"
               label="Files"
             />
-            <div class="check-description">
-              Creating, managing, or removing
-            </div>
+            <div class="check-description">Creating, managing, or removing</div>
 
             <el-checkbox
               v-model="integration.eventTypeList.PERMISSIONS"
@@ -231,27 +210,30 @@
       </div>
 
       <!-- Step 3 (Application) -->
-      <div class="form-container"
-           v-show="shouldShow(3, 'Application')">
-
+      <div class="form-container" v-show="shouldShow(3, 'Application')">
         <div>
-          The application will be available as an action for the selected targets.
-          Optionally, you can provide a filter to restrict objects that can invoke the application.
-          You can select the same target multiple times with different filters.
-          Valid targets include: Dataset, File, and Files.
-          <br><br>
+          The application will be available as an action for the selected
+          targets. Optionally, you can provide a filter to restrict objects that
+          can invoke the application. You can select the same target multiple
+          times with different filters. Valid targets include: Dataset, File,
+          and Files.
+          <br />
+          <br />
 
-          <b>Select targets</b> <span class="label-helper">required</span>
+          <b>Select targets</b>
+          <span class="label-helper">required</span>
         </div>
 
         <el-form
           ref="integrationFormStep3b"
           :model="integration"
-          :rules="rules">
-
+          :rules="rules"
+        >
           <el-form-item prop="customTargets">
-
-            <div v-for="(item, index) in integration.customTargets" class="targetOptions">
+            <div
+              v-for="(item, index) in integration.customTargets"
+              class="targetOptions"
+            >
               <el-select
                 ref="enum"
                 v-model="item.target"
@@ -279,44 +261,36 @@
                   :value="item.value"
                 />
               </el-select>
-              <el-button icon="el-icon-minus" size="mini" @click="removeCustomTarget(index)"></el-button>
-
-
+              <el-button
+                icon="el-icon-minus"
+                size="mini"
+                @click="removeCustomTarget(index)"
+              ></el-button>
             </div>
-
-
           </el-form-item>
-          <el-button icon="el-icon-plus" size="mini" @click="addCustomTarget"></el-button>
-
+          <el-button
+            icon="el-icon-plus"
+            size="mini"
+            @click="addCustomTarget"
+          ></el-button>
         </el-form>
       </div>
-
     </dialog-body>
 
     <!-- Overview buttons -->
-    <div
-      slot="footer"
-      class="dialog-footer"
-    >
-      <bf-button
-        class="secondary"
-        @click="advanceStep(-1)"
-      >
+    <div slot="footer" class="dialog-footer">
+      <bf-button class="secondary" @click="advanceStep(-1)">
         {{ stepBackText }}
       </bf-button>
-      <bf-button @click="advanceStep(1)">
-        {{ createText }}
-      </bf-button>
-
+      <bf-button @click="advanceStep(1)">{{ createText }}</bf-button>
     </div>
-
   </el-dialog>
 </template>
 
 <script>
 import snakeCase from 'lodash.snakecase'
-import {mapState} from 'vuex'
-import {clone} from 'ramda'
+import { mapState } from 'vuex'
+import { clone } from 'ramda'
 
 import BfButton from '../shared/bf-button/BfButton.vue'
 import BfDialogHeader from '../shared/bf-dialog-header/BfDialogHeader.vue'
@@ -332,30 +306,28 @@ import FileTypeMapper from '../../mixins/FileTypeMapper'
  * Returns the default values for a property
  * @returns {Object}
  */
-const defaultIntegration = () => (
-  {
-    displayName: '',
-    description: '',
-    apiUrl:'',
-    imageUrl:'',
-    secret: '',
-    isDefault: false,
-    isDisabled: false,
-    isPublic: false,
-    name: '',
-    integrationType: 'viewer',
-    customTargets: [{target: "DATASET", filter: null}],
-    eventTypeList: {
-      METADATA: false,
-      STATUS: false,
-      RECORDS_AND_MODELS: false,
-      FILES: false,
-      PERMISSIONS: false,
-      PUBLISHING: false,
-      CUSTOM: false
-    }
+const defaultIntegration = () => ({
+  displayName: '',
+  description: '',
+  apiUrl: '',
+  imageUrl: '',
+  secret: '',
+  isDefault: false,
+  isDisabled: false,
+  isPublic: false,
+  name: '',
+  integrationType: 'viewer',
+  customTargets: [{ target: 'DATASET', filter: null }],
+  eventTypeList: {
+    METADATA: false,
+    STATUS: false,
+    RECORDS_AND_MODELS: false,
+    FILES: false,
+    PERMISSIONS: false,
+    PUBLISHING: false,
+    CUSTOM: false
   }
-)
+})
 
 export default {
   name: 'AddEditIntegrationDialog',
@@ -367,23 +339,17 @@ export default {
     CharacterCountInput
   },
 
-  mixins: [
-    Request,
-    AutoFocus,
-    checkUniqueName,
-    GetDataType,
-    FileTypeMapper
-  ],
+  mixins: [Request, AutoFocus, checkUniqueName, GetDataType, FileTypeMapper],
 
   props: {
     visible: Boolean,
     integrationType: String,
     integrationEdit: {
       type: Object,
-      default: function(){
+      default: function() {
         return {}
       }
-    },
+    }
   },
   mounted: function() {
     this.fileTypes.unshift({
@@ -397,25 +363,26 @@ export default {
       processStep: 1,
       rules: {
         displayName: [
-          { required: true, validator: this.validateName, trigger: 'false' },
-        ],
-        description: [
-          { required: true, validator: this.validateDescription, trigger: 'false' },
+          { required: true, validator: this.validateName, trigger: 'false' }
         ],
         integrationType: [
-          { required: true, validator: this.validateType, trigger: 'false' },
+          { required: true, validator: this.validateType, trigger: 'false' }
         ],
         name: [
-          { required: true, validator: this.validateName, trigger: 'false' },
+          { required: true, validator: this.validateName, trigger: 'false' }
         ],
         dataType: [
           { required: true, message: 'Please select a type', trigger: 'false' }
         ],
-        apiUrl: [
-          { required: true, validator: this.validateApiUrl, trigger: 'false' },
-        ],
+        // apiUrl: [
+        //   { required: false, validator: this.validateApiUrl, trigger: 'false' }
+        // ],
         customTargets: [
-          { required: true, validator: this.validateCustomTargets, trigger: 'false'}
+          {
+            required: true,
+            validator: this.validateCustomTargets,
+            trigger: 'false'
+          }
         ]
       },
       subscriptionKeys: [
@@ -449,7 +416,7 @@ export default {
           value: 'PACKAGES',
           label: 'Files'
         }
-      ],
+      ]
     }
   },
 
@@ -507,7 +474,7 @@ export default {
      */
     dialogTitle: function() {
       return this.editingIntegration ? 'Update Integration' : 'Add Integration'
-    },
+    }
   },
 
   watch: {
@@ -521,9 +488,8 @@ export default {
   },
 
   methods: {
-
-    showFilter: function(target){
-      return target === "PACKAGE" || target === "PACKAGES"
+    showFilter: function(target) {
+      return target === 'PACKAGE' || target === 'PACKAGES'
     },
     generateSecret: function() {
       this.integration.secret = this.generateId(16)
@@ -542,14 +508,16 @@ export default {
      * @returns {Boolean}
      */
     shouldShow: function(key, type) {
-      return this.processStep === key && (this.integrationType === type || type === "All")
+      return (
+        this.processStep === key &&
+        (this.integrationType === type || type === 'All')
+      )
     },
 
     /**
      * Handles open event
      */
     onOpen: function() {
-
       if (this.editingIntegration) {
         // set properties in local state to be referenced in createIntegration fn
         const ei = this.integrationEdit
@@ -562,11 +530,10 @@ export default {
         this.integration.isDefault = ei.isDefault
         this.integration.isDisabled = ei.isDisabled
         this.integration.isPrivate = ei.isPrivate
-        this.integration.integrationType = ei.hasAccess? 'manager' : 'viewer'
+        this.integration.integrationType = ei.hasAccess ? 'manager' : 'viewer'
         for (let target in ei.eventTargets) {
           this.integration.eventTypeList[ei.eventTargets[target]] = true
         }
-
       } else {
         this.integration.secret = this.generateId(16)
       }
@@ -574,10 +541,10 @@ export default {
       this.autoFocus()
     },
     addCustomTarget: function() {
-      this.integration.customTargets.push( {target: "Dataset", filter: ""})
+      this.integration.customTargets.push({ target: 'Dataset', filter: '' })
     },
     removeCustomTarget: function(index) {
-      this.integration.customTargets.splice(index,1)
+      this.integration.customTargets.splice(index, 1)
     },
 
     /**
@@ -614,39 +581,36 @@ export default {
      */
     createIntegration: function() {
       let isValid = true
-      this.$refs.integrationFormStep1.validate((valid) => {
+      this.$refs.integrationFormStep1.validate(valid => {
         if (!valid) {
           // switch tab views
           isValid = false
-          return this.processStep = 1
+          return (this.processStep = 1)
         }
       })
 
-      this.$refs.integrationFormStep2.validate((valid) => {
+      this.$refs.integrationFormStep2.validate(valid => {
         if (!valid) {
           // switch tab views
           isValid = false
-          return this.processStep = 2
+          return (this.processStep = 2)
         }
-
       })
 
-      this.$refs.integrationFormStep3a.validate((valid) => {
+      this.$refs.integrationFormStep3a.validate(valid => {
         if (!valid) {
           // switch tab views
           isValid = false
-          return this.processStep = 3
+          return (this.processStep = 3)
         }
-
       })
 
-      this.$refs.integrationFormStep3b.validate((valid) => {
+      this.$refs.integrationFormStep3b.validate(valid => {
         if (!valid) {
           // switch tab views
           isValid = false
-          return this.processStep = 3
+          return (this.processStep = 3)
         }
-
       })
 
       if (isValid) {
@@ -657,16 +621,18 @@ export default {
         }
         this.closeDialog()
       }
-
     },
     validURL: function(str) {
-      var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-      return !!pattern.test(str);
+      var pattern = new RegExp(
+        '^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+          '(\\#[-a-z\\d_]*)?$',
+        'i'
+      ) // fragment locator
+      return !!pattern.test(str)
     },
 
     /**
@@ -676,7 +642,8 @@ export default {
      * @param {Function} callback
      */
     validateName: function(rule, value, callback) {
-      const displayNameMsg = rule.field === 'displayName' ? 'display name' : 'name'
+      const displayNameMsg =
+        rule.field === 'displayName' ? 'display name' : 'name'
       if (value === '') {
         callback(new Error(`Please provide a unique ${displayNameMsg}`))
       }
@@ -684,13 +651,19 @@ export default {
     },
     validateType: function(rule, value, callback) {
       if (value === '') {
-        callback(new Error('Please select either "Viewer" or "Manager" as the integration type.'))
+        callback(
+          new Error(
+            'Please select either "Viewer" or "Manager" as the integration type.'
+          )
+        )
       }
       callback()
     },
     validateDescription: function(rule, value, callback) {
       if (value === '' || value.length < 20) {
-        callback(new Error(`Please provide a short description (>50 characters)`))
+        callback(
+          new Error(`Please provide a short description (>50 characters)`)
+        )
       }
       callback()
     },
@@ -707,15 +680,13 @@ export default {
         callback(new Error(`Please remove duplicate entries`))
       }
       callback()
-
-
     },
     dec2hex: function(dec) {
-      return dec.toString(16).padStart(2, "0")
+      return dec.toString(16).padStart(2, '0')
     },
     // generateId :: Integer -> String
     generateId: function(len) {
-      const arr = new Uint8Array((len || 40) / 2);
+      const arr = new Uint8Array((len || 40) / 2)
       window.crypto.getRandomValues(arr)
       return Array.from(arr, this.dec2hex).join('')
     }
@@ -727,14 +698,12 @@ export default {
 @import '../../assets/_variables.scss';
 
 .add-integration-dialog {
-
   .el-form-item {
     .el-form-item__label {
       font-weight: 500;
-      color: $gray_5
+      color: $gray_5;
     }
   }
-
 
   .el-select {
     &.input-property {
@@ -772,19 +741,20 @@ export default {
     border: 1px solid $gray_5;
   }
 
-  .el-checkbox__label, .el-form-item__label {
+  .el-checkbox__label,
+  .el-form-item__label {
     color: $gray_6;
     font-weight: 400;
   }
 
   .targetOptions {
     flex-direction: row;
-    display:flex;
+    display: flex;
     margin: 8px 0;
   }
 
   .disabled-label {
-    color: #C0C4CC;
+    color: #c0c4cc;
     cursor: not-allowed;
     margin-top: 10px;
   }
@@ -793,7 +763,8 @@ export default {
     margin-top: 10px;
   }
 
-  /deep/ .el-select-group, .el-select-dropdown__item {
+  /deep/ .el-select-group,
+  .el-select-dropdown__item {
     padding-bottom: 10px;
   }
   .item-checkbox .el-form-item__content {
@@ -812,7 +783,7 @@ export default {
     font-size: 12px;
     color: $gray_4;
     &.disabled-label {
-      color: #C0C4CC;
+      color: #c0c4cc;
       cursor: not-allowed;
       margin-top: -18px;
       height: 26px;
@@ -837,4 +808,3 @@ export default {
   }
 }
 </style>
-
