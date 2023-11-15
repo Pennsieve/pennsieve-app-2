@@ -93,7 +93,8 @@ export default {
       visible: false,
       options: [],
       value: '',
-      selectedApplication: {}
+      selectedApplication: {},
+      isLoading: false
     }
   },
 
