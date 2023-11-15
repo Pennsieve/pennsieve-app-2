@@ -33,6 +33,16 @@
         Cancel
       </bf-button>
       <bf-button
+        v-if="isLoading"
+        data-cy="run-custom-event"
+        @click="runCustomEvent"
+        :disabled="false"
+        processing
+      >
+        Run Event
+      </bf-button>
+      <bf-button
+        v-if="!isLoading"
         data-cy="run-custom-event"
         @click="runCustomEvent"
         :disabled="false"
