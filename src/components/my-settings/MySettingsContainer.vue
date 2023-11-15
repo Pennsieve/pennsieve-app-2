@@ -308,6 +308,7 @@
                   </button>
                 </el-col>
               </div>
+              
               <div
                 v-else
                 class="orcid-waiting"
@@ -319,6 +320,11 @@
                   />
                 </el-row>
               </div>
+              <el-row v-if="!publishToOrcid">
+                    <bf-button @click="openORCID">
+                      Publish datasets to ORCID
+                    </bf-button>
+               </el-row>
             </div>
           </el-row>
         </el-col>
@@ -452,7 +458,7 @@ export default {
       'cognitoUser'
     ]),
 
-    ...mapGetters(['hasOrcidId']),
+    ...mapGetters(['hasOrcidId','publishToOrcid']),
 
     /**
      * Checks whether or not auth is enabled
@@ -476,6 +482,16 @@ export default {
       return `${url}/token?api_key=${userToken}`
     },
     updateProfileUrl: function() {
+      const url = pathOr('', ['config', 'apiUrl'])(this)
+      const userToken = prop('userToken', this)
+
+      if (!url || !userToken) {
+        return ''
+      }
+
+      return `${url}/user?api_key=${userToken}`
+    },
+    getProfileUrl:function(){
       const url = pathOr('', ['config', 'apiUrl'])(this)
       const userToken = prop('userToken', this)
 
@@ -824,7 +840,10 @@ export default {
     updateORCID2: function(){
       this.isDeleteOrcidDialogVisible = false
     },
-
+    updateORCIDPermissions:function(){
+      console.log("call for authorization popup and listen for return");
+      console.log("update permissions for user");
+    },
     /**
      * Open api key dialog
      * @param {String} refName
@@ -891,7 +910,6 @@ export default {
           }
       })
     },
-
     /**
      * Opens deleteORCID modal
      * @param {String} refName
