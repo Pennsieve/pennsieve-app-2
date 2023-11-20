@@ -320,10 +320,12 @@
                   />
                 </el-row>
               </div>
-              <el-row v-if="!publishToOrcid">
-                    <bf-button @click="openORCID">
-                      Publish datasets to ORCID
+              <el-row class="mt-20" v-if="!publishToOrcid">
+                <el-tooltip placement="right" content="Authorize Pennsieve to update ORCID with all of your Published Datasets">
+                  <bf-button @click="openORCID">
+                      Update ORCID Publish Preferences
                     </bf-button>
+                </el-tooltip>
                </el-row>
             </div>
           </el-row>
