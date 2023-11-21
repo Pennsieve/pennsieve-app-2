@@ -14,6 +14,7 @@ import metadataModule from './modules/metadataModule'
 
 Vue.use(Vuex)
 
+
 // helpers
 const getDataset = pathOr({}, ['detail', 'dataset'])
 const getUploadDestination = propOr({}, 'content')
