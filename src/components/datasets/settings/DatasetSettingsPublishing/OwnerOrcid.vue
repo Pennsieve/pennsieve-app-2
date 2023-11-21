@@ -56,6 +56,17 @@
         <div v-else class="orcid-waiting">
           <el-row><div v-loading="loadingOrcid" class="orcid-loader" /></el-row>
         </div>
+        <el-row class="mt-20" v-if="!publishToOrcid">
+              <router-link
+                class="bf-menu-item"
+                :to="{
+                  name: 'my-settings-container',
+                  params: { orgId: this.activeOrganizationId }
+                }"
+              >
+                Allow  Pennsieve to publish works to ORCHID
+          </router-link>
+        </el-row>
       </div>
     </div>
     <delete-orcid
@@ -87,7 +98,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['datasetOwnerHasOrcidId', 'hasOrcidId', 'profile']),
+    ...mapGetters(['datasetOwnerHasOrcidId', 'hasOrcidId', 'publishToOrcid', 'profile']),
 
     ...mapState(['config', 'activeOrganization']),
 
@@ -207,6 +218,9 @@ export default {
   }
 }
 
+.mt-20{
+    margin-top: 20px;
+  }
 p {
   color: black;
 }
