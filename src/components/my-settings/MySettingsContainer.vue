@@ -308,6 +308,7 @@
                   </button>
                 </el-col>
               </div>
+              
               <div
                 v-else
                 class="orcid-waiting"
@@ -319,6 +320,13 @@
                   />
                 </el-row>
               </div>
+              <el-row class="mt-20" v-if="!publishToOrcid">
+                <el-tooltip placement="right" content="Authorize Pennsieve to update ORCID with all of your Published Datasets">
+                  <bf-button @click="openORCID">
+                      Update ORCID Publish Preferences
+                    </bf-button>
+                </el-tooltip>
+               </el-row>
             </div>
           </el-row>
         </el-col>
@@ -452,7 +460,7 @@ export default {
       'cognitoUser'
     ]),
 
-    ...mapGetters(['hasOrcidId']),
+    ...mapGetters(['hasOrcidId','publishToOrcid']),
 
     /**
      * Checks whether or not auth is enabled
@@ -824,7 +832,6 @@ export default {
     updateORCID2: function(){
       this.isDeleteOrcidDialogVisible = false
     },
-
     /**
      * Open api key dialog
      * @param {String} refName
@@ -891,7 +898,6 @@ export default {
           }
       })
     },
-
     /**
      * Opens deleteORCID modal
      * @param {String} refName
