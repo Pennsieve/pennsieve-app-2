@@ -216,7 +216,6 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
-  window.Intercom('update')
 
   // Set nav state based on route
   if (topLevelRoutes.indexOf(to.name) >= 0) {

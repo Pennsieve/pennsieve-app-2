@@ -30,6 +30,15 @@
           <li>
             <a
               class="bf-menu-item"
+              href="https://docs.pennsieve.io/page/pennsieve-office-hours"
+              target="_blank"
+            >
+              Office Hours
+            </a>
+          </li>
+          <li>
+            <a
+              class="bf-menu-item"
               href="http://docs.pennsieve.io/"
               target="_blank"
             >
@@ -134,14 +143,6 @@ export default {
      */
     showUserMenu: function() {
       this.menuOpen = true
-    },
-
-    /**
-     * Show intercom window
-     */
-    showIntercom: function() {
-      window.Intercom('show')
-      this.menuOpen = false
     }
   }
 }

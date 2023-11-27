@@ -1,14 +1,9 @@
 <template>
   <bf-page class="bf-dataset-settings">
-    <locked-banner
-      slot="banner"
-    />
+    <locked-banner slot="banner" />
     <template v-if="hasPermission">
       <bf-rafter slot="heading">
-        <h1
-          slot="heading"
-          class="flex-heading"
-        >
+        <h1 slot="heading" class="flex-heading">
           <svg-icon
             v-if="datasetLocked"
             class="mr-8"
@@ -16,39 +11,37 @@
             name="icon-lock-filled"
             height="24"
             width="24"
-          />Dataset Settings
+          />
+          Dataset Settings
         </h1>
-<!--        <ul-->
-<!--          slot="tabs"-->
-<!--          class="tabs unstyled"-->
-<!--        >-->
-<!--          <li>-->
-<!--            <router-link :to="{ name: 'dataset-settings' }">-->
-<!--              General-->
-<!--            </router-link>-->
-<!--          </li>-->
-<!--          <li>-->
-<!--            <router-link-->
-<!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
-<!--              :to="{ name: 'integrations-settings' }"-->
-<!--            >-->
-<!--              Integrations-->
-<!--            </router-link>-->
-<!--          </li>-->
-<!--&lt;!&ndash;          <li>&ndash;&gt;-->
-<!--&lt;!&ndash;            <router-link&ndash;&gt;-->
-<!--&lt;!&ndash;              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"&ndash;&gt;-->
-<!--&lt;!&ndash;              :to="{ name: 'publishing-settings' }"&ndash;&gt;-->
-<!--&lt;!&ndash;            >&ndash;&gt;-->
-<!--&lt;!&ndash;              Publishing&ndash;&gt;-->
-<!--&lt;!&ndash;            </router-link>&ndash;&gt;-->
-<!--&lt;!&ndash;          </li>&ndash;&gt;-->
-<!--        </ul>-->
+        <!--        <ul-->
+        <!--          slot="tabs"-->
+        <!--          class="tabs unstyled"-->
+        <!--        >-->
+        <!--          <li>-->
+        <!--            <router-link :to="{ name: 'dataset-settings' }">-->
+        <!--              General-->
+        <!--            </router-link>-->
+        <!--          </li>-->
+        <!--          <li>-->
+        <!--            <router-link-->
+        <!--              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"-->
+        <!--              :to="{ name: 'integrations-settings' }"-->
+        <!--            >-->
+        <!--              Integrations-->
+        <!--            </router-link>-->
+        <!--          </li>-->
+        <!--&lt;!&ndash;          <li>&ndash;&gt;-->
+        <!--&lt;!&ndash;            <router-link&ndash;&gt;-->
+        <!--&lt;!&ndash;              :class="[ hasFeature('sandbox_org_feature') ? 'tab-disabled' : '']"&ndash;&gt;-->
+        <!--&lt;!&ndash;              :to="{ name: 'publishing-settings' }"&ndash;&gt;-->
+        <!--&lt;!&ndash;            >&ndash;&gt;-->
+        <!--&lt;!&ndash;              Publishing&ndash;&gt;-->
+        <!--&lt;!&ndash;            </router-link>&ndash;&gt;-->
+        <!--&lt;!&ndash;          </li>&ndash;&gt;-->
+        <!--        </ul>-->
       </bf-rafter>
-      <bf-stage
-        ref="bfStage"
-        slot="stage"
-      >
+      <bf-stage ref="bfStage" slot="stage">
         <!-- update dataset -->
         <el-row>
           <el-col>
@@ -60,15 +53,10 @@
               :rules="rules"
               @submit.native.prevent
             >
-              <el-form-item
-                prop="name"
-                class="mb-24"
-              >
+              <el-form-item prop="name" class="mb-24">
                 <template slot="label">
                   Name
-                  <span class="label-helper">
-                    required
-                  </span>
+                  <span class="label-helper">required</span>
                 </template>
                 <el-input
                   v-model="form.name"
@@ -85,9 +73,7 @@
               >
                 <template slot="label">
                   Subtitle
-                  <span class="label-helper">
-                    required to publish
-                  </span>
+                  <span class="label-helper">required to publish</span>
                 </template>
                 <character-count-input
                   ref="inputDescription"
@@ -134,7 +120,7 @@
           </el-col>
         </el-row>
 
-        <hr>
+        <hr />
 
         <dataset-license
           id="inputLicense"
@@ -142,51 +128,45 @@
         />
 
         <template>
-          <dataset-settings-banner-image
-            id="bannerImage"
-            ref="bannerImage"
-          />
+          <dataset-settings-banner-image id="bannerImage" ref="bannerImage" />
         </template>
 
-        <hr>
+        <hr />
 
         <dataset-settings-collections />
 
-        <hr>
+        <hr />
 
         <dataset-settings-associated-publications />
 
-        <hr>
+        <hr />
 
         <template>
           <!-- delete dataset -->
           <el-row>
             <el-col>
-              <h2 class="delete-title">
-                Delete Dataset
-              </h2>
+              <h2 class="delete-title">Delete Dataset</h2>
               <p>
                 Deleting a dataset removes all data from Pennsieve.
                 <strong>This cannot be undone.</strong>
               </p>
               <p class="mb-20">
-                Datasets that are published to Pennsieve Discover must be removed before they can be deleted.
+                Datasets that are published to Pennsieve Discover must be
+                removed before they can be deleted.
               </p>
               <bf-button
                 class="red"
-                :disabled="datasetLocked || !getPermission('owner') || datasetPublished"
+                :disabled="
+                  datasetLocked || !getPermission('owner') || datasetPublished
+                "
                 @click="onDeleteDatasetBtnClick"
               >
                 Delete
               </bf-button>
-              <p
-                v-if="!getPermission('owner')"
-                class="sharing-blurb"
-              >
-                Deleting is restricted to owners only. To change the owner of your dataset, please contact
-                <a
-                  :href="`mailto:${datasetOwnerEmail}`"
-                >
+              <p v-if="!getPermission('owner')" class="sharing-blurb">
+                Deleting is restricted to owners only. To change the owner of
+                your dataset, please contact
+                <a :href="`mailto:${datasetOwnerEmail}`">
                   {{ datasetOwnerName }}
                 </a>
               </p>
@@ -201,42 +181,54 @@
       </bf-stage>
     </template>
 
-    <bf-empty-page-state
-      v-else
-      class="empty-state"
-    >
+    <bf-empty-page-state v-else class="empty-state">
       <h2>Access Denied</h2>
-      <p>You have reached a page in which you do not have access. Please use the navigation to the left to browse your organization's data.</p>
+      <p>
+        You have reached a page in which you do not have access. Please use the
+        navigation to the left to browse your organization's data.
+      </p>
     </bf-empty-page-state>
     <stale-update-dialog ref="staleUpdateDialog" />
   </bf-page>
 </template>
 
 <script>
-  import {mapActions, mapGetters, mapState} from 'vuex'
-  import {clone, compose, contains, defaultTo, equals, not, path, pathOr, pick, propOr, toLower, trim} from 'ramda'
-  import debounce from 'lodash/debounce';
+import { mapActions, mapGetters, mapState } from 'vuex'
+import {
+  clone,
+  compose,
+  contains,
+  defaultTo,
+  equals,
+  not,
+  path,
+  pathOr,
+  pick,
+  propOr,
+  toLower,
+  trim
+} from 'ramda'
+import debounce from 'lodash/debounce'
 
-  import BfRafter from '../../shared/bf-rafter/BfRafter.vue'
-  import BfButton from '../../shared/bf-button/BfButton.vue'
-  import CharacterCountInput from '../../shared/CharacterCountInput/CharacterCountInput.vue'
-  import DeleteDataset from './window/DeleteDataset.vue'
-  import DatasetSettingsBannerImage from './DatasetSettingsBannerImage/DatasetSettingsBannerImage.vue'
-  import DatasetSettingsAssociatedPublications from './DatasetSettingsAssociatedPublications/DatasetSettingsAssociatedPublications.vue'
-  import DatasetSettingsCollections from './DatasetSettingsCollections/DatasetSettingsCollections.vue'
-  import DatasetLicense from './DatasetLicense/DatasetLicense.vue'
-  import FormatDate from '../../../mixins/format-date'
-  import Request from '../../../mixins/request'
-  import DeleteDatasetMixin from '../../../mixins/DeleteDataset'
-  import CheckUniqueNames from '../../../mixins/check-unique-names'
-  import SanitizeName from '../../../mixins/sanitize-name'
-  import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
-  import BfTag from '@/components/shared/BfTag/BfTag'
+import BfRafter from '../../shared/bf-rafter/BfRafter.vue'
+import BfButton from '../../shared/bf-button/BfButton.vue'
+import CharacterCountInput from '../../shared/CharacterCountInput/CharacterCountInput.vue'
+import DeleteDataset from './window/DeleteDataset.vue'
+import DatasetSettingsBannerImage from './DatasetSettingsBannerImage/DatasetSettingsBannerImage.vue'
+import DatasetSettingsAssociatedPublications from './DatasetSettingsAssociatedPublications/DatasetSettingsAssociatedPublications.vue'
+import DatasetSettingsCollections from './DatasetSettingsCollections/DatasetSettingsCollections.vue'
+import DatasetLicense from './DatasetLicense/DatasetLicense.vue'
+import FormatDate from '../../../mixins/format-date'
+import Request from '../../../mixins/request'
+import DeleteDatasetMixin from '../../../mixins/DeleteDataset'
+import CheckUniqueNames from '../../../mixins/check-unique-names'
+import SanitizeName from '../../../mixins/sanitize-name'
+import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
+import BfTag from '@/components/shared/BfTag/BfTag'
 
-
-  import licenses from './dataset-licenses'
-  import StaleUpdateDialog from "../stale-update-dialog/StaleUpdateDialog";
-  import LockedBanner from '../LockedBanner/LockedBanner';
+import licenses from './dataset-licenses'
+import StaleUpdateDialog from '../stale-update-dialog/StaleUpdateDialog'
+import LockedBanner from '../LockedBanner/LockedBanner'
 
 export default {
   name: 'BfDatasetSettings',
@@ -325,8 +317,9 @@ export default {
     },
 
     datasetPublished: function() {
-      return this.dataset.publication
-        && !!this.dataset.publication.publishedDataset
+      return (
+        this.dataset.publication && !!this.dataset.publication.publishedDataset
+      )
     },
 
     /**
@@ -377,7 +370,6 @@ export default {
   methods: {
     ...mapActions(['updateDataset', 'setDatasetEtag']),
 
-
     /**
      * Makes XHR call to update a dataset
      */
@@ -389,26 +381,27 @@ export default {
         const body = valid ? this.form : rest
 
         fetch(this.datasetUrl, {
-          method:'PUT',
+          method: 'PUT',
           body: JSON.stringify(body),
           headers: {
             'Content-Type': 'application/json',
             'If-Match': this.datasetEtag
           }
-        }).then(response => {
-          if (response.ok) {
-            response.json().then(updatedDataset => {
-              this.setDatasetEtag(response.headers.get('etag'))
-              this.updateDataset({ ...this.dataset, ...updatedDataset })
-            })
-          } else if (response.status === 412) {
-            this.staleUpdateDialog.dialogVisible = true;
-          } else {
-            throw response
-          }
-        }).catch(this.handleXhrError.bind(this))
+        })
+          .then(response => {
+            if (response.ok) {
+              response.json().then(updatedDataset => {
+                this.setDatasetEtag(response.headers.get('etag'))
+                this.updateDataset({ ...this.dataset, ...updatedDataset })
+              })
+            } else if (response.status === 412) {
+              this.staleUpdateDialog.dialogVisible = true
+            } else {
+              throw response
+            }
+          })
+          .catch(this.handleXhrError.bind(this))
       })
-
     }, 1000),
 
     /**
@@ -424,7 +417,7 @@ export default {
         ['description'],
         ['content', 'description']
       )
-       const isLicenseChanged = this.checkIsSettingChanged(
+      const isLicenseChanged = this.checkIsSettingChanged(
         ['license'],
         ['content', 'license']
       )
@@ -454,8 +447,6 @@ export default {
 
       return not(equals(formItem, datasetItem))
     },
-
-
 
     /**
      * Scroll to input if necessary
@@ -520,12 +511,7 @@ export default {
     setFormData: function(dataset) {
       const data = compose(
         clone,
-        pick([
-          'name',
-          'description',
-          'license',
-          'tags'
-        ]),
+        pick(['name', 'description', 'license', 'tags']),
         propOr({}, 'content')
       )(dataset)
 
@@ -547,13 +533,6 @@ export default {
     closeDescriptionDialog: function() {
       this.dialogDescriptionVisible = false
       this.$refs.inputDescription.focus()
-    },
-
-    /**
-     * Show intercom window
-     */
-    showIntercom: function() {
-      window.Intercom('show')
     },
 
     /**

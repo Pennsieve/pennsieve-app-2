@@ -8,7 +8,6 @@ import { state, actions, mutations, getters } from '../../vuex/store'
 import App from '../../components/app/App.vue'
 import logout from './'
 
-global.Intercom = jest.fn(() => {})
 global.ga = jest.fn(() => {})
 
 describe('logout Mixin', () => {
