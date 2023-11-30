@@ -8,7 +8,6 @@
             such as "Files", "Records", and "Datasets". Registered applications
             can be triggered from the action-menu associated with the targeted
             entities.
-
             <a
               href="https://docs.pennsieve.io/docs/preventing-files-from-being-included-during-publishing"
               target="_blank"
