@@ -16,6 +16,7 @@ node('executor') {
         stage("Build") {
             try {
                 sh """#!/bin/bash -ex
+                    . $HOME/.nvm/nvm.sh ; nvm use 18.17.1
                     node -v
                     yarn
                     yarn build-${buildEnv}"""
