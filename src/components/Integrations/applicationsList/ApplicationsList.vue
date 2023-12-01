@@ -3,7 +3,6 @@
     <bf-stage slot="stage" element-loading-background="transparent">
       <div class="addIntegrationContainer">
         <div class="description">
-          
           <p class="mb-16">
             Applications support actions on various entities on the platform
             such as "Files", "Records", and "Datasets". Registered applications
