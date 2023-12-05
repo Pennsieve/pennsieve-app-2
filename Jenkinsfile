@@ -16,6 +16,7 @@ node('executor') {
         stage("Build") {
             try {
                 sh """#!/bin/bash -ex
+                    . $HOME/.nvm/nvm.sh ; nvm use 14.21.1
                     node -v
                     yarn
                     yarn build-${buildEnv}"""
@@ -30,6 +31,7 @@ node('executor') {
         stage("Test") {
             try {
                 sh """#!/bin/bash
+                  . $HOME/.nvm/nvm.sh ; nvm use 14.21.1
                     xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x16' yarn test"""
             } catch (e) {
                 slackSend(color: '#b20000', message: "FAILED: Tests! '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) by ${authorName}")

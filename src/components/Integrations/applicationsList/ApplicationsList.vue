@@ -1,19 +1,13 @@
 <template>
   <bf-page class="applications-list">
-
-    <bf-stage
-      slot="stage"
-      element-loading-background="transparent"
-    >
-
+    <bf-stage slot="stage" element-loading-background="transparent">
       <div class="addIntegrationContainer">
         <div class="description">
-
           <p class="mb-16">
-            Applications support actions on various entities on the platform such as "Files", "Records", and "Datasets".
-            Registered applications can be triggered from the action-menu associated with the targeted entities.
-
-
+            Applications support actions on various entities on the platform
+            such as "Files", "Records", and "Datasets". Registered applications
+            can be triggered from the action-menu associated with the targeted
+            entities.
             <a
               href="https://docs.pennsieve.io/docs/preventing-files-from-being-included-during-publishing"
               target="_blank"
@@ -21,23 +15,15 @@
               What's this?
             </a>
           </p>
-
         </div>
 
         <div class="reg-button">
-          <bf-button
-            v-if="hasAdminRights"
-            @click="openAddIntegration"
-          >
+          <bf-button @click="openAddIntegration">
             Register Application
           </bf-button>
         </div>
-
       </div>
-      <div
-        v-if="integrations.length > 0"
-        class="integration-list"
-      >
+      <div v-if="integrations.length > 0" class="integration-list">
         <integration-list-item
           v-for="integration in filteredApplications"
           :key="integration.id"
@@ -47,39 +33,32 @@
         />
       </div>
 
-      <bf-empty-page-state
-        v-else
-        class="empty"
-      >
+      <bf-empty-page-state v-else class="empty">
         <img
           src="/static/images/illustrations/illo-collaboration.svg"
           height="240"
           width="247"
           alt="Teams illustration"
-        >
-        <div
-          v-if="hasAdminRights"
-          class="copy"
-        >
+        />
+        <div v-if="hasAdminRights" class="copy">
           <h2>There are no integrations yet</h2>
-          <p>Integrations allow external services to be notified when certain events occur on Pennsieve. These integrations are available to all members within the organization and can be managed at the dataset level under settings.</p>
-          <bf-button
-            class="create-team-button"
-            @click="openAddIntegration"
-          >
+          <p>
+            Integrations allow external services to be notified when certain
+            events occur on Pennsieve. These integrations are available to all
+            members within the organization and can be managed at the dataset
+            level under settings.
+          </p>
+          <bf-button class="create-team-button" @click="openAddIntegration">
             Add Global Integration
           </bf-button>
         </div>
-        <div
-          v-if="!hasAdminRights"
-          class="copy"
-        >
+        <div v-if="!hasAdminRights" class="copy">
           <h2>{{ orgName }} doesn't have any integrations yet.</h2>
-          <p>Contact your administrator to get started working with Integrations.</p>
+          <p>
+            Contact your administrator to get started working with Integrations.
+          </p>
         </div>
       </bf-empty-page-state>
-
-
     </bf-stage>
 
     <add-edit-integration-dialog
@@ -100,8 +79,6 @@
       ref="apiKeyDetails"
       :visible.sync="APIKeyDetailsVisisble"
     />
-
-
   </bf-page>
 </template>
 
@@ -113,15 +90,14 @@ import BfButton from '../../shared/bf-button/BfButton.vue'
 import BfEmptyPageState from '../../shared/bf-empty-page-state/BfEmptyPageState.vue'
 
 import AddEditIntegrationDialog from '../AddEditIntegrationDialog.vue'
-import IntegrationListItem from "../integration-list-item/IntegrationListItem";
-import Sorter from  '../../../mixins/sorter'
-import UserRoles from  '../../../mixins/user-roles'
-import RemoveIntegrationDialog from  '../removeIntegrationDialog'
+import IntegrationListItem from '../integration-list-item/IntegrationListItem'
+import Sorter from '../../../mixins/sorter'
+import UserRoles from '../../../mixins/user-roles'
+import RemoveIntegrationDialog from '../removeIntegrationDialog'
 
-
-import { pathOr, propOr} from 'ramda'
-import DeleteApiKey from "../../my-settings/windows/DeleteApiKey";
-import IntegrationApiKeyDetails from "../integrationApiKeyDetails";
+import { pathOr, propOr } from 'ramda'
+import DeleteApiKey from '../../my-settings/windows/DeleteApiKey'
+import IntegrationApiKeyDetails from '../integrationApiKeyDetails'
 
 export default {
   name: 'ApplicationsList',
@@ -134,13 +110,10 @@ export default {
     BfButton,
     IntegrationListItem,
     AddEditIntegrationDialog,
-    RemoveIntegrationDialog,
+    RemoveIntegrationDialog
   },
 
-  mixins: [
-    Sorter,
-    UserRoles,
-  ],
+  mixins: [Sorter, UserRoles],
 
   props: {
     integrations: {
@@ -160,15 +133,12 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'activeOrganization',
-      'userToken',
-      'config',
-      'hasFeature'
-    ]),
+    ...mapGetters(['activeOrganization', 'userToken', 'config', 'hasFeature']),
 
     filteredApplications: function() {
-      let filteredArray =  this.integrations.filter(x=> x.customTargets && x.customTargets.length >0)
+      let filteredArray = this.integrations.filter(
+        x => x.customTargets && x.customTargets.length > 0
+      )
       return filteredArray
     },
 
@@ -177,21 +147,21 @@ export default {
         const isAdmin = propOr(false, 'isAdmin', this.activeOrganization)
         const isOwner = propOr(false, 'isOwner', this.activeOrganization)
         return isAdmin || isOwner
-      } else { return null}
+      } else {
+        return null
+      }
     },
     orgName: function() {
       return pathOr('', ['organization', 'name'], this.activeOrganization)
     }
   },
 
-  watch: {
-
-  },
+  watch: {},
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (vm.hasFeature('sandbox_org_feature')) {
-        vm.$router.push({name: 'create-org'})
+        vm.$router.push({ name: 'create-org' })
       }
     })
   },
@@ -203,15 +173,14 @@ export default {
       'editIntegration'
     ]),
 
-    ...mapState([
-    ]),
+    ...mapState([]),
 
     openDeleteIntegrationDialog: function(integration) {
       this.$refs.removeIntegrationDialog.setIntegration(integration)
       this.removeIntegrationDialogVisible = true
     },
     onDeleteIntegrationConfirm: function(integration) {
-      console.log("do deletion on " + integration.id)
+      console.log('do deletion on ' + integration.id)
       this.removeIntegration(integration.id)
       this.removeIntegrationDialogVisible = false
     },
@@ -227,7 +196,6 @@ export default {
       return ''
     },
     openEditIntegrationDialog: function(integration) {
-
       this.integrationEdit = integration
       this.addEditIntegrationDialogVisible = true
     },
@@ -242,7 +210,7 @@ export default {
      * Update integration via API
      * @param {Object} Integration
      */
-    onEditIntegrationConfirm: function(integration){
+    onEditIntegrationConfirm: function(integration) {
       let eventTargets = []
       for (const [key, value] of Object.entries(integration.eventTypeList)) {
         if (value) {
@@ -267,7 +235,6 @@ export default {
       }
 
       this.editIntegration(integrationDTO)
-
     },
 
     /**
@@ -275,43 +242,42 @@ export default {
      * @param {Object} integration
      */
     onAddIntegrationConfirm: function(integration) {
-
       let customTargets = {}
       for (const [key, value] of Object.entries(integration.customTargets)) {
         switch (value.target) {
-          case "DATASET":
+          case 'DATASET':
             customTargets.DATASET = null
-            break;
-          case "PACKAGE":
+            break
+          case 'PACKAGE':
             if (!('PACKAGE' in customTargets)) {
               customTargets.PACKAGE = []
             }
             customTargets.PACKAGE.push(value.filter)
-            break;
-          case "PACKAGES":
+            break
+          case 'PACKAGES':
             if (!('PACKAGES' in customTargets)) {
               customTargets.PACKAGES = []
             }
             customTargets.PACKAGES.push(value.filter)
-            break;
+            break
         }
       }
 
       let customTargetDTO = []
       for (const [key, value] of Object.entries(customTargets)) {
         let targetEntry = {
-          target: key,
+          target: key
         }
-        if (value && value.filter && value.filter.length > 0 ) {
+        if (value && value.filter && value.filter.length > 0) {
           switch (key) {
-            case "PACKAGE":
-            case "PACKAGES":
+            case 'PACKAGE':
+            case 'PACKAGES':
               targetEntry.filter = {
                 packageFilter: {
                   fileType: value
                 }
               }
-              break;
+              break
           }
         }
         customTargetDTO.push(targetEntry)
@@ -325,31 +291,29 @@ export default {
         isPrivate: !integration.isPublic,
         imageUrl: integration.imageUrl,
         isDefault: integration.isDefault,
-        hasAccess: integration.integrationType === 'viewer'? false: true,
+        hasAccess: integration.integrationType === 'viewer' ? false : true,
         customTargets: customTargetDTO,
-        targetEvents: ["CUSTOM"]
+        targetEvents: ['CUSTOM']
       }
 
       console.log(integrationDTO)
 
       this.createIntegration(integrationDTO).then(response => {
-          let detailPopup = this.$refs.apiKeyDetails
-          detailPopup.apiKey = {
-            key: response.tokenSecret.key,
-            secret: response.tokenSecret.secret
-          }
-          this.APIKeyDetailsVisisble = true
-          console.log(response)
+        let detailPopup = this.$refs.apiKeyDetails
+        detailPopup.apiKey = {
+          key: response.tokenSecret.key,
+          secret: response.tokenSecret.secret
         }
-      )
-    },
+        this.APIKeyDetailsVisisble = true
+        console.log(response)
+      })
+    }
   }
 }
 </script>
 
 <style scoped lang="scss">
 @import '../../../assets/variables';
-
 
 .addIntegrationContainer {
   display: flex;
@@ -391,12 +355,11 @@ export default {
   }
 
   p {
-    color: #71747C;
+    color: #71747c;
     font-size: 14px;
     line-height: 16px;
     text-align: center;
     margin-bottom: 16px;
   }
-
 }
 </style>
