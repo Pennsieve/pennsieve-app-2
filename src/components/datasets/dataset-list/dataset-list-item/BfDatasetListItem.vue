@@ -1,16 +1,13 @@
 <template>
   <div class="bf-dataset-list-item">
-    <el-row
-      type="flex"
-      :gutter="32"
-    >
+    <el-row type="flex" :gutter="32">
       <el-col :sm="14">
         <div class="dataset-info">
           <img
             :src="datasetBanner"
             :alt="datasetBannerAlt"
             class="bf-dataset-list-item-banner-image mr-16"
-          >
+          />
           <div>
             <h2>
               <router-link :to="datasetLink">
@@ -29,7 +26,9 @@
               class="publish-info mb-8"
             >
               <!-- Published to Pennsieve Discover -->
-              <template v-if="dataset.publication.type !== PublicationType.EMBARGO">
+              <template
+                v-if="dataset.publication.type !== PublicationType.EMBARGO"
+              >
                 <svg-icon
                   class="mr-8"
                   name="icon-discover"
@@ -39,17 +38,14 @@
                 <p>
                   Published a copy on
                   <strong>{{ publishedDate }}</strong>
-                  <a
-                    :href="discoverLink"
-                    target="_blank"
-                  >
-                    View on Discover
-                  </a>
+                  <a :href="discoverLink" target="_blank">View on Discover</a>
                 </p>
               </template>
 
               <!-- Embargoed dataset -->
-              <template v-if="dataset.publication.type === PublicationType.EMBARGO">
+              <template
+                v-if="dataset.publication.type === PublicationType.EMBARGO"
+              >
                 <svg-icon
                   class="mr-8"
                   name="icon-discover"
@@ -58,7 +54,9 @@
                 />
                 <p>
                   Embargoed until
-                  <strong>{{ formatDate(dataset.publication.embargoReleaseDate) }}</strong>
+                  <strong>
+                    {{ formatDate(dataset.publication.embargoReleaseDate) }}
+                  </strong>
                 </p>
               </template>
             </div>
@@ -119,9 +117,7 @@
                   Add a description
                 </router-link>
               </p>
-              <p v-else>
-                {{ dataset.content.description }}
-              </p>
+              <p v-else>{{ dataset.content.description }}</p>
               <p class="dataset-meta">
                 Owned by
                 <strong>{{ owner }}</strong>
@@ -138,10 +134,7 @@
           </div>
         </div>
       </el-col>
-      <el-col
-        :sm="4"
-        class="list-item-col-spacer"
-      >
+      <el-col :sm="4" class="list-item-col-spacer">
         <div class="bf-dataset-list-item-status">
           <tag-pill
             :indicator-color="dataset.status.color"
@@ -165,14 +158,10 @@
           </tag-pill>
         </div>
       </el-col>
-      <el-col
-        :sm="6"
-      >
+      <el-col :sm="6">
         <div class="bf-dataset-list-item-storage">
           <p class="bf-dataset-list-item-stat">
-            <strong class="col-label">
-              {{ storage }}
-            </strong>
+            <strong class="col-label">{{ storage }}</strong>
             Storage
           </p>
         </div>
@@ -182,30 +171,21 @@
 </template>
 
 <script>
-import {
-  compose,
-  sum,
-  values,
-  find,
-  propEq,
-  propOr,
-  path,
-  pathOr
-} from 'ramda'
-import {
-  mapActions,
-  mapGetters,
-  mapState
-} from 'vuex'
+import { compose, sum, values, find, propEq, propOr, path, pathOr } from 'ramda'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 import BfIconWaiting from '@/components/shared/bf-waiting-icon/bf-waiting-icon.vue'
 import TagPill from '@/components/shared/TagPill/TagPill.vue'
 
-
 import BfStorageMetricsMixin from '@/mixins/bf-storage-metrics'
 import FormatDate from '@/mixins/format-date'
 import DatasetPublishedData from '@/mixins/dataset-published-data'
-import { PublicationType, PublicationStatus, UserFriendlyPublicationStatus, PublicationStatusColor } from '@/utils/constants'
+import {
+  PublicationType,
+  PublicationStatus,
+  UserFriendlyPublicationStatus,
+  PublicationStatusColor
+} from '@/utils/constants'
 
 export default {
   name: 'BfDatasetListItem',
@@ -215,11 +195,7 @@ export default {
     TagPill
   },
 
-  mixins: [
-    BfStorageMetricsMixin,
-    FormatDate,
-    DatasetPublishedData
-  ],
+  mixins: [BfStorageMetricsMixin, FormatDate, DatasetPublishedData],
 
   props: {
     dataset: {
@@ -229,13 +205,11 @@ export default {
     showInfo: {
       type: Boolean,
       default: true
-    },
+    }
   },
 
   computed: {
-    ...mapGetters([
-      'hasFeature',
-    ]),
+    ...mapGetters(['hasFeature']),
 
     ...mapState([
       'profile',
@@ -264,7 +238,7 @@ export default {
         'In Review': '#FFB000',
         'Work in Progress': '#F1F1F3',
         'No Status': '#F1F1F3',
-        'Completed': '#17BB62'
+        Completed: '#17BB62'
       }
       return status[this.formatDatasetStatus]
     },
@@ -276,7 +250,9 @@ export default {
      * @returns {String}
      */
     statusFontColor: function() {
-      return this.formatDatasetStatus === 'Work in Progress' ? '#2760FF' : '#404554'
+      return this.formatDatasetStatus === 'Work in Progress'
+        ? '#2760FF'
+        : '#404554'
     },
 
     /**
@@ -342,7 +318,7 @@ export default {
       const datasetId = path(['content', 'id'], this.dataset)
       let routeName = 'dataset-overview'
 
-      const link = { name: routeName, params: { datasetId }}
+      const link = { name: routeName, params: { datasetId } }
       return datasetId ? link : ''
     },
 
@@ -352,7 +328,10 @@ export default {
      * @returns {String}
      */
     datasetBanner: function() {
-      return this.dataset.bannerPresignedUrl || '/static/images/banner-placeholder.jpg'
+      return (
+        this.dataset.bannerPresignedUrl ||
+        '/static/images/banner-placeholder.jpg'
+      )
     },
 
     /**
@@ -386,9 +365,9 @@ export default {
     },
 
     /**
-      * Compute publication status color
-      * @returns {String}
-      */
+     * Compute publication status color
+     * @returns {String}
+     */
     publicationStatusColor: function() {
       const status = this.dataset.publication.status
       if (status == PublicationStatus.REQUESTED) {
@@ -402,23 +381,13 @@ export default {
       }
     },
 
-
     PublicationType: function() {
       return PublicationType
     }
   },
 
   methods: {
-    ...mapActions([
-      'updateDataset'
-    ]),
-
-    /**
-     * Show intercom window
-     */
-    showIntercom: function() {
-      window.Intercom('show')
-    }
+    ...mapActions(['updateDataset'])
   }
 }
 </script>
@@ -456,7 +425,7 @@ export default {
   margin: -2px 4px -2px -2px;
 }
 
-@media only screen and (max-width: 1200px){
+@media only screen and (max-width: 1200px) {
   .list-item-status-wrapper {
     width: 70px;
     height: fit-content;

@@ -21,10 +21,19 @@
           <li>
             <a
               class="bf-menu-item"
-              href="#"
-              @click.prevent="showIntercom"
+              href="https://forms.clickup.com/8664796/f/88dpw-2951/I6M7Z1V8NEBQFTIKSU"
+              target="_blank"
             >
-              Send Us a Message
+              Contact Us
+            </a>
+          </li>
+          <li>
+            <a
+              class="bf-menu-item"
+              href="https://docs.pennsieve.io/page/pennsieve-open-office-hours"
+              target="_blank"
+            >
+              Office Hours
             </a>
           </li>
           <li>
@@ -63,13 +72,8 @@
       class="user-menu bf-navigation-item"
       :class="{ active: menuOpen }"
     >
-      <svg-icon
-        class="icon-main"
-        icon="icon-help-message"
-      />
-      <span class="label">
-        Get Help
-      </span>
+      <svg-icon class="icon-main" icon="icon-help-message" />
+      <span class="label">Get Help</span>
       <svg-icon
         slot="suffix"
         icon="icon-arrow-up"
@@ -97,9 +101,7 @@ export default {
     GettingStarted
   },
 
-  mixins: [
-    UserAccountAge
-  ],
+  mixins: [UserAccountAge],
 
   data() {
     return {
@@ -108,9 +110,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'hasFeature'
-    ]),
+    ...mapGetters(['hasFeature']),
 
     /**
      * Compute if the getting started guide should be shown
@@ -125,9 +125,7 @@ export default {
      * started guide is being shown
      */
     popoverWidth: function() {
-      return this.showGettingStarted
-        ? 340
-        : 260
+      return this.showGettingStarted ? 340 : 260
     }
   },
 
@@ -145,14 +143,6 @@ export default {
      */
     showUserMenu: function() {
       this.menuOpen = true
-    },
-
-    /**
-     * Show intercom window
-     */
-    showIntercom: function() {
-      window.Intercom('show')
-      this.menuOpen = false
     }
   }
 }

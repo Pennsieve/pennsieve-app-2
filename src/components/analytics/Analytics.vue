@@ -5,7 +5,19 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import * as site from '@/site-config/site.json'
 import EventBus from '../../utils/event-bus'
-import { path, pathOr, compose, last, split, prop, propOr, has, defaultTo, find, pathEq } from 'ramda'
+import {
+  path,
+  pathOr,
+  compose,
+  last,
+  split,
+  prop,
+  propOr,
+  has,
+  defaultTo,
+  find,
+  pathEq
+} from 'ramda'
 
 export default Vue.component('bf-analytics', {
   computed: {
@@ -40,8 +52,6 @@ export default Vue.component('bf-analytics', {
     // Custom event handlers
     // EventBus.$on('track-user', this.trackUser.bind(this))
     EventBus.$on('track-event', this.trackEvent.bind(this))
-    // Intercom
-    this.$store.watch(this.getActiveOrganization, this.bootIntercom.bind(this))
   },
 
   beforeDestroy() {
@@ -50,42 +60,6 @@ export default Vue.component('bf-analytics', {
   },
 
   methods: {
-    /**
-     * Registers the user with Intercom when an active organization is set or changes.
-     */
-    bootIntercom: function() {
-      const isProduction = location.href.indexOf('app.pennsieve.') >= 0
-      const intercomAppId = isProduction ? 'tmzdtqj9' : 'tmzdtqj9'
-
-      const userId = propOr('', 'id', this.profile)
-      const userEmail = propOr('', 'email', this.profile)
-
-      Intercom('boot', {
-        app_id: intercomAppId,
-        user_id: userId,
-        email: userEmail,
-        company: {
-          'id': this.activeOrgId,
-          'name': this.activeOrgName,
-          'subscriptionState': pathOr('', ['organization', 'subscriptionState', 'type'], this.activeOrganization),
-          'features': pathOr([], ['organization', 'features'], this.activeOrganization).join(', '),
-          'environment': site.environment
-        }
-      });
-    },
-
-    /**
-     * Generic event handler for Intercom
-     * @param {Object} evt
-     */
-    trackEvent: function(evt) {
-      const eventName = propOr('', 'name', evt)
-      const meta = propOr({}, 'meta', evt)
-      if (eventName) {
-        Intercom('trackEvent', eventName, meta)
-      }
-    },
-
     /**
      * Handles `track-user` custom event. Calls Heap Analytics `addUserProperties` API for detailed user tracking.
      * @param {Object} evt
@@ -118,10 +92,11 @@ export default Vue.component('bf-analytics', {
      * @param {Array} organizationsList
      * @return {Object}
      */
-    getOrgName: (preferredOrgId, organizationsList) => compose(
-      pathOr('', ['organization', 'name']),
-      find(pathEq(['organization', 'id'], preferredOrgId))
-    )(organizationsList),
+    getOrgName: (preferredOrgId, organizationsList) =>
+      compose(
+        pathOr('', ['organization', 'name']),
+        find(pathEq(['organization', 'id'], preferredOrgId))
+      )(organizationsList),
 
     /**
      * Returns the user data object for Heap Analytics tracking.
@@ -140,11 +115,11 @@ export default Vue.component('bf-analytics', {
         'Blackfynn ID': id,
         'First Name': data.firstName,
         'Last Name': data.lastName,
-        'Email': data.email,
-        'Title': data.credential,
-        'Organization': orgName
+        Email: data.email,
+        Title: data.credential,
+        Organization: orgName
       }
-    },
+    }
   }
 })
 </script>

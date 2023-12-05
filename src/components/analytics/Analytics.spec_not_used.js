@@ -4,7 +4,6 @@ import { state, actions, mutations, getters } from '../../vuex/store'
 import Analytics from './Analytics'
 
 // mock globals
-global.Intercom = jest.fn(() => {})
 global.ga = jest.fn(() => {})
 // global.heap = {
 //   identify: jest.fn(() => {}),
@@ -118,19 +117,4 @@ describe('Analytics.vue', () => {
   //   expect(heap.identify.mock.calls.length).toBe(0);
   //   expect(heap.addUserProperties.mock.calls.length).toBe(0);
   // })
-
-  it('bootIntercom: initializes Intercom', () => {
-    cmp.vm.bootIntercom()
-    expect(Intercom.mock.calls.length).toBe(1);
-  })
-
-  it('trackEvent: no event name', () => {
-    cmp.vm.trackEvent({})
-    expect(Intercom.mock.calls.length).toBe(0)
-  })
-
-  it('trackEvent: has event name', () => {
-    cmp.vm.trackEvent({ name: 'Test' })
-    expect(Intercom.mock.calls.length).toBe(1)
-  })
 })

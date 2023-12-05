@@ -1,9 +1,6 @@
 <template>
   <div class="create-button-wrapper">
-    <locked-dialog
-      :visible="visible"
-      @toggle-visible="toggleVisible"
-    />
+    <locked-dialog :visible="visible" @toggle-visible="toggleVisible" />
     <el-popover
       ref="recordMenu"
       v-model="recordMenuOpen"
@@ -26,10 +23,7 @@
 
       <div class="bf-menu scroll-menu">
         <ul>
-          <li
-            v-for="item in filteredConcepts"
-            :key="item.id"
-          >
+          <li v-for="item in filteredConcepts" :key="item.id">
             <router-link
               class="bf-menu-item"
               :to="{
@@ -53,12 +47,9 @@
       >
         <h3>You don't have any records</h3>
         <p>
-          Once you set up <router-link
-            :to="{ name: 'models' }"
-            class=""
-          >
-            models
-          </router-link>, you'll be able to create records.
+          Once you set up
+          <router-link :to="{ name: 'models' }" class="">models</router-link>
+          , you'll be able to create records.
         </p>
       </filter-empty-state>
     </el-popover>
@@ -71,13 +62,16 @@
       transition=""
       :visible-arrow="false"
       :popper-options="{
-        modifiers: [ 'offset', 'preventOverflow', createMenuModifier, 'applyStyle' ]
+        modifiers: [
+          'offset',
+          'preventOverflow',
+          createMenuModifier,
+          'applyStyle'
+        ]
       }"
     >
       <template v-if="datasetLocked">
-        <p class="locked-copy">
-          {{ datasetLockedMessage }}
-        </p>
+        <p class="locked-copy">{{ datasetLockedMessage }}</p>
         <a
           v-if="dataset.publication.type === PublicationType.EMBARGO"
           href="#"
@@ -91,14 +85,7 @@
           />
           Tell Me More
         </a>
-        <a
-          v-else
-          href="#"
-          target="_blank"
-          @click.prevent="showIntercom"
-        >
-          Get Help
-        </a>
+        <a v-else href="#" target="_blank">Get Help</a>
       </template>
 
       <template v-else>
@@ -113,25 +100,18 @@
                   href="#"
                   @click.prevent
                 >
-                  New Record <svg-icon
-                    icon="icon-arrow-right"
-                    width="10"
-                    height="10"
-                  />
+                  New Record
+                  <svg-icon icon="icon-arrow-right" width="10" height="10" />
                 </a>
               </li>
             </ul>
 
-            <hr v-show="hasConcepts">
+            <hr v-show="hasConcepts" />
           </template>
 
           <ul v-if="getPermission('editor')">
             <li>
-              <a
-                class="bf-menu-item"
-                href="#"
-                @click.prevent="uploadFile"
-              >
+              <a class="bf-menu-item" href="#" @click.prevent="uploadFile">
                 Upload File
               </a>
             </li>
@@ -147,7 +127,7 @@
           </ul>
 
           <template v-if="getPermission('manager')">
-            <hr>
+            <hr />
 
             <ul>
               <li>
@@ -191,8 +171,6 @@
               </li>
             </ul>
           </template>
-
-
         </div>
       </template>
     </el-popover>
@@ -201,13 +179,13 @@
       id="create-button"
       v-popover:createMenu
       class="bf-navigation-item"
-      :class="{ 'open' : createMenuOpen }"
+      :class="{ open: createMenuOpen }"
     >
       <img
         v-if="datasetLocked"
         src="/static/images/icons/lock-create.svg"
         alt="icon for locked dataset"
-      >
+      />
       <svg
         v-if="!datasetLocked"
         id="create-button-icon"
@@ -224,58 +202,42 @@
             y2="5.0012"
             gradientUnits="userSpaceOnUse"
           >
-            <stop
-              offset="0.0161"
-              stop-color="#fff"
-              stop-opacity="0.2"
-            /><stop
-              offset="0.322"
-              stop-color="#f2f3f4"
-              stop-opacity="0.1875"
-            /><stop
-              offset="0.5772"
-              stop-color="#cacdd1"
-              stop-opacity="0.1487"
-            /><stop
-              offset="0.8134"
-              stop-color="#878d96"
-              stop-opacity="0.0836"
-            /><stop
-              offset="1"
-              stop-color="#3b4554"
-              stop-opacity="0.01"
-            />
+            <stop offset="0.0161" stop-color="#fff" stop-opacity="0.2" />
+            <stop offset="0.322" stop-color="#f2f3f4" stop-opacity="0.1875" />
+            <stop offset="0.5772" stop-color="#cacdd1" stop-opacity="0.1487" />
+            <stop offset="0.8134" stop-color="#878d96" stop-opacity="0.0836" />
+            <stop offset="1" stop-color="#3b4554" stop-opacity="0.01" />
           </linearGradient>
-        </defs><g id="document">
+        </defs>
+        <g id="document">
           <polygon
             points="21.999 22.001 1.999 22.001 1.999 2.001 15.999 2.001 21.999 7.97 21.999 22.001"
             fill="#dadada"
-          /><path
+          />
+          <path
             d="M15.9987,2.0012v4.5a1.5,1.5,0,0,0,1.5,1.5h4.5Z"
             fill="#71747c"
-          /><g
-            id="_generic_"
-            data-name="&lt;generic&gt;"
-          >
-            <g
-              id="_artwork_"
-              data-name="&lt;artwork&gt;"
-            >
+          />
+          <g id="_generic_" data-name="&lt;generic&gt;">
+            <g id="_artwork_" data-name="&lt;artwork&gt;">
               <polygon
                 points="21.999 22.001 1.999 22.001 1.999 2.001 15.999 2.001 21.999 7.97 21.999 22.001"
                 fill="#dadada"
-              /><path
+              />
+              <path
                 d="M15.9987,2.0012v4.5a1.5,1.5,0,0,0,1.5,1.5h4.5Z"
                 fill="#71747c"
               />
-            </g><path
+            </g>
+            <path
               id="_gradient_"
               data-name="&lt;gradient&gt;"
               d="M15.9987,2.0012v4.5a1.5,1.5,0,0,0,1.5,1.5h4.5Z"
               fill="url(#create_icon_gradient)"
             />
           </g>
-        </g><g id="plus-sign">
+        </g>
+        <g id="plus-sign">
           <path
             d="M15.9987,11.0012h-3v-3a1,1,0,0,0-2,0v3h-3a1,1,0,1,0,0,2h3v3a1,1,0,0,0,2,0v-3h3a1,1,0,0,0,0-2Z"
             fill="currentColor"
@@ -283,18 +245,8 @@
         </g>
       </svg>
       <template v-show="!condensed">
-        <span
-          v-if="datasetLocked"
-          class="label"
-        >
-          View Only
-        </span>
-        <span
-          v-else
-          class="label"
-        >
-          Create
-        </span>
+        <span v-if="datasetLocked" class="label">View Only</span>
+        <span v-else class="label">Create</span>
         <svg-icon
           color="#71747C"
           class="icon-arrow"
@@ -319,7 +271,6 @@ import LockedDialog from '../../datasets/LockedDialog/LockedDialog.vue'
 import { PublicationType } from '@/utils/constants'
 import { DatasetLockedMessaging } from '@/utils/constants'
 
-
 export default {
   name: 'CreateButton',
 
@@ -343,32 +294,24 @@ export default {
   },
 
   computed: {
-    ...mapState([
-      'dataset',
-      'concepts',
-      'modelTemplates'
-    ]),
+    ...mapState(['dataset', 'concepts', 'modelTemplates']),
 
-    ...mapGetters([
-      'hasFeature',
-      'getPermission',
-      'datasetLocked'
-    ]),
+    ...mapGetters(['hasFeature', 'getPermission', 'datasetLocked']),
 
-
-      /**
-       * Dataset locked message based on dataset publication type
-       * @returns {String}
-       */
-      datasetLockedMessage: function() {
-        return this.dataset.publication.type === PublicationType.EMBARGO ? DatasetLockedMessaging.EMBARGO_LOCKED_MESSAGE :
-        DatasetLockedMessaging.DEFAULT_LOCKED_MESSAGE
-      },
+    /**
+     * Dataset locked message based on dataset publication type
+     * @returns {String}
+     */
+    datasetLockedMessage: function() {
+      return this.dataset.publication.type === PublicationType.EMBARGO
+        ? DatasetLockedMessaging.EMBARGO_LOCKED_MESSAGE
+        : DatasetLockedMessaging.DEFAULT_LOCKED_MESSAGE
+    },
 
     /**
      * Publication Type constant
      * @returns {String}
-    */
+     */
     PublicationType: function() {
       return PublicationType
     },
@@ -378,7 +321,9 @@ export default {
      * @returns {String}
      */
     createPopoverClass: function() {
-      return this.datasetLocked ? 'create-menu dataset-locked' : 'create-menu no-padding'
+      return this.datasetLocked
+        ? 'create-menu dataset-locked'
+        : 'create-menu no-padding'
     },
 
     /**
@@ -420,7 +365,12 @@ export default {
     filteredConcepts: function() {
       if (this.unlockedConcepts.length) {
         return this.unlockedConcepts.filter(concept => {
-          return concept.displayName.toLowerCase().indexOf(this.modelFilter.toLowerCase()) > -1 && concept.propertyCount > 0
+          return (
+            concept.displayName
+              .toLowerCase()
+              .indexOf(this.modelFilter.toLowerCase()) > -1 &&
+            concept.propertyCount > 0
+          )
         })
       }
 
@@ -429,7 +379,6 @@ export default {
   },
 
   methods: {
-
     /**
      * Toggles modal to be visible or not
      * @param {Boolean} val
@@ -459,14 +408,6 @@ export default {
       data.instance._options.placement = placement
 
       return data
-    },
-
-    /**
-     * Show intercom window
-     */
-    showIntercom: function() {
-      window.Intercom('show')
-      this.createMenuOpen = false
     },
 
     /**
@@ -513,84 +454,85 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '../../../assets/_variables.scss';
+@import '../../../assets/_variables.scss';
 
-  .create-button-wrapper {
+.create-button-wrapper {
+  font-size: 14px;
+}
+
+.bf-navigation-item {
+  cursor: pointer;
+  &:hover,
+  &:focus,
+  &.open {
+    background: none;
+    #create-button-icon {
+      color: $app-primary-color;
+    }
+  }
+  .svg-icon.icon-arrow {
+    margin-right: 0;
+    min-width: 0;
+  }
+}
+
+#create-button-icon {
+  color: $gray_6;
+  flex-shrink: 0;
+  height: 28px;
+  margin: -2px;
+  width: 28px;
+  .condensed & {
+    margin: -4px;
+  }
+}
+
+#create-button {
+  color: $gray_6;
+  display: flex;
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  .label {
+    margin-left: 20px;
+    text-align: initial;
     font-size: 14px;
   }
+}
+.locked-copy {
+  color: #000;
+}
 
-  .bf-navigation-item {
-    cursor: pointer;
-    &:hover, &:focus, &.open {
-      background: none;
-      #create-button-icon {
-        color: $app-primary-color;
-      }
-    }
-    .svg-icon.icon-arrow {
-      margin-right: 0;
-      min-width: 0;
-    }
+.filter-empty-state {
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px;
   }
-
-
-  #create-button-icon {
-    color: $gray_6;
-    flex-shrink: 0;
-    height: 28px;
-    margin: -2px;
-    width: 28px;
-    .condensed & {
-      margin: -4px
-    }
+  p {
+    margin: 0;
   }
-
-  #create-button {
-    color: $gray_6;
-    display: flex;
-    width: 100%;
-    display: flex;
-    align-items: center;
-
-    .label {
-      margin-left: 20px;
-      text-align: initial;
-      font-size: 14px;
-    }
-  }
-  .locked-copy {
-    color: #000
-  }
-
-  .filter-empty-state {
-    h3 {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0 0 8px;
-    }
-    p {
-      margin: 0;
-    }
-  }
+}
 </style>
 <style lang="scss">
-  .new-record-menu {
-    margin-left: 0 !important;
+.new-record-menu {
+  margin-left: 0 !important;
+}
+.create-menu.el-popover {
+  box-sizing: border-box;
+  margin-top: 16px;
+}
+.create-menu.dataset-locked {
+  padding: 24px 16px;
+  text-align: center;
+  p {
+    font-size: 13px;
   }
-  .create-menu.el-popover {
-    box-sizing: border-box;
-    margin-top: 16px;
+  a {
+    align-items: center;
+    display: flex;
+    justify-content: center;
   }
-  .create-menu.dataset-locked {
-    padding: 24px 16px;
-    text-align: center;
-    p {
-      font-size: 13px;
-    }
-    a {
-      align-items: center;
-      display: flex;
-      justify-content: center;
-    }
-  }
+}
 </style>
