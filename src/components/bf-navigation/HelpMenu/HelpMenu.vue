@@ -30,7 +30,7 @@
           <li>
             <a
               class="bf-menu-item"
-              href="https://docs.pennsieve.io/page/pennsieve-open-office-hours"
+              href="https://docs.pennsieve.io/docs/pennsieve-open-office-hours"
               target="_blank"
             >
               Office Hours
