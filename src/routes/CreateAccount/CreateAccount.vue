@@ -3,13 +3,12 @@
     <div class="create-account-wrapper">
       <div class="create-account-inner">
         <div v-if="!accountCreated">
-          <h2 class="sharp-sans">
-            Create Your Account
-          </h2>
+          <h2 class="sharp-sans">Create Your Account</h2>
           <p>
             Welcome to Pennsieve! Complete the following form so that we can
             register your account.
-            <strong>All fields are required</strong>.
+            <strong>All fields are required</strong>
+            .
           </p>
           <el-form
             id="signup-form"
@@ -20,10 +19,7 @@
             @submit.native.prevent="onFormSubmit"
             @keyup.enter.native="onFormSubmit"
           >
-            <el-form-item
-              label="First Name"
-              prop="firstName"
-            >
+            <el-form-item label="First Name" prop="firstName">
               <el-input
                 v-model="signupForm.firstName"
                 required
@@ -31,30 +27,15 @@
                 autofocus
               />
             </el-form-item>
-            <el-form-item
-              label="Last Name"
-              prop="lastName"
-            >
-              <el-input
-                v-model="signupForm.lastName"
-                required
-              />
+            <el-form-item label="Last Name" prop="lastName">
+              <el-input v-model="signupForm.lastName" required />
             </el-form-item>
-            <el-form-item
-              label="Email"
-              prop="email"
-            >
-              <el-input
-                v-model="signupForm.email"
-                required
-              />
+            <el-form-item label="Email" prop="email">
+              <el-input v-model="signupForm.email" required />
             </el-form-item>
             <div class="mb-32 mt-32">
               <el-form-item class="button-wrap">
-                <bf-button
-                  class="secondary"
-                  @click="onFormCancel"
-                >
+                <bf-button class="secondary" @click="onFormCancel">
                   Cancel
                 </bf-button>
                 <bf-button
@@ -67,14 +48,12 @@
               </el-form-item>
             </div>
           </el-form>
-          <p
-            v-if="hasError"
-            class="error-copy"
-          >
-            Sorry, an error has occurred.<br> Please try again or <a
-              href="#"
-              @click.prevent="openIntercom"
-            >contact support</a>.
+          <p v-if="hasError" class="error-copy">
+            Sorry, an error has occurred.
+            <br />
+            Please try again or
+            <a href="#">contact support</a>
+            .
           </p>
           <p class="agreement">
             By clicking “Create Account" you are agreeing to the Pennsieve
@@ -90,17 +69,17 @@
               target="_blank"
             >
               Privacy Policy
-            </a>.
+            </a>
+            .
           </p>
         </div>
         <div v-else>
-          <h2 class="sharp-sans">
-            Thank You
-          </h2>
-          <p>Thank you for registering an account. An email should have been sent to create your password.</p>
-          <router-link :to="{ name: 'home' }">
-            Back to login
-          </router-link>
+          <h2 class="sharp-sans">Thank You</h2>
+          <p>
+            Thank you for registering an account. An email should have been sent
+            to create your password.
+          </p>
+          <router-link :to="{ name: 'home' }">Back to login</router-link>
         </div>
       </div>
     </div>
@@ -117,12 +96,10 @@ export default {
   name: 'CreateAccount',
 
   components: {
-    BfButton,
+    BfButton
   },
 
-  mixins: [
-    Request
-  ],
+  mixins: [Request],
 
   data() {
     return {
@@ -136,13 +113,26 @@ export default {
       },
       signupRules: {
         firstName: [
-          { required: true, message: 'Please enter your first name', trigger: 'submit' }
+          {
+            required: true,
+            message: 'Please enter your first name',
+            trigger: 'submit'
+          }
         ],
         lastName: [
-          { required: true, message: 'Please enter your last name', trigger: 'submit' }
+          {
+            required: true,
+            message: 'Please enter your last name',
+            trigger: 'submit'
+          }
         ],
         email: [
-          { required: true, message: 'Please enter your email', trigger: 'submit', type: 'email' }
+          {
+            required: true,
+            message: 'Please enter your email',
+            trigger: 'submit',
+            type: 'email'
+          }
         ]
       },
       hasError: false
@@ -150,9 +140,7 @@ export default {
   },
 
   computed: {
-    ...mapState([
-      'config'
-    ])
+    ...mapState(['config'])
   },
 
   async mounted() {
@@ -163,20 +151,12 @@ export default {
     this.$recaptchaInstance.hideBadge()
   },
 
-
   methods: {
-    /**
-     * Open intercom to contact supprt
-     */
-    openIntercom: function() {
-      window.Intercom('show')
-    },
-
     /**
      * Take the user back home
      */
     onFormCancel: function() {
-      this.$router.push( { name: 'home' })
+      this.$router.push({ name: 'home' })
     },
 
     /**
@@ -184,13 +164,12 @@ export default {
      * send request to the endpoint
      */
     onFormSubmit: function() {
-      this.$refs.signupForm
-        .validate((valid) => {
-          if (!valid) {
-            return
-          }
-          this.createAccount()
-        })
+      this.$refs.signupForm.validate(valid => {
+        if (!valid) {
+          return
+        }
+        this.createAccount()
+      })
     },
 
     /**
@@ -218,9 +197,8 @@ export default {
         this.isCreatingAccount = false
         this.hasError = true
       }
-
     }
-  },
+  }
 }
 </script>
 
