@@ -8,7 +8,8 @@
           height="18"
           width="18"
           color="#fff"
-        />{{ signInCopy }}
+        />
+        {{ signInCopy }}
       </a>
     </div>
     <div v-show="isSignedIn" class="link-container">
@@ -19,7 +20,8 @@
           height="18"
           width="18"
           color="#fff"
-        />{{ displayNameCopy }}
+        />
+        {{ displayNameCopy }}
       </a>
       <el-popover
         ref="userDropdownMenu"
