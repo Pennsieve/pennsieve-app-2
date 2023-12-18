@@ -7,17 +7,50 @@
   >
     <bf-dialog-header slot="title" title="Contact Us" />
     <dialog-body>
-      <h2>Need to get in touch with the Pennsieve Support Team?</h2>
-      <div className="contact-method-container">
-        <h3>Email Support</h3>
-        Send us a message
-        <svg-icon name="icon-arrow-right" height="8" width="8" />
-      </div>
-      <div className="contact-method-container">
-        <h3>Pennsieve Open Office Hours</h3>
-      </div>
-      <div className="contact-method-container">
-        <h3>Learn more about the Wagenaar Lab</h3>
+      <h2 class="dialog-heading">
+        Need to get in touch with the Pennsieve Support Team?
+      </h2>
+      <div class="flex-col">
+        <div class="contact-method-container">
+          <h3>Email Support</h3>
+          <p>Contact us at support@pennsieve.io</p>
+          <a href="mailto:support@pennsieve.io" target="_blank">
+            Send email
+            <svg-icon name="icon-arrow-right" height="8" width="8" />
+          </a>
+        </div>
+        <div class="contact-method-container">
+          <h3>Office Hours</h3>
+          <p>1 p.m. - 2 p.m. (EST) Every Monday</p>
+          <a
+            href="https://pennmedicine.zoom.us/j/91229384998?pwd=d2h3azZnR0UrRDlyeGo5akg4dzc5dz09"
+            target="_blank"
+          >
+            Join on Zoom
+            <svg-icon name="icon-arrow-right" height="8" width="8" />
+          </a>
+        </div>
+        <div class="contact-method-container">
+          <h3>Learn More</h3>
+          <p>Stay in touch with the Wagenaar Lab</p>
+          <div class="flex-col">
+            <a
+              href="https://twitter.com/i/flow/login?redirect_after_login=%2Fwagenaarlab"
+              target="_blank"
+            >
+              Visit Twitter
+              <svg-icon name="icon-arrow-right" height="8" width="8" />
+            </a>
+            <a
+              href="https://wagenaarlab.org/"
+              target="_blank"
+              class="margin-top"
+            >
+              Visit Website
+              <svg-icon name="icon-arrow-right" height="8" width="8" />
+            </a>
+          </div>
+        </div>
       </div>
 
       <!-- <div class="flex">
@@ -124,6 +157,26 @@ export default {
 <style scoped lang="scss">
 @import '../../../../assets/_variables.scss';
 
+.margin-top {
+  margin-top: 10px;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.dialog-heading {
+  margin: 20px 0px;
+  font-size: 18px;
+  color: #928d85;
+}
+
 .svg-icon {
   color: $app-primary-color;
 }
@@ -138,8 +191,15 @@ export default {
   height: 250px;
 }
 
-h2 {
-  color: #928d85;
-  margin-top: 20px;
+a {
+  color: #3a26cb;
+}
+
+.contact-method-container {
+  margin: 5px;
+}
+
+.center {
+  text-align: center;
 }
 </style>
