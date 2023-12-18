@@ -18,8 +18,8 @@
           <el-option
             v-for="(item, i) in options"
             :key="i"
-            :label="item ? item.label : ''"
-            :value="item ? item.value : ''"
+            :label="item.label"
+            :value="item.value"
           ></el-option>
         </el-select>
       </div>
@@ -94,7 +94,8 @@ export default {
       options: [],
       value: '',
       selectedApplication: {},
-      isLoading: false
+      isLoading: false,
+      dataIsLoading: true
     }
   },
 
@@ -148,6 +149,9 @@ export default {
       if (Object.keys(file).length) {
         this.packageForm.name = file.content.name
       }
+    },
+    integrations: function() {
+      this.formatCustomIntegrationsOptions()
     }
   },
 
@@ -165,15 +169,19 @@ export default {
      * Access integrations from global state and format options for input select
      */
     formatCustomIntegrationsOptions: function() {
-      this.options = this.integrations.map(integration => {
-        const [eventTargetType] = [...integration.eventTargets]
-        if (eventTargetType === 'CUSTOM') {
-          return {
-            value: integration.name,
-            label: integration.displayName
+      this.options = this.integrations
+        .map(integration => {
+          const [eventTargetType] = [...integration.eventTargets]
+          if (eventTargetType === 'CUSTOM') {
+            return {
+              value: integration.name,
+              label: integration.displayName
+            }
           }
-        }
-      })
+        })
+        .filter(function(element) {
+          return element !== undefined
+        })
     },
 
     /**
