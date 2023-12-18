@@ -1,10 +1,7 @@
 <template>
   <div class="pennsieve-header">
     <div class="logo-wrap">
-      <img
-        src="/static/images/pennsieve-logo-white.svg"
-        class="logo"
-      >
+      <img src="/static/images/pennsieve-logo-white.svg" class="logo" />
     </div>
 
     <div
@@ -37,7 +34,18 @@
           height="22"
           width="22"
           color="#fff"
-        />{{ helpLinkCopy }}
+        />
+        {{ helpLinkCopy }}
+      </a>
+      <a target="_blank" class="mr-16" @click="showContactUsDialog">
+        <svg-icon
+          :class="iconSpacing"
+          icon="icon-info"
+          height="22"
+          width="22"
+          color="#fff"
+        />
+        Contact Us
       </a>
       <bf-user-dropdown-menu
         :is-mobile="isMobile"
@@ -51,6 +59,7 @@
       @succesfulLogin="loginUser"
       @close-log-in-dialog="closeLogInModal"
     />
+    <contact-us-dialog ref="contactUsDialog" />
   </div>
 </template>
 
@@ -59,6 +68,7 @@ import { mapState } from 'vuex'
 import DatasetSearch from '@/components/DatasetSearch/DatasetSearch.vue'
 import BfLogInDialog from '@/components/shared/BfLogInDialog/BfLogInDialog.vue'
 import BfUserDropdownMenu from '@/components/shared/BfUserDropdownMenu/BfUserDropdownMenu.vue'
+import ContactUsDialog from './contact-us-dialog/ContactUsDialog.vue'
 
 export default {
   name: 'PennsieveHeader',
@@ -66,7 +76,8 @@ export default {
   components: {
     DatasetSearch,
     BfLogInDialog,
-    BfUserDropdownMenu
+    BfUserDropdownMenu,
+    ContactUsDialog
   },
 
   props: {
@@ -137,9 +148,10 @@ export default {
       let routeName = 'create-account'
 
       return {
-        name: routeName, params: { }
+        name: routeName,
+        params: {}
       }
-    },
+    }
   },
 
   beforeMount() {
@@ -149,6 +161,13 @@ export default {
   },
 
   methods: {
+    /**
+     * Show Contact Us Dialog
+     */
+    showContactUsDialog: function() {
+      this.$refs.contactUsDialog.visible = true
+    },
+
     /**
      * Toggle search and focus
      * Timeout is used so the input focuses
