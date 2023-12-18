@@ -1,10 +1,10 @@
 <template>
   <div class="not-logged-in">
+
     <!-- Header   -->
     <pennsieve-header
       :is-search-visible="false"
-      @onLogin="handleLoginSuccess"
-    />
+      @onLogin="handleLoginSuccess"/>
 
     <!-- Image call-out   -->
     <div class="body-content-wrap">
@@ -14,13 +14,14 @@
             <div class="col-xs-12">
               <h1>Scientific Data Management, Integration and Publishing.</h1>
               <p>
-                Organize, visualize and link scientific data, and publish high
-                quality datasets with the Pennsieve Platform.
+                Organize, visualize and link scientific data, and publish high quality datasets with the Pennsieve Platform.
               </p>
             </div>
           </div>
           <div class="row">
-            <div class="col-xs-12 col-sm-10"><dataset-search /></div>
+            <div class="col-xs-12 col-sm-10">
+              <dataset-search />
+            </div>
           </div>
         </div>
         <img
@@ -35,17 +36,10 @@
         <img
           src="/static/images/illustrations/research-platform.svg"
           class="highlight"
-        />
+        >
       </div>
       <div class="highlight-text">
-        <p>
-          The Pennsieve Data Management Platform provides a scalable cloud-based
-          solution for managing, analyzing, and sharing scientific datasets. The
-          platform enables graph based data and metadata integration, supporting
-          meaningful curation of data in context. Using the platform, scientists
-          can publish high quality datasets, cite, and make them available to
-          the larger scientific community.
-        </p>
+        <p>The Pennsieve Data Management Platform provides a scalable cloud-based solution for managing, analyzing, and sharing scientific datasets. The platform enables graph based data and metadata integration, supporting meaningful curation of data in context. Using the platform, scientists can publish high quality datasets, cite, and make them available to the larger scientific community.  </p>
       </div>
     </div>
 
@@ -62,32 +56,44 @@
         <img
           src="/static/images/illustrations/illo-dr_azumi_1.svg"
           class="highlight"
-        />
+        >
       </div>
+
     </div>
 
     <div class="featureSection">
-      <div class="feature" v-for="feature in features">
-        <img ref="img" :src="feature.img" alt="Dataset Banner Image" />
+      <div class="feature"
+           v-for="feature in features"
+      >
+        <img
+          ref="img"
+          :src=feature.img
+          alt="Dataset Banner Image"
+        />
         <div class="content">
-          <div class="header">{{ feature.header }}</div>
-          <div class="text">{{ feature.text }}</div>
+          <div class="header">{{feature.header}}</div>
+          <div class="text">{{feature.text}}</div>
         </div>
+
+
       </div>
+
     </div>
 
     <div class="discover-section">
       <div class="header">Discover Public Datasets</div>
-      <div class="subheader">
-        Private datasets can be published to Pennsieve Discover
-      </div>
-      <PublicDatasetsGrid />
+      <div class="subheader">Private datasets can be published to Pennsieve Discover</div>
+      <PublicDatasetsGrid/>
       <div class="browseAllButton">
         <bf-button type="submit" @click="directToDiscover">
           More Public Data
         </bf-button>
       </div>
     </div>
+
+
+
+
     <div class="org-section">
       <img ref="img" src="/static/logos/nih-logo.png" alt="NIH" class="logo" />
       <img
@@ -122,8 +128,11 @@
       />
     </div>
 
-    <PennsieveFooter />
+    <PennsieveFooter/>
+
   </div>
+
+
 </template>
 
 <script>
@@ -138,11 +147,12 @@ import BfFooter from '../../components/shared/bf-footer/BfFooter.vue'
 import PennsieveHeader from '../../components/shared/PennsieveHeader/PennsieveHeader.vue'
 import DatasetSearch from '../../components/DatasetSearch/DatasetSearch'
 import PennsieveFooter from '../../components/shared/PennsieveFooter/PennsieveFooter.vue'
-import PublicDatasetsGrid from '../../components/PublicDatasets/PublicDatasetsGrid'
+import PublicDatasetsGrid from "../../components/PublicDatasets/PublicDatasetsGrid";
 
 import EventBus from '../../utils/event-bus'
 import AutoFocus from '../../mixins/auto-focus'
 import Request from '../../mixins/request'
+
 
 export default Vue.component('bf-login', {
   components: {
@@ -155,7 +165,10 @@ export default Vue.component('bf-login', {
     PublicDatasetsGrid
   },
 
-  mixins: [AutoFocus, Request],
+  mixins: [
+    AutoFocus,
+    Request
+  ],
 
   data() {
     return {
@@ -163,39 +176,33 @@ export default Vue.component('bf-login', {
         {
           img: '/static/images/icons/collaboration.svg',
           header: 'Easy sharing between collaborators',
-          text:
-            'An easy, cloud-based solution for managing and sharing data with your team.'
+          text: 'An easy, cloud-based solution for managing and sharing data with your team.'
         },
         {
           img: '/static/images/icons/analyze.svg',
           header: 'Explore your data',
-          text:
-            'Open API access and Python client to programmatically interact with data on the platform.'
+          text: 'Open API access and Python client to programmatically interact with data on the platform.'
         },
         {
           img: '/static/images/icons/log-forms.svg',
           header: 'Advanced metadata management',
-          text:
-            'Create advanced metadata schemas and link metadata to files through a knowledge graph.'
+          text: 'Create advanced metadata schemas and link metadata to files through a knowledge graph.'
         },
         {
           img: '/static/images/icons/eeg-data.svg',
           header: 'Interactive viewers',
-          text:
-            'Directly interact with microscopy, timeseries and other scientific data modalities in the browser.'
+          text: 'Directly interact with microscopy, timeseries and other scientific data modalities in the browser.'
         },
         {
           img: '/static/images/icons/security.svg',
           header: 'Secure data management',
-          text:
-            'Secure encrypted storage in the cloud, SSL data transfer, and flexible user permissions.'
+          text: 'Secure encrypted storage in the cloud, SSL data transfer, and flexible user permissions.'
         },
         {
           img: '/static/images/icons/storage.svg',
           header: 'FAIR publishing of data',
-          text:
-            'Publish your data, make your data findable, and cite your data using a DOI'
-        }
+          text: 'Publish your data, make your data findable, and cite your data using a DOI'
+        },
       ],
       loginForm: {
         email: '',
@@ -203,18 +210,10 @@ export default Vue.component('bf-login', {
       },
       loginRules: {
         email: [
-          {
-            required: true,
-            message: 'Please add your Email',
-            trigger: 'submit'
-          }
+          { required: true, message: 'Please add your Email', trigger: 'submit' }
         ],
         password: [
-          {
-            required: true,
-            message: 'Please add your Password',
-            trigger: 'submit'
-          }
+          { required: true, message: 'Please add your Password', trigger: 'submit' }
         ]
       },
       twoFactorForm: {
@@ -222,11 +221,7 @@ export default Vue.component('bf-login', {
       },
       twoFactorRules: {
         token: [
-          {
-            required: true,
-            message: 'Please add your Token',
-            trigger: 'submit'
-          }
+          { required: true, message: 'Please add your Token', trigger: 'submit' }
         ]
       },
       tempSessionToken: '',
@@ -241,9 +236,13 @@ export default Vue.component('bf-login', {
   },
 
   computed: {
-    ...mapGetters(['config']),
+    ...mapGetters([
+      'config'
+    ]),
 
-    ...mapState(['cognitoUser']),
+    ...mapState([
+      'cognitoUser',
+    ]),
 
     loginUrl: function() {
       const apiUrl = propOr('', 'apiUrl', this.config)
@@ -258,9 +257,7 @@ export default Vue.component('bf-login', {
       const apiUrl = propOr('', 'apiUrl', this.config)
 
       if (apiUrl && this.tempSessionToken) {
-        return `${apiUrl}/account/login/twofactor?api_key=${
-          this.tempSessionToken
-        }`
+        return `${apiUrl}/account/login/twofactor?api_key=${this.tempSessionToken}`
       }
       return ''
     }
@@ -280,18 +277,19 @@ export default Vue.component('bf-login', {
     onFormSubmit: function(e) {
       e.preventDefault()
 
-      this.$refs.loginForm.validate(valid => {
-        if (!valid) {
-          return
-        }
-        this.sendLoginRequest()
-      })
+      this.$refs.loginForm
+        .validate((valid) => {
+          if (!valid) {
+            return
+          }
+          this.sendLoginRequest()
+        })
     },
 
     directToDiscover: function() {
       const discoverUrl = propOr('', 'discoverAppUrl', this.config)
 
-      window.location.href = `${discoverUrl}`
+      window.location.href = `${discoverUrl}`;
     },
 
     /**
@@ -306,39 +304,32 @@ export default Vue.component('bf-login', {
      */
     async sendLoginRequest() {
       this.isLoggingIn = true
-      try {
-        const user = await Auth.signIn(
-          this.loginForm.email,
-          this.loginForm.password
-        )
-        this.handleLoginSuccess(user)
-      } catch (error) {
+       try {
+         const user = await Auth.signIn(this.loginForm.email, this.loginForm.password)
+         this.handleLoginSuccess(user)
+        } catch (error) {
         this.isLoggingIn = false
         EventBus.$emit('toast', {
           detail: {
             msg: `There was an error with your login attempt. Please try again.`
           }
         })
-      }
+        }
     },
 
     /**
      * Handles successful login response.
      * @param {Object} response
      */
-    handleLoginSuccess: function(user) {
-      const token = pathOr(
-        '',
-        ['signInUserSession', 'accessToken', 'jwtToken'],
-        user
-      )
-      const userAttributes = propOr({}, 'attributes', user)
-      this.updateCognitoUser(user)
-      if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
-        this.showToken = true
-      } else {
-        EventBus.$emit('login', { token, userAttributes, user })
-      }
+     handleLoginSuccess: function(user) {
+       const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
+       const userAttributes = propOr({}, 'attributes', user)
+       this.updateCognitoUser(user)
+       if (user.challengeName === 'SOFTWARE_TOKEN_MFA') {
+         this.showToken = true
+       } else {
+         EventBus.$emit('login', {token, userAttributes, user})
+       }
     },
 
     /**
@@ -348,12 +339,13 @@ export default Vue.component('bf-login', {
     onTwoFactorFormSubmit: function(e) {
       e.preventDefault()
 
-      this.$refs.twoFactorForm.validate(valid => {
-        if (!valid) {
-          return
-        }
-        this.sendTwoFactorRequest()
-      })
+      this.$refs.twoFactorForm
+        .validate((valid) => {
+          if (!valid) {
+            return
+          }
+          this.sendTwoFactorRequest()
+        })
     },
 
     /**
@@ -371,30 +363,23 @@ export default Vue.component('bf-login', {
       this.isLoadingTwoFactor = true
       this.twoFactorForm.token = this.twoFactorForm.token.replace(/\s/g, '')
       try {
-        const user = await Auth.confirmSignIn(
-          this.cognitoUser,
-          this.twoFactorForm.token,
-          'SOFTWARE_TOKEN_MFA'
-        )
-        const token = pathOr(
-          '',
-          ['signInUserSession', 'accessToken', 'jwtToken'],
-          user
-        )
+        const user = await Auth.confirmSignIn(this.cognitoUser, this.twoFactorForm.token, 'SOFTWARE_TOKEN_MFA')
+        const token = pathOr('', ['signInUserSession', 'accessToken', 'jwtToken'], user)
         const userAttributes = propOr({}, 'attributes', user)
-        EventBus.$emit('login', { token, userAttributes, user })
+        EventBus.$emit('login', {token, userAttributes, user})
         this.twoFactorForm.token = ''
         this.showToken = false
         this.isLoadingTwoFactor = false
       } catch (error) {
         this.handleTwoFactorError()
       }
+
     },
 
     /**
-     * Handles failed login response
-     * @param {Object} response
-     */
+      * Handles failed login response
+      * @param {Object} response
+      */
     handleTwoFactorError: function(response) {
       this.isLoadingTwoFactor = false
       this.$refs.twoFactor.focus()
@@ -429,7 +414,7 @@ export default Vue.component('bf-login', {
     async sendFederatedLoginRequest(provider) {
       this.isLoggingIn = true
       try {
-        const cred = await Auth.federatedSignIn({ customProvider: provider })
+        const cred = await Auth.federatedSignIn({customProvider: provider})
       } catch (error) {
         this.isLoggingIn = false
         EventBus.$emit('toast', {
@@ -441,35 +426,35 @@ export default Vue.component('bf-login', {
     },
 
     getFragmentParameterByName: function(name) {
-      var name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
-      var regex = new RegExp('[\\#&]' + name + '=([^&#]*)'),
-        results = regex.exec(window.location.hash)
-      return results === null
-        ? ''
-        : decodeURIComponent(results[1].replace(/\+/g, ' '))
+        var name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
+            results = regex.exec(window.location.hash);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     },
 
     doneMounting: async function() {
-      var access_token = this.getFragmentParameterByName('access_token')
-      if (access_token) {
-        const user = await Auth.currentAuthenticatedUser()
-        this.handleLoginSuccess(user)
-      }
+        var access_token = this.getFragmentParameterByName('access_token')
+        if (access_token) {
+            const user = await Auth.currentAuthenticatedUser()
+            this.handleLoginSuccess(user)
+        }
 
-      var error = this.getFragmentParameterByName('error_description')
-      if (error.includes('Already found an entry for username orcid', 0)) {
-        // try federated login again (workaround for known AWS/Cognito issue)
-        this.sendFederatedLoginRequest('ORCID')
-      } else if (error.includes('PreSignUp failed with error', 0)) {
-        EventBus.$emit('toast', {
-          detail: {
-            msg: `ORCID Login Error: please login with your Pennsieve account and verify your ORCID iD is linked.`
-          }
-        })
-      } else if (error) {
-        // TODO: present the error on the login page
-        console.log('doneMounting() error: ' + error)
-      }
+        var error = this.getFragmentParameterByName('error_description')
+        if (error.includes("Already found an entry for username orcid", 0)) {
+            // try federated login again (workaround for known AWS/Cognito issue)
+            this.sendFederatedLoginRequest("ORCID")
+        }
+        else if (error.includes("PreSignUp failed with error", 0)) {
+            EventBus.$emit('toast', {
+              detail: {
+                msg: `ORCID Login Error: please login with your Pennsieve account and verify your ORCID iD is linked.`
+              }
+            })
+        }
+        else if (error) {
+            // TODO: present the error on the login page
+            console.log("doneMounting() error: " + error)
+        }
     }
   }
 })
@@ -567,9 +552,9 @@ export default Vue.component('bf-login', {
   background: $gray-2;
   min-height: 80px;
   margin-top: 80px;
-  display: flex;
+  display:flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap:wrap;
   justify-content: space-between;
   padding: 0 24px;
   .logo {
@@ -585,7 +570,7 @@ export default Vue.component('bf-login', {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap:wrap;
   .highlight-image {
     .highlight {
       display: block;
@@ -630,6 +615,7 @@ export default Vue.component('bf-login', {
       line-height: 1.1em;
     }
   }
+
 }
 
 .featureSection {
@@ -667,7 +653,7 @@ export default Vue.component('bf-login', {
   }
 }
 
-.discover-section {
+.discover-section  {
   .header {
     font-weight: 500;
     font-size: 32px;
@@ -741,6 +727,7 @@ img {
     z-index: 2;
     box-sizing: border-box;
     max-width: calc(936px + 4rem);
+
   }
 
   h1 {
@@ -810,4 +797,5 @@ img {
     }
   }
 }
+
 </style>
