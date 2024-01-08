@@ -144,6 +144,7 @@ export default {
   },
 
   async mounted() {
+    // console.log('**', this.$recaptchaLoaded)
     await this.$recaptchaLoaded()
     this.$recaptchaInstance.showBadge()
   },
