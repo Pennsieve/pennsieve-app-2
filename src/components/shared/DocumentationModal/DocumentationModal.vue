@@ -5,14 +5,9 @@
     :show-close="false"
     @close="closeDialog"
   >
-    <bf-dialog-header slot="title" title="Office Hours" />
+    <bf-dialog-header slot="title" :title="title" />
 
-    <dialog-body>
-      <div>
-        Hi I am the Documentation Dialog. Put some documentation here for me to
-        display.
-      </div>
-    </dialog-body>
+    <dialog-body>{{ body }}</dialog-body>
   </el-dialog>
 </template>
 
@@ -42,8 +37,11 @@ export default {
     }
   },
 
-  data: function() {
-    return {}
+  data() {
+    return {
+      title: '',
+      body: ''
+    }
   },
 
   computed: {
@@ -53,7 +51,7 @@ export default {
       'primaryNavOpen',
       'primaryNavCondensed',
       'secondaryNavOpen',
-      'DocumentationModalVisible',
+      'documentationModalVisible',
       'userToken'
     ]),
 
@@ -76,8 +74,12 @@ export default {
     }
   },
 
-  watch: {},
-
+  watch: {
+    documentationModalVisible: function() {
+      console.log(this.documentationModalVisible)
+      this.fetchDocumentation()
+    }
+  },
   methods: {
     ...mapActions(['updateDocumentationModalVisible']),
 
@@ -86,6 +88,27 @@ export default {
      */
     closeDialog: function() {
       this.updateDocumentationModalVisible(false)
+    },
+    /**
+     * Fetch Documentation
+     */
+    fetchDocumentation: function() {
+      const url = `${
+        this.config.api2Url
+      }/readme/docs/pennsieve-open-office-hours`
+
+      this.sendXhr(url, {
+        method: 'GET',
+        header: {
+          Authorization: `Bearer ${this.userToken}`
+        }
+      })
+        .then(response => {
+          console.log('***', response)
+          this.title = response.title
+          this.body = response.body
+        })
+        .catch(error => console.error(error))
     }
   }
 }
