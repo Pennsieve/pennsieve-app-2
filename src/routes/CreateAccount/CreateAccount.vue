@@ -89,6 +89,8 @@
 <script>
 import { mapState } from 'vuex'
 
+import { propOr } from 'ramda'
+
 import BfButton from '@/components/shared/bf-button/BfButton.vue'
 import Request from '@/mixins/request'
 

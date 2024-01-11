@@ -4,18 +4,9 @@
       <router-view name="header" />
 
       <div id="main-wrap">
-        <router-view
-          v-show="primaryNavOpen"
-          name="navigation"
-        />
-        <router-view
-          v-show="secondaryNavOpen"
-          name="navigationSecondary"
-        />
-        <router-view
-          id="page"
-          name="page"
-        />
+        <router-view v-show="primaryNavOpen" name="navigation" />
+        <router-view v-show="secondaryNavOpen" name="navigationSecondary" />
+        <router-view id="page" name="page" />
       </div>
     </div>
 
@@ -36,11 +27,8 @@
       :visible="isUploadExternalFileModalOpen"
       :external-file="externalFile"
     />
-    <search-all-data
-      :visible.sync="searchModalVisible"
-    />
-
-
+    <search-all-data :visible.sync="searchModalVisible" />
+    <documentation-modal :visible="documentationModalVisible" />
 
     <office-365-dialog />
 
@@ -54,53 +42,54 @@
 <script src="./app.js"></script>
 
 <style lang="scss">
-  @import '../../assets/_variables.scss';
-  @import '../../assets/_svg-icon';
+@import '../../assets/_variables.scss';
+@import '../../assets/_svg-icon';
 
-  html, body {
-    font-family: $system-font;
-    font-size: 14px;
-    line-height: 17px;
-  }
+html,
+body {
+  font-family: $system-font;
+  font-size: 14px;
+  line-height: 17px;
+}
 
-  body {
-    background-color: $white;
-    color: $text-color;
-    margin: 0;
-    min-height: 100vh;
-  }
-  // Hide only visually, but have it available for screenreaders: h5bp.com
-  .visually-hidden {
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
-  }
+body {
+  background-color: $white;
+  color: $text-color;
+  margin: 0;
+  min-height: 100vh;
+}
+// Hide only visually, but have it available for screenreaders: h5bp.com
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
 
-  .login-form {
-    @extend .visually-hidden;
-  }
+.login-form {
+  @extend .visually-hidden;
+}
 
-  #app-wrap {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-  }
+#app-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
 
-  #main-wrap {
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    overflow: hidden;
-  }
+#main-wrap {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  overflow: hidden;
+}
 
-  #page {
-    flex: 1;
-    overflow: auto;
-  }
+#page {
+  flex: 1;
+  overflow: auto;
+}
 </style>

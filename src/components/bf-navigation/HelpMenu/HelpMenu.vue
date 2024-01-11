@@ -28,13 +28,9 @@
             </a>
           </li>
           <li>
-            <a
-              class="bf-menu-item"
-              href="https://docs.pennsieve.io/docs/pennsieve-open-office-hours"
-              target="_blank"
-            >
+            <button class="bf-menu-item" @click="openDocumentationModal">
               Office Hours
-            </a>
+            </button>
           </li>
           <li>
             <a
@@ -87,7 +83,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 
 import GettingStarted from '@/components/onboarding/GettingStarted/GettingStarted.vue'
 
@@ -110,6 +106,11 @@ export default {
   },
 
   computed: {
+    ...mapState([
+      'documentationModalVisible',
+      'primaryNavCondensed',
+      'secondaryNavOpen'
+    ]),
     ...mapGetters(['hasFeature']),
 
     /**
@@ -138,6 +139,14 @@ export default {
   },
 
   methods: {
+    ...mapActions(['updateDocumentationModalVisible']),
+    /**
+     * Emits an event to open the Documentation Modal
+     */
+    openDocumentationModal: function() {
+      this.updateDocumentationModalVisible(true)
+    },
+
     /**
      * Show the user menu
      */

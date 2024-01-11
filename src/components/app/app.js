@@ -15,6 +15,7 @@ import BfNotifications from '../notifications/Notifications.vue'
 import BfUploadExternalFile from '../bf-upload-external-file/BfUploadExternalFile.vue'
 import BfUpload from '../BfUpload/BfUpload.vue'
 import SearchAllData from '@/components/SearchAllData/SearchAllData.vue'
+import DocumentationModal from '@/components/shared/DocumentationModal/DocumentationModal.vue'
 import Office365Dialog from '@/components/datasets/files/Office365Dialog/Office365Dialog.vue'
 import LinkOrcidDialog from '@/components/LinkOrcidDialog/LinkOrcidDialog.vue'
 
@@ -40,6 +41,7 @@ export default {
     SearchAllData,
     Office365Dialog,
     LinkOrcidDialog,
+    DocumentationModal
   },
 
   mixins: [
@@ -66,6 +68,7 @@ export default {
       'secondaryNavOpen',
       'environment',
       'searchModalVisible',
+      'documentationModalVisible',
       'isLinkOrcidDialogVisible'
     ]),
 

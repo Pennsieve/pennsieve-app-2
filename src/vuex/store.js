@@ -109,6 +109,7 @@ export const state = {
   thirdReviewerSubmissions: {},
   orgDatasetStatuses: [],
   searchModalVisible: false,
+  documentationModalVisible: false,
   searchModalSearch: {},
   shouldCollapsePrimaryNav: false,
   scientificUnits: [],
@@ -147,6 +148,10 @@ export const mutations = {
 
   UPDATE_SEARCH_MODAL_VISIBLE (state, data) {
     Vue.set(state, 'searchModalVisible', data)
+  },
+
+  UPDATE_DOCUMENTATION_MODAL_VISIBLE (state, data) {
+    Vue.set(state, 'documentationModalVisible', data)
   },
 
   UPDATE_SHOULD_COLLAPSE_PRIMARY_NAV (state, data) {
@@ -196,6 +201,7 @@ export const mutations = {
     Vue.set(state, 'changelogText', '')
     Vue.set(state, 'datasetDoi', '')
     Vue.set(state, 'searchModalVisible', false)
+    Vue.set(state, 'documentationModalVisable', false)
     Vue.set(state, 'shouldShowLinkOrcidDialog', false)
     Vue.set(state, 'isLinkOrcidDialogVisible', false)
     Vue.set(state, 'gettingStartedOpen', false)
@@ -648,6 +654,24 @@ export const actions = {
 
     if (state.shouldCollapsePrimaryNav) {
       commit('CONDENSE_PRIMARY_NAV', isSearchModalVisible)
+    }
+
+  },
+  updateDocumentationModalVisible:  ({ commit, state }, isDocumentationModalVisible) => {
+    commit('UPDATE_DOCUMENTATION_MODAL_VISIBLE', isDocumentationModalVisible)
+
+    /*
+     * Determine if the primary navigation should be uncollapsed
+     * when closing the search dialog. If the menu starts collapsed
+     * when the user opens search, do not uncollapsed it when search closes
+     */
+    if (isDocumentationModalVisible) {
+      const shouldCollapsePrimaryNav = !state.primaryNavCondensed
+      commit('UPDATE_SHOULD_COLLAPSE_PRIMARY_NAV', shouldCollapsePrimaryNav)
+    }
+
+    if (state.shouldCollapsePrimaryNav) {
+      commit('CONDENSE_PRIMARY_NAV', isDocumentationModalVisible)
     }
 
   },
