@@ -12,8 +12,8 @@
         <h2>Run the Custom Event on {{ totalFiles }} {{ headline }}</h2>
         <el-select
           v-model="value"
-          placeholder="Select"
-          @change="onSelect(value)"
+          placeholder="Select Application"
+          @change="setApplication(value)"
         >
           <el-option
             v-for="(item, i) in options"
@@ -23,6 +23,11 @@
           ></el-option>
         </el-select>
       </div>
+      <br />
+      <el-input
+        v-model="targetDirectory"
+        placeholder="Target Directory (optional)"
+      />
     </dialog-body>
     <div slot="footer" class="dialog-footer">
       <bf-button
@@ -95,7 +100,8 @@ export default {
       value: '',
       selectedApplication: {},
       isLoading: false,
-      dataIsLoading: true
+      dataIsLoading: true,
+      targetDirectory: ''
     }
   },
 
@@ -160,7 +166,10 @@ export default {
   },
 
   methods: {
-    onSelect: function(value) {
+    /**
+     * Set Application to be run
+     */
+    setApplication: function(value) {
       this.selectedApplication = this.integrations.find(
         integration => integration.name === value
       )
@@ -206,7 +215,9 @@ export default {
         applicationId: this.selectedApplication.id,
         datasetId: pathOr('', ['content', 'id'], this.dataset),
         packageIds: packageIds,
-        params: {} // intentionally passing an empty object - params is a future feature
+        params: {
+          target_path: this.targetDirectory
+        }
       }
       this.sendXhr(url, {
         method: 'POST',
@@ -233,6 +244,9 @@ export default {
             }
           })
           this.closeDialog()
+          this.targetDirectory = ''
+          this.selectedApplication = {}
+          this.value = ''
         })
     }
   }
