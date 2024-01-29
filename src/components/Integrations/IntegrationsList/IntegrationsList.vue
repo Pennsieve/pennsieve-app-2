@@ -182,7 +182,6 @@ export default {
       this.removeIntegrationDialogVisible = true
     },
     onDeleteIntegrationConfirm: function(integration) {
-      console.log('do deletion on ' + integration.id)
       this.removeIntegration(integration.id)
       this.removeIntegrationDialogVisible = false
     },
