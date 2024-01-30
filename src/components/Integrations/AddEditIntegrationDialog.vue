@@ -5,6 +5,7 @@
     :show-close="false"
     @open="onOpen"
     @close="closeDialog"
+    :close-on-click-modal="false"
   >
     <bf-dialog-header slot="title" :title="dialogTitle" />
 
@@ -116,6 +117,16 @@
             <el-input
               v-model="integration.imageUrl"
               placeholder="http://<examplehost>/image.jpg"
+            />
+          </el-form-item>
+          <el-form-item prop="targetPath">
+            <template slot="label">
+              Specify path to folder for output
+              <span class="label-helper">optional</span>
+            </template>
+            <el-input
+              v-model="integration.targetPath"
+              placeholder="target-directory/folder/nested-folder"
             />
           </el-form-item>
 
@@ -311,6 +322,7 @@ const defaultIntegration = () => ({
   description: '',
   apiUrl: '',
   imageUrl: '',
+  targetPath: '',
   secret: '',
   isDefault: false,
   isDisabled: false,
