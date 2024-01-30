@@ -26,7 +26,7 @@
       <br />
       <el-input
         v-model="targetDirectory"
-        placeholder="Target Directory (optional)"
+        placeholder="target-directory/folder/nested-folder (optional)"
       />
     </dialog-body>
     <div slot="footer" class="dialog-footer">
