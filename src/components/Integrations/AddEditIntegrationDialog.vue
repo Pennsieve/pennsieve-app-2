@@ -126,7 +126,7 @@
             </template>
             <el-input
               v-model="integration.targetPath"
-              placeholder="target-dir/folder/nested-folder"
+              placeholder="target-directory/folder/nested-folder"
             />
           </el-form-item>
 
