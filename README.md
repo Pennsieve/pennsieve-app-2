@@ -1,5 +1,7 @@
 # Pennsieve
 
+This is the legacy front-end of the Pennsieve platform.
+
 ## Prerequisites
 
 Used to run the development server, build, and to test components.
