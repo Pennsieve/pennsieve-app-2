@@ -1,6 +1,6 @@
 # Pennsieve
 
-This is the legacy front-end of the Pennsieve platform.
+This is the legacy front-end of the Pennsieve platform .
 
 ## Prerequisites
 
